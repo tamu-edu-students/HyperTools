@@ -1,0 +1,37 @@
+{
+   "Color_Information" : {
+      "boat" : {
+         "blue_value" : 86,
+         "green_value" : 99,
+         "red_value" : 41
+      },
+      "cliff" : {
+         "blue_value" : 101,
+         "green_value" : 55,
+         "red_value" : 101
+      },
+      "dirt" : {
+         "blue_value" : 30,
+         "green_value" : 51,
+         "red_value" : 6
+      },
+      "ground" : {
+         "blue_value" : 149,
+         "green_value" : 188,
+         "red_value" : 114
+      },
+      "vegetation" : {
+         "blue_value" : 82,
+         "green_value" : 97,
+         "red_value" : 7
+      },
+      "water" : {
+         "blue_value" : 46,
+         "green_value" : 0,
+         "red_value" : 225
+      }
+   },
+   "Spectral_Information" : {
+      
+   }
+}
