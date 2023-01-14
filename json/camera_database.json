@@ -1,0 +1,12 @@
+{
+   "Ultris_X20" : {
+      "Camera_Information" : {
+         "Data_Depth_Bits" : 12,
+         "FWHM" : 10,
+         "Max_Wavelength" : 1000,
+         "Min_Wavelength" : 350,
+         "Number_of_Bands" : 164,
+         "Spectral_Sampling" : 4
+            }
+      }
+}

@@ -23,9 +23,9 @@ main (int   argc,
   HyperFunctions1.LoadImageHyper1(file_name2);
   file_name2="../lena.png";
   HyperFunctions1.LoadImageClassified(file_name2);
-  HyperFunctions1.spec_simil_img=HyperFunctions1.classified_img;
+  HyperFunctions1.LoadFeatureImage1(file_name2);
+  HyperFunctions1.spec_simil_img=HyperFunctions1.feature_img1;
 
-  
   gtk_init (&argc, &argv);
 
   /* Construct a GtkBuilder instance and load our UI description */
@@ -100,9 +100,9 @@ main (int   argc,
   // regenerate object list here here
   // need to set an initial item
   button = gtk_builder_get_object (builder, "similarity_items");
-  g_signal_connect (button, "set-focus-child", G_CALLBACK (print_hello), NULL);
+  g_signal_connect (button, "set-focus-child", G_CALLBACK (get_class_list), &HyperFunctions1);
   // selected item is changed
-  g_signal_connect (button, "changed", G_CALLBACK (print_hello), NULL);
+  g_signal_connect (button, "changed", G_CALLBACK (get_list_item), &HyperFunctions1);
   
   button = gtk_builder_get_object (builder, "quit");
   g_signal_connect (button, "clicked", G_CALLBACK (gtk_main_quit), NULL);

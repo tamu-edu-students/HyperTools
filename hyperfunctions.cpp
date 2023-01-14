@@ -195,6 +195,7 @@ void HyperFunctions::FeatureTransformation()
 
 void  HyperFunctions::DispClassifiedImage()
 {
+
    Mat temp_img;
    cv::resize(classified_img,temp_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR); 
    imshow("Classified Image", temp_img);
@@ -544,7 +545,10 @@ void HyperFunctions::read_spectral_json(string file_name )
 
     Vec3b color;     
 
-        
+   	vector<Vec3b> color_combos;  
+	vector<string> class_list2; 
+	
+	
     ifstream ifs(file_name);
     Json::Reader reader;
     Json::Value completeJsonData;
@@ -552,20 +556,19 @@ void HyperFunctions::read_spectral_json(string file_name )
     //cout<< "Complete JSON data: "<<endl<< completeJsonData<<endl;
     
     // load rgb values and classes
-    
+
     for (auto const& id3 : completeJsonData["Color_Information"].getMemberNames()) 
     {
        color[2] =  completeJsonData["Color_Information"][id3]["red_value"].asInt();
        color[0] =  completeJsonData["Color_Information"][id3]["blue_value"].asInt();
        color[1] =  completeJsonData["Color_Information"][id3]["green_value"].asInt();
 
-
       //cout<<id3<<color<<endl;
        color_combos.push_back(color);
-       class_list.push_back(id3);
+       class_list2.push_back(id3);
     }
-    
 
+class_list=class_list2;
 }
 
 
@@ -628,7 +631,7 @@ void  HyperFunctions::save_ref_spec_json(string file_name)
     string user_input;
     cout<< "Enter Classification of Pixel"<<endl;
     cin>>user_input;
-    ifstream ifs("../camera_database.json");
+    ifstream ifs(camera_database );
     Json::Reader reader;
     Json::Value completeJsonData;
     reader.parse(ifs,completeJsonData);
@@ -644,7 +647,7 @@ void  HyperFunctions::save_ref_spec_json(string file_name)
     reader.parse(ifs2,completeJsonData2);
 
     std::ofstream file_id;
-    file_id.open("../spectral_database1.json");
+    file_id.open(file_name);
     Json::Value value_obj;
     value_obj = completeJsonData2;
     // save histogram to json file 
@@ -666,6 +669,48 @@ void  HyperFunctions::save_ref_spec_json(string file_name)
 
 void  HyperFunctions::read_ref_spec_json(string file_name)
 {
+    
+
+    // read json file 
+    ifstream ifs2(file_name);
+    Json::Reader reader2;
+    Json::Value completeJsonData2;
+    reader2.parse(ifs2,completeJsonData2);
+
+
+    // initialize variables 
+    int layer_values;
+    Vec3b color;
+    if(reference_spectrums.size()>0)
+    {
+    reference_spectrums.clear();
+    }
+    if (reference_colors.size()>0)
+    {
+    reference_colors.clear();
+    }
+
+    // gets spectrum of items in spectral database                         
+    for (auto const& id : completeJsonData2["Spectral_Information"].getMemberNames()) 
+    {
+    vector<int> tempValues1;
+      for (auto const& id2 : completeJsonData2["Spectral_Information"][id].getMemberNames()) 
+      {
+        layer_values= completeJsonData2["Spectral_Information"][id][id2].asInt();
+        tempValues1.push_back(layer_values);
+      }
+    reference_spectrums.push_back(tempValues1);
+    }
+
+    // gets colors of items in database
+    for (auto const& id3 : completeJsonData2["Color_Information"].getMemberNames()) 
+    {
+        color[0] =  completeJsonData2["Color_Information"][id3]["red_value"].asInt();
+        color[1] =  completeJsonData2["Color_Information"][id3]["blue_value"].asInt();
+        color[2] =  completeJsonData2["Color_Information"][id3]["green_value"].asInt();
+        reference_colors.push_back(color);
+
+    }
 
 
 }
@@ -686,24 +731,59 @@ void  HyperFunctions::save_new_spec_database_json(string file_name)
 
 void  HyperFunctions::SemanticSegmenter()
 {
-cout<<"temp"<<endl;
-//classified_img
-//spec_sim_alg SAM=0, SCM=1, SID=2
-}
-/*void  SpecSimilChild(int id, int col, Mat* out_img)
-{
 
-cout<<"temp"<<endl;
-}*/
+//classified_img
+
+    vector<Mat> temp_results;
+    
+    for (int i=0; i<reference_spectrums.size();i++)
+    {
+        ref_spec_index=i;
+        //Mat temp_img1= this->SpecSimilReturn();
+        this->SpecSimilParent();
+        temp_results.push_back(spec_simil_img);
+    }
+    Mat temp_class_img(mlt1[1].rows, mlt1[1].cols, CV_8UC3, Scalar(0,0,0));
+    
+    for(int k = 0; k < mlt1[1].rows; k++)
+    {
+        for (int j=0; j < mlt1[1].cols; j++)
+        {    
+            double low_val;
+            for (int i=0; i<temp_results.size(); i++)
+            {
+                if (i==0)
+                {
+                low_val=temp_results[i].at<uchar>(j,k);
+                temp_class_img.at<Vec3b>(Point(k,j)) = reference_colors[i];
+                }
+                else
+                {
+                    if ( temp_results[i].at<uchar>(j,k) <low_val)
+                    {
+                        low_val=temp_results[i].at<uchar>(j,k);
+                        temp_class_img.at<Vec3b>(Point(k,j)) = reference_colors[i];
+                    
+                    }
+                
+                }
+            }
+        }
+       
+    }
+    classified_img=temp_class_img;
+}
+
+
 void  HyperFunctions::SpecSimilParent()
 {
 
 //spec_sim_alg SAM=0, SCM=1, SID=2
 // ref_spec_index
-// spec_simil_img
+
     Mat temp_img(mlt1[1].rows, mlt1[1].cols, CV_8UC1, Scalar(0));
     spec_simil_img=temp_img;
-    
+
     if (spec_sim_alg==0)
     {
         this->SAM_img();
@@ -720,7 +800,7 @@ void  HyperFunctions::SpecSimilParent()
 }
 void  HyperFunctions::SAM_img()
 {
-cout<<"temp0"<<endl;
+
 int temp_val=0;
 for (int k=0; k<mlt1[1].cols; k+=1)
 {
@@ -748,7 +828,6 @@ for (int k=0; k<mlt1[1].cols; k+=1)
             double alpha_rad=acos(temp1);
             temp_val=(int)((double)alpha_rad*(double)255/(double)3.14159) ;
         }
-        
         spec_simil_img.at<uchar>(j,k)=temp_val; 
     }
 }
@@ -756,10 +835,80 @@ for (int k=0; k<mlt1[1].cols; k+=1)
 }
 void  HyperFunctions::SID_img()
 {
-cout<<"temp2"<<endl;
+int temp_val=0;
+for (int k=0; k<mlt1[1].cols; k+=1)
+{
+    for (int j=0; j<mlt1[1].rows; j++)
+    {
+            float sum1=0, sum2=0, ref_sum=0, pix_sum=0;
+            for (int a=0; a<reference_spectrums[ref_spec_index].size(); a++)
+            {
+                if (reference_spectrums[ref_spec_index][a]<1){reference_spectrums[ref_spec_index][a]+=1;}
+                if (mlt1[a].at<uchar>(j,k)<1){mlt1[a].at<uchar>(j,k)+=1;}              
+                ref_sum+= reference_spectrums[ref_spec_index][a] ;
+                pix_sum+= mlt1[a].at<uchar>(j,k);
+            }
+            if (ref_sum<1){ref_sum+=1;}
+            if (pix_sum<1){pix_sum+=1;}
+            
+            float ref_new[200], pix_new[200];
+            for (int a=0; a<reference_spectrums[ref_spec_index].size(); a++)
+            {
+                ref_new[a]=reference_spectrums[ref_spec_index][a] / ref_sum ;
+                pix_new[a]=mlt1[a].at<uchar>(j,k)/pix_sum;
+                // error handling to avoid division by zero
+            
+            }
+            for (int a=0; a<reference_spectrums[ref_spec_index].size(); a++)
+            {
+                sum1+= ref_new[a]*log(ref_new[a]/pix_new[a]) ;
+                sum2+= pix_new[a]*log(pix_new[a]/ref_new[a])  ;
+            }   
+            
+            
+            
+            temp_val=(sum1+sum2) *60;
+            if (temp_val>255){temp_val=255;}
+
+
+        spec_simil_img.at<uchar>(j,k)=temp_val; 
+    }
+}
+
 }
 void  HyperFunctions::SCM_img()
 {
-cout<<"temp1"<<endl;
+
+int temp_val=0;
+for (int k=0; k<mlt1[1].cols; k+=1)
+{
+    for (int j=0; j<mlt1[1].rows; j++)
+    {
+            float sum1=0, sum2=0, sum3=0, mean1=0, mean2=0;
+            int num_layers=reference_spectrums[ref_spec_index].size();
+            for (int a=0; a<num_layers; a++)
+            {
+                mean1+=((float)1/(float)(num_layers-1)* (float)mlt1[a].at<uchar>(j,k))  ;
+                mean2+=((float)1/(float)(num_layers-1)* (float)reference_spectrums[ref_spec_index][a]) ;
+            }
+            for (int a=0; a<num_layers; a++)
+            {
+                sum1+=(mlt1[a].at<uchar>(j,k)-mean1)*(reference_spectrums[ref_spec_index][a]-mean2) ;
+                sum2+=(mlt1[a].at<uchar>(j,k)-mean1)*(mlt1[a].at<uchar>(j,k)-mean1);
+                sum3+=(reference_spectrums[ref_spec_index][a]-mean2)*(reference_spectrums[ref_spec_index][a]-mean2);
+            }
+            if (sum2<=0 || sum3<=0 )
+            {
+                temp_val =255; // set to white due to an error
+            }
+            else
+            {
+                float temp1= sum1/(sqrt(sum2)*sqrt(sum3));
+                double alpha_rad=acos(temp1);
+                temp_val =(int)((double)alpha_rad*(double)255/(double)3.14159) ;
+            }
+            spec_simil_img.at<uchar>(j,k)=temp_val; 
+    }
+}
 }
 

@@ -4,7 +4,7 @@
 #include <iostream>
 #include "gtkfunctions.h"
 #include "hyperfunctions.cpp"
-
+#include <string>
 
 using namespace std;
 using namespace cv;
@@ -161,6 +161,8 @@ static void show_false_img(GtkWidget *widget,  gpointer data)
     HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
     HyperFunctions1->GenerateFalseImg();
     HyperFunctions1->DispFalseImage();
+
+
 }
 
 static void feature_results(GtkWidget *widget,  gpointer data)
@@ -304,13 +306,38 @@ static void set_spec_sim_alg_SID(GtkWidget *widget,  gpointer data)
     if (T==1) {HyperFunctions1->spec_sim_alg=2;}
 
 }
+
+static void load_img(GtkWidget *widget,  GtkImage*  data)
+{
+
+  //  gtk_image_clear (data);  GtkImage*
+  gtk_image_set_from_file(data,"../lena3.png");
+  g_print ("Hello World\n");
+}
+
+
+static void button_press_callback(GtkWidget *widget,  GdkEventButton *event, gpointer data)
+{
+    
+ g_print ("Event box clicked at coordinates %f,%f\n",
+             event->x, event->y);
+}
+
+
+
 static void calc_spec_sim(GtkWidget *widget,  gpointer data)
 {
 
 
     void * data_new=data;
     HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
+    gboolean T = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+    if (T==1) 
+    {
+    HyperFunctions1->read_ref_spec_json( "../json/spectral_database1.json");
     HyperFunctions1->SpecSimilParent();
+    }
+
        
 }
 static void calc_semantic(GtkWidget *widget,  gpointer data)
@@ -319,8 +346,56 @@ static void calc_semantic(GtkWidget *widget,  gpointer data)
 
     void * data_new=data;
     HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
-    HyperFunctions1->SemanticSegmenter();
+    gboolean T = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+    if (T==1) 
+    {
+        HyperFunctions1->read_ref_spec_json( "../json/spectral_database1.json");
+        HyperFunctions1->SemanticSegmenter();
+    }
        
 }	
+
+
+static void get_class_list(GtkComboBoxText *widget, GdkEventButton *event, gpointer data)
+{
+
+    if (data!=NULL)
+    {
+    void * data_new=data;
+        HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
+        HyperFunctions1->read_spectral_json( "../json/spectral_database1.json");
+
+        // import class list here and add to textbox
+        vector<string> class_list= HyperFunctions1->class_list;
+        
+        //cout<<"fov"<<HyperFunctions1->fov<<endl;
+        gtk_combo_box_text_remove_all(widget);
+        for (int i=0; i<class_list.size(); i++)
+        {
+        
+        string temp1=class_list[i];
+        const char  *temp_char2=const_cast<char*>(temp1.c_str());
+        const char *temp_char1=std::to_string(i).c_str();
+        gtk_combo_box_text_insert (widget, 0, temp_char1,temp_char2);
+        }
+    }
+}
+
+static void get_list_item(GtkComboBox *widget,  gpointer data)
+{
+
+        //cout<<data<<endl;
+    void * data_new=data;
+    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
+    HyperFunctions1->read_spectral_json( "../json/spectral_database1.json");
+    const gchar* active_text=gtk_combo_box_get_active_id(widget);
+    if (active_text!=NULL)
+    {
+    string list_index=static_cast<string>(active_text);
+    //cout<<list_index<<endl; // prints index of selected value bottom to the top
+    HyperFunctions1->ref_spec_index=stoi(list_index);
+    }
+
+}
 
 #endif 
