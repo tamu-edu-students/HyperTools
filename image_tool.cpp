@@ -19,7 +19,7 @@ main (int   argc,
   GError *error = NULL;
   
   HyperFunctions HyperFunctions1;
-  string file_name2="../../HyperImages/imagePython2_8int.tiff";
+  string file_name2="../../../HyperImages/sample_hyperspectral_img.tiff";
   HyperFunctions1.LoadImageHyper1(file_name2);
   file_name2="../lena.png";
   HyperFunctions1.LoadImageClassified(file_name2);
