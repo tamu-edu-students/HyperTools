@@ -9,6 +9,8 @@
 using namespace std;
 using namespace cv;
 
+//Can we set global variables?
+//Ask Anthony about this
 
 static void print_hello (GtkWidget *widget, gpointer   data)
 {
@@ -22,6 +24,17 @@ static void show_img (GtkWidget *widget, gpointer   data)
       string file_name1="../../HyperImages/corn_fields/image_files/rgb/session_002_490_REF.jpg";
   Mat img1 = imread( file_name1, IMREAD_GRAYSCALE );
       cv::imshow("test", img1);
+}
+
+static void show_spectrum(GtkSpinButton *widget,  gpointer data) {
+    
+}
+
+static void choose_image_file(GtkSpinButton *widget,  gpointer data) {
+    //Plan:
+    //Set a global file variable that all file-related tasks (drawing false image etc.) grabs from
+    //Check to see if anything is currently drawn
+    //  if so, rerun it with the new image OR just stop drawing it.
 }
 
 static void    TileImage(GtkWidget *widget,  gpointer data)
@@ -307,6 +320,7 @@ static void set_spec_sim_alg_SID(GtkWidget *widget,  gpointer data)
 
 }
 
+//Ask Anthony about this
 static void load_img(GtkWidget *widget,  GtkImage*  data)
 {
 

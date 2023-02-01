@@ -41,6 +41,20 @@ main (int   argc,
   window = gtk_builder_get_object (builder, "window");
   g_signal_connect (window, "destroy", G_CALLBACK (gtk_main_quit), NULL);
 
+  /* Next 4 components are in progress and some are using placeholder callback functions*/
+
+  button = gtk_builder_get_object (builder, "show_spectrum");
+  g_signal_connect (button, "clicked", G_CALLBACK (show_spectrum), &HyperFunctions1);
+  
+  button = gtk_builder_get_object (builder, "choose_file");
+  g_signal_connect (button, "clicked", G_CALLBACK (choose_image_file), &HyperFunctions1);
+
+  button = gtk_builder_get_object (builder, "image_box"); //using print_hello placeholder
+  g_signal_connect (button, "clicked", G_CALLBACK (print_hello), &HyperFunctions1);
+
+  button = gtk_builder_get_object (builder, "spectrum_box");
+  //Nothing happens when you click on the spectrum image
+
   button = gtk_builder_get_object (builder, "tiled_img");
   g_signal_connect (button, "clicked", G_CALLBACK (TileImage), &HyperFunctions1);
 
