@@ -798,32 +798,48 @@ void  HyperFunctions::SpecSimilParent()
     }
 
 }
+
+
+
 void HyperFunctions::SAM_img()
 {
     ctpl::thread_pool p(num_threads);
     
     for (int k=0; k<mlt1[1].cols; k+=1)
     {
-        p.push(this->SAM_img_Child, k);
+        p.push(SAM_img_Child, k, &mlt1,&reference_spectrums,&spec_simil_img,&ref_spec_index);
 
     }
 
 }
+void  HyperFunctions::SID_img()
+{
+    ctpl::thread_pool p(num_threads);
+    for (int k=0; k<mlt1[1].cols; k+=1)
+    {
+         p.push(SID_img_Child, k, &mlt1,&reference_spectrums,&spec_simil_img,&ref_spec_index);
+    }
 
-void SAM_img_Child(int id, int k){  // single thread
+}
+
+void SAM_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index)   
+{   
+    // single thread
+    vector<Mat> mlt1=*mlt2; 
+    vector<vector<int>>  reference_spectrums= *reference_spectrums2;
     int temp_val=0;
     for (int j=0; j<mlt1[1].rows; j++)
     {
         float sum1=0, sum2=0, sum3=0;
-        for (int a=0; a<reference_spectrums[ref_spec_index].size(); a++)
+        for (int a=0; a<reference_spectrums[*ref_spec_index].size(); a++)
         {
-            sum3+=reference_spectrums[ref_spec_index][a] *reference_spectrums[ref_spec_index][a] ;
+            sum3+=reference_spectrums[*ref_spec_index][a] *reference_spectrums[*ref_spec_index][a] ;
         }
-        for (int a=0; a<reference_spectrums[ref_spec_index].size(); a++)
+        for (int a=0; a<reference_spectrums[*ref_spec_index].size(); a++)
         {
             
             int temp_val2=mlt1[a].at<uchar>(j,k);
-            sum1+=temp_val2*reference_spectrums[ref_spec_index][a] ;
+            sum1+=temp_val2*reference_spectrums[*ref_spec_index][a] ;
             sum2+=temp_val2*temp_val2;
         }
         if (sum1<=0 || sum2<=0 || sum3<=0 )
@@ -836,37 +852,38 @@ void SAM_img_Child(int id, int k){  // single thread
             double alpha_rad=acos(temp1);
             temp_val=(int)((double)alpha_rad*(double)255/(double)3.14159) ;
         }
-        spec_simil_img.at<uchar>(j,k)=temp_val; 
+        spec_simil_img->at<uchar>(j,k)=temp_val; 
     }
 }
 
-void  HyperFunctions::SID_img()
-{
-int temp_val=0;
-for (int k=0; k<mlt1[1].cols; k+=1)
-{
+void SID_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index)   
+{   
+    // single thread
+    vector<Mat> mlt1=*mlt2; 
+    vector<vector<int>>  reference_spectrums= *reference_spectrums2;
+    int temp_val=0;
     for (int j=0; j<mlt1[1].rows; j++)
     {
             float sum1=0, sum2=0, ref_sum=0, pix_sum=0;
-            for (int a=0; a<reference_spectrums[ref_spec_index].size(); a++)
+            for (int a=0; a<reference_spectrums[*ref_spec_index].size(); a++)
             {
-                if (reference_spectrums[ref_spec_index][a]<1){reference_spectrums[ref_spec_index][a]+=1;}
+                if (reference_spectrums[*ref_spec_index][a]<1){reference_spectrums[*ref_spec_index][a]+=1;}
                 if (mlt1[a].at<uchar>(j,k)<1){mlt1[a].at<uchar>(j,k)+=1;}              
-                ref_sum+= reference_spectrums[ref_spec_index][a] ;
+                ref_sum+= reference_spectrums[*ref_spec_index][a] ;
                 pix_sum+= mlt1[a].at<uchar>(j,k);
             }
             if (ref_sum<1){ref_sum+=1;}
             if (pix_sum<1){pix_sum+=1;}
             
             float ref_new[200], pix_new[200];
-            for (int a=0; a<reference_spectrums[ref_spec_index].size(); a++)
+            for (int a=0; a<reference_spectrums[*ref_spec_index].size(); a++)
             {
-                ref_new[a]=reference_spectrums[ref_spec_index][a] / ref_sum ;
+                ref_new[a]=reference_spectrums[*ref_spec_index][a] / ref_sum ;
                 pix_new[a]=mlt1[a].at<uchar>(j,k)/pix_sum;
                 // error handling to avoid division by zero
             
             }
-            for (int a=0; a<reference_spectrums[ref_spec_index].size(); a++)
+            for (int a=0; a<reference_spectrums[*ref_spec_index].size(); a++)
             {
                 sum1+= ref_new[a]*log(ref_new[a]/pix_new[a]) ;
                 sum2+= pix_new[a]*log(pix_new[a]/ref_new[a])  ;
@@ -878,11 +895,12 @@ for (int k=0; k<mlt1[1].cols; k+=1)
             if (temp_val>255){temp_val=255;}
 
 
-        spec_simil_img.at<uchar>(j,k)=temp_val; 
+        spec_simil_img->at<uchar>(j,k)=temp_val; 
+    
     }
 }
 
-}
+
 void  HyperFunctions::SCM_img()
 {
 
