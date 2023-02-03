@@ -32,9 +32,14 @@ static void show_spectrum(GtkSpinButton *widget,  gpointer data) {
 
 static void choose_image_file(GtkSpinButton *widget,  gpointer data) {
     //Plan:
-    //Set a global file variable that all file-related tasks (drawing false image etc.) grabs from
+    //
     //Check to see if anything is currently drawn
     //  if so, rerun it with the new image OR just stop drawing it.
+    //Not done
+    int result=gtk_file_chooser_get_filename() (widget);
+    void * data_new=data;
+    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
+    HyperFunctions1->LoadImageHyper1(fileName);
 }
 
 static void    TileImage(GtkWidget *widget,  gpointer data)
