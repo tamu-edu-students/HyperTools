@@ -44,13 +44,21 @@ main (int   argc,
   /* Next 4 components are in progress and some are using placeholder callback functions*/
 
   button = gtk_builder_get_object (builder, "show_spectrum");
-  g_signal_connect (button, "clicked", G_CALLBACK (show_spectrum), &HyperFunctions1);
-  
+  g_signal_connect (button, "FIX", G_CALLBACK (show_spectrum), &HyperFunctions1); 
+  //The signal tab affects "clicked" or whatever the action is
+
   button = gtk_builder_get_object (builder, "choose_file");
-  g_signal_connect (button, "clicked", G_CALLBACK (choose_image_file), &HyperFunctions1);
+  g_signal_connect (button, "FIX", G_CALLBACK (choose_image_file), &HyperFunctions1); //Should be able to see what file they chose. Then call LoadImageHyper1
 
   button = gtk_builder_get_object (builder, "image_box"); //using print_hello placeholder
-  g_signal_connect (button, "clicked", G_CALLBACK (print_hello), &HyperFunctions1);
+  g_signal_connect (button, "clicked", G_CALLBACK (get_point_pos), &HyperFunctions1); //Have a new variable in hyperfunctions.h for point (global variable).
+  //Updating could be done through a hyperfunctions method. 
+  //int result=gtk_spin_button_get_value (widget);
+  //gtk functions.h in the cuvis integration inbutton press callback
+  g_signal_connect (button, "clicked", G_CALLBACK (update_show_spectrum), &HyperFunctions1);
+  //Always recalculate but only display image if appropriate/ if toggled on.
+  //May need to pass in structs to give toggle switch position, pixel buffer / image file
+  //Could have c++ class with struct to store toggle and other UI data.
 
   button = gtk_builder_get_object (builder, "spectrum_box");
   //Nothing happens when you click on the spectrum image
