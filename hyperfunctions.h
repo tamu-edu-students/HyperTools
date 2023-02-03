@@ -81,6 +81,7 @@ public:
 
 	// wip
 	void SAM_img();
+	
 	void SID_img();
 	void SCM_img();
 	void SemanticSegmenter();

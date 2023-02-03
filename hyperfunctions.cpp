@@ -798,12 +798,20 @@ void  HyperFunctions::SpecSimilParent()
     }
 
 }
-void  HyperFunctions::SAM_img()
+void HyperFunctions::SAM_img()
 {
+    ctpl::thread_pool p(num_threads);
+    
+    for (int k=0; k<mlt1[1].cols; k+=1)
+    {
+        p.push(this->SAM_img_Child, k);
 
-int temp_val=0;
-for (int k=0; k<mlt1[1].cols; k+=1)
-{
+    }
+
+}
+
+void SAM_img_Child(int id, int k){  // single thread
+    int temp_val=0;
     for (int j=0; j<mlt1[1].rows; j++)
     {
         float sum1=0, sum2=0, sum3=0;
@@ -832,7 +840,6 @@ for (int k=0; k<mlt1[1].cols; k+=1)
     }
 }
 
-}
 void  HyperFunctions::SID_img()
 {
 int temp_val=0;
