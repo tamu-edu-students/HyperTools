@@ -6,7 +6,7 @@
 	static void show_img (GtkWidget *widget, gpointer data);
 
 	static void show_spectrum(GtkSpinButton *widget,  gpointer data);
-	static void choose_image_file(GtkSpinButton *widget,  gpointer data);
+	static void choose_image_file(GtkFileChooser *widget,  gpointer data);
 
 	static void set_false_img_r(GtkSpinButton *widget,  gpointer data);
 	static void set_false_img_g(GtkSpinButton *widget,  gpointer data);

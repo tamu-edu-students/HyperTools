@@ -523,7 +523,6 @@
         </child>
         <child>
           <object class="GtkFileChooserButton" id="choose_file">
-            <property name="name">Choose File</property>
             <property name="visible">True</property>
             <property name="can-focus">False</property>
             <property name="tooltip-text" translatable="yes">Choose File</property>

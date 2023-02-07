@@ -15,7 +15,9 @@ using namespace cv::xfeatures2d;
 
 void HyperFunctions::LoadImageHyper1(string file_name)
 {
+    mlt1.clear();
 	imreadmulti(file_name, mlt1);
+    
 }
 
 void HyperFunctions::LoadImageHyper2(string file_name)
