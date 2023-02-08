@@ -943,24 +943,23 @@ void  HyperFunctions::SCM_img()
 
 void SCM_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index){
     vector<Mat> mlt1=*mlt2; 
-    vector<vector<int>>  reference_spectrums= *reference_spectrums2;
+    vector<vector<int>>  reference_spectrums = *reference_spectrums2;
     int temp_val=0;
-    for (int k=0; k<mlt1[1].cols; k+=1)
-    {
-        for (int j=0; j<mlt1[1].rows; j++)
+    
+    for (int j=0; j<mlt1[1].rows; j++)
         {
             float sum1=0, sum2=0, sum3=0, mean1=0, mean2=0;
-            int num_layers=reference_spectrums[ref_spec_index].size();
+            int num_layers = reference_spectrums[*ref_spec_index].size();
             for (int a=0; a<num_layers; a++)
             {
                 mean1+=((float)1/(float)(num_layers-1)* (float)mlt1[a].at<uchar>(j,k))  ;
-                mean2+=((float)1/(float)(num_layers-1)* (float)reference_spectrums[ref_spec_index][a]) ;
+                mean2+=((float)1/(float)(num_layers-1)* (float)reference_spectrums[*ref_spec_index][a]) ;
             }
             for (int a=0; a<num_layers; a++)
             {
-                sum1+=(mlt1[a].at<uchar>(j,k)-mean1)*(reference_spectrums[ref_spec_index][a]-mean2) ;
+                sum1+=(mlt1[a].at<uchar>(j,k)-mean1)*(reference_spectrums[*ref_spec_index][a]-mean2) ;
                 sum2+=(mlt1[a].at<uchar>(j,k)-mean1)*(mlt1[a].at<uchar>(j,k)-mean1);
-                sum3+=(reference_spectrums[ref_spec_index][a]-mean2)*(reference_spectrums[ref_spec_index][a]-mean2);
+                sum3+=(reference_spectrums[*ref_spec_index][a]-mean2)*(reference_spectrums[*ref_spec_index][a]-mean2);
             }
             if (sum2<=0 || sum3<=0 )
             {
@@ -972,8 +971,6 @@ void SCM_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* refere
                 double alpha_rad=acos(temp1);
                 temp_val =(int)((double)alpha_rad*(double)255/(double)3.14159) ;
             }
-            spec_simil_img.at<uchar>(j,k)=temp_val; 
+            spec_simil_img->at<uchar>(j,k)=temp_val; 
         }
-    }
-    
 }
