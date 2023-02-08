@@ -9,9 +9,7 @@ using namespace cv;
 using namespace std;
 
 
-int
-main (int   argc,
-      char *argv[])
+int main (int argc, char *argv[])
 {
   GtkBuilder *builder;
   GObject *window;
@@ -19,7 +17,9 @@ main (int   argc,
   GError *error = NULL;
   
   HyperFunctions HyperFunctions1;
-  string file_name2="../../../HyperImages/session_002_491_REF.tiff";
+
+  string file_name2="../../HyperImages/session_002_491_REF.tiff";
+
   HyperFunctions1.LoadImageHyper1(file_name2);
   file_name2="../lena.png";
   HyperFunctions1.LoadImageClassified(file_name2);
