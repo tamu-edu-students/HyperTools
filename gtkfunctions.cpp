@@ -9,47 +9,18 @@
 using namespace std;
 using namespace cv;
 
-//Can we set global variables?
-//Ask Anthony about this
-
 static void print_hello (GtkWidget *widget, gpointer   data)
 {
   g_print ("Hello World\n");
 }
 
-/*
-static void show_img (GtkWidget *widget, gpointer   data)
-{
-  g_print ("Loading Image\n");
-      string file_name1="../../HyperImages/corn_fields/image_files/rgb/session_002_490_REF.jpg";
-  Mat img1 = imread( file_name1, IMREAD_GRAYSCALE );
-      cv::imshow("test", img1);
-}
-*/
-
-static void show_spectrum(GtkSpinButton *widget,  gpointer data) {
-    
-}
-
 static void choose_image_file(GtkFileChooser *widget,  gpointer data) {
-    //Plan:
-    //
-    //Check to see if anything is currently drawn
-    //  if so, rerun it with the new image OR just stop drawing it.
-    //Not done
-    
+
     gchar* file_chosen;
     file_chosen = gtk_file_chooser_get_filename(widget);
     void * data_new=data;
     HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
     HyperFunctions1->LoadImageHyper1(file_chosen);
-    /*
-    HyperFunctions1->LoadImageClassified(file_chosen);
-    HyperFunctions1->LoadFeatureImage1(file_chosen);
-    HyperFunctions1->spec_simil_img = HyperFunctions1->feature_img1;
-    */
-    
-    
     
 }
 
@@ -173,7 +144,6 @@ static void set_false_img_b(GtkSpinButton *widget,  gpointer data)
 static void set_false_img_standard_rgb(GtkWidget *widget,  gpointer data)
 {
 
-    
     void * data_new=data;
     HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
     HyperFunctions1->false_img_r=163;
@@ -181,8 +151,7 @@ static void set_false_img_standard_rgb(GtkWidget *widget,  gpointer data)
     HyperFunctions1->false_img_b=65;
     HyperFunctions1->GenerateFalseImg();
     HyperFunctions1->DispFalseImage();
-    
-       
+   
 }	
 
 static void show_false_img(GtkWidget *widget,  gpointer data)
@@ -337,7 +306,6 @@ static void set_spec_sim_alg_SID(GtkWidget *widget,  gpointer data)
 
 }
 
-//Ask Anthony about this
 static void load_img(GtkWidget *widget,  GtkImage*  data)
 {
 
