@@ -37,9 +37,7 @@ Below are the installation instructions to install the dependencies for this pac
 
 `mkdir -p build && cd build`
 
-**Need to set below to the correct path for your system for the -DOPENCV_EXTRA_MODULES_PATH flag**
-
-`cmake -DOPENCV_ENABLE_NONFREE:BOOL=ON  -DOPENCV_EXTRA_MODULES_PATH=/home/anthony/opencv_build/opencv_contrib-4.x/modules /home/anthony/opencv_build/opencv-4.x/     -D OPENCV_GENERATE_PKGCONFIG=ON `
+`cmake -DOPENCV_ENABLE_NONFREE:BOOL=ON  -DOPENCV_EXTRA_MODULES_PATH=/home/$USER/opencv_build/opencv_contrib-4.x/modules /home/$USER/opencv_build/opencv-4.x/     -D OPENCV_GENERATE_PKGCONFIG=ON `
 
 `make -j$(nproc)`
 
