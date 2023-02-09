@@ -741,7 +741,6 @@ void  HyperFunctions::SemanticSegmenter()
     for (int i=0; i<reference_spectrums.size();i++)
     {
         ref_spec_index=i;
-        //Mat temp_img1= this->SpecSimilReturn();
         this->SpecSimilParent();
         temp_results.push_back(spec_simil_img);
     }

@@ -96,32 +96,32 @@ int main (int argc, char *argv[])
   button = gtk_builder_get_object (builder, "semantic_SAM");
   g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_SAM), &HyperFunctions1);
   g_signal_connect (button, "toggled", G_CALLBACK (calc_semantic), &HyperFunctions1);
-  g_signal_connect (button, "toggled", G_CALLBACK (show_semantic_img), &HyperFunctions1);
+  //g_signal_connect (button, "toggled", G_CALLBACK (show_semantic_img), &HyperFunctions1);
   
   button = gtk_builder_get_object (builder, "semantic_SCM");
   g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_SCM), &HyperFunctions1);
   g_signal_connect (button, "toggled", G_CALLBACK (calc_semantic), &HyperFunctions1);
-  g_signal_connect (button, "toggled", G_CALLBACK (show_semantic_img), &HyperFunctions1);
+  //g_signal_connect (button, "toggled", G_CALLBACK (show_semantic_img), &HyperFunctions1);
    
   button = gtk_builder_get_object (builder, "semantic_SID");
   g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_SID), &HyperFunctions1);
   g_signal_connect (button, "toggled", G_CALLBACK (calc_semantic), &HyperFunctions1);
-  g_signal_connect (button, "toggled", G_CALLBACK (show_semantic_img), &HyperFunctions1);
+  //g_signal_connect (button, "toggled", G_CALLBACK (show_semantic_img), &HyperFunctions1);
 
   button = gtk_builder_get_object (builder, "similarity_SAM");
   g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_SAM), &HyperFunctions1);
   g_signal_connect (button, "toggled", G_CALLBACK (calc_spec_sim), &HyperFunctions1);
-  g_signal_connect (button, "toggled", G_CALLBACK (show_spec_sim_img), &HyperFunctions1);
+  //g_signal_connect (button, "toggled", G_CALLBACK (show_spec_sim_img), &HyperFunctions1);
     
   button = gtk_builder_get_object (builder, "similarity_SCM");
   g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_SCM), &HyperFunctions1);
   g_signal_connect (button, "toggled", G_CALLBACK (calc_spec_sim), &HyperFunctions1);
-  g_signal_connect (button, "toggled", G_CALLBACK (show_spec_sim_img), &HyperFunctions1);
+  //g_signal_connect (button, "toggled", G_CALLBACK (show_spec_sim_img), &HyperFunctions1);
   
   button = gtk_builder_get_object (builder, "similarity_SID");
   g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_SID), &HyperFunctions1);
   g_signal_connect (button, "toggled", G_CALLBACK (calc_spec_sim), &HyperFunctions1);
-  g_signal_connect (button, "toggled", G_CALLBACK (show_spec_sim_img), &HyperFunctions1);
+  //g_signal_connect (button, "toggled", G_CALLBACK (show_spec_sim_img), &HyperFunctions1);
 
   // regenerate object list here here
   // need to set an initial item

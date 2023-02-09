@@ -335,6 +335,7 @@ static void calc_spec_sim(GtkWidget *widget,  gpointer data)
     {
     HyperFunctions1->read_ref_spec_json( "../json/spectral_database1.json");
     HyperFunctions1->SpecSimilParent();
+    HyperFunctions1->DispSpecSim();
     }
 
        
@@ -350,6 +351,7 @@ static void calc_semantic(GtkWidget *widget,  gpointer data)
     {
         HyperFunctions1->read_ref_spec_json( "../json/spectral_database1.json");
         HyperFunctions1->SemanticSegmenter();
+        HyperFunctions1->DispClassifiedImage();
     }
        
 }	
