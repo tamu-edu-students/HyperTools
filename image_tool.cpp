@@ -21,21 +21,12 @@ int main (int argc, char *argv[])
   string file_name2="../../HyperImages/session_002_491_REF.tiff";
 
   HyperFunctions1.LoadImageHyper1(file_name2);
-  file_name2="../lena.png";
-  HyperFunctions1.LoadImageClassified(file_name2);
-  HyperFunctions1.LoadFeatureImage1(file_name2);
-  HyperFunctions1.spec_simil_img=HyperFunctions1.feature_img1;
-
   
-
-
-
-
   gtk_init (&argc, &argv);
 
   /* Construct a GtkBuilder instance and load our UI description */
   builder = gtk_builder_new ();
-  if (gtk_builder_add_from_file (builder, "../image_tool.ui", &error) == 0)
+  if (gtk_builder_add_from_file (builder, "../UI/image_tool.ui", &error) == 0)
     {
       g_printerr ("Error loading file: %s\n", error->message);
       g_clear_error (&error);

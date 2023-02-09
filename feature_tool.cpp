@@ -17,9 +17,8 @@ int main (int argc, char *argv[])
   GError *error = NULL;
   
   HyperFunctions HyperFunctions1;
-  string file_name2="../../HyperImages/imagePython2_8int.tiff";
-  string file_name3="../../HyperImages/corn_fields/image_files/mlt/session_002_490_REF.tiff";
-  string file_name4="../../HyperImages/corn_fields/image_files/mlt/session_002_491_REF.tiff";
+  string file_name3="../../HyperImages/img1.tiff";
+  string file_name4="../../HyperImages/session_002_491_REF.tiff";
   HyperFunctions1.LoadImageHyper1(file_name3);
   HyperFunctions1.feature_img1=HyperFunctions1.mlt1[0];
   HyperFunctions1.LoadImageHyper2(file_name4);
@@ -29,7 +28,7 @@ int main (int argc, char *argv[])
 
   /* Construct a GtkBuilder instance and load our UI description */
   builder = gtk_builder_new ();
-  if (gtk_builder_add_from_file (builder, "../feature_tool.ui", &error) == 0)
+  if (gtk_builder_add_from_file (builder, "../UI/feature_tool.ui", &error) == 0)
     {
       g_printerr ("Error loading file: %s\n", error->message);
       g_clear_error (&error);
