@@ -3,8 +3,9 @@
 	// https://www.cs.uni.edu/~okane/Code/Glade%20Cookbook/
 	// https://www.youtube.com/playlist?list=PLmMgHNtOIstZEvqYJncYUx52n8_OV0uWy
 	static void print_hello (GtkWidget *widget, gpointer data);
-	static void show_img (GtkWidget *widget, gpointer data);
 
+	static void show_spectrum(GtkSpinButton *widget,  gpointer data);
+	static void choose_image_file(GtkFileChooser *widget,  gpointer data);
 
 	static void set_false_img_r(GtkSpinButton *widget,  gpointer data);
 	static void set_false_img_g(GtkSpinButton *widget,  gpointer data);
