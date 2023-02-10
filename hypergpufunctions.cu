@@ -207,7 +207,7 @@ void HyperFunctionsGPU::oneD_array_to_mat(int* img_array, int cols, int rows, in
                 color[1]= img_array[val_it+1] ;
                 color[2]=img_array[val_it+2] ;
                 //cout<<color<<endl;
-                classified_img.at<Vec3b>(Point(j,k))= color   ;
+                classified_img.at<Vec3b>(Point(k,j))= color   ;
                 val_it+=3;
 
         }
@@ -333,9 +333,10 @@ void HyperFunctionsGPU::semantic_segmentation(int* test_array) {
     cudaHostAlloc ((void**)&out2, sizeof(int) *N_size_sim, cudaHostAllocDefault);
     cudaMalloc((void**)&d_clasified_img_array, sizeof(int) * N_points_sim);
     cudaMalloc((void**)&d_out2, sizeof(int) * N_size_sim);
-    cudaMalloc((void**)&d_color_info, sizeof(int) * tmp_len2+1);
+    int temp_val=reference_colors.size() * 3;
+    cudaMalloc((void**)&d_color_info, sizeof(int) * temp_val);
 
-    int* reference_colors_c=new int[reference_colors.size() * 3+1];
+    int* reference_colors_c=new int[reference_colors.size() * 3];
 
     for (int i = 0; i < reference_colors.size(); i++) {
         reference_colors_c[i*3] = reference_colors[i][0];
@@ -345,7 +346,7 @@ void HyperFunctionsGPU::semantic_segmentation(int* test_array) {
     }
 
     cudaMemcpy(d_clasified_img_array, classified_img_array, sizeof(int) *  N_points_sim, cudaMemcpyHostToDevice);
-    cudaMemcpy(d_color_info, reference_colors_c, sizeof(int) * tmp_len2+1, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_color_info, reference_colors_c, sizeof(int) * temp_val, cudaMemcpyHostToDevice);
 
 
     img_test_classifier<<<grid_size_sim,block_size>>>(d_out2, d_clasified_img_array, N_size_sim/3, similarity_images.size(), d_color_info);
