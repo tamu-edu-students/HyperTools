@@ -1,6 +1,6 @@
 # HyperTools
 ## Overview
-This package can be used to quickly analyze a hyperspectral image. The package was developed in a way to be agnostic of the camera manufacturer. The data structure that is at the foundation of the code for the hyperspectral image analysis is a vector<Mat>. There is some limited support for using a .cu3 with this code. A user interface was developed to support the usage of some of the functions that were developed, but it is a work in progress. Some of the capabilites of this package include: semantic segmentation, feature matching between single layers of two hyperspectral images, generating spectral similarity images, and extracting objects from a semantic classification image. The code was developed for data from the Ultris X20 Plus, but other Cubert images should work for the majority of the capabilities. 
+This package can be used to quickly analyze a hyperspectral image. The package was developed in a way to be agnostic of the camera manufacturer. The data structure that is at the foundation of the code for the hyperspectral image analysis is a vector<Mat>. There is some limited support for using a .cu3 with this code. A user interface was developed to support the usage of some of the functions that were developed, but it is a work in progress. Some of the capabilities of this package include: semantic segmentation, feature matching between single layers of two hyperspectral images, generating spectral similarity images, and extracting objects from a semantic classification image. The code was developed for data from the Ultris X20 Plus, but other Cubert images should work for the majority of the capabilities. 
 
 ## Installation Instructions
 This code was developed with Ubuntu 20.04 with a x86_64 architecture, but may work with other versions of Ubuntu.
@@ -13,7 +13,7 @@ Below are the installation instructions to install the dependencies for this pac
 `sudo apt  install cmake build-essential  g++ wget unzip libgtk2.0-dev pkg-config  libjsoncpp-dev libcanberra-gtk-module libgtk2.0-dev libgtk-3-dev libboost-all-dev glade -y`
 
 ### To install Nvidia packages:
- This package has some dependicies on Nvidia, however is not required. This package speeds up some optional functions through the use of a NVIDIA GPU. The required packages can be installed with the below commands. 
+ This package has some dependencies on NVIDIA, however is not required. This package speeds up some optional functions through the use of a NVIDIA GPU. The required packages can be installed with the below commands. 
 
 `sudo apt install nvidia-driver-515 nvidia-dkms-515 -y `
 
@@ -78,7 +78,7 @@ The most recent version of OpenCV can be installed with the below commands. Howe
 
 
 ## Usage
-There are a couple of example files that were created to display some of the capabilities of this package. In order to build the files to run, a build directory can be created. Below are the commands to create a build directory and the example files. There are two variables in the CMakeLists.txt file that need to be set if CUDA and Cuvis are to be used. They are "use_CUDA" and "use_cuvis". Set the variable to true to include those capabilites or false to not include the relate capabilities. 
+There are a couple of example files that were created to display some of the capabilities of this package. In order to build the files to run, a build directory can be created. Below are the commands to create a build directory and the example files. There are two variables in the CMakeLists.txt file that need to be set if CUDA and Cuvis are to be used. They are "use_CUDA" and "use_cuvis". Set the variable to true to include those capabilities or false to not include the relate capabilities. 
 
 `mkdir build`
 
@@ -90,7 +90,7 @@ There are a couple of example files that were created to display some of the cap
 
 
 ### Semantic Interface
-This example assumes a classifed image as input. The capability to generate the classified image with the Image Tool is a work in progress. 
+This example assumes a classified image as input. The capability to generate the classified image with the Image Tool is a work in progress. 
 
 The sample file can be run with the following command:
 `./semantic_interface`
