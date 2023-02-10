@@ -58,9 +58,9 @@ The most recent version of OpenCV can be installed with the below commands. Howe
 `cd opencv_build`
 
 
-`wget -O opencv.zip https://github.com/opencv/opencv/archive/4.2.zip`
+`wget -O opencv.zip https://github.com/opencv/opencv/archive/4.2.0.zip`
 
-`wget -O opencv_contrib.zip https://github.com/opencv/opencv_contrib/archive/4.2.zip`
+`wget -O opencv_contrib.zip https://github.com/opencv/opencv_contrib/archive/4.2.0.zip`
 
 `unzip opencv.zip`
 
