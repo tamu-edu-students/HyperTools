@@ -17,7 +17,7 @@ include_directories(${GTK3_INCLUDE_DIRS} )
 link_directories(${GTK3_LIBRARY_DIRS} )
 
 #change below to true to use GPU or false to not use GPU
-set(use_CUDA FALSE) 
+set(use_CUDA TRUE) 
 
 if (use_CUDA)
 
@@ -30,18 +30,14 @@ find_package(CUDA)
             set(CMAKE_CUDA_ARCHITECTURES 75)
         endif()
 
-        #add_executable(test test.cpp)
+        add_executable(cuda_example cuda_example.cu)
 
-        #target_link_libraries(test PRIVATE ${OpenCV_LIBS})
-        #target_link_libraries(test PRIVATE ${GTK3_LIBRARIES} )
-        #target_link_libraries(test PRIVATE jsoncpp)
+        target_link_libraries(cuda_example PRIVATE ${OpenCV_LIBS})
+        target_link_libraries(cuda_example PRIVATE jsoncpp)
     else(CUDA_FOUND)
         message("Required CUDA Packages not found")
 
     endif(CUDA_FOUND)  
-    
-    
-
 
 else(use_CUDA)
 

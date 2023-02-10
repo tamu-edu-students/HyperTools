@@ -155,7 +155,7 @@ void  HyperFunctions::FeatureExtraction()
 
 void HyperFunctions::FeatureTransformation()
 {
-    double focal = 718.8560;
+    //double focal = 718.8560;
     cv::Point2d pp(607.1928, 185.2157);
     Mat cameraMatrix = Mat::eye(3, 3, CV_64F);
     //recovering the pose and the essential matrix
