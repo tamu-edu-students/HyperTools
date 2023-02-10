@@ -68,7 +68,7 @@ The most recent version of OpenCV can be installed with the below commands. Howe
 
 `mkdir -p build && cd build`
 
-`cmake -DOPENCV_ENABLE_NONFREE:BOOL=ON  -DOPENCV_EXTRA_MODULES_PATH=/home/$USER/opencv_build/opencv_contrib-4.2/modules /home/$USER/opencv_build/opencv-4.2/     -D OPENCV_GENERATE_PKGCONFIG=ON `
+`cmake -DOPENCV_ENABLE_NONFREE:BOOL=ON  -DOPENCV_EXTRA_MODULES_PATH=/home/$USER/opencv_build/opencv_contrib-4.2.0/modules /home/$USER/opencv_build/opencv-4.2.0/     -D OPENCV_GENERATE_PKGCONFIG=ON `
 
 `make -j$(nproc)`
 
