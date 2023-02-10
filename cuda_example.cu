@@ -35,19 +35,7 @@ int main (int argc, char *argv[]) {
 
     HyperFunctions1.deallocate_memory();
 
- /* HyperFunctions1.semantic_segmentation(test_array);
-    HyperFunctions1.DispClassifiedImage();
-    cv::waitKey();
-    
-    HyperFunctions1.spec_sim_alg=1;
-    HyperFunctions1.semantic_segmentation(test_array);
-    HyperFunctions1.DispClassifiedImage();
-    cv::waitKey();
-    
-    HyperFunctions1.spec_sim_alg=2;
-    HyperFunctions1.semantic_segmentation(test_array);
-    HyperFunctions1.DispClassifiedImage();
-    cv::waitKey();*/
+
 
 
   return 0;

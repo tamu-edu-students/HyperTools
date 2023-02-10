@@ -78,7 +78,7 @@ The most recent version of OpenCV can be installed with the below commands. Howe
 
 
 ## Usage
-There are a couple of example files that were created to display some of the capabilities of this package. In order to build the files to run, a build directory can be created. Below are the commands to create a build directory and the example files.
+There are a couple of example files that were created to display some of the capabilities of this package. In order to build the files to run, a build directory can be created. Below are the commands to create a build directory and the example files. There are two variables in the CMakeLists.txt file that need to be set if CUDA and Cuvis are to be used. They are "use_CUDA" and "use_cuvis". Set the variable to true to include those capabilites or false to not include the relate capabilities. 
 
 `mkdir build`
 
@@ -106,6 +106,18 @@ This is still a work in progress. Parts of the user interface are not operationa
 
 The sample file can be run with the following command:
 `./image_tool`
+
+### CUDA and Cuvis Examples
+Three example files were created to show how .cu3 images and CUDA can be used.  
+
+The sample files can be run with the following commands:
+
+`./cuda_example`
+
+`./cubert_example`
+
+`./cuda_cubert_example`
+
 
 
 
