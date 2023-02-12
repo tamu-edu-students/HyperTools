@@ -9,6 +9,13 @@
 using namespace std;
 using namespace cv;
 
+
+struct img_struct_gtk {
+  GtkImage *image;
+  HyperFunctions *HyperFunctions1;
+  } ;
+  
+  
 static void print_hello (GtkWidget *widget, gpointer   data)
 {
   g_print ("Hello World\n");
@@ -30,6 +37,7 @@ static void    TileImage(GtkWidget *widget,  gpointer data)
     HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
     HyperFunctions1->TileImage();
     HyperFunctions1->DispTiled();
+    
 }
 
 static void    EdgeDetection(GtkWidget *widget,  gpointer data)
@@ -113,7 +121,7 @@ static void set_false_img_r(GtkSpinButton *widget,  gpointer data)
     HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
     HyperFunctions1->false_img_r=result;
     HyperFunctions1->GenerateFalseImg();
-    HyperFunctions1->DispFalseImage();
+
        
 }
 
@@ -141,26 +149,86 @@ static void set_false_img_b(GtkSpinButton *widget,  gpointer data)
        
 }
 
+
+static void set_pix_buf_from_cv(cv::Mat output, GtkImage *image)
+{
+ 
+ int channels=output.channels();
+ GdkPixbuf* pixbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB, channels==4, 8, output.cols, output.rows);
+ guchar* data3=gdk_pixbuf_get_pixels(pixbuf);
+ int stride = gdk_pixbuf_get_rowstride(pixbuf);
+ for (int y=0;y<output.rows;y++)
+ {
+    for(int x=0;x<output.cols;x++)
+    {
+        if (channels==3)
+        {
+            cv::Vec3b pixel = output.at<cv::Vec3b>(y,x);
+            data3[y*stride+x*channels+ 0]=pixel[2];
+            data3[y*stride+x*channels+ 1]=pixel[1];
+            data3[y*stride+x*channels+ 2]=pixel[0];    
+        
+        }
+        else if(channels==4)
+        {
+            data3[y*stride+x*channels+ 3]=255;  
+        }
+        else if(channels==1)
+        {
+            int pixel = output.at<uchar>(y,x);
+            data3[y*stride+3*x*channels+ 0]=pixel;
+            data3[y*stride+3*x*channels+ 1]=pixel;
+            data3[y*stride+3*x*channels+ 2]=pixel;   
+        }
+        
+    }
+ 
+ }
+ gtk_image_set_from_pixbuf(image, pixbuf);
+
+}
+
 static void set_false_img_standard_rgb(GtkWidget *widget,  gpointer data)
 {
 
-    void * data_new=data;
-    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
+  
+  
+  void * data_new=data;
+  img_struct_gtk *img_struct1=static_cast<img_struct_gtk*>(data_new);
+  void * data_new2=img_struct1->HyperFunctions1;
+  HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new2);
+  
+  
     HyperFunctions1->false_img_r=163;
     HyperFunctions1->false_img_g=104;
     HyperFunctions1->false_img_b=65;
     HyperFunctions1->GenerateFalseImg();
-    HyperFunctions1->DispFalseImage();
-   
+ 
+
+  
+  cv::Mat output=HyperFunctions1->false_img;
+  cv::resize(output,output,Size(HyperFunctions1->WINDOW_WIDTH, HyperFunctions1->WINDOW_HEIGHT),INTER_LINEAR); 
+  
+  set_pix_buf_from_cv( output, img_struct1->image);
+
 }	
 
 static void show_false_img(GtkWidget *widget,  gpointer data)
 {
-    void * data_new=data;
-    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
-    HyperFunctions1->GenerateFalseImg();
-    HyperFunctions1->DispFalseImage();
 
+ 
+  void * data_new=data;
+  img_struct_gtk *img_struct1=static_cast<img_struct_gtk*>(data_new);
+  void * data_new2=img_struct1->HyperFunctions1;
+  HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new2);
+  HyperFunctions1->GenerateFalseImg();
+  cv::Mat output=HyperFunctions1->false_img;
+   cv::resize(output,output,Size(HyperFunctions1->WINDOW_WIDTH, HyperFunctions1->WINDOW_HEIGHT),INTER_LINEAR); 
+  
+    set_pix_buf_from_cv( output, img_struct1->image);
+      
+
+ 
 
 }
 
@@ -308,10 +376,15 @@ static void set_spec_sim_alg_SID(GtkWidget *widget,  gpointer data)
 
 static void load_img(GtkWidget *widget,  GtkImage*  data)
 {
-
-  //  gtk_image_clear (data);  GtkImage*
-  gtk_image_set_from_file(data,"../lena3.png");
-  g_print ("Hello World\n");
+  
+  void * data_new=data;
+  img_struct_gtk *img_struct1=static_cast<img_struct_gtk*>(data_new);
+  void * data_new2=img_struct1->HyperFunctions1;
+  HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new2);
+  
+  cv::Mat output=HyperFunctions1->false_img;
+    cv::resize(output,output,Size(HyperFunctions1->WINDOW_WIDTH, HyperFunctions1->WINDOW_HEIGHT),INTER_LINEAR); 
+  set_pix_buf_from_cv( output, img_struct1->image);
 }
 
 
@@ -320,6 +393,13 @@ static void button_press_callback(GtkWidget *widget,  GdkEventButton *event, gpo
     
  g_print ("Event box clicked at coordinates %f,%f\n",
              event->x, event->y);
+             
+    void * data_new=data;
+    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
+    
+    HyperFunctions1->cur_loc=Point(int(event->x), int(event->y));         
+             
+             
 }
 
 

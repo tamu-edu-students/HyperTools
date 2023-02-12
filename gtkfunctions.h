@@ -3,7 +3,10 @@
 
 	static void print_hello (GtkWidget *widget, gpointer data);
 
-
+    static void set_pix_buf_from_cv(cv::Mat output, GtkImage *image);
+    
+    
+    
 	static void set_false_img_r(GtkSpinButton *widget,  gpointer data);
 	static void set_false_img_g(GtkSpinButton *widget,  gpointer data);
 	static void set_false_img_b(GtkSpinButton *widget,  gpointer data);

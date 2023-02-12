@@ -36,6 +36,8 @@ public:
 	vector<KeyPoint> keypoints1, keypoints2;
 	vector<vector<int>> reference_spectrums;
 	vector<Vec3b> reference_colors;
+	
+	Point cur_loc=Point(0, 0);
 
 	double polygon_approx_coeff=0;
 	double avgDist=35;
