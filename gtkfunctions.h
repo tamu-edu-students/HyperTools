@@ -28,7 +28,7 @@
 	static void set_spec_sim_alg_SCM(GtkWidget *widget,  gpointer data);
 	static void set_spec_sim_alg_SID(GtkWidget *widget,  gpointer data);
 
-	static void show_spectrum(GtkSpinButton *widget,  gpointer data);
+	static void show_spectrum(GtkWidget *widget,GdkEventButton *event,  gpointer data);
 
 	static void show_spec_sim_img(GtkWidget *widget,  gpointer data);
 	static void show_semantic_img(GtkWidget *widget,  gpointer data);

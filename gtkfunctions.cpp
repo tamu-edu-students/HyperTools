@@ -5,6 +5,8 @@
 #include "gtkfunctions.h"
 #include "hyperfunctions.cpp"
 #include <string>
+#include <opencv2/plot.hpp>
+
 
 using namespace std;
 using namespace cv;
@@ -391,8 +393,7 @@ static void load_img(GtkWidget *widget,  GtkImage*  data)
 static void button_press_callback(GtkWidget *widget,  GdkEventButton *event, gpointer data)
 {
     
- g_print ("Event box clicked at coordinates %f,%f\n",
-             event->x, event->y);
+ //g_print ("Event box clicked at coordinates %f,%f\n",event->x, event->y);
              
     void * data_new=data;
     HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
@@ -402,7 +403,60 @@ static void button_press_callback(GtkWidget *widget,  GdkEventButton *event, gpo
              
 }
 
+static void show_spectrum(GtkWidget *widget, GdkEventButton *event, gpointer data)
+{
 
+ void * data_new=data;
+  img_struct_gtk *img_struct1=static_cast<img_struct_gtk*>(data_new);
+  void * data_new2=img_struct1->HyperFunctions1;
+  HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new2);
+
+
+ // show the spectrum here 
+  // https://github.com/opencv/opencv_contrib/blob/master/modules/plot/samples/plot_demo.cpp 
+    // https://docs.opencv.org/4.x/d0/d1e/classcv_1_1plot_1_1Plot2d.html
+    
+    Mat data_x( 1, HyperFunctions1->mlt1.size(), CV_64F ); // wavelength
+    Mat data_y( 1, HyperFunctions1->mlt1.size(), CV_64F ); // reflectance value
+
+    for ( int i = 0; i < data_x.cols; i++ )
+    {
+        data_x.at<double>( 0, i ) = i;
+        data_y.at<double>( 0, i ) = HyperFunctions1->mlt1[i].at<uchar>(HyperFunctions1->cur_loc);
+    }
+
+    
+
+    Mat plot_result;
+
+    Ptr<plot::Plot2d> plot = plot::Plot2d::create( data_x, data_y );
+    plot->render(plot_result);
+    plot->setShowText( false );
+    plot->setPlotBackgroundColor( Scalar( 255, 200, 200 ) );
+    plot->setPlotLineColor( Scalar( 255, 0, 0 ) );
+    plot->setPlotLineWidth( 2 );
+    plot->setInvertOrientation( true );
+    plot->setMinY(0);
+    plot->setMaxY(256);
+    
+    
+    
+    plot->render( plot_result );
+  cv::Mat output=plot_result;//HyperFunctions1->false_img;
+
+
+
+
+
+
+  cv::resize(output,output,Size(400,200),INTER_LINEAR); 
+  
+    set_pix_buf_from_cv( output, img_struct1->image);
+
+
+
+
+}
 
 static void calc_spec_sim(GtkWidget *widget,  gpointer data)
 {

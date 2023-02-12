@@ -23,7 +23,7 @@ int main (int argc, char *argv[])
   
   HyperFunctions HyperFunctions1;
 
-  string file_name2="../../HyperImages/session_002_491_REF.tiff";
+  string file_name2="../../HyperImages/img1.tiff";
 
   HyperFunctions1.LoadImageHyper1(file_name2);
   
@@ -72,23 +72,32 @@ int main (int argc, char *argv[])
   
   
   
-    button = gtk_builder_get_object (builder, "image_box");
-  g_signal_connect (G_OBJECT (button),"button_press_event",G_CALLBACK (button_press_callback),&HyperFunctions1);
   
-  //test code
-  img_struct *ptr, ts;
-  ptr=&ts;
+
+  img_struct *gtk_hyper_image, temp_var1;
+  gtk_hyper_image=&temp_var1;
   
   GObject *image;
+  
   image= gtk_builder_get_object (builder, "image1");
   
-  (*ptr).image=image;
-  (*ptr).HyperFunctions1=&HyperFunctions1;
-  //test code 
+  (*gtk_hyper_image).image=image;
+  (*gtk_hyper_image).HyperFunctions1=&HyperFunctions1;
 
+  
+  image= gtk_builder_get_object (builder, "spec_curve");
+  img_struct *gtk_hyper_image2, temp_var2;
+  gtk_hyper_image2=&temp_var2;
+  (*gtk_hyper_image2).image=image;
+  (*gtk_hyper_image2).HyperFunctions1=&HyperFunctions1;
+  
+  
+  button = gtk_builder_get_object (builder, "image_box");
+  g_signal_connect (G_OBJECT (button),"button_press_event",G_CALLBACK (button_press_callback),&HyperFunctions1);
+  g_signal_connect (G_OBJECT (button),"button_press_event",G_CALLBACK (show_spectrum),gtk_hyper_image2);
 
   button = gtk_builder_get_object (builder, "disp_false_img");
-  g_signal_connect (button, "clicked", G_CALLBACK (show_false_img), ptr);
+  g_signal_connect (button, "clicked", G_CALLBACK (show_false_img), gtk_hyper_image);
 
   button = gtk_builder_get_object (builder, "disp_spec_sim_img");
   g_signal_connect (button, "clicked", G_CALLBACK (show_spec_sim_img), &HyperFunctions1);
@@ -110,7 +119,7 @@ int main (int argc, char *argv[])
   
 
   button = gtk_builder_get_object (builder, "false_img_standard");
-  g_signal_connect (button, "clicked", G_CALLBACK (set_false_img_standard_rgb), ptr);
+  g_signal_connect (button, "clicked", G_CALLBACK (set_false_img_standard_rgb), gtk_hyper_image);
   //g_signal_connect (button, "clicked", G_CALLBACK (set_false_img_standard_rgb), &HyperFunctions1);
   //reset r,g,b spin buttons to standard values here
   // currently not implemented
