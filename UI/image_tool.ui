@@ -28,7 +28,7 @@
     <property name="border-width">10</property>
     <property name="title">Hyperspectral Image Analysis Tool</property>
     <child>
-      <!-- n-columns=7 n-rows=4 -->
+      <!-- n-columns=7 n-rows=5 -->
       <object class="GtkGrid" id="grid">
         <property name="visible">True</property>
         <property name="can-focus">False</property>
@@ -208,7 +208,7 @@
                 </child>
                 <child>
                   <object class="GtkButton" id="disp_semantic_img">
-                    <property name="label" translatable="yes">Display Semantic Image</property>
+                    <property name="label" translatable="yes">Update Semantic Image</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">True</property>
@@ -315,7 +315,7 @@
                 </child>
                 <child>
                   <object class="GtkButton" id="disp_spec_sim_img">
-                    <property name="label" translatable="yes">Display Spectral Similarity Image</property>
+                    <property name="label" translatable="yes">Update  Spectral Similarity Image</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">True</property>
@@ -406,7 +406,6 @@
                 </child>
                 <child>
                   <object class="GtkLabel" id="database_feedback">
-                    <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="label" translatable="yes">Provides feedback to user</property>
                   </object>
@@ -491,6 +490,30 @@
           </packing>
         </child>
         <child>
+          <object class="GtkFileChooserButton" id="choose_file">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="tooltip-text" translatable="yes">Choose File</property>
+            <property name="filter">tiff_filter</property>
+            <property name="title" translatable="yes">Choose File</property>
+          </object>
+          <packing>
+            <property name="left-attach">1</property>
+            <property name="top-attach">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="show_spectrum_label">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="label" translatable="yes">Pixel Spectrum</property>
+          </object>
+          <packing>
+            <property name="left-attach">4</property>
+            <property name="top-attach">1</property>
+          </packing>
+        </child>
+        <child>
           <object class="GtkEventBox" id="image_box">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
@@ -503,44 +526,51 @@
             </child>
           </object>
           <packing>
-            <property name="left-attach">0</property>
+            <property name="left-attach">2</property>
+            <property name="top-attach">4</property>
+            <property name="width">4</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="cur_img">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="label" translatable="yes">Output Image </property>
+          </object>
+          <packing>
+            <property name="left-attach">2</property>
             <property name="top-attach">3</property>
-            <property name="width">7</property>
           </packing>
         </child>
         <child>
-          <object class="GtkSwitch" id="show_spectrum">
-            <property name="visible">True</property>
-            <property name="can-focus">True</property>
-          </object>
-          <packing>
-            <property name="left-attach">4</property>
-            <property name="top-attach">1</property>
-          </packing>
+          <placeholder/>
         </child>
         <child>
-          <object class="GtkLabel" id="show_spectrum_label">
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
-            <property name="label" translatable="yes"> Show Spectrum </property>
-          </object>
-          <packing>
-            <property name="left-attach">4</property>
-            <property name="top-attach">0</property>
-          </packing>
+          <placeholder/>
         </child>
         <child>
-          <object class="GtkFileChooserButton" id="choose_file">
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
-            <property name="tooltip-text" translatable="yes">Choose File</property>
-            <property name="filter">tiff_filter</property>
-            <property name="title" translatable="yes">Choose File</property>
-          </object>
-          <packing>
-            <property name="left-attach">1</property>
-            <property name="top-attach">0</property>
-          </packing>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
         </child>
         <child>
           <placeholder/>

@@ -35,10 +35,17 @@ static void choose_image_file(GtkFileChooser *widget,  gpointer data) {
 
 static void    TileImage(GtkWidget *widget,  gpointer data)
 {
-    void * data_new=data;
-    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
-    HyperFunctions1->TileImage();
-    HyperFunctions1->DispTiled();
+   
+      void * data_new=data;
+  img_struct_gtk *img_struct1=static_cast<img_struct_gtk*>(data_new);
+  void * data_new2=img_struct1->HyperFunctions1;
+  HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new2);
+  
+  HyperFunctions1->TileImage();
+  cv::Mat output=HyperFunctions1->tiled_img;
+   cv::resize(output,output,Size(HyperFunctions1->WINDOW_WIDTH, HyperFunctions1->WINDOW_HEIGHT),INTER_LINEAR); 
+  
+    set_pix_buf_from_cv( output, img_struct1->image);
     
 }
 
@@ -53,18 +60,35 @@ static void    EdgeDetection(GtkWidget *widget,  gpointer data)
 
 static void show_semantic_img(GtkWidget *widget,  gpointer data)
 {
-
-    void * data_new=data;
-    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
-    HyperFunctions1->DispClassifiedImage();
+     
+  void * data_new=data;
+  img_struct_gtk *img_struct1=static_cast<img_struct_gtk*>(data_new);
+  void * data_new2=img_struct1->HyperFunctions1;
+  HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new2);
+  
+  cv::Mat output=HyperFunctions1->classified_img;
+   cv::resize(output,output,Size(HyperFunctions1->WINDOW_WIDTH, HyperFunctions1->WINDOW_HEIGHT),INTER_LINEAR); 
+  
+    set_pix_buf_from_cv( output, img_struct1->image);
 }
 
 static void show_spec_sim_img(GtkWidget *widget,  gpointer data)
 {
 
-    void * data_new=data;
-    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
-    HyperFunctions1->DispSpecSim();
+    
+  void * data_new=data;
+  img_struct_gtk *img_struct1=static_cast<img_struct_gtk*>(data_new);
+  void * data_new2=img_struct1->HyperFunctions1;
+  HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new2);
+  
+  cv::Mat output=HyperFunctions1->spec_simil_img;
+   cv::resize(output,output,Size(HyperFunctions1->WINDOW_WIDTH, HyperFunctions1->WINDOW_HEIGHT),INTER_LINEAR); 
+  
+    set_pix_buf_from_cv( output, img_struct1->image);
+      
+
+    
+    
 }
 
 static void show_contours(GtkWidget *widget,  gpointer data)
@@ -393,13 +417,18 @@ static void load_img(GtkWidget *widget,  GtkImage*  data)
 static void button_press_callback(GtkWidget *widget,  GdkEventButton *event, gpointer data)
 {
     
- //g_print ("Event box clicked at coordinates %f,%f\n",event->x, event->y);
+// g_print ("Event box clicked at coordinates %f,%f\n",event->x, event->y);
              
     void * data_new=data;
     HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
     
-    HyperFunctions1->cur_loc=Point(int(event->x), int(event->y));         
-             
+    double click_x, click_y, img_x, img_y;
+    click_x = (event->x);
+    click_y = (event->y);
+    img_x = (click_x/ double(HyperFunctions1->WINDOW_WIDTH)  * double(HyperFunctions1->mlt1[0].cols));
+    img_y = (click_y/ double(HyperFunctions1->WINDOW_HEIGHT)  * double(HyperFunctions1->mlt1[0].rows));
+    HyperFunctions1->cur_loc=Point(img_x, img_y );         
+  //cout<<click_x<<" , "<<click_y<<" convert "<<img_x<<" , "<<img_y<<endl;
              
 }
 
@@ -464,13 +493,16 @@ static void calc_spec_sim(GtkWidget *widget,  gpointer data)
 
     void * data_new=data;
     HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
-    gboolean T = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
-    if (T==1) 
-    {
+    //gboolean T = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+    //if (T==1) 
+    //{
     HyperFunctions1->read_ref_spec_json( "../json/spectral_database1.json");
     HyperFunctions1->SpecSimilParent();
-    HyperFunctions1->DispSpecSim();
-    }
+   //HyperFunctions1->DispSpecSim();
+   //}
+   
+   
+
 
        
 }
@@ -480,13 +512,13 @@ static void calc_semantic(GtkWidget *widget,  gpointer data)
 
     void * data_new=data;
     HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
-    gboolean T = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
-    if (T==1) 
-    {
+    //gboolean T = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+    //if (T==1) 
+   // {
         HyperFunctions1->read_ref_spec_json( "../json/spectral_database1.json");
         HyperFunctions1->SemanticSegmenter();
-        HyperFunctions1->DispClassifiedImage();
-    }
+        //HyperFunctions1->DispClassifiedImage();
+    //}
        
 }	
 

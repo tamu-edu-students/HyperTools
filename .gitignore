@@ -33,3 +33,6 @@
 
 #build directory
 **/build/*
+
+# temp ui 
+*.ui~

@@ -67,13 +67,7 @@ int main (int argc, char *argv[])
   button = gtk_builder_get_object (builder, "spectrum_box");
   //Nothing happens when you click on the spectrum image
 
-  button = gtk_builder_get_object (builder, "tiled_img");
-  g_signal_connect (button, "clicked", G_CALLBACK (TileImage), &HyperFunctions1);
-  
-  
-  
-  
-
+ 
   img_struct *gtk_hyper_image, temp_var1;
   gtk_hyper_image=&temp_var1;
   
@@ -100,10 +94,16 @@ int main (int argc, char *argv[])
   g_signal_connect (button, "clicked", G_CALLBACK (show_false_img), gtk_hyper_image);
 
   button = gtk_builder_get_object (builder, "disp_spec_sim_img");
-  g_signal_connect (button, "clicked", G_CALLBACK (show_spec_sim_img), &HyperFunctions1);
+  g_signal_connect (button, "clicked", G_CALLBACK (calc_spec_sim), &HyperFunctions1);
+  g_signal_connect (button, "clicked", G_CALLBACK (show_spec_sim_img), gtk_hyper_image);
 
   button = gtk_builder_get_object (builder, "disp_semantic_img");
-  g_signal_connect (button, "clicked", G_CALLBACK (show_semantic_img), &HyperFunctions1);  
+  g_signal_connect (button, "clicked", G_CALLBACK (calc_semantic), &HyperFunctions1);
+  g_signal_connect (button, "clicked", G_CALLBACK (show_semantic_img), gtk_hyper_image);  
+  
+  button = gtk_builder_get_object (builder, "tiled_img");
+  g_signal_connect (button, "clicked", G_CALLBACK (TileImage), gtk_hyper_image);
+  
   
   //gtk_spin_button_set_value(rgb_spin[0],10); This is how you change the value of a spin button
   button = gtk_builder_get_object (builder, "spin_red");
@@ -126,32 +126,32 @@ int main (int argc, char *argv[])
 
   button = gtk_builder_get_object (builder, "semantic_SAM");
   g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_SAM), &HyperFunctions1);
-  g_signal_connect (button, "toggled", G_CALLBACK (calc_semantic), &HyperFunctions1);
+  //g_signal_connect (button, "toggled", G_CALLBACK (calc_semantic), &HyperFunctions1);
   //g_signal_connect (button, "toggled", G_CALLBACK (show_semantic_img), &HyperFunctions1);
   
   button = gtk_builder_get_object (builder, "semantic_SCM");
   g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_SCM), &HyperFunctions1);
-  g_signal_connect (button, "toggled", G_CALLBACK (calc_semantic), &HyperFunctions1);
+  //g_signal_connect (button, "toggled", G_CALLBACK (calc_semantic), &HyperFunctions1);
   //g_signal_connect (button, "toggled", G_CALLBACK (show_semantic_img), &HyperFunctions1);
    
   button = gtk_builder_get_object (builder, "semantic_SID");
   g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_SID), &HyperFunctions1);
-  g_signal_connect (button, "toggled", G_CALLBACK (calc_semantic), &HyperFunctions1);
+  //g_signal_connect (button, "toggled", G_CALLBACK (calc_semantic), &HyperFunctions1);
   //g_signal_connect (button, "toggled", G_CALLBACK (show_semantic_img), &HyperFunctions1);
 
   button = gtk_builder_get_object (builder, "similarity_SAM");
   g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_SAM), &HyperFunctions1);
-  g_signal_connect (button, "toggled", G_CALLBACK (calc_spec_sim), &HyperFunctions1);
+  //g_signal_connect (button, "toggled", G_CALLBACK (calc_spec_sim), &HyperFunctions1);
   //g_signal_connect (button, "toggled", G_CALLBACK (show_spec_sim_img), &HyperFunctions1);
     
   button = gtk_builder_get_object (builder, "similarity_SCM");
   g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_SCM), &HyperFunctions1);
-  g_signal_connect (button, "toggled", G_CALLBACK (calc_spec_sim), &HyperFunctions1);
+  //g_signal_connect (button, "toggled", G_CALLBACK (calc_spec_sim), &HyperFunctions1);
   //g_signal_connect (button, "toggled", G_CALLBACK (show_spec_sim_img), &HyperFunctions1);
   
   button = gtk_builder_get_object (builder, "similarity_SID");
   g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_SID), &HyperFunctions1);
-  g_signal_connect (button, "toggled", G_CALLBACK (calc_spec_sim), &HyperFunctions1);
+  //g_signal_connect (button, "toggled", G_CALLBACK (calc_spec_sim), &HyperFunctions1);
   //g_signal_connect (button, "toggled", G_CALLBACK (show_spec_sim_img), &HyperFunctions1);
 
   // regenerate object list here here
