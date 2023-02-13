@@ -395,8 +395,10 @@
                 </child>
                 <child>
                   <object class="GtkEntry" id="database_name">
+                    <property name="width-request">212</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
+                    <property name="text" translatable="yes">spectral_database1.json</property>
                     <property name="placeholder-text" translatable="yes">Enter name of database...</property>
                   </object>
                   <packing>

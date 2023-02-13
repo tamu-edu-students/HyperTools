@@ -258,6 +258,33 @@ static void show_false_img(GtkWidget *widget,  gpointer data)
 
 }
 
+static void clear_database(GtkWidget *widget,  GtkImage*  data)
+{
+    void * data_new=data;
+    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
+    HyperFunctions1->save_new_spec_database_json();
+
+}
+
+static void create_database(GtkWidget *widget,  GtkImage*  data)
+{
+    void * data_new=data;
+    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
+    HyperFunctions1->spectral_database="../json/test.json";  // need to get name into here
+    HyperFunctions1->save_new_spec_database_json();
+
+}
+
+static void save_spectrum(GtkWidget *widget,  GtkImage*  data)
+{
+
+    void * data_new=data;
+    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
+    HyperFunctions1->save_ref_spec_json("blah");  // need to get name into here
+
+
+}
+
 static void feature_results(GtkWidget *widget,  gpointer data)
 {
 
@@ -564,5 +591,10 @@ static void get_list_item(GtkComboBox *widget,  gpointer data)
     }
 
 }
+
+
+
+
+
 
 #endif 

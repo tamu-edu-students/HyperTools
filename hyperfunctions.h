@@ -98,9 +98,9 @@ public:
 	void read_spectral_json(string file_name);
 	void writeJSON(Json::Value &event, vector<vector<Point> > &contours, int idx, string classification, int count);
 	void read_img_json(string file_name);
-	void save_ref_spec_json(string file_name); // save real spectrum
+	void save_ref_spec_json(string item_name); 
 	void read_ref_spec_json(string file_name);
-	void save_new_spec_database_json(string file_name);
+	void save_new_spec_database_json();
 
 };
 

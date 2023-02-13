@@ -161,6 +161,14 @@ int main (int argc, char *argv[])
   // selected item is changed
   g_signal_connect (button, "changed", G_CALLBACK (get_list_item), &HyperFunctions1);
   
+  button = gtk_builder_get_object (builder, "clear_database");
+  g_signal_connect (button, "clicked", G_CALLBACK (clear_database), &HyperFunctions1);
+  
+  button = gtk_builder_get_object (builder, "create_database");
+  g_signal_connect (button, "clicked", G_CALLBACK (create_database), &HyperFunctions1);
+  
+  button = gtk_builder_get_object (builder, "save_spectrum");
+  g_signal_connect (button, "clicked", G_CALLBACK (save_spectrum), &HyperFunctions1);
   
   
   button = gtk_builder_get_object (builder, "quit");

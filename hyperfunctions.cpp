@@ -623,16 +623,17 @@ void  HyperFunctions::read_img_json(string file_name)
 
 
 }
-void  HyperFunctions::save_ref_spec_json(string file_name)
+void  HyperFunctions::save_ref_spec_json(string item_name)
 {
     int img_hist[mlt1.size()-1];
-    for (int i=0; i<=mlt1.size();i++)
+    for (int i=0; i<=mlt1.size()-1;i++)
     {
-        img_hist[i]=0;
+        img_hist[i]=mlt1[i].at<uchar>(cur_loc);
     }
-    string user_input;
-    cout<< "Enter Classification of Pixel"<<endl;
-    cin>>user_input;
+
+    string user_input=item_name;
+    //cout<< "Enter Classification of Pixel"<<endl;
+    //cin>>user_input;
     ifstream ifs(camera_database );
     Json::Reader reader;
     Json::Value completeJsonData;
@@ -643,13 +644,13 @@ void  HyperFunctions::save_ref_spec_json(string file_name)
     spect_step = completeJsonData["Ultris_X20"]["Camera_Information"]["Spectral_Sampling"].asInt();
 
     // modify spectral database  
-    ifstream ifs2(file_name);
+    ifstream ifs2(spectral_database);
     Json::Reader reader2;
     Json::Value completeJsonData2;
     reader.parse(ifs2,completeJsonData2);
 
     std::ofstream file_id;
-    file_id.open(file_name);
+    file_id.open(spectral_database);
     Json::Value value_obj;
     value_obj = completeJsonData2;
     // save histogram to json file 
@@ -667,6 +668,7 @@ void  HyperFunctions::save_ref_spec_json(string file_name)
     Json::StyledWriter styledWriter;
     file_id << styledWriter.write(value_obj);
     file_id.close();
+
 }
 
 void  HyperFunctions::read_ref_spec_json(string file_name)
@@ -717,10 +719,10 @@ void  HyperFunctions::read_ref_spec_json(string file_name)
 
 }
 
-void  HyperFunctions::save_new_spec_database_json(string file_name)
+void  HyperFunctions::save_new_spec_database_json()
 {
     std::ofstream file_id3;
-    file_id3.open(file_name);
+    file_id3.open(spectral_database);
     Json::Value new_obj;
     Json::StyledWriter styledWriter2;
     new_obj["Spectral_Information"]={};
