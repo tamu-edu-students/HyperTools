@@ -55,7 +55,7 @@ main (int   argc,
   g_signal_connect (button, "clicked", G_CALLBACK (show_difference), &HyperFunctions1);
 
   button = gtk_builder_get_object (builder, "orig_img");
-  g_signal_connect (button, "clicked", G_CALLBACK (show_semantic_img), &HyperFunctions1);
+  g_signal_connect (button, "clicked", G_CALLBACK (show_semantic_img2), &HyperFunctions1);
   
   button = gtk_builder_get_object (builder, "scale_approx_poly");
   g_signal_connect (button, "value-changed", G_CALLBACK (set_approx_poly), &HyperFunctions1);
