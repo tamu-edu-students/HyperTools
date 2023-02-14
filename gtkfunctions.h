@@ -46,10 +46,16 @@
 	static void feature_images(GtkWidget *widget,  gpointer data);	
 	static void calc_spec_sim(GtkWidget *widget,  gpointer data);
 	static void calc_semantic(GtkWidget *widget,  gpointer data);
+	static void get_text_gtk(GtkWidget *widget,  gpointer data);
+	
+	
 	static void load_img(GtkWidget *widget,  GtkImage*  data);
-	static void clear_database(GtkWidget *widget,  GtkImage*  data);
-	static void create_database(GtkWidget *widget,  GtkImage*  data);
-	static void save_spectrum(GtkWidget *widget,  GtkImage*  data);
+	static void clear_database(GtkWidget *widget,  gpointer data);
+	static void create_database(GtkWidget *widget,  gpointer data);
+	static void save_spectrum(GtkWidget *widget,  gpointer data);
+	
+	
+	
 
 	static void get_class_list(GtkComboBoxText *widget,  GdkEventButton *event,gpointer data);
 	static void button_press_callback(GtkWidget *widget,  GdkEventButton *event, gpointer data);

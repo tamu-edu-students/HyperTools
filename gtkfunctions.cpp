@@ -17,6 +17,11 @@ struct img_struct_gtk {
   HyperFunctions *HyperFunctions1;
   } ;
   
+  struct entry_struct_gtk {
+  GObject *entry;
+  HyperFunctions *HyperFunctions1;
+  } ;
+  
   
 static void print_hello (GtkWidget *widget, gpointer   data)
 {
@@ -258,7 +263,7 @@ static void show_false_img(GtkWidget *widget,  gpointer data)
 
 }
 
-static void clear_database(GtkWidget *widget,  GtkImage*  data)
+static void clear_database(GtkWidget *widget,  gpointer data)
 {
     void * data_new=data;
     HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
@@ -266,21 +271,35 @@ static void clear_database(GtkWidget *widget,  GtkImage*  data)
 
 }
 
-static void create_database(GtkWidget *widget,  GtkImage*  data)
+static void create_database(GtkWidget *widget,  gpointer data)
 {
+
+    
     void * data_new=data;
-    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
-    HyperFunctions1->spectral_database="../json/test.json";  // need to get name into here
-    HyperFunctions1->save_new_spec_database_json();
+  entry_struct_gtk *entry_struct1=static_cast<entry_struct_gtk*>(data_new);
+  void * data_new2=entry_struct1->HyperFunctions1;
+  HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new2);
+  string text_val=gtk_entry_get_text(GTK_ENTRY(entry_struct1->entry));
+  HyperFunctions1->spectral_database="../json/" + text_val;
+  HyperFunctions1->save_new_spec_database_json();
+    
 
 }
 
-static void save_spectrum(GtkWidget *widget,  GtkImage*  data)
+static void save_spectrum(GtkWidget *widget,  gpointer data)
 {
 
-    void * data_new=data;
+    /*void * data_new=data;
     HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
-    HyperFunctions1->save_ref_spec_json("blah");  // need to get name into here
+    HyperFunctions1->save_ref_spec_json("blah");  // need to get name into here*/
+    
+  void * data_new=data;
+  entry_struct_gtk *entry_struct1=static_cast<entry_struct_gtk*>(data_new);
+  void * data_new2=entry_struct1->HyperFunctions1;
+  HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new2);
+  string text_val=gtk_entry_get_text(GTK_ENTRY(entry_struct1->entry));
+  HyperFunctions1->save_ref_spec_json(text_val.c_str());
+  
 
 
 }
@@ -316,6 +335,18 @@ static void print_transformation(GtkWidget *widget,  gpointer data)
     HyperFunctions1->FeatureTransformation();
 
 }	
+
+
+static void get_text_gtk(GtkWidget *widget,  gpointer data)
+{
+
+
+    void * data_new=data;
+    //HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
+    cout<<gtk_entry_get_text(GTK_ENTRY(widget))<<endl;
+    
+
+}
 
 static void set_img_layer(GtkSpinButton *widget,  gpointer data)
 {

@@ -13,6 +13,11 @@ using namespace std;
   HyperFunctions *HyperFunctions1;
   } ;
   
+  struct entry_struct {
+  GObject *entry;
+  HyperFunctions *HyperFunctions1;
+  } ;
+  
   
 int main (int argc, char *argv[])
 {
@@ -70,13 +75,28 @@ int main (int argc, char *argv[])
  
   img_struct *gtk_hyper_image, temp_var1;
   gtk_hyper_image=&temp_var1;
-  
   GObject *image;
-  
   image= gtk_builder_get_object (builder, "image1");
   
   (*gtk_hyper_image).image=image;
   (*gtk_hyper_image).HyperFunctions1=&HyperFunctions1;
+
+
+  entry_struct *gtk_hyper_entry, temp_var3;
+  gtk_hyper_entry=&temp_var3;
+  
+  button = gtk_builder_get_object (builder, "database_name");
+  (*gtk_hyper_entry).entry=button;
+  (*gtk_hyper_entry).HyperFunctions1=&HyperFunctions1;
+  button = gtk_builder_get_object (builder, "create_database");
+  g_signal_connect (button, "clicked", G_CALLBACK (create_database), gtk_hyper_entry);
+
+
+  button = gtk_builder_get_object (builder, "spectrum_name");
+  (*gtk_hyper_entry).entry=button;
+  (*gtk_hyper_entry).HyperFunctions1=&HyperFunctions1;
+  button = gtk_builder_get_object (builder, "save_spectrum");
+  g_signal_connect (button, "clicked", G_CALLBACK (save_spectrum), gtk_hyper_entry);
 
   
   image= gtk_builder_get_object (builder, "spec_curve");
@@ -163,12 +183,6 @@ int main (int argc, char *argv[])
   
   button = gtk_builder_get_object (builder, "clear_database");
   g_signal_connect (button, "clicked", G_CALLBACK (clear_database), &HyperFunctions1);
-  
-  button = gtk_builder_get_object (builder, "create_database");
-  g_signal_connect (button, "clicked", G_CALLBACK (create_database), &HyperFunctions1);
-  
-  button = gtk_builder_get_object (builder, "save_spectrum");
-  g_signal_connect (button, "clicked", G_CALLBACK (save_spectrum), &HyperFunctions1);
   
   
   button = gtk_builder_get_object (builder, "quit");
