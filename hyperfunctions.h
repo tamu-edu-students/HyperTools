@@ -36,6 +36,8 @@ public:
 	vector<KeyPoint> keypoints1, keypoints2;
 	vector<vector<int>> reference_spectrums;
 	vector<Vec3b> reference_colors;
+	
+	Point cur_loc=Point(0, 0);
 
 	double polygon_approx_coeff=0;
 	double avgDist=35;
@@ -96,9 +98,9 @@ public:
 	void read_spectral_json(string file_name);
 	void writeJSON(Json::Value &event, vector<vector<Point> > &contours, int idx, string classification, int count);
 	void read_img_json(string file_name);
-	void save_ref_spec_json(string file_name); // save real spectrum
+	void save_ref_spec_json(string item_name); 
 	void read_ref_spec_json(string file_name);
-	void save_new_spec_database_json(string file_name);
+	void save_new_spec_database_json();
 
 };
 

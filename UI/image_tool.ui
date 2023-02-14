@@ -28,7 +28,7 @@
     <property name="border-width">10</property>
     <property name="title">Hyperspectral Image Analysis Tool</property>
     <child>
-      <!-- n-columns=7 n-rows=4 -->
+      <!-- n-columns=7 n-rows=5 -->
       <object class="GtkGrid" id="grid">
         <property name="visible">True</property>
         <property name="can-focus">False</property>
@@ -208,7 +208,7 @@
                 </child>
                 <child>
                   <object class="GtkButton" id="disp_semantic_img">
-                    <property name="label" translatable="yes">Display Semantic Image</property>
+                    <property name="label" translatable="yes">Update Semantic Image</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">True</property>
@@ -315,7 +315,7 @@
                 </child>
                 <child>
                   <object class="GtkButton" id="disp_spec_sim_img">
-                    <property name="label" translatable="yes">Display Spectral Similarity Image</property>
+                    <property name="label" translatable="yes">Update  Spectral Similarity Image</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">True</property>
@@ -395,8 +395,10 @@
                 </child>
                 <child>
                   <object class="GtkEntry" id="database_name">
+                    <property name="width-request">212</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
+                    <property name="text" translatable="yes">spectral_database1.json</property>
                     <property name="placeholder-text" translatable="yes">Enter name of database...</property>
                   </object>
                   <packing>
@@ -406,7 +408,6 @@
                 </child>
                 <child>
                   <object class="GtkLabel" id="database_feedback">
-                    <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="label" translatable="yes">Provides feedback to user</property>
                   </object>
@@ -477,48 +478,17 @@
             <property name="visible">True</property>
             <property name="can-focus">False</property>
             <child>
-              <placeholder/>
+              <object class="GtkImage" id="spec_curve">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="stock">gtk-missing-image</property>
+              </object>
             </child>
           </object>
           <packing>
             <property name="left-attach">3</property>
             <property name="top-attach">2</property>
             <property name="width">4</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkEventBox" id="image_box">
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
-            <child>
-              <placeholder/>
-            </child>
-          </object>
-          <packing>
-            <property name="left-attach">0</property>
-            <property name="top-attach">3</property>
-            <property name="width">7</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkSwitch" id="show_spectrum">
-            <property name="visible">True</property>
-            <property name="can-focus">True</property>
-          </object>
-          <packing>
-            <property name="left-attach">4</property>
-            <property name="top-attach">1</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkLabel" id="show_spectrum_label">
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
-            <property name="label" translatable="yes"> Show Spectrum </property>
-          </object>
-          <packing>
-            <property name="left-attach">4</property>
-            <property name="top-attach">0</property>
           </packing>
         </child>
         <child>
@@ -533,6 +503,76 @@
             <property name="left-attach">1</property>
             <property name="top-attach">0</property>
           </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="show_spectrum_label">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="label" translatable="yes">Pixel Spectrum</property>
+          </object>
+          <packing>
+            <property name="left-attach">4</property>
+            <property name="top-attach">1</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkEventBox" id="image_box">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <child>
+              <object class="GtkImage" id="image1">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="stock">gtk-missing-image</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="left-attach">2</property>
+            <property name="top-attach">4</property>
+            <property name="width">4</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="cur_img">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="label" translatable="yes">Output Image </property>
+          </object>
+          <packing>
+            <property name="left-attach">2</property>
+            <property name="top-attach">3</property>
+          </packing>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
         </child>
         <child>
           <placeholder/>

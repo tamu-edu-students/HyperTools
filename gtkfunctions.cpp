@@ -5,10 +5,24 @@
 #include "gtkfunctions.h"
 #include "hyperfunctions.cpp"
 #include <string>
+#include <opencv2/plot.hpp>
+
 
 using namespace std;
 using namespace cv;
 
+
+struct img_struct_gtk {
+  GtkImage *image;
+  HyperFunctions *HyperFunctions1;
+  } ;
+  
+  struct entry_struct_gtk {
+  GObject *entry;
+  HyperFunctions *HyperFunctions1;
+  } ;
+  
+  
 static void print_hello (GtkWidget *widget, gpointer   data)
 {
   g_print ("Hello World\n");
@@ -26,10 +40,18 @@ static void choose_image_file(GtkFileChooser *widget,  gpointer data) {
 
 static void    TileImage(GtkWidget *widget,  gpointer data)
 {
-    void * data_new=data;
-    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
-    HyperFunctions1->TileImage();
-    HyperFunctions1->DispTiled();
+   
+      void * data_new=data;
+  img_struct_gtk *img_struct1=static_cast<img_struct_gtk*>(data_new);
+  void * data_new2=img_struct1->HyperFunctions1;
+  HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new2);
+  
+  HyperFunctions1->TileImage();
+  cv::Mat output=HyperFunctions1->tiled_img;
+   cv::resize(output,output,Size(HyperFunctions1->WINDOW_WIDTH, HyperFunctions1->WINDOW_HEIGHT),INTER_LINEAR); 
+  
+    set_pix_buf_from_cv( output, img_struct1->image);
+    
 }
 
 static void    EdgeDetection(GtkWidget *widget,  gpointer data)
@@ -43,18 +65,35 @@ static void    EdgeDetection(GtkWidget *widget,  gpointer data)
 
 static void show_semantic_img(GtkWidget *widget,  gpointer data)
 {
-
-    void * data_new=data;
-    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
-    HyperFunctions1->DispClassifiedImage();
+     
+  void * data_new=data;
+  img_struct_gtk *img_struct1=static_cast<img_struct_gtk*>(data_new);
+  void * data_new2=img_struct1->HyperFunctions1;
+  HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new2);
+  
+  cv::Mat output=HyperFunctions1->classified_img;
+   cv::resize(output,output,Size(HyperFunctions1->WINDOW_WIDTH, HyperFunctions1->WINDOW_HEIGHT),INTER_LINEAR); 
+  
+    set_pix_buf_from_cv( output, img_struct1->image);
 }
 
 static void show_spec_sim_img(GtkWidget *widget,  gpointer data)
 {
 
-    void * data_new=data;
-    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
-    HyperFunctions1->DispSpecSim();
+    
+  void * data_new=data;
+  img_struct_gtk *img_struct1=static_cast<img_struct_gtk*>(data_new);
+  void * data_new2=img_struct1->HyperFunctions1;
+  HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new2);
+  
+  cv::Mat output=HyperFunctions1->spec_simil_img;
+   cv::resize(output,output,Size(HyperFunctions1->WINDOW_WIDTH, HyperFunctions1->WINDOW_HEIGHT),INTER_LINEAR); 
+  
+    set_pix_buf_from_cv( output, img_struct1->image);
+      
+
+    
+    
 }
 
 static void show_contours(GtkWidget *widget,  gpointer data)
@@ -113,7 +152,7 @@ static void set_false_img_r(GtkSpinButton *widget,  gpointer data)
     HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
     HyperFunctions1->false_img_r=result;
     HyperFunctions1->GenerateFalseImg();
-    HyperFunctions1->DispFalseImage();
+
        
 }
 
@@ -141,25 +180,126 @@ static void set_false_img_b(GtkSpinButton *widget,  gpointer data)
        
 }
 
+
+static void set_pix_buf_from_cv(cv::Mat output, GtkImage *image)
+{
+ 
+ int channels=output.channels();
+ GdkPixbuf* pixbuf=gdk_pixbuf_new(GDK_COLORSPACE_RGB, channels==4, 8, output.cols, output.rows);
+ guchar* data3=gdk_pixbuf_get_pixels(pixbuf);
+ int stride = gdk_pixbuf_get_rowstride(pixbuf);
+ for (int y=0;y<output.rows;y++)
+ {
+    for(int x=0;x<output.cols;x++)
+    {
+        if (channels==3)
+        {
+            cv::Vec3b pixel = output.at<cv::Vec3b>(y,x);
+            data3[y*stride+x*channels+ 0]=pixel[2];
+            data3[y*stride+x*channels+ 1]=pixel[1];
+            data3[y*stride+x*channels+ 2]=pixel[0];    
+        
+        }
+        else if(channels==4)
+        {
+            data3[y*stride+x*channels+ 3]=255;  
+        }
+        else if(channels==1)
+        {
+            int pixel = output.at<uchar>(y,x);
+            data3[y*stride+3*x*channels+ 0]=pixel;
+            data3[y*stride+3*x*channels+ 1]=pixel;
+            data3[y*stride+3*x*channels+ 2]=pixel;   
+        }
+        
+    }
+ 
+ }
+ gtk_image_set_from_pixbuf(image, pixbuf);
+
+}
+
 static void set_false_img_standard_rgb(GtkWidget *widget,  gpointer data)
 {
 
-    void * data_new=data;
-    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
+  
+  
+  void * data_new=data;
+  img_struct_gtk *img_struct1=static_cast<img_struct_gtk*>(data_new);
+  void * data_new2=img_struct1->HyperFunctions1;
+  HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new2);
+  
+  
     HyperFunctions1->false_img_r=163;
     HyperFunctions1->false_img_g=104;
     HyperFunctions1->false_img_b=65;
     HyperFunctions1->GenerateFalseImg();
-    HyperFunctions1->DispFalseImage();
-   
+ 
+
+  
+  cv::Mat output=HyperFunctions1->false_img;
+  cv::resize(output,output,Size(HyperFunctions1->WINDOW_WIDTH, HyperFunctions1->WINDOW_HEIGHT),INTER_LINEAR); 
+  
+  set_pix_buf_from_cv( output, img_struct1->image);
+
 }	
 
 static void show_false_img(GtkWidget *widget,  gpointer data)
 {
+
+ 
+  void * data_new=data;
+  img_struct_gtk *img_struct1=static_cast<img_struct_gtk*>(data_new);
+  void * data_new2=img_struct1->HyperFunctions1;
+  HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new2);
+  HyperFunctions1->GenerateFalseImg();
+  cv::Mat output=HyperFunctions1->false_img;
+   cv::resize(output,output,Size(HyperFunctions1->WINDOW_WIDTH, HyperFunctions1->WINDOW_HEIGHT),INTER_LINEAR); 
+  
+    set_pix_buf_from_cv( output, img_struct1->image);
+      
+
+ 
+
+}
+
+static void clear_database(GtkWidget *widget,  gpointer data)
+{
     void * data_new=data;
     HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
-    HyperFunctions1->GenerateFalseImg();
-    HyperFunctions1->DispFalseImage();
+    HyperFunctions1->save_new_spec_database_json();
+
+}
+
+static void create_database(GtkWidget *widget,  gpointer data)
+{
+
+    
+    void * data_new=data;
+  entry_struct_gtk *entry_struct1=static_cast<entry_struct_gtk*>(data_new);
+  void * data_new2=entry_struct1->HyperFunctions1;
+  HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new2);
+  string text_val=gtk_entry_get_text(GTK_ENTRY(entry_struct1->entry));
+  HyperFunctions1->spectral_database="../json/" + text_val;
+  HyperFunctions1->save_new_spec_database_json();
+    
+
+}
+
+static void save_spectrum(GtkWidget *widget,  gpointer data)
+{
+
+    /*void * data_new=data;
+    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
+    HyperFunctions1->save_ref_spec_json("blah");  // need to get name into here*/
+    
+  void * data_new=data;
+  entry_struct_gtk *entry_struct1=static_cast<entry_struct_gtk*>(data_new);
+  void * data_new2=entry_struct1->HyperFunctions1;
+  HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new2);
+  string text_val=gtk_entry_get_text(GTK_ENTRY(entry_struct1->entry));
+  HyperFunctions1->save_ref_spec_json(text_val.c_str());
+  
 
 
 }
@@ -195,6 +335,18 @@ static void print_transformation(GtkWidget *widget,  gpointer data)
     HyperFunctions1->FeatureTransformation();
 
 }	
+
+
+static void get_text_gtk(GtkWidget *widget,  gpointer data)
+{
+
+
+    void * data_new=data;
+    //HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
+    cout<<gtk_entry_get_text(GTK_ENTRY(widget))<<endl;
+    
+
+}
 
 static void set_img_layer(GtkSpinButton *widget,  gpointer data)
 {
@@ -308,21 +460,90 @@ static void set_spec_sim_alg_SID(GtkWidget *widget,  gpointer data)
 
 static void load_img(GtkWidget *widget,  GtkImage*  data)
 {
-
-  //  gtk_image_clear (data);  GtkImage*
-  gtk_image_set_from_file(data,"../lena3.png");
-  g_print ("Hello World\n");
+  
+  void * data_new=data;
+  img_struct_gtk *img_struct1=static_cast<img_struct_gtk*>(data_new);
+  void * data_new2=img_struct1->HyperFunctions1;
+  HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new2);
+  
+  cv::Mat output=HyperFunctions1->false_img;
+    cv::resize(output,output,Size(HyperFunctions1->WINDOW_WIDTH, HyperFunctions1->WINDOW_HEIGHT),INTER_LINEAR); 
+  set_pix_buf_from_cv( output, img_struct1->image);
 }
 
 
 static void button_press_callback(GtkWidget *widget,  GdkEventButton *event, gpointer data)
 {
     
- g_print ("Event box clicked at coordinates %f,%f\n",
-             event->x, event->y);
+// g_print ("Event box clicked at coordinates %f,%f\n",event->x, event->y);
+             
+    void * data_new=data;
+    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
+    
+    double click_x, click_y, img_x, img_y;
+    click_x = (event->x);
+    click_y = (event->y);
+    img_x = (click_x/ double(HyperFunctions1->WINDOW_WIDTH)  * double(HyperFunctions1->mlt1[0].cols));
+    img_y = (click_y/ double(HyperFunctions1->WINDOW_HEIGHT)  * double(HyperFunctions1->mlt1[0].rows));
+    HyperFunctions1->cur_loc=Point(img_x, img_y );         
+  //cout<<click_x<<" , "<<click_y<<" convert "<<img_x<<" , "<<img_y<<endl;
+             
 }
 
+static void show_spectrum(GtkWidget *widget, GdkEventButton *event, gpointer data)
+{
 
+ void * data_new=data;
+  img_struct_gtk *img_struct1=static_cast<img_struct_gtk*>(data_new);
+  void * data_new2=img_struct1->HyperFunctions1;
+  HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new2);
+
+
+ // show the spectrum here 
+  // https://github.com/opencv/opencv_contrib/blob/master/modules/plot/samples/plot_demo.cpp 
+    // https://docs.opencv.org/4.x/d0/d1e/classcv_1_1plot_1_1Plot2d.html
+    
+    Mat data_x( 1, HyperFunctions1->mlt1.size(), CV_64F ); // wavelength
+    Mat data_y( 1, HyperFunctions1->mlt1.size(), CV_64F ); // reflectance value
+
+    for ( int i = 0; i < data_x.cols; i++ )
+    {
+        data_x.at<double>( 0, i ) = i;
+        data_y.at<double>( 0, i ) = HyperFunctions1->mlt1[i].at<uchar>(HyperFunctions1->cur_loc);
+    }
+
+    
+
+    Mat plot_result;
+
+    Ptr<plot::Plot2d> plot = plot::Plot2d::create( data_x, data_y );
+    plot->render(plot_result);
+    plot->setShowText( false );
+    plot->setPlotBackgroundColor( Scalar( 255, 200, 200 ) );
+    plot->setPlotLineColor( Scalar( 255, 0, 0 ) );
+    plot->setPlotLineWidth( 2 );
+    plot->setInvertOrientation( true );
+    plot->setMinY(0);
+    plot->setMaxY(256);
+    
+    
+    
+    plot->render( plot_result );
+  cv::Mat output=plot_result;//HyperFunctions1->false_img;
+
+
+
+
+
+
+  cv::resize(output,output,Size(400,200),INTER_LINEAR); 
+  
+    set_pix_buf_from_cv( output, img_struct1->image);
+
+
+
+
+}
 
 static void calc_spec_sim(GtkWidget *widget,  gpointer data)
 {
@@ -330,13 +551,16 @@ static void calc_spec_sim(GtkWidget *widget,  gpointer data)
 
     void * data_new=data;
     HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
-    gboolean T = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
-    if (T==1) 
-    {
+    //gboolean T = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+    //if (T==1) 
+    //{
     HyperFunctions1->read_ref_spec_json( "../json/spectral_database1.json");
     HyperFunctions1->SpecSimilParent();
-    HyperFunctions1->DispSpecSim();
-    }
+   //HyperFunctions1->DispSpecSim();
+   //}
+   
+   
+
 
        
 }
@@ -346,13 +570,13 @@ static void calc_semantic(GtkWidget *widget,  gpointer data)
 
     void * data_new=data;
     HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
-    gboolean T = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
-    if (T==1) 
-    {
+    //gboolean T = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+    //if (T==1) 
+   // {
         HyperFunctions1->read_ref_spec_json( "../json/spectral_database1.json");
         HyperFunctions1->SemanticSegmenter();
-        HyperFunctions1->DispClassifiedImage();
-    }
+        //HyperFunctions1->DispClassifiedImage();
+    //}
        
 }	
 
@@ -398,5 +622,10 @@ static void get_list_item(GtkComboBox *widget,  gpointer data)
     }
 
 }
+
+
+
+
+
 
 #endif 

@@ -3,7 +3,10 @@
 
 	static void print_hello (GtkWidget *widget, gpointer data);
 
-
+    static void set_pix_buf_from_cv(cv::Mat output, GtkImage *image);
+    
+    
+    
 	static void set_false_img_r(GtkSpinButton *widget,  gpointer data);
 	static void set_false_img_g(GtkSpinButton *widget,  gpointer data);
 	static void set_false_img_b(GtkSpinButton *widget,  gpointer data);
@@ -25,8 +28,6 @@
 	static void set_spec_sim_alg_SCM(GtkWidget *widget,  gpointer data);
 	static void set_spec_sim_alg_SID(GtkWidget *widget,  gpointer data);
 
-	static void show_spectrum(GtkSpinButton *widget,  gpointer data);
-
 	static void show_spec_sim_img(GtkWidget *widget,  gpointer data);
 	static void show_semantic_img(GtkWidget *widget,  gpointer data);
 	static void show_contours(GtkWidget *widget,  gpointer data);
@@ -45,8 +46,18 @@
 	static void feature_images(GtkWidget *widget,  gpointer data);	
 	static void calc_spec_sim(GtkWidget *widget,  gpointer data);
 	static void calc_semantic(GtkWidget *widget,  gpointer data);
+	static void get_text_gtk(GtkWidget *widget,  gpointer data);
+	
+	
 	static void load_img(GtkWidget *widget,  GtkImage*  data);
+	static void clear_database(GtkWidget *widget,  gpointer data);
+	static void create_database(GtkWidget *widget,  gpointer data);
+	static void save_spectrum(GtkWidget *widget,  gpointer data);
+	
+	
+	
 
 	static void get_class_list(GtkComboBoxText *widget,  GdkEventButton *event,gpointer data);
 	static void button_press_callback(GtkWidget *widget,  GdkEventButton *event, gpointer data);
+	static void show_spectrum(GtkWidget *widget,GdkEventButton *event,  gpointer data);
 
