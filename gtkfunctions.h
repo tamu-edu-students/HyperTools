@@ -30,6 +30,7 @@
 
 	static void show_spec_sim_img(GtkWidget *widget,  gpointer data);
 	static void show_semantic_img(GtkWidget *widget,  gpointer data);
+	static void show_semantic_img2(GtkWidget *widget,  gpointer data);
 	static void show_contours(GtkWidget *widget,  gpointer data);
 	static void show_difference(GtkWidget *widget,  gpointer data);
 	static void show_false_img(GtkWidget *widget,  gpointer data);

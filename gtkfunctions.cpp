@@ -77,6 +77,15 @@ static void show_semantic_img(GtkWidget *widget,  gpointer data)
     set_pix_buf_from_cv( output, img_struct1->image);
 }
 
+static void show_semantic_img2(GtkWidget *widget,  gpointer data)
+{
+     
+    void * data_new=data;
+    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
+    HyperFunctions1->DispClassifiedImage();
+
+}
+
 static void show_spec_sim_img(GtkWidget *widget,  gpointer data)
 {
 
