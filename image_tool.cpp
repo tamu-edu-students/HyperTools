@@ -17,8 +17,16 @@ using namespace std;
   GObject *entry;
   HyperFunctions *HyperFunctions1;
   } ;
+
+  struct spin_struct {
+  GObject *button1;
+  GObject *button2;
+  GObject *button3;
+  HyperFunctions *HyperFunctions1;
+  } ;
   
-  
+  //cubert hyperspectral has their band info online
+  //112-113 is the non-red band
 int main (int argc, char *argv[])
 {
   GtkBuilder *builder;
@@ -84,6 +92,8 @@ int main (int argc, char *argv[])
 
   entry_struct *gtk_hyper_entry, temp_var3;
   gtk_hyper_entry=&temp_var3;
+  //Why does gtk_hyper_entry get used for both of the following buttons
+  //What is the point of temp_vars
   
   button = gtk_builder_get_object (builder, "database_name");
   (*gtk_hyper_entry).entry=button;
@@ -125,21 +135,30 @@ int main (int argc, char *argv[])
   g_signal_connect (button, "clicked", G_CALLBACK (TileImage), gtk_hyper_image);
   
   
+  spin_struct *gtk_spin_buttons, temp_var4;
+  gtk_spin_buttons=&temp_var4;
+  (*gtk_spin_buttons).HyperFunctions1 = &HyperFunctions1;
+  
+
   //gtk_spin_button_set_value(rgb_spin[0],10); This is how you change the value of a spin button
   button = gtk_builder_get_object (builder, "spin_red");
-  g_signal_connect (button, "value-changed", G_CALLBACK (set_false_img_r), &HyperFunctions1);
+  (*gtk_spin_buttons).button1 = button;
+  g_signal_connect (button, "value-changed", G_CALLBACK (set_false_img_r), gtk_hyper_image);
   
  
   button = gtk_builder_get_object (builder, "spin_green");
+  (*gtk_spin_buttons).button2 = button;
   g_signal_connect (button, "value-changed", G_CALLBACK (set_false_img_g), &HyperFunctions1);
   
   
   button = gtk_builder_get_object (builder, "spin_blue");
+  (*gtk_spin_buttons).button3 = button;
   g_signal_connect (button, "value-changed", G_CALLBACK (set_false_img_b), &HyperFunctions1);  
   
 
   button = gtk_builder_get_object (builder, "false_img_standard");
   g_signal_connect (button, "clicked", G_CALLBACK (set_false_img_standard_rgb), gtk_hyper_image);
+  g_signal_connect (button, "clicked", G_CALLBACK (adjust_spin_buttons), gtk_spin_buttons);
   //g_signal_connect (button, "clicked", G_CALLBACK (set_false_img_standard_rgb), &HyperFunctions1);
   //reset r,g,b spin buttons to standard values here
   // currently not implemented

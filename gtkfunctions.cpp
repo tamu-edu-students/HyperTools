@@ -13,14 +13,21 @@ using namespace cv;
 
 
 struct img_struct_gtk {
-  GtkImage *image;
-  HyperFunctions *HyperFunctions1;
-  } ;
+    GtkImage *image;
+    HyperFunctions *HyperFunctions1;
+};
   
-  struct entry_struct_gtk {
-  GObject *entry;
-  HyperFunctions *HyperFunctions1;
-  } ;
+struct entry_struct_gtk {
+    GObject *entry;
+    HyperFunctions *HyperFunctions1;
+};
+
+struct spin_struct_gtk {
+    GtkSpinButton *button1;
+    GtkSpinButton *button2;
+    GtkSpinButton *button3;
+    HyperFunctions *HyperFunctions1;
+};
   
   
 static void print_hello (GtkWidget *widget, gpointer   data)
@@ -156,12 +163,30 @@ static void set_approx_poly(GtkSpinButton *widget,  gpointer data)
 static void set_false_img_r(GtkSpinButton *widget,  gpointer data)
 {
 
+
     int result=gtk_spin_button_get_value (widget);
     void * data_new=data;
-    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
+    img_struct_gtk *img_struct1=static_cast<img_struct_gtk*>(data_new);
+    void * data_new2=img_struct1->HyperFunctions1;
+    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new2);
     HyperFunctions1->false_img_r=result;
     HyperFunctions1->GenerateFalseImg();
+    //HyperFunctions1->DispFalseImage();
 
+    cv::Mat output=HyperFunctions1->false_img;
+    cv::resize(output,output,Size(HyperFunctions1->WINDOW_WIDTH, HyperFunctions1->WINDOW_HEIGHT),INTER_LINEAR); 
+  
+    set_pix_buf_from_cv( output, img_struct1->image);
+    
+
+/*
+
+  cv::Mat output=HyperFunctions1->spec_simil_img;
+   cv::resize(output,output,Size(HyperFunctions1->WINDOW_WIDTH, HyperFunctions1->WINDOW_HEIGHT),INTER_LINEAR); 
+  
+    set_pix_buf_from_cv( output, img_struct1->image);
+
+*/
        
 }
 
@@ -251,7 +276,18 @@ static void set_false_img_standard_rgb(GtkWidget *widget,  gpointer data)
   
   set_pix_buf_from_cv( output, img_struct1->image);
 
-}	
+}
+
+static void adjust_spin_buttons(GtkWidget *widget,  gpointer data) {
+    void * data_new=data;
+    spin_struct_gtk *spin_struct1=static_cast<spin_struct_gtk*>(data_new);
+    void * data_new2=spin_struct1->HyperFunctions1;
+    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new2);
+
+    gtk_spin_button_set_value((*spin_struct1).button1,HyperFunctions1->false_img_r);
+    gtk_spin_button_set_value((*spin_struct1).button2,HyperFunctions1->false_img_g);
+    gtk_spin_button_set_value((*spin_struct1).button3,HyperFunctions1->false_img_b);
+}
 
 static void show_false_img(GtkWidget *widget,  gpointer data)
 {
