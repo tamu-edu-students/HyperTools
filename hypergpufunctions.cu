@@ -9,23 +9,40 @@
 using namespace cv;
 using namespace std;
 
+
+/**
+ * Measures spectral similarity between our image and a reference spectrum
+ * with the Spectral Angle Mapper algorithm using concurrent GPU threads.
+ * 
+ * Formula : 
+ * r^2 = sum of squared reference spectra values, 
+ * i * r = sum of image spectra values * corresponding reference spectra values
+ * i^2 = sum of squared image spectra values. 
+ * 
+ * returns : inverse cos of i * r / (r^2 * i^2). 
+ * 
+*/
 __global__ void img_test_multi_thread_SAM(int *out, int *img_array, int n, int num_layers, int* ref_spectrum) 
 {
     
     // parallelize tasks
-    // pixels are stored with all pixel values next to eachother for the layers    
+    // pixels are stored with all pixel values next to each other for the layers    
     // n is number of pixels 
+    // blockID : block index within the grid
+    // blockDim : how many threads per block
+    // threadIdx : thread index within the block 
+
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     float sum1=0, sum2=0, sum3=0;
     for (int a=0; a<num_layers-1; a++) {
-        sum3+=ref_spectrum[a] *ref_spectrum[a] ;
+        sum3+=ref_spectrum[a] *ref_spectrum[a]; //sum of squared reference spectra values
     }
     if (tid < n){
-        int offset=tid*num_layers;
-        for (int a=0; a<num_layers-1; a++)
+        int offset=tid*num_layers; //calculating which index in the image array the values for threadID pixel start at
+        for (int a=0; a<num_layers-1; a++) //iterating through spectra layers for that pixel
         {
-            sum1+=img_array[offset+a]*ref_spectrum[a] ;
-            sum2+=img_array[offset+a]*img_array[offset+a];
+            sum1+=img_array[offset+a]*ref_spectrum[a]; //image spectra values * corresponding referencec spectrum values
+            sum2+=img_array[offset+a]*img_array[offset+a]; //Squared image spectra values
         }
         
         if (sum1<=0 || sum2<=0 || sum3<=0 )
@@ -34,13 +51,25 @@ __global__ void img_test_multi_thread_SAM(int *out, int *img_array, int n, int n
         }
         else
         {
-        float temp1= sum1/(sqrt(sum2)*sqrt(sum3));
-        double alpha_rad=acos(temp1);
-        out[tid] =(int)((double)alpha_rad*(double)255/(double)3.14159) ;
+            float temp1= sum1/(sqrt(sum2)*sqrt(sum3));
+            double alpha_rad=acos(temp1);
+            out[tid] =(int)((double)alpha_rad*(double)255/(double)3.14159) ;
         }
     }
     
 }
+
+/**
+ * Measures spectral similarity between our image and a reference spectrum
+ * with the Spectral Information Divergence algorithm using concurrent GPU threads.
+ * 
+ * Formula : 
+ * q = probability array for our image, divide image array by sum of image array values.
+ * p = probability array for reference spectrum, divide reference spectrum array by sum of reference spectrum array values
+ * 
+ * returns : sum of p[i] * log(p[i]/q[i]) + sum of q[i] * log(q[i]/p[i]) for 0 <= i < num_layers-1 
+ * 
+*/
 
 __global__ void img_test_multi_thread_SID(int *out, int *img_array, int n, int num_layers, int* ref_spectrum) 
 {
@@ -48,12 +77,15 @@ __global__ void img_test_multi_thread_SID(int *out, int *img_array, int n, int n
     // parallelize tasks
     // pixels are stored with all pixel values next to eachother for the layers    
     // n is number of pixels 
+    // blockID : block index within the grid
+    // blockDim : how many threads per block
+    // threadIdx : thread index within the block 
+
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     float sum1=0, sum2=0, ref_sum=0, pix_sum=0;
 
     if (tid < n){
         int offset=tid*num_layers;
-        
         for (int a=0; a<num_layers-1; a++)
         {
             if (ref_spectrum[a]<1){ref_spectrum[a]+=1;}
@@ -70,16 +102,15 @@ __global__ void img_test_multi_thread_SID(int *out, int *img_array, int n, int n
         
         for (int a=0; a<num_layers-1; a++)
         {
-            ref_new[a]=ref_spectrum[a] / ref_sum ;
-            pix_new[a]=img_array[offset+a]/pix_sum;
+            ref_new[a]=ref_spectrum[a] / ref_sum ; //probability distribution for reference spectrum
+            pix_new[a]=img_array[offset+a]/pix_sum; //probabiltiy distribution for our image
             // error handling to avoid division by zero
-        
         }
         
         for (int a=0; a<num_layers-1; a++)
         {
-            sum1+= ref_new[a]*log(ref_new[a]/pix_new[a]) ;
-            sum2+= pix_new[a]*log(pix_new[a]/ref_new[a])  ;
+            sum1+= ref_new[a]*log(ref_new[a]/pix_new[a]);
+            sum2+= pix_new[a]*log(pix_new[a]/ref_new[a]);
         }        
 
         // need to normalize the results better here
@@ -89,6 +120,14 @@ __global__ void img_test_multi_thread_SID(int *out, int *img_array, int n, int n
     }
     
 }
+
+/**
+ * 
+ * 
+ * 
+ * 
+ * 
+*/
 __global__ void img_test_multi_thread_SCM(int *out, int *img_array, int n, int num_layers, int* ref_spectrum) 
 {
     
@@ -96,7 +135,11 @@ __global__ void img_test_multi_thread_SCM(int *out, int *img_array, int n, int n
     // pixels are stored with all pixel values next to eachother for the layers    
     // n is number of pixels 
 
-    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    // blockID : block index within the grid
+    // blockDim : how many threads per block
+    // threadIdx : thread index within the block 
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x; //unique thread ID
     float sum1=0, sum2=0, sum3=0, mean1=0, mean2=0;
     if (tid < n){
         int offset=tid*num_layers;
@@ -128,7 +171,6 @@ __global__ void img_test_multi_thread_SCM(int *out, int *img_array, int n, int n
 }
 
 void HyperFunctionsGPU::spec_sim_GPU() {
-    //cout << "RUNNING GPU FUNCTION!" << endl;
 
     if (spec_sim_alg == 0) { //running the multithreaded algorithms
         img_test_multi_thread_SAM<<<grid_size,block_size>>>(d_out, d_img_array, N_size, num_lay, d_ref_spectrum);
@@ -143,8 +185,7 @@ void HyperFunctionsGPU::spec_sim_GPU() {
     Mat test_img1(mlt1[1].rows, mlt1[1].cols, CV_8UC1, Scalar(0));
     spec_simil_img=test_img1;
     this->oneD_array_to_mat(out);
-            
-            
+               
 }
 void HyperFunctionsGPU::deallocate_memory() 
 {
@@ -152,42 +193,56 @@ void HyperFunctionsGPU::deallocate_memory()
 }
 
 
-
 void HyperFunctionsGPU::allocate_memory(int* img_array) {
-    //allocating CUDA memory
+
+    /*allocating CUDA memory. 
+    In cuda, grids contain blocks of threads, which are used for parallel computations. 
+    One pixel in our img_array needs one thread for a computation, so threads = number of pixels. 
+    We set the number of threads per block to be 512 - this is the maximum threads per block for older GPUs.
+    We calculate grid size to be the number of of blocks, given by the number of threads / block size + 1. 
+    */
+    
     N_points=mlt1[1].rows*mlt1[1].cols*mlt1.size(); 
     N_size=mlt1[1].rows*mlt1[1].cols;    
     num_lay=  mlt1.size();
     block_size = 512;
-    grid_size = ((N_points + block_size) / block_size);
+    grid_size = ((N_points + block_size) / block_size); 
+
+
 
     int tmp_len1=reference_spectrums[ref_spec_index].size(); 
 
-    cudaHostAlloc ((void**)&out, sizeof(int) *N_size, cudaHostAllocDefault);
+    cudaHostAlloc ((void**)&out, sizeof(int) * N_size, cudaHostAllocDefault);
     cudaMalloc((void**)&d_img_array, sizeof(int) * N_points);
     cudaMalloc((void**)&d_out, sizeof(int) * N_size);
     cudaMalloc((void**)&d_ref_spectrum, sizeof(int) * tmp_len1);
 
+    //allocating memory on the GPU device
+
     int* ref_spectrum=new int[tmp_len1];
     for (int i=0;i<reference_spectrums[ref_spec_index].size();i++)
     {
-        ref_spectrum[i]=reference_spectrums[ref_spec_index][i]  ;
+        ref_spectrum[i] = reference_spectrums[ref_spec_index][i]; 
+        //converting the 2-D array of reference spectrums into one-D for CUDA processing
     }
     cudaMemcpy(d_img_array, img_array, sizeof(int) *  N_points, cudaMemcpyHostToDevice);
     cudaMemcpy(d_ref_spectrum, ref_spectrum, sizeof(int) * tmp_len1, cudaMemcpyHostToDevice);
+
+    //copying our existing memory that holds image data and reference spectrum data to the 
+    //allocated memory on the GPU
 }
 
 
-void HyperFunctionsGPU::oneD_array_to_mat(int* img_array )
+void HyperFunctionsGPU::oneD_array_to_mat(int* img_array)
 {
-
     int val_it=0;
     for (int k=0; k<spec_simil_img.cols; k++)
     {
         for (int j=0; j<spec_simil_img.rows; j++)
         {
-            spec_simil_img.at<uchar>(j,k)=img_array[val_it];
+            spec_simil_img.at<uchar>(j,k)=img_array[val_it]; 
             val_it+=1;
+            //Conversion of 1-d array containing pixel values to 8 bit one channel 2-d OPENCV matrix
         }
     }
 }
@@ -201,14 +256,15 @@ void HyperFunctionsGPU::oneD_array_to_mat(int* img_array, int cols, int rows, in
     {
         for (int j=0; j<rows; j++)
         {
+            Vec3b color = classified_img.at<Vec3b>(Point(0,0));
+            color[0]=img_array[val_it];
+            color[1]=img_array[val_it+1];
+            color[2]=img_array[val_it+2];
+            //cout<<color<<endl;
+            classified_img.at<Vec3b>(Point(k,j))= color;
+            val_it+=3;
 
-                Vec3b color = classified_img.at<Vec3b>(Point(0,0));
-                color[0]=img_array[val_it] ;
-                color[1]= img_array[val_it+1] ;
-                color[2]=img_array[val_it+2] ;
-                //cout<<color<<endl;
-                classified_img.at<Vec3b>(Point(k,j))= color   ;
-                val_it+=3;
+
 
         }
     }
@@ -221,16 +277,13 @@ void mat_to_oneD_array_parallel_child(int id,vector<Mat>* mlt2, int* host_img_ar
     {
         for (int j=0; j<mlt1[1].rows; j++)
         {
-            
             for (int i=0; i<mlt1.size();i++)
             {
                 host_img_array[val_it]=mlt1[i].at<uchar>(j,k);
-                val_it+=1;
-                
+                val_it+=1;    
             }
         }
     }
-   
 }
 
 int* HyperFunctionsGPU::mat_to_oneD_array_parallel_parent()
