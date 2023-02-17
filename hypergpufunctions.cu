@@ -264,8 +264,6 @@ void HyperFunctionsGPU::oneD_array_to_mat(int* img_array, int cols, int rows, in
             classified_img.at<Vec3b>(Point(k,j))= color;
             val_it+=3;
 
-
-
         }
     }
 }
@@ -352,30 +350,41 @@ __global__ void img_test_classifier(int *out, int *img_array, int num_pixels, in
     }   
 }
 
+/**
+ * Takes hyperspectral data and gives each pixel a color based on which reference spectra
+ * it is most similar to. 
+ * 
+ *
+*/
+
 void HyperFunctionsGPU::semantic_segmentation(int* test_array) {
     ref_spec_index = 0;
-    this->allocate_memory(test_array);
+    this->allocate_memory(test_array); //allocating all the memory required to perform spectral similarity
     vector<Mat> similarity_images;
     int tmp_len1 = reference_spectrums[0].size();
     int* ref_spectrum = new int[tmp_len1];
 
-    this->spec_sim_GPU();
+    this->spec_sim_GPU(); 
+    //performs spectral similarity, comparing each pixel in our image array to the first reference spectra. 
     similarity_images.push_back(spec_simil_img);  
 
-    for (int i = 1; i < reference_spectrums.size(); i++) {
+    for (int i = 1; i < reference_spectrums.size(); i++) { //loop to iterate through all the reference spectras. 
         for (int j=0; j < reference_spectrums[i].size(); j++) {
-            ref_spectrum[j] = reference_spectrums[i][j];
+            ref_spectrum[j] = reference_spectrums[i][j]; //updating the reference spectrum we are comparing our pixels to. 
         }
-        cudaMemcpy(d_ref_spectrum, ref_spectrum, sizeof(int) * tmp_len1, cudaMemcpyHostToDevice);
+        cudaMemcpy(d_ref_spectrum, ref_spectrum, sizeof(int) * tmp_len1, cudaMemcpyHostToDevice); 
+        //updating the memory allocated on the GPU that stores the current reference spectra
         this->spec_sim_GPU();
         similarity_images.push_back(spec_simil_img);
     }
 
-    this->deallocate_memory();
+    this->deallocate_memory(); //deallocate memory on GPU used for spectral similarity algorithms
     int array_size2=similarity_images[1].rows*similarity_images[1].cols*similarity_images.size();  
 
-    int* classified_img_array= new int[array_size2];
+    int* classified_img_array = new int[array_size2]; 
     mat_to_oneD_array_parallel_parent(&similarity_images, classified_img_array);
+
+    //converting the vector of matrices that store the similarity values for each reference spectrum into a 1-D array
 
     int *d_color_info, *d_out2, *d_clasified_img_array, *out2;
     int N_size_sim = similarity_images[1].rows*similarity_images[1].cols*3;
