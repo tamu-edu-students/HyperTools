@@ -177,40 +177,58 @@ static void set_false_img_r(GtkSpinButton *widget,  gpointer data)
     cv::resize(output,output,Size(HyperFunctions1->WINDOW_WIDTH, HyperFunctions1->WINDOW_HEIGHT),INTER_LINEAR); 
   
     set_pix_buf_from_cv( output, img_struct1->image);
-    
-
-/*
-
-  cv::Mat output=HyperFunctions1->spec_simil_img;
-   cv::resize(output,output,Size(HyperFunctions1->WINDOW_WIDTH, HyperFunctions1->WINDOW_HEIGHT),INTER_LINEAR); 
-  
-    set_pix_buf_from_cv( output, img_struct1->image);
-
-*/
        
 }
 
 static void set_false_img_g(GtkSpinButton *widget,  gpointer data)
 {
-
+    /*
     int result=gtk_spin_button_get_value (widget);
     void * data_new=data;
     HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
     HyperFunctions1->false_img_g=result;
     HyperFunctions1->GenerateFalseImg();
-    HyperFunctions1->DispFalseImage();
+    HyperFunctions1->DispFalseImage();*/
+
+    int result=gtk_spin_button_get_value (widget);
+    void * data_new=data;
+    img_struct_gtk *img_struct1=static_cast<img_struct_gtk*>(data_new);
+    void * data_new2=img_struct1->HyperFunctions1;
+    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new2);
+    HyperFunctions1->false_img_g=result;
+    HyperFunctions1->GenerateFalseImg();
+    //HyperFunctions1->DispFalseImage();
+
+    cv::Mat output=HyperFunctions1->false_img;
+    cv::resize(output,output,Size(HyperFunctions1->WINDOW_WIDTH, HyperFunctions1->WINDOW_HEIGHT),INTER_LINEAR); 
+  
+    set_pix_buf_from_cv( output, img_struct1->image);
        
 }
 
 static void set_false_img_b(GtkSpinButton *widget,  gpointer data)
 {
-
+    /*
     int result=gtk_spin_button_get_value (widget);
     void * data_new=data;
     HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
     HyperFunctions1->false_img_b=result;
     HyperFunctions1->GenerateFalseImg();
-    HyperFunctions1->DispFalseImage();
+    HyperFunctions1->DispFalseImage();*/
+
+    int result=gtk_spin_button_get_value (widget);
+    void * data_new=data;
+    img_struct_gtk *img_struct1=static_cast<img_struct_gtk*>(data_new);
+    void * data_new2=img_struct1->HyperFunctions1;
+    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new2);
+    HyperFunctions1->false_img_b=result;
+    HyperFunctions1->GenerateFalseImg();
+    //HyperFunctions1->DispFalseImage();
+
+    cv::Mat output=HyperFunctions1->false_img;
+    cv::resize(output,output,Size(HyperFunctions1->WINDOW_WIDTH, HyperFunctions1->WINDOW_HEIGHT),INTER_LINEAR); 
+  
+    set_pix_buf_from_cv( output, img_struct1->image);
        
 }
 
@@ -253,6 +271,27 @@ static void set_pix_buf_from_cv(cv::Mat output, GtkImage *image)
 
 }
 
+static void set_false_img_reset(GtkWidget *widget,  gpointer data) {
+     
+  void * data_new=data;
+  img_struct_gtk *img_struct1=static_cast<img_struct_gtk*>(data_new);
+  void * data_new2=img_struct1->HyperFunctions1;
+  HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new2);
+  
+  
+    HyperFunctions1->false_img_r=0;
+    HyperFunctions1->false_img_g=0;
+    HyperFunctions1->false_img_b=0;
+    HyperFunctions1->GenerateFalseImg();
+ 
+
+  
+  cv::Mat output=HyperFunctions1->false_img;
+  cv::resize(output,output,Size(HyperFunctions1->WINDOW_WIDTH, HyperFunctions1->WINDOW_HEIGHT),INTER_LINEAR); 
+  
+  set_pix_buf_from_cv( output, img_struct1->image);
+}
+
 static void set_false_img_standard_rgb(GtkWidget *widget,  gpointer data)
 {
 
@@ -278,7 +317,19 @@ static void set_false_img_standard_rgb(GtkWidget *widget,  gpointer data)
 
 }
 
-static void adjust_spin_buttons(GtkWidget *widget,  gpointer data) {
+static void set_spin_buttons_reset(GtkWidget *widget,  gpointer data) {
+    //At some point in the future, this function and set_spin_buttons_standard_rgb should be altered to avoid repeating code
+    void * data_new=data;
+    spin_struct_gtk *spin_struct1=static_cast<spin_struct_gtk*>(data_new);
+    void * data_new2=spin_struct1->HyperFunctions1;
+    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new2);
+
+    gtk_spin_button_set_value((*spin_struct1).button1,0);
+    gtk_spin_button_set_value((*spin_struct1).button2,0);
+    gtk_spin_button_set_value((*spin_struct1).button3,0);
+}
+
+static void set_spin_buttons_standard_rgb(GtkWidget *widget,  gpointer data) {
     void * data_new=data;
     spin_struct_gtk *spin_struct1=static_cast<spin_struct_gtk*>(data_new);
     void * data_new2=spin_struct1->HyperFunctions1;
@@ -543,13 +594,15 @@ static void show_spectrum(GtkWidget *widget, GdkEventButton *event, gpointer dat
   void * data_new2=img_struct1->HyperFunctions1;
   HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new2);
 
-
+    cout <<"hi";
  // show the spectrum here 
   // https://github.com/opencv/opencv_contrib/blob/master/modules/plot/samples/plot_demo.cpp 
     // https://docs.opencv.org/4.x/d0/d1e/classcv_1_1plot_1_1Plot2d.html
     
     Mat data_x( 1, HyperFunctions1->mlt1.size(), CV_64F ); // wavelength
     Mat data_y( 1, HyperFunctions1->mlt1.size(), CV_64F ); // reflectance value
+
+    std::cout << "whatever" << std::endl;
 
     for ( int i = 0; i < data_x.cols; i++ )
     {
