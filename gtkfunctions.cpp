@@ -563,7 +563,7 @@ static void calc_spec_sim(GtkWidget *widget,  gpointer data)
     //gboolean T = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
     //if (T==1) 
     //{
-    HyperFunctions1->read_ref_spec_json( "../json/spectral_database1.json");
+    HyperFunctions1->read_ref_spec_json(HyperFunctions1->spectral_database);
     HyperFunctions1->SpecSimilParent();
    //HyperFunctions1->DispSpecSim();
    //}
@@ -582,7 +582,7 @@ static void calc_semantic(GtkWidget *widget,  gpointer data)
     //gboolean T = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
     //if (T==1) 
    // {
-        HyperFunctions1->read_ref_spec_json( "../json/spectral_database1.json");
+        HyperFunctions1->read_ref_spec_json( HyperFunctions1->spectral_database);
         HyperFunctions1->SemanticSegmenter();
         //HyperFunctions1->DispClassifiedImage();
     //}
