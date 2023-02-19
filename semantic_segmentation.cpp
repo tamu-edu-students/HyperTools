@@ -25,7 +25,7 @@ main (int   argc,
     
   HyperFunctions HyperFunctions1;
   gpointer HyperFunctions2 = static_cast<gpointer>(&HyperFunctions1); 
-  string file_name2="../images/lena.png";
+  string file_name2="../images/lena3.png";
   string file_name3="../json/lena3.json";
   HyperFunctions1.LoadImageClassified(file_name2);
   HyperFunctions1.read_img_json(file_name3);

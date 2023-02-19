@@ -755,14 +755,17 @@ void  HyperFunctions::SemanticSegmenter()
             double low_val;
             for (int i=0; i<temp_results.size(); i++)
             {
+
                 if (i==0)
                 {
-                low_val=temp_results[i].at<uchar>(j,k);
-                temp_class_img.at<Vec3b>(Point(k,j)) = reference_colors[i];
+                    low_val=temp_results[i].at<uchar>(j,k);
+                    if (low_val<=classification_threshold){
+                        temp_class_img.at<Vec3b>(Point(k,j)) = reference_colors[i];
+                    }
                 }
                 else
                 {
-                    if ( temp_results[i].at<uchar>(j,k) <low_val)
+                    if ( temp_results[i].at<uchar>(j,k) <low_val && temp_results[i].at<uchar>(j,k)<=classification_threshold)
                     {
                         low_val=temp_results[i].at<uchar>(j,k);
                         temp_class_img.at<Vec3b>(Point(k,j)) = reference_colors[i];
