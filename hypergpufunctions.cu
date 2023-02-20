@@ -163,16 +163,16 @@ __global__ void img_test_multi_thread_SCM(int *out, int *img_array, int n, int n
         }
         else
         {
-        float temp1= sum1/(sqrt(sum2)*sqrt(sum3));
-        double alpha_rad=acos(temp1);
-        out[tid] =(int)((double)alpha_rad*(double)255/(double)3.14159) ;
+            float temp1= sum1/(sqrt(sum2)*sqrt(sum3));
+            double alpha_rad=acos(temp1);
+            out[tid] =(int)((double)alpha_rad*(double)255/(double)3.14159) ;
         }
     }
 }
 
 /**
  * Calls the multithreaded spectral similarity algorithms, based on the variable spec_sim_alg, set in
- * hyperfunctions.cpp.
+     * hyperfunctions.cpp.
  * Retrieves output in "out", then calls oneD_array_to_mat(out) to convert out into the OPENCV matrix "spec_simil_img".
 */
 
@@ -188,10 +188,9 @@ void HyperFunctionsGPU::spec_sim_GPU() {
 
     cudaMemcpy(out, d_out, sizeof(int) * N_size, cudaMemcpyDeviceToHost); 
 
-    Mat test_img1(mlt1[1].rows, mlt1[1].cols, CV_8UC1, Scalar(0));
-    spec_simil_img=test_img1;
-    this->oneD_array_to_mat(out);
-               
+    //Mat test_img1(mlt1[1].rows, mlt1[1].cols, CV_8UC1, Scalar(0));
+    //spec_simil_img=test_img1;
+    this->oneD_array_to_mat(out, mlt1[1].rows, mlt1[1].cols);   
 }
 
 void HyperFunctionsGPU::deallocate_memory() 
@@ -215,9 +214,9 @@ void HyperFunctionsGPU::allocate_memory(int* img_array) {
     
     int tmp_len1=reference_spectrums[ref_spec_index].size(); 
 
-    cudaHostAlloc ((void**)&out, sizeof(int) * N_size, cudaHostAllocDefault);
+    cudaHostAlloc ((void**)&out, sizeof(unsigned int) * N_size, cudaHostAllocDefault);
     cudaMalloc((void**)&d_img_array, sizeof(int) * N_points);
-    cudaMalloc((void**)&d_out, sizeof(int) * N_size);
+    cudaMalloc((void**)&d_out, sizeof(unsigned int) * N_size);
     cudaMalloc((void**)&d_ref_spectrum, sizeof(int) * tmp_len1);
 
     //allocating memory on the GPU device
@@ -239,9 +238,9 @@ void HyperFunctionsGPU::allocate_memory(int* img_array) {
  * Converts one-D array to 1 channel 8 bit OPENCV matrix. 
  * Used in manipulating spectral similarity data. 
 */
-void HyperFunctionsGPU::oneD_array_to_mat(int* img_array)
+void HyperFunctionsGPU::oneD_array_to_mat(int* img_array, int rows, int cols)
 {
-    int val_it=0;
+    /*int val_it=0;
     for (int k=0; k<spec_simil_img.cols; k++)
     {
         for (int j=0; j<spec_simil_img.rows; j++)
@@ -250,7 +249,9 @@ void HyperFunctionsGPU::oneD_array_to_mat(int* img_array)
             val_it+=1;
             //Conversion of 1-d array containing pixel values to 8 bit one channel 2-d OPENCV matrix
         }
-    }
+    }*/
+    spec_simil_img = cv::Mat(rows, cols, CV_32SC1, img_array);
+    cv::transpose(spec_simil_img, spec_simil_img);
 }
 
 /**
@@ -277,6 +278,7 @@ void HyperFunctionsGPU::oneD_array_to_mat(int* img_array, int cols, int rows, in
         }
     }
 }
+
 
 void mat_to_oneD_array_parallel_child(int id,vector<Mat>* mlt2, int* host_img_array, int val_it, int k )
 {
@@ -396,9 +398,13 @@ void HyperFunctionsGPU::semantic_segmentation(int* test_array) {
 
     this->deallocate_memory(); //deallocate memory on GPU used for spectral similarity algorithms
     int array_size2=similarity_images[1].rows*similarity_images[1].cols*similarity_images.size();  
+    int mat_size = similarity_images[1].rows * similarity_images[1].cols;
+    int mat_cols = similarity_images[1].cols;
 
     int* classified_img_array = new int[array_size2]; 
     //converting the vector of matrices that store the similarity values for each reference spectrum into a 1-D array
+
+
     mat_to_oneD_array_parallel_parent(&similarity_images, classified_img_array);
 
     int *d_color_info, *d_out2, *d_clasified_img_array, *out2;
@@ -414,6 +420,7 @@ void HyperFunctionsGPU::semantic_segmentation(int* test_array) {
      * d_color_info : holds reference colors that will be used to colorize our final image
      * 
     */
+   
     cudaHostAlloc ((void**)&out2, sizeof(int) *N_size_sim, cudaHostAllocDefault); 
     cudaMalloc((void**)&d_clasified_img_array, sizeof(int) * N_points_sim); 
     cudaMalloc((void**)&d_out2, sizeof(int) * N_size_sim);
@@ -434,10 +441,12 @@ void HyperFunctionsGPU::semantic_segmentation(int* test_array) {
 
     //multi-threaded function to find the most similar spectra for a pixel and color it based on the color assigned to that spectra
     img_test_classifier<<<grid_size_sim,block_size>>>(d_out2, d_clasified_img_array, N_size_sim/3, similarity_images.size(), d_color_info);
-
+    
     /**
      * copying the color image into out2, and converting that into a OPENCV matrix. 
     */
+
+   
     cudaMemcpy(out2, d_out2, sizeof(int) * N_size_sim, cudaMemcpyDeviceToHost);
     Mat test_img2(similarity_images[1].rows, similarity_images[1].cols, CV_8UC3, Scalar(0,0,0)); 
     oneD_array_to_mat(out2, similarity_images[1].cols,similarity_images[1].rows,3, &test_img2);

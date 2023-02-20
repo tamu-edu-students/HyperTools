@@ -207,13 +207,17 @@ void  HyperFunctions::DispClassifiedImage()
 void  HyperFunctions::DispFalseImage()
 {
    Mat temp_img;
+
    cv::resize(false_img,temp_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR); 
    imshow("False Image", temp_img);
 }
 
 void  HyperFunctions::DispSpecSim()
 {
+   cout << "YES" << endl;
    Mat temp_img;
+   cout << spec_simil_img.rows << endl;
+   spec_simil_img.convertTo(spec_simil_img, CV_8UC1);
    cv::resize(spec_simil_img,temp_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR); 
    imshow("Spectral Similarity Image", temp_img);
 }

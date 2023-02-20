@@ -40,7 +40,7 @@ public:
     void allocate_memory(int* img_array);
     void deallocate_memory( );
     int* mat_to_oneD_array_parallel_parent();
-    void oneD_array_to_mat(int* img_array);
+    void oneD_array_to_mat(int* img_array, int rows, int cols);
     void semantic_segmentation(int* test_array);
     void oneD_array_to_mat(int* img_array, int cols, int rows, int channels, Mat* mlt1);
     int* mat_to_oneD_array_parallel_parent(vector<Mat>* matvector1, int* img_array);
