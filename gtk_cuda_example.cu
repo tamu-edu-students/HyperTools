@@ -55,7 +55,7 @@ HyperFunctions1.img_array_base=test_array;
   
 
   button = gtk_builder_get_object (builder, "choose_file");
-  g_signal_connect (button, "file-set", G_CALLBACK (choose_image_file), &HyperFunctions1); //Should be able to see what file they chose. Then call LoadImageHyper1
+  g_signal_connect (button, "file-set", G_CALLBACK (choose_image_file_gpu), &HyperFunctions1); //Should be able to see what file they chose. Then call LoadImageHyper1
 
 
   /* Next 4 components are in progress and some are using placeholder callback functions*/

@@ -333,7 +333,7 @@ int* HyperFunctionsGPU::mat_to_oneD_array_parallel_parent(vector<Mat>* matvector
  * Fills in the "out" array, which holds RGB values based on which reference spectra a pixel in the image is most similar to. 
 */
 
-__global__ void img_test_classifier(int *out, int *img_array, int num_pixels, int num_spectrums, int* color_info ) 
+__global__ void img_test_classifier(int *out, int *img_array, int num_pixels, int num_spectrums, int* color_info, int classification_threshold ) 
 {
     // blockID : block index within the grid
     // blockDim : how many threads per block
@@ -352,11 +352,20 @@ __global__ void img_test_classifier(int *out, int *img_array, int num_pixels, in
             //spectra that yields the lowest score will be the most similar.  
             {
                 low_val=img_array[offset];
+                if (low_val<=classification_threshold)
+                {
                 out[tid*3]=color_info[a+0];
                 out[tid*3+1]=color_info[a+1];  
                 out[tid*3+2]=color_info[a+2];
+                }
+                else
+                {
+                out[tid*3]=0;
+                out[tid*3+1]=0;  
+                out[tid*3+2]=0;
+                }
             }
-            else if (img_array[offset+a]<low_val) 
+            else if (img_array[offset+a]<low_val && img_array[offset+a]<= classification_threshold) 
             //looking for a new minimum. If found, set the color channels of the RGB image to the color corresponding to the reference spectra. 
             {
                 out[tid*3]=color_info[a*3+0];
@@ -434,7 +443,7 @@ void HyperFunctionsGPU::semantic_segmentation(int* test_array) {
     cudaMemcpy(d_color_info, reference_colors_c, sizeof(int) * temp_val, cudaMemcpyHostToDevice);
 
     //multi-threaded function to find the most similar spectra for a pixel and color it based on the color assigned to that spectra
-    img_test_classifier<<<grid_size_sim,block_size>>>(d_out2, d_clasified_img_array, N_size_sim/3, similarity_images.size(), d_color_info);
+    img_test_classifier<<<grid_size_sim,block_size>>>(d_out2, d_clasified_img_array, N_size_sim/3, similarity_images.size(), d_color_info,classification_threshold);
 
     /**
      * copying the color image into out2, and converting that into a OPENCV matrix. 
