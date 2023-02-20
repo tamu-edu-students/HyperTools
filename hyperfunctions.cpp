@@ -354,20 +354,10 @@ void HyperFunctions::DetectContours()
    
     
 	vector<Vec3b> color_combos;  
-	vector<string> class_list;
 	read_spectral_json(spectral_database);
 	
-	std::ofstream file_id;
-    file_id.open(output_polygons);
-    
-    Json::Value event;   
-    // initialise JSON file 
-    event["type"] = "FeatureCollection";
-    event["generator"] = "Img Segmentation";
-    
-    
-    
-    vector<vector<Point>>  contours_approx;
+	contours_approx.clear();
+	
     vector<Vec4i> hierarchy;
     double img_area_meters, img_area_pixels, contour_temp_area;
     img_area_pixels =  edge_image.rows*edge_image.cols ; 
@@ -457,7 +447,7 @@ void HyperFunctions::DetectContours()
         {
             if (contours_approx[i][0]==Point(0,0) && contours_approx[i][1]==Point(0,edge_image.rows-1)  && contours_approx[i][2]==Point(edge_image.cols-1,edge_image.rows-1)  && contours_approx[i][3]==Point(edge_image.cols-1,0))
             {
-                writeJSON(event, contours_approx, i, "ballpark", count);
+                //writeJSON(event, contours_approx, i, "ballpark", count);
                 count++;
                 Scalar temp_col=Scalar(color[2],color[0],color[1]);
                 drawContours( drawing, contours_approx, i, temp_col, FILLED, 8, hierarchy, 0, Point() );
@@ -465,14 +455,17 @@ void HyperFunctions::DetectContours()
             }
             else
             {
-                double epsilon = polygon_approx_coeff/1000 * arcLength(contours_approx[i], true);
-                approxPolyDP(contours_approx[i],contour_approx_new[i],epsilon,true);
+                //double epsilon = polygon_approx_coeff/1000 * arcLength(contours_approx[i], true);
+                // opencv method of approximating polygons
+                //approxPolyDP(contours_approx[i],contour_approx_new[i],epsilon,true);
+                // thick edge approximation algorithm 
+                thickEdgeContourApproximation(i);
                 if (contour_class[hierarchy[i][3]] != contour_class[i])
                 {
-                     writeJSON(event, contours_approx, i, classification,count);
+                     //writeJSON(event, contours_approx, i, classification,count);
                      count++;
                     Scalar temp_col=Scalar(color[2],color[0],color[1]);
-                    drawContours( drawing, contour_approx_new, i, temp_col, FILLED, 8, hierarchy, 0, Point() );
+                    drawContours( drawing, contours_approx, i, temp_col, FILLED, 8, hierarchy, 0, Point() );
                 
                 }
                 
@@ -487,9 +480,7 @@ void HyperFunctions::DetectContours()
 
     }
     
-        Json::StyledWriter styledWriter;
-        file_id << styledWriter.write(event);
-        file_id.close();   
+    writeJSON_full(contours_approx, contour_class, hierarchy);
     
   // cv::imshow("Contour Image", drawing);
     contour_img=drawing;
@@ -609,6 +600,94 @@ void HyperFunctions::writeJSON(Json::Value &event, vector<vector<Point> > &conto
     event["features"][count]["geometry"]["coordinates"]=vec;
     //count++;
     //std::cout << event << std::endl;
+}
+
+void HyperFunctions::writeJSON_full(vector<vector<Point> > contours, vector <Vec3b> contour_class,vector<Vec4i> hierarchy)
+{
+
+    std::ofstream file_id;
+    file_id.open(output_polygons);
+
+    Json::Value event; 
+    // initialise JSON file 
+    event["type"] = "FeatureCollection";
+    event["generator"] = "Img Segmentation";    
+    string Name;
+     
+
+    int count=0 ;
+    int idx=0;
+    string classification = class_list[idx];
+
+
+    for (int idx=0; idx < contours.size()  ; idx ++)
+    {
+    
+        bool write_to_file=false;
+
+        if (contours[idx].size()>2 && contour_class[hierarchy[idx][3]] != contour_class[idx] && idx>0)
+        {
+            
+            Vec3b color = contour_class[idx];
+            classification="unknown";
+            //cout<<"here "<<contour_class[idx]<<endl;
+            for (int j=0; j< color_combos.size() ;j++)
+            {
+                if (color == color_combos[j])
+                {
+                    classification=class_list[j];
+
+                }
+            }
+            
+
+            write_to_file=true;
+        }
+        //else if (contours[idx][0]==Point(0,0) && contours[idx][1]==Point(0,edge_image.rows-1)  && contours[idx][2]==Point(edge_image.cols-1,edge_image.rows-1)  && contours[idx][3]==Point(edge_image.cols-1,0))
+        else if (idx==0)
+        {
+            Name = "Ballpark";
+            write_to_file=true;
+        }
+
+        if (write_to_file)
+        {
+            
+                    
+            Json::Value vec(Json::arrayValue);
+            for (int i = 0; i< contours[idx].size(); i++){
+                Json::Value arr(Json::arrayValue);
+                //cout << (contours[idx][i].x) << endl;
+                //cout << (contours[idx][i].y) << endl;
+                arr.append(contours[idx][i].x);
+                arr.append(contours[idx][i].y);
+                vec.append(arr);
+            }
+            
+
+            if (idx>0)
+            {
+                Name = classification + to_string(count);
+            }
+            //cout<<Name<<" "<<idx<<endl;
+            event["features"][count]["type"]= "Feature";
+            event["features"][count]["properties"]["Name"] = Name;
+            event["features"][count]["properties"]["sensor_visibility_above"] = "yes";
+            event["features"][count]["properties"]["sensor_visibility_side"] = "yes";
+            event["features"][count]["properties"]["traversability_av"] = "100";
+            event["features"][count]["properties"]["traversability_gv"] = "100";
+            event["features"][count]["properties"]["traversability_ped"] = "100";
+            event["features"][count]["geometry"]["type"] = "LineString";
+            event["features"][count]["geometry"]["coordinates"]=vec;
+            count++;
+        }
+    }
+    
+
+    Json::StyledWriter styledWriter;
+    file_id << styledWriter.write(event);
+    file_id.close();  
+
 }
 
 void  HyperFunctions::read_img_json(string file_name)
@@ -759,14 +838,17 @@ void  HyperFunctions::SemanticSegmenter()
             double low_val;
             for (int i=0; i<temp_results.size(); i++)
             {
+
                 if (i==0)
                 {
-                low_val=temp_results[i].at<uchar>(j,k);
-                temp_class_img.at<Vec3b>(Point(k,j)) = reference_colors[i];
+                    low_val=temp_results[i].at<uchar>(j,k);
+                    if (low_val<=classification_threshold){
+                        temp_class_img.at<Vec3b>(Point(k,j)) = reference_colors[i];
+                    }
                 }
                 else
                 {
-                    if ( temp_results[i].at<uchar>(j,k) <low_val)
+                    if ( temp_results[i].at<uchar>(j,k) <low_val && temp_results[i].at<uchar>(j,k)<=classification_threshold)
                     {
                         low_val=temp_results[i].at<uchar>(j,k);
                         temp_class_img.at<Vec3b>(Point(k,j)) = reference_colors[i];
@@ -980,4 +1062,73 @@ void SCM_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* refere
             }
             spec_simil_img->at<uchar>(j,k)=temp_val; 
         }
+}
+
+
+
+void HyperFunctions::thickEdgeContourApproximation(int idx){
+    
+
+    int sz = contours_approx[idx].size();
+    double thicknessParameter = 10*polygon_approx_coeff;
+
+    int endPt = 2;
+    int stPt = 1-1;
+    int midPt = 1;
+    vector<vector<int>> breakPt;
+
+    while(stPt < sz && (stPt+endPt) < sz){
+        
+        double xS = (double)contours_approx[idx][stPt].x;
+        double yS = (double)contours_approx[idx][stPt].y;
+        double xE = (double)contours_approx[idx][stPt + endPt].x;
+        double yE = (double)contours_approx[idx][stPt + endPt].y;
+        double xM = (double)contours_approx[idx][stPt + midPt].x;
+        double yM = (double)contours_approx[idx][stPt + midPt].y;
+
+        if(stPt == (sz-1) || (stPt + endPt) == (sz-1)  || (stPt + midPt) == (sz-1) ){
+            breakPt.push_back({stPt, 0});
+            break;
+        }
+
+        double num =   pow(((xM-xS)*(yE-yS)-(yM-yS)*(xE-xS)) , 2.0 );
+        double den =    sqrt(((xS-xE)*(xS-xE) +  (yS-yE)*(yS-yE)));
+        double dist = num/den;
+
+        if (abs(dist) < polygon_approx_coeff){
+            endPt = endPt + 1;
+            midPt = midPt + 1;
+        }
+        else{
+
+            breakPt.push_back({stPt, stPt + endPt - 1});
+            stPt = stPt + endPt - 1;
+            endPt = 2;
+            midPt = 1;
+        }       
+    }
+    vector<Point>  contour_thickEdge;
+
+    for (int i = 0; i < breakPt.size(); i++ ){
+            int idx1 = breakPt[i][0];
+            int idx2 = breakPt[i][1];
+            auto i1x = contours_approx[idx][idx1].x;
+            auto i1y = contours_approx[idx][idx1].y;
+            contour_thickEdge.push_back(Point(i1x,i1y));
+    }
+    int idx1 = breakPt[0][0];
+    auto i1x = contours_approx[idx][idx1].x;
+    auto i1y = contours_approx[idx][idx1].y;
+    contour_thickEdge.push_back(Point(i1x,i1y));
+    
+    contours_approx[idx].clear();
+    
+    for (int i = 0 ; i < contour_thickEdge.size(); i++){
+        contours_approx[idx].push_back(Point(contour_thickEdge[i].x,contour_thickEdge[i].y));
+  
+    } 
+
+    int siz = contours_approx[idx].size();
+    //cout<<" start "<<sz<<" end "<<siz<<endl;
+
 }

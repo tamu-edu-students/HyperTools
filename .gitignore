@@ -36,3 +36,5 @@
 
 # temp ui 
 *.ui~
+
+*.json

@@ -34,6 +34,7 @@ public:
     int *d_img_array,  *d_out, *d_ref_spectrum; 
     int block_size = 512;
     int grid_size ;
+    int *img_array_base;
     
     
     void spec_sim_GPU();
@@ -44,6 +45,7 @@ public:
     void semantic_segmentation(int* test_array);
     void oneD_array_to_mat(int* img_array, int cols, int rows, int channels, Mat* mlt1);
     int* mat_to_oneD_array_parallel_parent(vector<Mat>* matvector1, int* img_array);
+
 
 
 };
