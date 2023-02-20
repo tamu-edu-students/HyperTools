@@ -63,6 +63,15 @@ main (int   argc,
   button = gtk_builder_get_object (builder, "scale_min_area");
   g_signal_connect (button, "value-changed", G_CALLBACK (set_min_area), &HyperFunctions1);
   
+  button = gtk_builder_get_object (builder, "fidelity1");
+  g_signal_connect (button, "clicked", G_CALLBACK (set_zoom1), &HyperFunctions1);
+  
+  button = gtk_builder_get_object (builder, "fidelity2");
+  g_signal_connect (button, "clicked", G_CALLBACK (set_zoom2), &HyperFunctions1);
+  
+  button = gtk_builder_get_object (builder, "fidelity3");
+  g_signal_connect (button, "clicked", G_CALLBACK (set_zoom3), &HyperFunctions1);
+  
   button = gtk_builder_get_object (builder, "quit");
   g_signal_connect (button, "clicked", G_CALLBACK (gtk_main_quit), NULL);
 

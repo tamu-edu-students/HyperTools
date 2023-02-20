@@ -129,6 +129,35 @@ static void print_result(GtkSpinButton *widget,  gpointer data)
        double result=gtk_spin_button_get_value (widget);
        cout<<result<<endl;  
 }
+static void set_zoom1(GtkWidget *widget,  gpointer data)
+{
+    void * data_new=data;
+    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
+    HyperFunctions1->polygon_approx_coeff=10;
+    HyperFunctions1->min_area=0.2;
+    HyperFunctions1->DetectContours();
+    HyperFunctions1->DispContours();    
+}
+
+static void set_zoom2(GtkWidget *widget,  gpointer data)
+{
+    void * data_new=data;
+    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
+    HyperFunctions1->polygon_approx_coeff=100;
+    HyperFunctions1->min_area=1;
+    HyperFunctions1->DetectContours();
+    HyperFunctions1->DispContours();    
+}
+
+static void set_zoom3(GtkWidget *widget,  gpointer data)
+{
+    void * data_new=data;
+    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
+    HyperFunctions1->polygon_approx_coeff=1000;
+    HyperFunctions1->min_area=2;
+    HyperFunctions1->DetectContours();
+    HyperFunctions1->DispContours();    
+}
 
 static void set_min_area(GtkSpinButton *widget,  gpointer data)
 {
