@@ -156,8 +156,7 @@ __global__ void img_test_multi_thread_SCM(int *out, int *img_array, int n, int n
             sum1+=(img_array[offset+a]-mean1)*(ref_spectrum[a]-mean2) ;
             sum2+=(img_array[offset+a]-mean1)*(img_array[offset+a]-mean1);
             sum3+=(ref_spectrum[a]-mean2)*(ref_spectrum[a]-mean2);
-        }
-        
+        }        
         if (sum2<=0 || sum3<=0 )
         {
             out[tid] =255; // set to white due to an error
@@ -191,7 +190,7 @@ void HyperFunctionsGPU::spec_sim_GPU() {
 
     //Mat test_img1(mlt1[1].rows, mlt1[1].cols, CV_8UC1, Scalar(0));
     //spec_simil_img=test_img1;
-    this->oneD_array_to_mat(out, mlt1[1].rows, mlt1[1].cols);   
+    this->oneD_array_to_mat(out);   
 }
 
 void HyperFunctionsGPU::deallocate_memory() 
@@ -215,9 +214,9 @@ void HyperFunctionsGPU::allocate_memory(int* img_array) {
     
     int tmp_len1=reference_spectrums[ref_spec_index].size(); 
 
-    cudaHostAlloc ((void**)&out, sizeof(unsigned int) * N_size, cudaHostAllocDefault);
+    cudaHostAlloc ((void**)&out, sizeof(int) * N_size, cudaHostAllocDefault);
     cudaMalloc((void**)&d_img_array, sizeof(int) * N_points);
-    cudaMalloc((void**)&d_out, sizeof(unsigned int) * N_size);
+    cudaMalloc((void**)&d_out, sizeof(int) * N_size);
     cudaMalloc((void**)&d_ref_spectrum, sizeof(int) * tmp_len1);
 
     //allocating memory on the GPU device
@@ -239,7 +238,7 @@ void HyperFunctionsGPU::allocate_memory(int* img_array) {
  * Converts one-D array to 1 channel 8 bit OPENCV matrix. 
  * Used in manipulating spectral similarity data. 
 */
-void HyperFunctionsGPU::oneD_array_to_mat(int* img_array, int rows, int cols)
+void HyperFunctionsGPU::oneD_array_to_mat(int* img_array)
 {
     /*int val_it=0;
     for (int k=0; k<spec_simil_img.cols; k++)
@@ -251,8 +250,10 @@ void HyperFunctionsGPU::oneD_array_to_mat(int* img_array, int rows, int cols)
             //Conversion of 1-d array containing pixel values to 8 bit one channel 2-d OPENCV matrix
         }
     }*/
-    spec_simil_img = cv::Mat(rows, cols, CV_32SC1, img_array);
+    spec_simil_img = cv::Mat(mlt1[1].rows, mlt1[1].cols, CV_32SC1, img_array);
+    spec_simil_img.convertTo(spec_simil_img, CV_8UC1); //converting to 8 bit unsigned, 1 channel. 
     cv::transpose(spec_simil_img, spec_simil_img);
+
 }
 
 /**
@@ -263,7 +264,7 @@ void HyperFunctionsGPU::oneD_array_to_mat(int* img_array, int rows, int cols)
 void HyperFunctionsGPU::oneD_array_to_mat(int* img_array, int cols, int rows, int channels, Mat* mlt1)
 {
 
-    Mat classified_img = *mlt1;
+    /*Mat classified_img = *mlt1;
     int val_it=0;
     for (int k=0; k<cols; k++)
     {
@@ -277,7 +278,12 @@ void HyperFunctionsGPU::oneD_array_to_mat(int* img_array, int cols, int rows, in
             classified_img.at<Vec3b>(Point(k,j))= color;
             val_it+=3;
         }
-    }
+    }*/
+
+    *mlt1 = cv::Mat(mlt1->rows, mlt1->cols, CV_32SC3, img_array);
+    mlt1->convertTo(*mlt1, CV_8UC3);
+    cv::transpose(*mlt1, *mlt1);
+
 }
 
 
@@ -304,6 +310,9 @@ int* HyperFunctionsGPU::mat_to_oneD_array_parallel_parent()
     int val_it=0;
     ctpl::thread_pool p(num_threads);
 
+    /*for (int i = 0; i < mlt1.size(); i++) {
+        uchar* mat_array = mlt1[i].clone().data;
+    }*/
     for (int k=0; k<mlt1[1].cols; k+=1)
     {
         p.push(mat_to_oneD_array_parallel_child, &mlt1,img_array, val_it,k);
@@ -408,8 +417,7 @@ void HyperFunctionsGPU::semantic_segmentation(int* test_array) {
 
     this->deallocate_memory(); //deallocate memory on GPU used for spectral similarity algorithms
     int array_size2=similarity_images[1].rows*similarity_images[1].cols*similarity_images.size();  
-    int mat_size = similarity_images[1].rows * similarity_images[1].cols;
-    int mat_cols = similarity_images[1].cols;
+
 
     int* classified_img_array = new int[array_size2]; 
     //converting the vector of matrices that store the similarity values for each reference spectrum into a 1-D array
@@ -456,7 +464,6 @@ void HyperFunctionsGPU::semantic_segmentation(int* test_array) {
      * copying the color image into out2, and converting that into a OPENCV matrix. 
     */
 
-   
     cudaMemcpy(out2, d_out2, sizeof(int) * N_size_sim, cudaMemcpyDeviceToHost);
     Mat test_img2(similarity_images[1].rows, similarity_images[1].cols, CV_8UC3, Scalar(0,0,0)); 
     oneD_array_to_mat(out2, similarity_images[1].cols,similarity_images[1].rows,3, &test_img2);

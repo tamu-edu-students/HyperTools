@@ -18,11 +18,11 @@ int main (int argc, char *argv[]) {
     int* test_array= HyperFunctions1.mat_to_oneD_array_parallel_parent(  );
 
 
-    HyperFunctions1.allocate_memory(test_array);
+    //HyperFunctions1.allocate_memory(test_array);
 
-    HyperFunctions1.spec_sim_GPU();
-    HyperFunctions1.DispSpecSim();
-    cv::waitKey();
+    //HyperFunctions1.spec_sim_GPU();
+    //HyperFunctions1.DispSpecSim();
+    //cv::waitKey();
 
     /*HyperFunctions1.spec_sim_alg=1;
     HyperFunctions1.spec_sim_GPU();
@@ -34,14 +34,14 @@ int main (int argc, char *argv[]) {
     HyperFunctions1.DispSpecSim();
     cv::waitKey();*/
 
-    HyperFunctions1.deallocate_memory();
+    //HyperFunctions1.deallocate_memory();
 
-/*
-  HyperFunctions1.semantic_segmentation(test_array);
+
+    HyperFunctions1.semantic_segmentation(test_array);
     HyperFunctions1.DispClassifiedImage();
     cv::waitKey();
     
-    HyperFunctions1.spec_sim_alg=1;
+    /*HyperFunctions1.spec_sim_alg=1;
     HyperFunctions1.semantic_segmentation(test_array);
     HyperFunctions1.DispClassifiedImage();
     cv::waitKey();

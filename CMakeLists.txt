@@ -16,7 +16,7 @@ include_directories(${GTK3_INCLUDE_DIRS} )
 link_directories(${GTK3_LIBRARY_DIRS} )
 
 #change below to true to use GPU or false to not use GPU
-set(use_CUDA false) 
+set(use_CUDA true) 
 
 link_libraries(jsoncpp ${GTK3_LIBRARIES} ${OpenCV_LIBS})
 

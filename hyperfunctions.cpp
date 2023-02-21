@@ -215,7 +215,6 @@ void  HyperFunctions::DispFalseImage()
 void  HyperFunctions::DispSpecSim()
 {
    Mat temp_img;
-   spec_simil_img.convertTo(spec_simil_img, CV_8UC1);
    cv::resize(spec_simil_img,temp_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR); 
    imshow("Spectral Similarity Image", temp_img);
 }
