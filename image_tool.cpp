@@ -25,8 +25,7 @@ using namespace std;
   HyperFunctions *HyperFunctions1;
   } ;
   
-  //cubert hyperspectral has their band info online
-  //112-113 is the non-red band
+
 int main (int argc, char *argv[])
 {
   GtkBuilder *builder;
@@ -72,8 +71,6 @@ int main (int argc, char *argv[])
 
   entry_struct *gtk_hyper_entry, temp_var3;
   gtk_hyper_entry=&temp_var3;
-  //Why does gtk_hyper_entry get used for both of the following buttons
-  //What is the point of temp_vars
   
   button = gtk_builder_get_object (builder, "database_name");
   (*gtk_hyper_entry).entry=button;
