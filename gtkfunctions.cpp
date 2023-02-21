@@ -594,7 +594,6 @@ static void show_spectrum(GtkWidget *widget, GdkEventButton *event, gpointer dat
   void * data_new2=img_struct1->HyperFunctions1;
   HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new2);
 
-    cout <<"hi";
  // show the spectrum here 
   // https://github.com/opencv/opencv_contrib/blob/master/modules/plot/samples/plot_demo.cpp 
     // https://docs.opencv.org/4.x/d0/d1e/classcv_1_1plot_1_1Plot2d.html
@@ -602,7 +601,6 @@ static void show_spectrum(GtkWidget *widget, GdkEventButton *event, gpointer dat
     Mat data_x( 1, HyperFunctions1->mlt1.size(), CV_64F ); // wavelength
     Mat data_y( 1, HyperFunctions1->mlt1.size(), CV_64F ); // reflectance value
 
-    std::cout << "whatever" << std::endl;
 
     for ( int i = 0; i < data_x.cols; i++ )
     {
