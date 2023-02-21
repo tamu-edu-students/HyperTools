@@ -14,6 +14,7 @@
 	static void set_approx_poly(GtkSpinButton *widget,  gpointer data);
 	static void set_img_layer(GtkSpinButton *widget,  gpointer data);	
 
+	static void set_false_img_reset(GtkWidget *widget,  gpointer data);
 	static void set_false_img_standard_rgb(GtkWidget *widget,  gpointer data);
 	static void set_feature_detector_SIFT(GtkWidget *widget,  gpointer data);
 	static void set_feature_detector_SURF(GtkWidget *widget,  gpointer data);
@@ -33,6 +34,9 @@
 	static void show_semantic_img2(GtkWidget *widget,  gpointer data);
 	static void show_contours(GtkWidget *widget,  gpointer data);
 	static void show_difference(GtkWidget *widget,  gpointer data);
+	static void set_spin_buttons_reset(GtkWidget *widget,  gpointer data);
+	static void set_spin_buttons_standard_rgb(GtkWidget *widget,  gpointer data);
+	
 	static void show_false_img(GtkWidget *widget,  gpointer data);
 
 	static void choose_image_file(GtkFileChooser *widget,  gpointer data);	

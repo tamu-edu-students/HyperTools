@@ -17,8 +17,15 @@ using namespace std;
   GObject *entry;
   HyperFunctions *HyperFunctions1;
   } ;
+
+  struct spin_struct {
+  GObject *button1;
+  GObject *button2;
+  GObject *button3;
+  HyperFunctions *HyperFunctions1;
+  } ;
   
-  
+
 int main (int argc, char *argv[])
 {
   GtkBuilder *builder;
@@ -50,29 +57,9 @@ int main (int argc, char *argv[])
   button = gtk_builder_get_object (builder, "choose_file");
   g_signal_connect (button, "file-set", G_CALLBACK (choose_image_file), &HyperFunctions1); //Should be able to see what file they chose. Then call LoadImageHyper1
 
-
-  /* Next 4 components are in progress and some are using placeholder callback functions*/
-
-  //button = gtk_builder_get_object (builder, "show_spectrum");
-  //g_signal_connect (button, "FIX", G_CALLBACK (show_spectrum), &HyperFunctions1); 
-  
-  
-    
-
-  button = gtk_builder_get_object (builder, "image_box"); 
-  //g_signal_connect (button, "clicked", G_CALLBACK (get_point_pos), &HyperFunctions1); //Have a new variable in hyperfunctions.h for point (global variable).
-  //Updating could be done through a hyperfunctions method. 
-  //int result=gtk_spin_button_get_value (widget);
-  //gtk functions.h in the cuvis integration inbutton press callback
-  //g_signal_connect (button, "clicked", G_CALLBACK (update_show_spectrum), &HyperFunctions1);
-  //Always recalculate but only display image if appropriate/ if toggled on.
-  //May need to pass in structs to give toggle switch position, pixel buffer / image file
-  //Could have c++ class with struct to store toggle and other UI data.
-
   button = gtk_builder_get_object (builder, "spectrum_box");
   //Nothing happens when you click on the spectrum image
 
- 
   img_struct *gtk_hyper_image, temp_var1;
   gtk_hyper_image=&temp_var1;
   GObject *image;
@@ -125,21 +112,33 @@ int main (int argc, char *argv[])
   g_signal_connect (button, "clicked", G_CALLBACK (TileImage), gtk_hyper_image);
   
   
+  spin_struct *gtk_spin_buttons, temp_var4;
+  gtk_spin_buttons=&temp_var4;
+  (*gtk_spin_buttons).HyperFunctions1 = &HyperFunctions1;
+  
+
   //gtk_spin_button_set_value(rgb_spin[0],10); This is how you change the value of a spin button
   button = gtk_builder_get_object (builder, "spin_red");
-  g_signal_connect (button, "value-changed", G_CALLBACK (set_false_img_r), &HyperFunctions1);
+  (*gtk_spin_buttons).button1 = button;
+  g_signal_connect (button, "value-changed", G_CALLBACK (set_false_img_r), gtk_hyper_image);
   
  
   button = gtk_builder_get_object (builder, "spin_green");
-  g_signal_connect (button, "value-changed", G_CALLBACK (set_false_img_g), &HyperFunctions1);
+  (*gtk_spin_buttons).button2 = button;
+  g_signal_connect (button, "value-changed", G_CALLBACK (set_false_img_g), gtk_hyper_image);
   
   
   button = gtk_builder_get_object (builder, "spin_blue");
-  g_signal_connect (button, "value-changed", G_CALLBACK (set_false_img_b), &HyperFunctions1);  
+  (*gtk_spin_buttons).button3 = button;
+  g_signal_connect (button, "value-changed", G_CALLBACK (set_false_img_b), gtk_hyper_image);  
   
+  button = gtk_builder_get_object (builder, "reset_false_img");
+  g_signal_connect (button, "clicked", G_CALLBACK (set_false_img_reset), gtk_hyper_image);
+  g_signal_connect (button, "clicked", G_CALLBACK (set_spin_buttons_reset), gtk_spin_buttons);
 
   button = gtk_builder_get_object (builder, "false_img_standard");
   g_signal_connect (button, "clicked", G_CALLBACK (set_false_img_standard_rgb), gtk_hyper_image);
+  g_signal_connect (button, "clicked", G_CALLBACK (set_spin_buttons_standard_rgb), gtk_spin_buttons);
   //g_signal_connect (button, "clicked", G_CALLBACK (set_false_img_standard_rgb), &HyperFunctions1);
   //reset r,g,b spin buttons to standard values here
   // currently not implemented
