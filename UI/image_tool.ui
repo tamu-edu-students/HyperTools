@@ -443,8 +443,8 @@
             </child>
           </object>
           <packing>
-            <property name="left-attach">2</property>
-            <property name="top-attach">2</property>
+            <property name="left-attach">1</property>
+            <property name="top-attach">3</property>
           </packing>
         </child>
         <child>
@@ -456,7 +456,7 @@
           </object>
           <packing>
             <property name="left-attach">3</property>
-            <property name="top-attach">0</property>
+            <property name="top-attach">2</property>
           </packing>
         </child>
         <child>
@@ -466,8 +466,8 @@
             <property name="stack">stack1</property>
           </object>
           <packing>
-            <property name="left-attach">2</property>
-            <property name="top-attach">0</property>
+            <property name="left-attach">1</property>
+            <property name="top-attach">2</property>
           </packing>
         </child>
         <child>
@@ -483,45 +483,17 @@
           </packing>
         </child>
         <child>
-          <object class="GtkEventBox" id="spectrum_box">
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
-            <child>
-              <object class="GtkImage" id="spec_curve">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="stock">gtk-missing-image</property>
-              </object>
-            </child>
-          </object>
-          <packing>
-            <property name="left-attach">3</property>
-            <property name="top-attach">2</property>
-            <property name="width">4</property>
-          </packing>
-        </child>
-        <child>
           <object class="GtkFileChooserButton" id="choose_file">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
             <property name="tooltip-text" translatable="yes">Choose File</property>
+            <property name="halign">start</property>
             <property name="filter">tiff_filter</property>
             <property name="title" translatable="yes">Choose File</property>
           </object>
           <packing>
             <property name="left-attach">1</property>
             <property name="top-attach">0</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkLabel" id="show_spectrum_label">
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
-            <property name="label" translatable="yes">Pixel Spectrum</property>
-          </object>
-          <packing>
-            <property name="left-attach">4</property>
-            <property name="top-attach">1</property>
           </packing>
         </child>
         <child>
@@ -537,9 +509,10 @@
             </child>
           </object>
           <packing>
-            <property name="left-attach">2</property>
-            <property name="top-attach">4</property>
+            <property name="left-attach">3</property>
+            <property name="top-attach">3</property>
             <property name="width">4</property>
+            <property name="height">2</property>
           </packing>
         </child>
         <child>
@@ -549,42 +522,79 @@
             <property name="label" translatable="yes">Output Image </property>
           </object>
           <packing>
-            <property name="left-attach">2</property>
-            <property name="top-attach">3</property>
+            <property name="left-attach">4</property>
+            <property name="top-attach">2</property>
           </packing>
         </child>
         <child>
-          <placeholder/>
+          <object class="GtkBox">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="orientation">vertical</property>
+            <child>
+              <object class="GtkLabel" id="show_spectrum_label">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Pixel Spectrum</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkEventBox" id="spectrum_box">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <child>
+                  <object class="GtkImage" id="spec_curve">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="stock">gtk-missing-image</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="left-attach">1</property>
+            <property name="top-attach">4</property>
+          </packing>
         </child>
         <child>
-          <placeholder/>
+          <object class="GtkSeparator" id="separator_1">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="opacity">0</property>
+            <property name="margin-top">5</property>
+            <property name="margin-bottom">5</property>
+          </object>
+          <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">1</property>
+            <property name="width">7</property>
+          </packing>
         </child>
         <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
+          <object class="GtkSeparator" id="separator_2">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="opacity">0</property>
+            <property name="margin-start">5</property>
+            <property name="margin-end">5</property>
+            <property name="orientation">vertical</property>
+          </object>
+          <packing>
+            <property name="left-attach">2</property>
+            <property name="top-attach">0</property>
+            <property name="height">5</property>
+          </packing>
         </child>
         <child>
           <placeholder/>

@@ -342,21 +342,43 @@ static void set_spin_buttons_standard_rgb(GtkWidget *widget,  gpointer data) {
 
 static void show_false_img(GtkWidget *widget,  gpointer data)
 {
+    void * data_new=data;
+    img_struct_gtk *img_struct1=static_cast<img_struct_gtk*>(data_new);
+    void * data_new2=img_struct1->HyperFunctions1;
+    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new2);
+    HyperFunctions1->GenerateFalseImg();
+    cv::Mat output=HyperFunctions1->false_img;
+    cv::resize(output,output,Size(HyperFunctions1->WINDOW_WIDTH, HyperFunctions1->WINDOW_HEIGHT),INTER_LINEAR); 
 
- 
-  void * data_new=data;
-  img_struct_gtk *img_struct1=static_cast<img_struct_gtk*>(data_new);
-  void * data_new2=img_struct1->HyperFunctions1;
-  HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new2);
-  HyperFunctions1->GenerateFalseImg();
-  cv::Mat output=HyperFunctions1->false_img;
-   cv::resize(output,output,Size(HyperFunctions1->WINDOW_WIDTH, HyperFunctions1->WINDOW_HEIGHT),INTER_LINEAR); 
-  
     set_pix_buf_from_cv( output, img_struct1->image);
-      
+}
 
- 
+static void show_ndvi_image(GtkWidget *widget,  gpointer data)
+{
+    //Along with the set_false_img_standard_rgb function, this uses bands that are hardcoded.
+    //To ensure compatibility with other cameras this should be changed in the future.
 
+    void * data_new=data;
+    img_struct_gtk *img_struct1=static_cast<img_struct_gtk*>(data_new);
+    void * data_new2=img_struct1->HyperFunctions1;
+    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new2);
+    //HyperFunctions1->GenerateFalseImg();
+    //NDVI= (NIR-R) / (NIR +R)
+    //All channels will display the same formula until a color version is discovered
+    vector<Mat>& mlt1 = HyperFunctions1->mlt1;
+    Mat ndvi_img;
+    vector<Mat> channels(3);
+    int r = 163;
+    int nir = 112;
+    channels[0]=(mlt1[nir] - mlt1[r]) / (mlt1[nir] + mlt1[r]); //b
+    channels[1]=(mlt1[nir] - mlt1[r]) / (mlt1[nir] + mlt1[r]); //g
+    channels[2]=(mlt1[nir] - mlt1[r]) / (mlt1[nir] + mlt1[r]); //b
+    merge(channels,ndvi_img); // create new single channel image
+
+    cv::Mat output=ndvi_img;
+    cv::resize(output,output,Size(HyperFunctions1->WINDOW_WIDTH, HyperFunctions1->WINDOW_HEIGHT),INTER_LINEAR); 
+    
+    set_pix_buf_from_cv( output, img_struct1->image);
 }
 
 static void clear_database(GtkWidget *widget,  gpointer data)
