@@ -472,6 +472,7 @@ void HyperFunctionsGPU::semantic_segmentation(int* test_array) {
     cudaFree(d_color_info);
     cudaFree(d_out2);
     cudaFree(d_clasified_img_array);
+    free(classified_img_array);
 
 }
 
