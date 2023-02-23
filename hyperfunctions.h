@@ -36,6 +36,7 @@ public:
 	vector<KeyPoint> keypoints1, keypoints2;
 	vector<vector<int>> reference_spectrums;
 	vector<Vec3b> reference_colors;
+	vector<vector<Point>>contours_approx;
 	
 	Point cur_loc=Point(0, 0);
 
@@ -56,6 +57,7 @@ public:
 	int spec_sim_alg=0;
 	int ref_spec_index=0;
 	int num_threads=std::thread::hardware_concurrency();
+    int classification_threshold=255; // for semantic image, if no spectra are under threshold, pixel remains black. set to 255 to classify every pixel. 15 is good to tell if pixel is of same material and allow for some noise
 
 	string spectral_database="../json/spectral_database1.json";
 	string camera_database="../json/camera_database.json";
@@ -86,6 +88,7 @@ public:
 	void TileImage(); // set for 164 needs to be made modular 
 	void FeatureExtraction();  
 	void FeatureTransformation(); 
+	void thickEdgeContourApproximation(int idx);
 	
 	// functions involving spectral similarity algorithms
 	void SAM_img();
@@ -97,6 +100,7 @@ public:
 	//functions involving json files
 	void read_spectral_json(string file_name);
 	void writeJSON(Json::Value &event, vector<vector<Point> > &contours, int idx, string classification, int count);
+	void writeJSON_full(vector<vector<Point> > contours, vector <Vec3b> contour_class,vector<Vec4i> hierarchy);
 	void read_img_json(string file_name);
 	void save_ref_spec_json(string item_name); 
 	void read_ref_spec_json(string file_name);

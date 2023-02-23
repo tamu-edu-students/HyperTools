@@ -28,6 +28,9 @@
 	static void set_spec_sim_alg_SAM(GtkWidget *widget,  gpointer data);
 	static void set_spec_sim_alg_SCM(GtkWidget *widget,  gpointer data);
 	static void set_spec_sim_alg_SID(GtkWidget *widget,  gpointer data);
+	static void set_zoom1(GtkWidget *widget,  gpointer data);
+	static void set_zoom2(GtkWidget *widget,  gpointer data);
+	static void set_zoom3(GtkWidget *widget,  gpointer data);	
 
 	static void show_spec_sim_img(GtkWidget *widget,  gpointer data);
 	static void show_semantic_img(GtkWidget *widget,  gpointer data);
