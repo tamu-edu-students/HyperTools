@@ -367,12 +367,13 @@ static void show_ndvi_image(GtkWidget *widget,  gpointer data)
     //All channels will display the same formula until a color version is discovered
     vector<Mat>& mlt1 = HyperFunctions1->mlt1;
     Mat ndvi_img;
+    Mat white_img(mlt1[1].rows, mlt1[1].cols, CV_8UC1, Scalar(255,255,255));  
     vector<Mat> channels(3);
     int r = 163;
-    int nir = 112;
-    channels[0]=(mlt1[nir] - mlt1[r]) / (mlt1[nir] + mlt1[r]); //b
-    channels[1]=(mlt1[nir] - mlt1[r]) / (mlt1[nir] + mlt1[r]); //g
-    channels[2]=(mlt1[nir] - mlt1[r]) / (mlt1[nir] + mlt1[r]); //b
+    int nir = 112; //In progress. I think the problem is that the values are unsigned so hitting 0 keeps it there.
+    channels[0]=(((mlt1[nir] - mlt1[r]) / (mlt1[nir] + mlt1[r]))*100000)+white_img/2; //b
+    channels[1]=channels[0]; //g
+    channels[2]=channels[0]; //b
     merge(channels,ndvi_img); // create new single channel image
 
     cv::Mat output=ndvi_img;

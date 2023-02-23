@@ -97,6 +97,9 @@ int main (int argc, char *argv[])
   g_signal_connect (G_OBJECT (button),"button_press_event",G_CALLBACK (button_press_callback),&HyperFunctions1);
   g_signal_connect (G_OBJECT (button),"button_press_event",G_CALLBACK (show_spectrum),gtk_hyper_image2);
 
+  button = gtk_builder_get_object (builder, "disp_ndvi_img");
+  g_signal_connect (button, "clicked", G_CALLBACK (show_ndvi_image), gtk_hyper_image);
+
   button = gtk_builder_get_object (builder, "disp_false_img");
   g_signal_connect (button, "clicked", G_CALLBACK (show_false_img), gtk_hyper_image);
 
