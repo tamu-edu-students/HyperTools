@@ -18,7 +18,7 @@ using namespace cv;
 
 void mat_to_oneD_array_parallel_child(int id,vector<Mat>* mlt2, int* host_img_array, int val_it, int k );
 
-__global__ void img_test_multi_thread_SAM(int *out, int *img_array, int n, int num_layers, int* ref_spectrum) ;
+__global__ void img_test_multi_thread_SAM(int *out, int *img_array, int n, int num_layers, int* ref_spectrum, int sum) ;
 __global__ void img_test_multi_thread_SID(int *out, int *img_array, int n, int num_layers, int* ref_spectrum) ;
 __global__ void img_test_multi_thread_SCM(int *out, int *img_array, int n, int num_layers, int* ref_spectrum) ;
 __global__ void img_test_classifier(int *out, int *img_array, int num_pixels, int num_spectrums, int* color_info ) ;
@@ -35,6 +35,7 @@ public:
     int block_size = 512;
     int grid_size ;
     int *img_array_base;    
+    int *ref_spectrum;
     
     void spec_sim_GPU();
     void allocate_memory(int* img_array);
