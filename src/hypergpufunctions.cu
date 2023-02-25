@@ -26,7 +26,7 @@ using namespace std::chrono;
  * returns : inverse cos of i * r / (r^2 * i^2). 
  * 
 */
-__global__ void img_test_multi_thread_SAM(int *out, int *img_array, int n, int num_layers, int* ref_spectrum) 
+__global__ void img_test_multi_thread_SAM(int *out, int *img_array, int n, int num_layers, int* ref_spectrum, int sum) 
 {
     
     // parallelize tasks
@@ -37,10 +37,11 @@ __global__ void img_test_multi_thread_SAM(int *out, int *img_array, int n, int n
     // threadIdx : thread index within the block 
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
-    float sum1=0, sum2=0, sum3=0;
-    for (int a=0; a<num_layers-1; a++) {
-        sum3+=ref_spectrum[a] *ref_spectrum[a]; //sum of squared reference spectra values
-    }
+    float sum1=0, sum2=0;
+    float sum3 = sum;
+    //for (int a=0; a<num_layers-1; a++) {
+        //sum3+=ref_spectrum[a] *ref_spectrum[a]; //sum of squared reference spectra values
+    //}
     if (tid < n){
         int offset=tid*num_layers; //calculating which index in the image array the values for threadID pixel start at
         for (int a=0; a<num_layers-1; a++) //iterating through spectra layers for that pixel
@@ -181,7 +182,11 @@ __global__ void img_test_multi_thread_SCM(int *out, int *img_array, int n, int n
 void HyperFunctionsGPU::spec_sim_GPU() {
 
     if (spec_sim_alg == 0) { //running the multithreaded algorithms
-        img_test_multi_thread_SAM<<<grid_size,block_size>>>(d_out, d_img_array, N_size, num_lay, d_ref_spectrum);
+        float sum = 0;
+        for (int a=0; a<num_lay-1; a++) {
+            sum+=ref_spectrum[a] *ref_spectrum[a]; //sum of squared reference spectra values
+        }
+        img_test_multi_thread_SAM<<<grid_size,block_size>>>(d_out, d_img_array, N_size, num_lay, d_ref_spectrum, sum);
     } else if (spec_sim_alg == 1) {
         img_test_multi_thread_SCM<<<grid_size,block_size>>>(d_out, d_img_array, N_size, num_lay, d_ref_spectrum);
     } else if (spec_sim_alg == 2) {
@@ -224,7 +229,7 @@ void HyperFunctionsGPU::allocate_memory(int* img_array) {
 
     //allocating memory on the GPU device
 
-    int* ref_spectrum=new int[tmp_len1];
+    ref_spectrum=new int[tmp_len1];
     for (int i=0;i<reference_spectrums[ref_spec_index].size();i++)
     {
         ref_spectrum[i] = reference_spectrums[ref_spec_index][i]; 
@@ -336,11 +341,9 @@ int* HyperFunctionsGPU::mat_to_oneD_array_parallel_parent()
     int *d_img_array1;
     uchar* d_mat_array; 
     int sz = mlt1[1].rows * mlt1[1].cols;
-    cudaStream_t stream1;
     cudaHostAlloc((void**)&img_array, sizeof(int) * array_size, cudaHostAllocDefault);
     cudaHostAlloc ((void**)&d_mat_array, sizeof(uchar) * sz, cudaHostAllocDefault);
     cudaMalloc((void**)&d_img_array1, sizeof(int) * array_size);
-    block_size = 512;
     for (int i = 0; i < mlt1.size(); i++) {
         uchar* mat_array = (uchar*)mlt1[i].data;
         cudaMemcpyAsync(d_mat_array, mat_array, sizeof(uchar) * sz, cudaMemcpyHostToDevice);
