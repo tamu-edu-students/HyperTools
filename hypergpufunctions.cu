@@ -7,8 +7,11 @@
 #include "hypergpufunctions.h"
 #include "ctpl.h"
 
+
 using namespace cv;
 using namespace std;
+using namespace std::chrono;
+
 
 
 /**
@@ -130,8 +133,7 @@ __global__ void img_test_multi_thread_SID(int *out, int *img_array, int n, int n
  * 
 */
 __global__ void img_test_multi_thread_SCM(int *out, int *img_array, int n, int num_layers, int* ref_spectrum) 
-{
-    
+{ 
     // parallelize tasks
     // pixels are stored with all pixel values next to eachother for the layers    
     // n is number of pixels 
@@ -252,7 +254,7 @@ void HyperFunctionsGPU::oneD_array_to_mat(int* img_array)
     }*/
     spec_simil_img = cv::Mat(mlt1[1].rows, mlt1[1].cols, CV_32SC1, img_array);
     spec_simil_img.convertTo(spec_simil_img, CV_8UC1); //converting to 8 bit unsigned, 1 channel. 
-    cv::transpose(spec_simil_img, spec_simil_img);
+    //cv::transpose(spec_simil_img, spec_simil_img);
 
 }
 
@@ -282,7 +284,7 @@ void HyperFunctionsGPU::oneD_array_to_mat(int* img_array, int cols, int rows, in
 
     *mlt1 = cv::Mat(mlt1->rows, mlt1->cols, CV_32SC3, img_array);
     mlt1->convertTo(*mlt1, CV_8UC3);
-    cv::transpose(*mlt1, *mlt1);
+    //cv::transpose(*mlt1, *mlt1);
 
 }
 
@@ -303,24 +305,48 @@ void mat_to_oneD_array_parallel_child(int id,vector<Mat>* mlt2, int* host_img_ar
     }
 }
 
+__global__ void mat_to_oneD_array_child(uchar* mat_array, int* img_array, int n, int start, int inc) 
+{ 
+
+    // blockID : block index within the grid
+    // blockDim : how many threads per block
+    // threadIdx : thread index within the block 
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x; //unique thread ID
+    if (tid < n){
+       img_array[tid * inc + start] = mat_array[tid];
+    }
+}
+
+
+
 int* HyperFunctionsGPU::mat_to_oneD_array_parallel_parent()
 {
     int array_size=mlt1[1].rows*mlt1[1].cols*mlt1.size();    
     int* img_array= new int[array_size];
-    int val_it=0;
+    /*int val_it=0;
     ctpl::thread_pool p(num_threads);
 
-    /*for (int i = 0; i < mlt1.size(); i++) {
-        uchar* mat_array = mlt1[i].clone().data;
-    }*/
     for (int k=0; k<mlt1[1].cols; k+=1)
     {
         p.push(mat_to_oneD_array_parallel_child, &mlt1,img_array, val_it,k);
         val_it+=mlt1[0].rows*mlt1.size();
-    }
-
+    }*/
+    int *d_img_array1;
+    uchar* d_mat_array;
+    int sz = mlt1[1].rows * mlt1[1].cols;
+    cudaMalloc ((void**)&d_mat_array, sizeof(uchar) * sz);
+    cudaMalloc((void**)&d_img_array1, sizeof(int) * array_size);
+    for (int i = 0; i < mlt1.size(); i++) {
+        uchar* mat_array = (uchar*)mlt1[i].data;
+        cudaMemcpy(d_mat_array, mat_array, sizeof(uchar) * sz, cudaMemcpyHostToDevice);
+        int grid_size1 = (sz + block_size) / block_size;
+        mat_to_oneD_array_child<<<grid_size1, block_size>>>(d_mat_array, d_img_array1, sz, i, mlt1.size());
+    }    
+    cudaMemcpy(img_array, d_img_array1, sizeof(int) * array_size, cudaMemcpyDeviceToHost);
+    cudaFree(d_mat_array);
+    cudaFree(d_img_array1);
     return img_array;
-
 }
 
 int* HyperFunctionsGPU::mat_to_oneD_array_parallel_parent(vector<Mat>* matvector1, int* img_array)
