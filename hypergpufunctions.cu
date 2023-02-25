@@ -77,8 +77,8 @@ __global__ void img_test_multi_thread_SAM(int *out, int *img_array, int n, int n
 
 __global__ void img_test_multi_thread_SID(int *out, int *img_array, int n, int num_layers, int* ref_spectrum) 
 {
-    
     // parallelize tasks
+    
     // pixels are stored with all pixel values next to eachother for the layers    
     // n is number of pixels 
     // blockID : block index within the grid
@@ -335,8 +335,10 @@ int* HyperFunctionsGPU::mat_to_oneD_array_parallel_parent()
     int *d_img_array1;
     uchar* d_mat_array;
     int sz = mlt1[1].rows * mlt1[1].cols;
+    cudaHostAlloc ((void**)&img_array, sizeof(int) * array_size, cudaHostAllocDefault);
     cudaMalloc ((void**)&d_mat_array, sizeof(uchar) * sz);
     cudaMalloc((void**)&d_img_array1, sizeof(int) * array_size);
+    block_size = 512;
     for (int i = 0; i < mlt1.size(); i++) {
         uchar* mat_array = (uchar*)mlt1[i].data;
         cudaMemcpy(d_mat_array, mat_array, sizeof(uchar) * sz, cudaMemcpyHostToDevice);
