@@ -188,7 +188,8 @@ void HyperFunctionsGPU::spec_sim_GPU() {
         img_test_multi_thread_SID<<<grid_size,block_size>>>(d_out, d_img_array, N_size, num_lay, d_ref_spectrum);
     }
 
-    cudaMemcpy(out, d_out, sizeof(int) * N_size, cudaMemcpyDeviceToHost); 
+    cudaDeviceSynchronize();
+    cudaMemcpyAsync(out, d_out, sizeof(int) * N_size, cudaMemcpyDeviceToHost); 
 
     //Mat test_img1(mlt1[1].rows, mlt1[1].cols, CV_8UC1, Scalar(0));
     //spec_simil_img=test_img1;
@@ -333,21 +334,23 @@ int* HyperFunctionsGPU::mat_to_oneD_array_parallel_parent()
         val_it+=mlt1[0].rows*mlt1.size();
     }*/
     int *d_img_array1;
-    uchar* d_mat_array;
+    uchar* d_mat_array; 
     int sz = mlt1[1].rows * mlt1[1].cols;
-    cudaHostAlloc ((void**)&img_array, sizeof(int) * array_size, cudaHostAllocDefault);
-    cudaMalloc ((void**)&d_mat_array, sizeof(uchar) * sz);
+    cudaStream_t stream1;
+    cudaHostAlloc((void**)&img_array, sizeof(int) * array_size, cudaHostAllocDefault);
+    cudaHostAlloc ((void**)&d_mat_array, sizeof(uchar) * sz, cudaHostAllocDefault);
     cudaMalloc((void**)&d_img_array1, sizeof(int) * array_size);
     block_size = 512;
     for (int i = 0; i < mlt1.size(); i++) {
         uchar* mat_array = (uchar*)mlt1[i].data;
-        cudaMemcpy(d_mat_array, mat_array, sizeof(uchar) * sz, cudaMemcpyHostToDevice);
+        cudaMemcpyAsync(d_mat_array, mat_array, sizeof(uchar) * sz, cudaMemcpyHostToDevice);
         int grid_size1 = (sz + block_size) / block_size;
         mat_to_oneD_array_child<<<grid_size1, block_size>>>(d_mat_array, d_img_array1, sz, i, mlt1.size());
     }    
-    cudaMemcpy(img_array, d_img_array1, sizeof(int) * array_size, cudaMemcpyDeviceToHost);
+    cudaMemcpyAsync(img_array, d_img_array1, sizeof(int) * array_size, cudaMemcpyDeviceToHost);
     cudaFree(d_mat_array);
     cudaFree(d_img_array1);
+    cudaFreeHost(d_mat_array);
     return img_array;
 }
 
