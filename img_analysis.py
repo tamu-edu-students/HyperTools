@@ -2,7 +2,6 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.io import loadmat
-from tqdm import tqdm
 import pandas as pd
 
 file_hyper = input("Please enter the hyperspectal image name: ")
@@ -41,17 +40,13 @@ print(f'Dataset: {dataset.shape}')
 
 def extract_pixels(dataset, ground_truth):
     df = pd.DataFrame()
-    for i in tqdm(range(dataset.shape[2])):
+    for i in (range(dataset.shape[2])):
         df = pd.concat([df, pd.DataFrame(dataset[:, :, i].ravel())], axis=1)
     df = pd.concat([df, pd.DataFrame(ground_truth.ravel())], axis=1)
     df.columns = [f'band-{i}' for i in range(1, 1+dataset.shape[2])]+['class']
     return df
 
 df = extract_pixels(dataset, ground_truth)
-
-df.to_csv('Dataset.csv', index=False)
-
-df = pd.read_csv('Dataset.csv')
 
 print(df.loc[:, 'class'].value_counts().sort_index())
 
