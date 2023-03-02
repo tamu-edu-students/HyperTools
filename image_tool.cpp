@@ -81,12 +81,14 @@ int main (int argc, char *argv[])
   button = gtk_builder_get_object (builder, "create_database");
   g_signal_connect (button, "clicked", G_CALLBACK (create_database), gtk_hyper_entry);
 
+  entry_struct *gtk_hyper_entry2, temp_var5;
+  gtk_hyper_entry2=&temp_var5;
 
   button = gtk_builder_get_object (builder, "spectrum_name");
-  (*gtk_hyper_entry).entry=button;
-  (*gtk_hyper_entry).HyperFunctions1=&HyperFunctions1;
+  (*gtk_hyper_entry2).entry=button;
+  (*gtk_hyper_entry2).HyperFunctions1=&HyperFunctions1;
   button = gtk_builder_get_object (builder, "save_spectrum");
-  g_signal_connect (button, "clicked", G_CALLBACK (save_spectrum), gtk_hyper_entry);
+  g_signal_connect (button, "clicked", G_CALLBACK (save_spectrum), gtk_hyper_entry2);
 
   
   image= gtk_builder_get_object (builder, "spec_curve");
