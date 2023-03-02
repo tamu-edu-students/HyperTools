@@ -31,16 +31,16 @@ public:
     int N_size;    
     int num_lay;
     int *out;
-    int *d_img_array,  *d_out, *d_ref_spectrum; 
+    int *d_img_array, *d_out, *d_ref_spectrum; 
     int block_size = 512;
     int grid_size ;
     int *img_array_base;    
     int *ref_spectrum;
     
     void spec_sim_GPU();
-    void allocate_memory(int* img_array);
-    void deallocate_memory( );
-    int* mat_to_oneD_array_parallel_parent();
+    void allocate_memory();
+    void deallocate_memory();
+    void mat_to_oneD_array_parallel_parent();
     void oneD_array_to_mat(int* img_array);
     void semantic_segmentation(int* test_array);
     void oneD_array_to_mat(int* img_array, int cols, int rows, int channels, Mat* mlt1);

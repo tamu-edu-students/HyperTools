@@ -212,7 +212,7 @@ void HyperFunctionsGPU::deallocate_memory()
 * Set the number of threads per block to be 512 - this is the maximum threads per block for older GPUs.
 * Grid size is the number of of blocks, given by the number of threads / block size + 1. 
 */
-void HyperFunctionsGPU::allocate_memory(int* img_array) {
+void HyperFunctionsGPU::allocate_memory() {
     
     N_points=mlt1[1].rows*mlt1[1].cols*mlt1.size(); 
     N_size=mlt1[1].rows*mlt1[1].cols;    
@@ -223,7 +223,6 @@ void HyperFunctionsGPU::allocate_memory(int* img_array) {
     int tmp_len1=reference_spectrums[ref_spec_index].size(); 
 
     cudaHostAlloc ((void**)&out, sizeof(int) * N_size, cudaHostAllocDefault);
-    cudaMalloc((void**)&d_img_array, sizeof(int) * N_points);
     cudaMalloc((void**)&d_out, sizeof(int) * N_size);
     cudaMalloc((void**)&d_ref_spectrum, sizeof(int) * tmp_len1);
 
@@ -235,7 +234,6 @@ void HyperFunctionsGPU::allocate_memory(int* img_array) {
         ref_spectrum[i] = reference_spectrums[ref_spec_index][i]; 
         //converting the 2-D array of reference spectrums into one-D for CUDA processing
     }
-    cudaMemcpy(d_img_array, img_array, sizeof(int) *  N_points, cudaMemcpyHostToDevice);
     cudaMemcpy(d_ref_spectrum, ref_spectrum, sizeof(int) * tmp_len1, cudaMemcpyHostToDevice);
 
     //copying our existing memory that holds image data and reference spectrum data to the 
@@ -248,20 +246,8 @@ void HyperFunctionsGPU::allocate_memory(int* img_array) {
 */
 void HyperFunctionsGPU::oneD_array_to_mat(int* img_array)
 {
-    /*int val_it=0;
-    for (int k=0; k<spec_simil_img.cols; k++)
-    {
-        for (int j=0; j<spec_simil_img.rows; j++)
-        {
-            spec_simil_img.at<uchar>(j,k)=img_array[val_it]; 
-            val_it+=1;
-            //Conversion of 1-d array containing pixel values to 8 bit one channel 2-d OPENCV matrix
-        }
-    }*/
     spec_simil_img = cv::Mat(mlt1[1].rows, mlt1[1].cols, CV_32SC1, img_array);
     spec_simil_img.convertTo(spec_simil_img, CV_8UC1); //converting to 8 bit unsigned, 1 channel. 
-    //cv::transpose(spec_simil_img, spec_simil_img);
-
 }
 
 /**
@@ -272,26 +258,8 @@ void HyperFunctionsGPU::oneD_array_to_mat(int* img_array)
 void HyperFunctionsGPU::oneD_array_to_mat(int* img_array, int cols, int rows, int channels, Mat* mlt1)
 {
 
-    /*Mat classified_img = *mlt1;
-    int val_it=0;
-    for (int k=0; k<cols; k++)
-    {
-        for (int j=0; j<rows; j++)
-        {
-            Vec3b color = classified_img.at<Vec3b>(Point(0,0));
-            color[0]=img_array[val_it];
-            color[1]=img_array[val_it+1];
-            color[2]=img_array[val_it+2];
-            //cout<<color<<endl;
-            classified_img.at<Vec3b>(Point(k,j))= color;
-            val_it+=3;
-        }
-    }*/
-
     *mlt1 = cv::Mat(mlt1->rows, mlt1->cols, CV_32SC3, img_array);
     mlt1->convertTo(*mlt1, CV_8UC3);
-    //cv::transpose(*mlt1, *mlt1);
-
 }
 
 
@@ -326,35 +294,20 @@ __global__ void mat_to_oneD_array_child(uchar* mat_array, int* img_array, int n,
 
 
 
-int* HyperFunctionsGPU::mat_to_oneD_array_parallel_parent()
+void HyperFunctionsGPU::mat_to_oneD_array_parallel_parent()
 {
     int array_size=mlt1[1].rows*mlt1[1].cols*mlt1.size();    
-    int* img_array= new int[array_size];
-    /*int val_it=0;
-    ctpl::thread_pool p(num_threads);
-
-    for (int k=0; k<mlt1[1].cols; k+=1)
-    {
-        p.push(mat_to_oneD_array_parallel_child, &mlt1,img_array, val_it,k);
-        val_it+=mlt1[0].rows*mlt1.size();
-    }*/
-    int *d_img_array1;
     uchar* d_mat_array; 
     int sz = mlt1[1].rows * mlt1[1].cols;
-    cudaHostAlloc((void**)&img_array, sizeof(int) * array_size, cudaHostAllocDefault);
     cudaHostAlloc ((void**)&d_mat_array, sizeof(uchar) * sz, cudaHostAllocDefault);
-    cudaMalloc((void**)&d_img_array1, sizeof(int) * array_size);
+    cudaMalloc((void**)&d_img_array, sizeof(int) * array_size);
+    int grid_size1 = (sz + block_size) / block_size;
     for (int i = 0; i < mlt1.size(); i++) {
         uchar* mat_array = (uchar*)mlt1[i].data;
         cudaMemcpyAsync(d_mat_array, mat_array, sizeof(uchar) * sz, cudaMemcpyHostToDevice);
-        int grid_size1 = (sz + block_size) / block_size;
-        mat_to_oneD_array_child<<<grid_size1, block_size>>>(d_mat_array, d_img_array1, sz, i, mlt1.size());
-    }    
-    cudaMemcpyAsync(img_array, d_img_array1, sizeof(int) * array_size, cudaMemcpyDeviceToHost);
-    cudaFree(d_mat_array);
-    cudaFree(d_img_array1);
+        mat_to_oneD_array_child<<<grid_size1, block_size>>>(d_mat_array, d_img_array, sz, i, mlt1.size());
+    }
     cudaFreeHost(d_mat_array);
-    return img_array;
 }
 
 int* HyperFunctionsGPU::mat_to_oneD_array_parallel_parent(vector<Mat>* matvector1, int* img_array)
@@ -430,7 +383,7 @@ __global__ void img_test_classifier(int *out, int *img_array, int num_pixels, in
 
 void HyperFunctionsGPU::semantic_segmentation(int* test_array) {
     ref_spec_index = 0;
-    this->allocate_memory(test_array); //allocating all the memory required to perform spectral similarity
+    this->allocate_memory(); //allocating all the memory required to perform spectral similarity
     vector<Mat> similarity_images;
     int tmp_len1 = reference_spectrums[0].size();
     int* ref_spectrum = new int[tmp_len1];
