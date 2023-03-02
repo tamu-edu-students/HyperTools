@@ -57,6 +57,9 @@ int main (int argc, char *argv[])
   button = gtk_builder_get_object (builder, "choose_file");
   g_signal_connect (button, "file-set", G_CALLBACK (choose_image_file), &HyperFunctions1); //Should be able to see what file they chose. Then call LoadImageHyper1
 
+  button = gtk_builder_get_object(builder, "choose_database");
+  g_signal_connect (button, "file-set", G_CALLBACK (choose_database), &HyperFunctions1); //See what database file you choose
+
   button = gtk_builder_get_object (builder, "spectrum_box");
   //Nothing happens when you click on the spectrum image
 

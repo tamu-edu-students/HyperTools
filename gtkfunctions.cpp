@@ -375,10 +375,17 @@ static void create_database(GtkWidget *widget,  gpointer data)
     string text_val=gtk_entry_get_text(GTK_ENTRY(entry_struct1->entry));
     HyperFunctions1->spectral_database="../json/" + text_val;
     HyperFunctions1->save_new_spec_database_json();
-    
-
 }
 
+static void choose_database(GtkFileChooser *widget,  gpointer data)
+{
+
+    gchar* file_chosen;
+    file_chosen = gtk_file_chooser_get_filename(widget);
+    void * data_new=data;
+    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
+    HyperFunctions1->spectral_database=file_chosen;                 //Changes variable in spectral database
+}
 static void save_spectrum(GtkWidget *widget,  gpointer data)
 {
 
