@@ -39,6 +39,7 @@ void HyperFunctions::LoadFeatureImage2(string file_name)
 	feature_img2 = cv::imread(file_name, IMREAD_GRAYSCALE);
 }
 
+// To display image
 void  HyperFunctions::DispFeatureImgs()
 {
    Mat temp_img, temp_img2, temp_img3;
@@ -52,8 +53,8 @@ void  HyperFunctions::DispFeatureImgs()
 
 //---------------------------------------------------------
 // Name: FeatureExtraction
-// PreCondition: 
-// PostCondition: 
+// Description: Extracts different features of an image used for matching
+// and piecing together "the puzzle (image)".
 //---------------------------------------------------------
 void  HyperFunctions::FeatureExtraction()
 {
@@ -155,9 +156,9 @@ void  HyperFunctions::FeatureExtraction()
 }
 
 //---------------------------------------------------------
-// Name: FeatureExtraction
-// PreCondition: 
-// PostCondition: 
+// Name: FeatureTransformation
+// Description: to convert the original set of features/measurable attributes into a new representation
+// more suitable for a specific task or application
 //---------------------------------------------------------
 void HyperFunctions::FeatureTransformation()
 {
@@ -200,15 +201,15 @@ void HyperFunctions::FeatureTransformation()
 
 }
 
+// To display classified image
 void  HyperFunctions::DispClassifiedImage()
 {
-
     Mat temp_img;
     cv::resize(classified_img,temp_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR); 
     imshow("Classified Image", temp_img);
 }
 
-
+// To display false image
 void  HyperFunctions::DispFalseImage()
 {
     Mat temp_img;
@@ -216,6 +217,7 @@ void  HyperFunctions::DispFalseImage()
     imshow("False Image", temp_img);
 }
 
+// To display spectral similarity image
 void  HyperFunctions::DispSpecSim()
 {
     Mat temp_img;
@@ -285,7 +287,12 @@ void  HyperFunctions::DifferenceOfImages()
     difference_img= output_image; 
 }
               
-                  
+//---------------------------------------------------------
+// Name: EdgeDetection
+// Description: to detect edges or boundaries between different regions or objects in an image
+// PreCondition: an output image prepared for edge detection
+// PostCondition: edge_image set to the modigfied output image after edge detection 
+//---------------------------------------------------------                  
 void HyperFunctions::EdgeDetection( )
 {
 	// create a copy of the incoming image in terms of size (length and width) and initialize as an all black image
@@ -302,13 +309,13 @@ void HyperFunctions::EdgeDetection( )
         {
             edge=false;
               
-              if (i==0 || j==0 ||   i== classified_img.rows-1  || j==classified_img.cols-1)
-              {
+            if (i==0 || j==0 || i== classified_img.rows-1 || j==classified_img.cols-1)
+            {
                 // set boundaries of image to edge
                 edge=true;
-              }
-              else
-              {
+            }
+            else
+            {
                 temp_val=classified_img.at<Vec3b>(i,j); // in form (y,x) 
               
                 // go through image pixel by pixel  and look at surrounding 8 pixels, if there is a difference in color between center and other pixels, then it is an edge 
@@ -324,22 +331,29 @@ void HyperFunctions::EdgeDetection( )
                         }            
                    }           
                 }        
-              }
+            }
             
-              if (edge)
-              {
-                  // set edge pixel to white
-                  output_image.at<uchar>(i,j)=255;            
-              }
+            if (edge)
+            {
+                // set edge pixel to white
+                output_image.at<uchar>(i,j)=255;            
+            }
         }
      }  
 
-         edge_image=output_image;
+    edge_image = output_image;
 
 }
+
+//---------------------------------------------------------
+// Name: DetectContours
+// Description: to identify and extract the boundaries (or contours) of specific objects 
+// in an image. to make out the shapes of objects.
+// PreCondition: an output image prepared for edge detection
+// PostCondition: edge_image set to the modigfied output image after edge detection 
+//---------------------------------------------------------  
 void HyperFunctions::DetectContours()
 {
-
     //cout<<"min area "<<min_area<<" coeff poly "<<polygon_approx_coeff<<endl;
     if (edge_image.empty())
     {
@@ -364,7 +378,7 @@ void HyperFunctions::DetectContours()
     img_area_pixels =  edge_image.rows*edge_image.cols ; 
     img_area_meters= pow(double(2)*avgDist* tan(fov*3.14159/double(180)/(double)2),2);   
     
-    
+    // extracts contours from edge_image from edge detector
     findContours( edge_image, contours_approx, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0, 0) ); 
     
     for (int i=0 ; i<contours_approx.size(); i++)
@@ -479,6 +493,7 @@ void HyperFunctions::DetectContours()
 
 } // end function
 
+
 void HyperFunctions::TileImage()
 {
     //vector<Mat> mlt1=*mlt2; 
@@ -558,7 +573,6 @@ void HyperFunctions::read_spectral_json(string file_name )
 
 void HyperFunctions::writeJSON(Json::Value &event, vector<vector<Point> > &contours, int idx, string classification, int count)
 {
-
     Json::Value vec(Json::arrayValue);
     for (int i = 0; i< contours[idx].size(); i++){
         Json::Value arr(Json::arrayValue);
@@ -707,7 +721,11 @@ void  HyperFunctions::save_new_spec_database_json(string file_name)
 
 }
 
-
+//---------------------------------------------------------
+// Name: SemanticSegmenter
+// Description: Takes hyperspectral data and assigns each pixel a color
+// based on which reference spectra it is most similar to.
+//---------------------------------------------------------
 void  HyperFunctions::SemanticSegmenter()
 {
 //classified_img
@@ -732,8 +750,8 @@ void  HyperFunctions::SemanticSegmenter()
             {
                 if (i==0)
                 {
-                low_val=temp_results[i].at<uchar>(j,k);
-                temp_class_img.at<Vec3b>(Point(k,j)) = reference_colors[i];
+                    low_val=temp_results[i].at<uchar>(j,k);
+                    temp_class_img.at<Vec3b>(Point(k,j)) = reference_colors[i];
                 }
                 else
                 {
@@ -752,12 +770,15 @@ void  HyperFunctions::SemanticSegmenter()
     classified_img=temp_class_img;
 }
 
-
+//---------------------------------------------------------
+// Name: SpecSimilParent
+// Description: to determine the similarity between sets
+// of data within threadpool based on their spectral properties
+//---------------------------------------------------------
 void  HyperFunctions::SpecSimilParent()
 {
-//spec_sim_alg SAM=0, SCM=1, SID=2
-// ref_spec_index
-
+    //spec_sim_alg SAM=0, SCM=1, SID=2
+    // ref_spec_index
     Mat temp_img(mlt1[1].rows, mlt1[1].cols, CV_8UC1, Scalar(0));
     spec_simil_img=temp_img;
 
