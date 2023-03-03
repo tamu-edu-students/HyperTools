@@ -1,0 +1,36 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/cpp
+{
+	
+	
+	// docker build commands are to create the docker image
+	// docker build -t docker_image_name -f dockerfile_name .
+	//docker network is needed to assign ip address to docker container
+	// docker network create --driver bridge --subnet 192.168.200.0/24 my_custom_network
+
+
+	// make sure to uncomment the image that is desired for development
+	"image": "hypertools_4_2:latest" ,
+	// "image": "hypertools_cubert:latest" ,
+	// "image": "hypertools_4_2_cuda:latest" ,
+	// "image": "hypertools_current_opencv:latest" ,
+	// "image": "hypertools_cubert_cuda:latest" ,
+	
+	"mounts": [
+		// below two mounts are for visualization on windows machine if there are issues with wsl
+		// "source=/run/desktop/mnt/host/wslg/.X11-unix,target=/tmp/.X11-unix,type=bind,consistency=cached",
+		// "source=/run/desktop/mnt/host/wslg,target=/mnt/wslg,type=bind,consistency=cached",
+		
+		// below mounts hyperimages in container
+		"source=${localWorkspaceFolder}/../HyperImages,target=/workspaces/HyperImages,type=bind,consistency=cached"
+	  ]
+
+	// "remoteEnv": {"DISPLAY":":0"},
+	
+	// below is used when cuda image is being used
+	// "runArgs": [
+	// 	"--gpus",
+	// 	"all"
+	// ]
+
+}
