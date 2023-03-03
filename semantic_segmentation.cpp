@@ -25,7 +25,7 @@ main (int   argc,
     
   HyperFunctions HyperFunctions1;
   gpointer HyperFunctions2 = static_cast<gpointer>(&HyperFunctions1); 
-  string file_name2="../images/lena.png";
+  string file_name2="../images/lena3.png";
   string file_name3="../json/lena3.json";
   HyperFunctions1.LoadImageClassified(file_name2);
   HyperFunctions1.read_img_json(file_name3);
@@ -62,6 +62,15 @@ main (int   argc,
   
   button = gtk_builder_get_object (builder, "scale_min_area");
   g_signal_connect (button, "value-changed", G_CALLBACK (set_min_area), &HyperFunctions1);
+  
+  button = gtk_builder_get_object (builder, "fidelity1");
+  g_signal_connect (button, "clicked", G_CALLBACK (set_zoom1), &HyperFunctions1);
+  
+  button = gtk_builder_get_object (builder, "fidelity2");
+  g_signal_connect (button, "clicked", G_CALLBACK (set_zoom2), &HyperFunctions1);
+  
+  button = gtk_builder_get_object (builder, "fidelity3");
+  g_signal_connect (button, "clicked", G_CALLBACK (set_zoom3), &HyperFunctions1);
   
   button = gtk_builder_get_object (builder, "quit");
   g_signal_connect (button, "clicked", G_CALLBACK (gtk_main_quit), NULL);

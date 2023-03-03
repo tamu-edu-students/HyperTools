@@ -26,12 +26,19 @@ if (use_CUDA)
 find_package(CUDA)
     if(CUDA_FOUND)
         enable_language(CUDA)
+        set(CMAKE_CUDA_STANDARD 17)
 
         if(NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
             set(CMAKE_CUDA_ARCHITECTURES 75)
         endif()
+        
+        add_definitions(${GTK_CFLAGS_OTHER}) 
 
         add_executable(cuda_example cuda_example.cu)
+        add_executable(gtk_cuda_example gtk_cuda_example.cu)
+        # below is not necessary right now
+        set_target_properties(gtk_cuda_example PROPERTIES
+        CUDA_SEPARABLE_COMPILATION ON)
 
 
     else(CUDA_FOUND)
