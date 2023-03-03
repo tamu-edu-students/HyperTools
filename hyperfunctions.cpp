@@ -301,13 +301,8 @@ void HyperFunctions::DifferenceOfImages()
     difference_img = output_image; 
 }
               
-//---------------------------------------------------------
-// Name: EdgeDetection
-// Description: to detect edges or boundaries between different regions or objects in an image
-// PreCondition: an output image prepared for edge detection
-// PostCondition: edge_image set to the modigfied output image after edge detection 
-//---------------------------------------------------------                  
-void HyperFunctions::EdgeDetection()
+                  
+void HyperFunctions::EdgeDetection( )
 {
 	// create a copy of the incoming image in terms of size (length and width) and initialize as an all black image
     Mat output_image(classified_img.rows, classified_img.cols, CV_8UC1, cv::Scalar(0));
@@ -505,6 +500,7 @@ void HyperFunctions::DetectContours()
     contour_img=drawing;
 
 } // end function
+
 
 // Creates tile image or default/base image
 void HyperFunctions::TileImage()
