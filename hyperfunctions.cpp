@@ -50,107 +50,115 @@ void  HyperFunctions::DispFeatureImgs()
    imshow("Feature Images", temp_img);
 }
 
+//---------------------------------------------------------
+// Name: FeatureExtraction
+// PreCondition: 
+// PostCondition: 
+//---------------------------------------------------------
 void  HyperFunctions::FeatureExtraction()
 {
    	// feature_detector=0; 0 is sift, 1 is surf, 2 is orb, 3 is fast 
 	// feature_descriptor=0; 0 is sift, 1 is surf, 2 is orb
 	// feature_matcher=0; 0 is flann, 1 is bf
-  //cout<<feature_detector<<" "<<feature_descriptor<<" "<<feature_matcher<<endl;
-  if (feature_detector==0 && feature_descriptor==2)
-  {
-    cout<<"invalid detector/descriptor combination"<<endl;
-    return;
-  }
+    //cout<<feature_detector<<" "<<feature_descriptor<<" "<<feature_matcher<<endl;
+    if (feature_detector==0 && feature_descriptor==2)
+    {
+        cout<<"invalid detector/descriptor combination"<<endl;
+        return;
+    }
   
-  if(feature_detector<0 || feature_detector>3 || feature_descriptor<0 || feature_descriptor>2 || feature_matcher<0 || feature_matcher>1)
-  {
-    cout<<"invalid feature combination"<<endl;
-  }
+    if(feature_detector<0 || feature_detector>3 || feature_descriptor<0 || feature_descriptor>2 || feature_matcher<0 || feature_matcher>1)
+    {
+        cout<<"invalid feature combination"<<endl;
+    }
   
+    int minHessian = 400;
+    Ptr<SURF> detector_SURF = SURF::create( minHessian ); 
+    cv::Ptr<SIFT> detector_SIFT = SIFT::create();   
+    Ptr<FastFeatureDetector> detector_FAST = FastFeatureDetector::create();
+    Ptr<ORB> detector_ORB = ORB::create();
+    Ptr<DescriptorMatcher> matcher;
+    Mat descriptors1, descriptors2;
   
-  int minHessian = 400;
-  Ptr<SURF> detector_SURF = SURF::create( minHessian ); 
-  cv::Ptr<SIFT> detector_SIFT = SIFT::create();   
-  Ptr<FastFeatureDetector> detector_FAST = FastFeatureDetector::create();
-  Ptr<ORB> detector_ORB = ORB::create();
-  Ptr<DescriptorMatcher> matcher;
-  Mat descriptors1, descriptors2;
-  
-// feature_detector=0; 0 is sift, 1 is surf, 2 is orb, 3 is fast 
-  if(feature_detector==0)
-  {
-    detector_SIFT->detect( feature_img1, keypoints1 );
-    detector_SIFT->detect( feature_img2, keypoints2 );
-  }
-  else if (feature_detector==1)
-  {
-      detector_SURF->detect( feature_img1, keypoints1 );
-      detector_SURF->detect( feature_img2, keypoints2 );  
-  }
-  else if (feature_detector==2)
-  {
-      detector_ORB->detect( feature_img1, keypoints1 );
-      detector_ORB->detect( feature_img2, keypoints2 );  
-  }
-  else if (feature_detector==3)
-  {
-      detector_FAST->detect( feature_img1, keypoints1 );
-      detector_FAST->detect( feature_img2, keypoints2 );  
-  }
+    // feature_detector=0; 0 is sift, 1 is surf, 2 is orb, 3 is fast 
+    if(feature_detector==0)
+    {
+        detector_SIFT->detect(feature_img1, keypoints1);
+        detector_SIFT->detect(feature_img2, keypoints2);
+    }
+    else if (feature_detector==1)
+    {
+        detector_SURF->detect(feature_img1, keypoints1);
+        detector_SURF->detect(feature_img2, keypoints2);  
+    }
+    else if (feature_detector==2)
+    {
+        detector_ORB->detect(feature_img1, keypoints1);
+        detector_ORB->detect(feature_img2, keypoints2);  
+    }
+    else if (feature_detector==3)
+    {
+        detector_FAST->detect(feature_img1, keypoints1);
+        detector_FAST->detect(feature_img2, keypoints2);  
+    }
   	
   	// feature_descriptor=0; 0 is sift, 1 is surf, 2 is orb
-  if(feature_descriptor==0)
-  {
-    detector_SIFT->compute( feature_img1, keypoints1 , descriptors1);
-    detector_SIFT->compute( feature_img2, keypoints2 , descriptors2 );
-  }  
-  else if(feature_descriptor==1)
-  {
-    detector_SURF->compute( feature_img1, keypoints1 , descriptors1);
-    detector_SURF->compute( feature_img2, keypoints2 , descriptors2 );
-  }  
-  else if(feature_descriptor==2)
-  {
-    detector_ORB->compute( feature_img1, keypoints1 , descriptors1);
-    detector_ORB->compute( feature_img2, keypoints2 , descriptors2 );
-  }  
+    if(feature_descriptor==0)
+    {
+        detector_SIFT->compute(feature_img1, keypoints1, descriptors1);
+        detector_SIFT->compute(feature_img2, keypoints2, descriptors2);
+    }  
+    else if(feature_descriptor==1)
+    {
+        detector_SURF->compute(feature_img1, keypoints1, descriptors1);
+        detector_SURF->compute(feature_img2, keypoints2, descriptors2);
+    }  
+    else if(feature_descriptor==2)
+    {
+        detector_ORB->compute(feature_img1, keypoints1, descriptors1);
+        detector_ORB->compute(feature_img2, keypoints2, descriptors2);
+    }  
   
   	// feature_matcher=0; 0 is flann, 1 is bf
-  if(feature_matcher==0)
-  {
-    if(feature_descriptor==2) // binary descriptor 
+    if(feature_matcher==0)
     {
-        matcher = cv::makePtr<cv::FlannBasedMatcher>(cv::makePtr<cv::flann::LshIndexParams>(12, 20, 2));
-        matcher->match( descriptors1, descriptors2, matches );
-    }
-    else
+        if(feature_descriptor==2) // binary descriptor 
+        {
+            matcher = cv::makePtr<cv::FlannBasedMatcher>(cv::makePtr<cv::flann::LshIndexParams>(12, 20, 2));
+            matcher->match(descriptors1, descriptors2, matches );
+        }
+        else
+        {
+            matcher = DescriptorMatcher::create(DescriptorMatcher::FLANNBASED);
+            matcher->match(descriptors1, descriptors2, matches);        
+        }
+    }    
+    else if(feature_matcher==1)
     {
-        matcher = DescriptorMatcher::create(DescriptorMatcher::FLANNBASED);
-        matcher->match( descriptors1, descriptors2, matches );        
-    }
-  }    
-  else if(feature_matcher==1)
-  {
-    if(feature_descriptor==2) // binary descriptor 
-    {
-        matcher = cv::DescriptorMatcher::create("BruteForce-Hamming");
-        matcher->match( descriptors1, descriptors2, matches );
-    }
-    else
-    {
-        matcher = DescriptorMatcher::create(DescriptorMatcher::BRUTEFORCE);
-        matcher->match( descriptors1, descriptors2, matches );        
-    }  
-  }   
+        if(feature_descriptor==2) // binary descriptor 
+        {
+            matcher = cv::DescriptorMatcher::create("BruteForce-Hamming");
+            matcher->match(descriptors1, descriptors2, matches);
+        }
+        else
+        {
+            matcher = DescriptorMatcher::create(DescriptorMatcher::BRUTEFORCE);
+            matcher->match(descriptors1, descriptors2, matches);        
+        }  
+    }   
 
-  Mat temp_img;  
-  drawMatches( feature_img1, keypoints1, feature_img2, keypoints2, matches, temp_img ); 
+    Mat temp_img;  
+    drawMatches(feature_img1, keypoints1, feature_img2, keypoints2, matches, temp_img); 
 
-   cv::resize(temp_img,temp_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR); 
-   imshow("Feature Images Matched", temp_img);
+    cv::resize(temp_img,temp_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT), INTER_LINEAR); 
+    imshow("Feature Images Matched", temp_img);
 }
 
-
+//---------------------------------------------------------
+// Name: FeatureExtraction
+// PreCondition: 
+// PostCondition: 
+//---------------------------------------------------------
 void HyperFunctions::FeatureTransformation()
 {
     double focal = 718.8560;
@@ -169,7 +177,7 @@ void HyperFunctions::FeatureTransformation()
     E = findEssentialMat(points1, points2, cameraMatrix, RANSAC, 0.999, 1.0, mask);
     recoverPose(E, points1, points2, cameraMatrix, R, t, mask);
     // E = findEssentialMat(points2, points1, focal, pp, RANSAC, 0.999, 1.0, mask);
-    //  recoverPose(E, points2, points1, R, t, focal, pp, mask);
+    // recoverPose(E, points2, points1, R, t, focal, pp, mask);
     
     int inlier_num=0;
     for (int i=0; i<mask.rows; i++)
@@ -187,108 +195,100 @@ void HyperFunctions::FeatureTransformation()
     cout<<"Fundamental Matrix"<<endl;
     cout<<R<<endl<<t<<endl;
 
-   //cout<<"inliers: " <<inlier_num<< " num of matches: "<<mask.rows<<endl;
-   //cout<<" accuracy of feature matching: "<< (double)inlier_num/(double)(mask.rows)<<endl;
-
+    //cout<<"inliers: " <<inlier_num<< " num of matches: "<<mask.rows<<endl;
+    //cout<<" accuracy of feature matching: "<< (double)inlier_num/(double)(mask.rows)<<endl;
 
 }
 
 void  HyperFunctions::DispClassifiedImage()
 {
 
-   Mat temp_img;
-   cv::resize(classified_img,temp_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR); 
-   imshow("Classified Image", temp_img);
+    Mat temp_img;
+    cv::resize(classified_img,temp_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR); 
+    imshow("Classified Image", temp_img);
 }
 
 
 void  HyperFunctions::DispFalseImage()
 {
-   Mat temp_img;
-   cv::resize(false_img,temp_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR); 
-   imshow("False Image", temp_img);
+    Mat temp_img;
+    cv::resize(false_img,temp_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR); 
+    imshow("False Image", temp_img);
 }
 
 void  HyperFunctions::DispSpecSim()
 {
-   Mat temp_img;
-   cv::resize(spec_simil_img,temp_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR); 
-   imshow("Spectral Similarity Image", temp_img);
+    Mat temp_img;
+    cv::resize(spec_simil_img,temp_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR); 
+    imshow("Spectral Similarity Image", temp_img);
 }
 
 
 void  HyperFunctions::DispEdgeImage()
 {
-       Mat temp_img;
-   cv::resize(edge_image,temp_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR); 
+    Mat temp_img;
+    cv::resize(edge_image,temp_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR); 
     cv::imshow("Edge Detection Image", temp_img);
 }
 
 void  HyperFunctions::DispContours()
 {
-          Mat temp_img;
-   cv::resize(contour_img,temp_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR); 
-       cv::imshow("Contour Image", temp_img);
+    Mat temp_img;
+    cv::resize(contour_img,temp_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR); 
+    cv::imshow("Contour Image", temp_img);
 
 }
 
 void  HyperFunctions::DispDifference()
 {
-       Mat temp_img;
-   cv::resize(difference_img,temp_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR); 
+    Mat temp_img;
+    cv::resize(difference_img,temp_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR); 
     cv::imshow("Difference Image", temp_img);
 }
 
 void  HyperFunctions::DispTiled()
 {
-       Mat temp_img;
-   cv::resize(tiled_img,temp_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR); 
+    Mat temp_img;
+    cv::resize(tiled_img,temp_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR); 
     cv::imshow("Tiled Image", temp_img);
 }
 
 void  HyperFunctions::GenerateFalseImg()
 {
-
-  vector<Mat> channels(3);
-  channels[0]=mlt1[false_img_b]; //b
-  channels[1]=mlt1[false_img_g]; //g
-  channels[2]=mlt1[false_img_r]; //r
-  merge(channels,false_img); // create new single channel image
-
-    
+    vector<Mat> channels(3);
+    channels[0]=mlt1[false_img_b]; //b
+    channels[1]=mlt1[false_img_g]; //g
+    channels[2]=mlt1[false_img_r]; //r
+    merge(channels,false_img); // create new single channel image
 }
 
 void  HyperFunctions::DifferenceOfImages()
 {
-
     DetectContours();
-	    // create a copy of the incoming image in terms of size (length and width) and initialize as an all black image
+	// create a copy of the incoming image in terms of size (length and width) and initialize as an all black image
     Mat output_image(classified_img.rows, classified_img.cols, CV_8UC1, cv::Scalar(0));
     // using 8 bit image so white pixel has a value of 255
 
     Vec3b temp_val, compare_val; // rgb value of image at a pixel 
 
-
-
-     for(int i = 0; i <classified_img.rows; i++) 
-     {
+    for(int i = 0; i <classified_img.rows; i++) 
+    {
         for(int j = 0; j < classified_img.cols; j++)
         {
             if ( classified_img.at<Vec3b>(i,j) != contour_img.at<Vec3b>(i,j))
             {
-                output_image.at<uchar>(i,j)=255; 
+                output_image.at<uchar>(i,j) = 255; 
             }
         }
      }   
 
     difference_img= output_image; 
-	
 }
               
                   
 void HyperFunctions::EdgeDetection( )
 {
-	    // create a copy of the incoming image in terms of size (length and width) and initialize as an all black image
+	// create a copy of the incoming image in terms of size (length and width) and initialize as an all black image
     Mat output_image(classified_img.rows, classified_img.cols, CV_8UC1, cv::Scalar(0));
     // using 8 bit image so white pixel has a value of 255
 
@@ -300,7 +300,7 @@ void HyperFunctions::EdgeDetection( )
      {
         for(int j = 0; j < classified_img.cols; j++)
         {
-              edge=false;
+            edge=false;
               
               if (i==0 || j==0 ||   i== classified_img.rows-1  || j==classified_img.cols-1)
               {
@@ -331,7 +331,7 @@ void HyperFunctions::EdgeDetection( )
                   // set edge pixel to white
                   output_image.at<uchar>(i,j)=255;            
               }
-         }
+        }
      }  
 
          edge_image=output_image;
@@ -343,10 +343,9 @@ void HyperFunctions::DetectContours()
     //cout<<"min area "<<min_area<<" coeff poly "<<polygon_approx_coeff<<endl;
     if (edge_image.empty())
     {
-    EdgeDetection();
+        EdgeDetection();
     }
-   
-    
+     
 	vector<Vec3b> color_combos;  
 	vector<string> class_list;
 	read_spectral_json(spectral_database);
@@ -358,8 +357,6 @@ void HyperFunctions::DetectContours()
     // initialise JSON file 
     event["type"] = "FeatureCollection";
     event["generator"] = "Img Segmentation";
-    
-    
     
     vector<vector<Point>>  contours_approx;
     vector<Vec4i> hierarchy;
@@ -396,16 +393,14 @@ void HyperFunctions::DetectContours()
     Mat drawing = Mat::zeros( edge_image.size(), CV_8UC3 );
     for (int i=0 ; i<contours_approx.size(); i++)
     {
-     Mat drawing2 = Mat::zeros( edge_image.size(), CV_8UC1 );
-     Scalar color = Scalar( 255);
-     drawContours( drawing2, contours_approx, i, color, FILLED, 8, hierarchy, 0, Point() ); 
-     calcHist( &bgr_planes[0], 1, 0, drawing2, b_hist, 1, &histSize, histRange, uniform, accumulate );
-     calcHist( &bgr_planes[1], 1, 0, drawing2, g_hist, 1, &histSize, histRange, uniform, accumulate );
-     calcHist( &bgr_planes[2], 1, 0, drawing2, r_hist, 1, &histSize, histRange, uniform, accumulate );
-     int max_r=0, max_b=0, max_g=0;
-     int max_r_loc=0, max_b_loc=0, max_g_loc=0;
-     
-     
+        Mat drawing2 = Mat::zeros( edge_image.size(), CV_8UC1 );
+        Scalar color = Scalar( 255);
+        drawContours( drawing2, contours_approx, i, color, FILLED, 8, hierarchy, 0, Point() ); 
+        calcHist( &bgr_planes[0], 1, 0, drawing2, b_hist, 1, &histSize, histRange, uniform, accumulate );
+        calcHist( &bgr_planes[1], 1, 0, drawing2, g_hist, 1, &histSize, histRange, uniform, accumulate );
+        calcHist( &bgr_planes[2], 1, 0, drawing2, r_hist, 1, &histSize, histRange, uniform, accumulate );
+        int max_r=0, max_b=0, max_g=0;
+        int max_r_loc=0, max_b_loc=0, max_g_loc=0;
         for (int j=0; j<256 ; j++)
         {
         //cout<<i<<"  "<<r_hist.at<float>(i)<<endl;
@@ -469,16 +464,10 @@ void HyperFunctions::DetectContours()
                     drawContours( drawing, contour_approx_new, i, temp_col, FILLED, 8, hierarchy, 0, Point() );
                 
                 }
-                
-            
+                    
             }
         
-        
         }
-    
-
-
-
     }
     
         Json::StyledWriter styledWriter;
@@ -487,14 +476,11 @@ void HyperFunctions::DetectContours()
     
   // cv::imshow("Contour Image", drawing);
     contour_img=drawing;
-    
 
 } // end function
 
-void   HyperFunctions::TileImage()
+void HyperFunctions::TileImage()
 {
-    
-
     //vector<Mat> mlt1=*mlt2; 
     Mat empty_img= mlt1[0]*0;
     Mat h1,h2,h3,h4,h5,h6,h7,h8,h9,h10,h11,h12,h13, base_image;
@@ -540,9 +526,7 @@ void   HyperFunctions::TileImage()
 
 void HyperFunctions::read_spectral_json(string file_name )
 {
-
-// read spectral database and return classes and rgb values 
-
+    // read spectral database and return classes and rgb values 
     Vec3b color;     
 
    	vector<Vec3b> color_combos;  
@@ -568,7 +552,7 @@ void HyperFunctions::read_spectral_json(string file_name )
        class_list2.push_back(id3);
     }
 
-class_list=class_list2;
+    class_list=class_list2;
 }
 
 
@@ -585,13 +569,13 @@ void HyperFunctions::writeJSON(Json::Value &event, vector<vector<Point> > &conto
         vec.append(arr);
     }
     
-    
     // change below to the correct classification  
     string Name;
     if (classification == "ballpark")
         Name = "Ballpark";
     else
         Name = classification + to_string(count);
+
     event["features"][count]["type"]= "Feature";
     event["features"][count]["properties"]["Name"] = Name;
     event["features"][count]["properties"]["sensor_visibility_above"] = "yes";
@@ -607,8 +591,6 @@ void HyperFunctions::writeJSON(Json::Value &event, vector<vector<Point> > &conto
 
 void  HyperFunctions::read_img_json(string file_name)
 {
-
-
     ifstream ifs(file_name);
     Json::Reader reader;
     Json::Value completeJsonData;
@@ -619,8 +601,8 @@ void  HyperFunctions::read_img_json(string file_name)
     gps1=completeJsonData["GPS1"].asDouble();
     gps2= completeJsonData["GPS2"].asDouble();
 
-
 }
+
 void  HyperFunctions::save_ref_spec_json(string file_name)
 {
     int img_hist[mlt1.size()-1];
@@ -669,8 +651,6 @@ void  HyperFunctions::save_ref_spec_json(string file_name)
 
 void  HyperFunctions::read_ref_spec_json(string file_name)
 {
-    
-
     // read json file 
     ifstream ifs2(file_name);
     Json::Reader reader2;
@@ -683,22 +663,22 @@ void  HyperFunctions::read_ref_spec_json(string file_name)
     Vec3b color;
     if(reference_spectrums.size()>0)
     {
-    reference_spectrums.clear();
+        reference_spectrums.clear();
     }
     if (reference_colors.size()>0)
     {
-    reference_colors.clear();
+        reference_colors.clear();
     }
 
     // gets spectrum of items in spectral database                         
     for (auto const& id : completeJsonData2["Spectral_Information"].getMemberNames()) 
     {
-    vector<int> tempValues1;
-      for (auto const& id2 : completeJsonData2["Spectral_Information"][id].getMemberNames()) 
-      {
-        layer_values= completeJsonData2["Spectral_Information"][id][id2].asInt();
-        tempValues1.push_back(layer_values);
-      }
+        vector<int> tempValues1;
+        for (auto const& id2 : completeJsonData2["Spectral_Information"][id].getMemberNames()) 
+        {
+            layer_values= completeJsonData2["Spectral_Information"][id][id2].asInt();
+            tempValues1.push_back(layer_values);
+        }
     reference_spectrums.push_back(tempValues1);
     }
 
@@ -711,7 +691,6 @@ void  HyperFunctions::read_ref_spec_json(string file_name)
         reference_colors.push_back(color);
 
     }
-
 
 }
 
@@ -731,7 +710,6 @@ void  HyperFunctions::save_new_spec_database_json(string file_name)
 
 void  HyperFunctions::SemanticSegmenter()
 {
-
 //classified_img
 
     vector<Mat> temp_results;
@@ -777,7 +755,6 @@ void  HyperFunctions::SemanticSegmenter()
 
 void  HyperFunctions::SpecSimilParent()
 {
-
 //spec_sim_alg SAM=0, SCM=1, SID=2
 // ref_spec_index
 
@@ -799,6 +776,11 @@ void  HyperFunctions::SpecSimilParent()
 
 }
 
+//---------------------------------------------------------
+// Name: SAM_img
+// PreCondition: SAM score output from SAM_img_child 
+// PostCondition: threadpool of SAM values
+//---------------------------------------------------------
 void HyperFunctions::SAM_img()
 {
     ctpl::thread_pool p(num_threads);
@@ -810,21 +792,17 @@ void HyperFunctions::SAM_img()
     }
 
 }
-void  HyperFunctions::SID_img()
-{
-    ctpl::thread_pool p(num_threads);
-    for (int k=0; k<mlt1[1].cols; k+=1)
-    {
-         p.push(SID_img_Child, k, &mlt1,&reference_spectrums,&spec_simil_img,&ref_spec_index);
-    }
 
-}
-
+//---------------------------------------------------------
+// Name: SAM_img_child
+// PreCondition: test spectra (t) and reference spectra r of a set lenghth 
+// PostCondition: Spectral Angle Mapper (SAM) score using arccos()
+//---------------------------------------------------------
 void SAM_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index)   
 {   
     // single thread
     vector<Mat> mlt1=*mlt2; 
-    vector<vector<int>>  reference_spectrums= *reference_spectrums2;
+    vector<vector<int>> reference_spectrums = *reference_spectrums2;    // reference spectra (r)
     int temp_val=0;
     for (int j=0; j<mlt1[1].rows; j++)
     {
@@ -854,11 +832,34 @@ void SAM_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* refere
     }
 }
 
+//---------------------------------------------------------
+// Name: SID_img
+// PreCondition: SID value as produced by SID_img_child
+// PostCondition: threadpool of SID values
+//---------------------------------------------------------
+void  HyperFunctions::SID_img()
+{
+    ctpl::thread_pool p(num_threads);
+    for (int k=0; k<mlt1[1].cols; k+=1)
+    {
+         p.push(SID_img_Child, k, &mlt1,&reference_spectrums,&spec_simil_img,&ref_spec_index);
+    }
+
+}
+
+//---------------------------------------------------------
+// Name: SID_img_Child
+// Description: Spectral information divergence (SID) method computes spectral similarity
+// based on the divergence between the probability distributions of the two spectra r and t
+// PreCondition: reference spectra as a vector and test spectra as a matrix  
+// PostCondition: SID represented as q_i*log(q_i/p_i) + p_i*log(p_i/q_i) 
+// for q_i and p_i representing the distribution values of reference and test spectra respectively
+//---------------------------------------------------------
 void SID_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index)   
 {   
     // single thread
     vector<Mat> mlt1=*mlt2; 
-    vector<vector<int>>  reference_spectrums= *reference_spectrums2;
+    vector<vector<int>> reference_spectrums = *reference_spectrums2;
     int temp_val=0;
     for (int j=0; j<mlt1[1].rows; j++)
     {
@@ -867,8 +868,8 @@ void SID_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* refere
             {
                 if (reference_spectrums[*ref_spec_index][a]<1){reference_spectrums[*ref_spec_index][a]+=1;}
                 if (mlt1[a].at<uchar>(j,k)<1){mlt1[a].at<uchar>(j,k)+=1;}              
-                ref_sum+= reference_spectrums[*ref_spec_index][a] ;
-                pix_sum+= mlt1[a].at<uchar>(j,k);
+                ref_sum+= reference_spectrums[*ref_spec_index][a];  // sum of reference spectras
+                pix_sum+= mlt1[a].at<uchar>(j,k);   // sum of test spectras
             }
             if (ref_sum<1){ref_sum+=1;}
             if (pix_sum<1){pix_sum+=1;}
@@ -876,64 +877,32 @@ void SID_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* refere
             float ref_new[200], pix_new[200];
             for (int a=0; a<reference_spectrums[*ref_spec_index].size(); a++)
             {
-                ref_new[a]=reference_spectrums[*ref_spec_index][a] / ref_sum ;
-                pix_new[a]=mlt1[a].at<uchar>(j,k)/pix_sum;
+                ref_new[a]=reference_spectrums[*ref_spec_index][a] / ref_sum ;  // distribution values for reference spectra (q_i)
+                pix_new[a]=mlt1[a].at<uchar>(j,k)/pix_sum;  // distribution values for test spectra (p_i)
                 // error handling to avoid division by zero
-            
             }
+
             for (int a=0; a<reference_spectrums[*ref_spec_index].size(); a++)
             {
                 sum1+= ref_new[a]*log(ref_new[a]/pix_new[a]);   // q_i*log(q_i/p_i)
                 sum2+= pix_new[a]*log(pix_new[a]/ref_new[a]);   // p_i*log(p_i/q_i)
             }   
             
-            
-            
-            temp_val=(sum1+sum2) *60;
+            temp_val = (sum1 + sum2) * 60; 
             if (temp_val>255){temp_val=255;}
-
 
         spec_simil_img->at<uchar>(j,k)=temp_val; 
     
     }
 }
 
+//---------------------------------------------------------
+// Name: SCM_img
+// PreCondition: SCM value from SCM_img_child
+// PostCondition: threadpool of SCM values
+//---------------------------------------------------------
 void  HyperFunctions::SCM_img()
 {
-    /* leaving this here in case this is not the way SCM is supposed to be implemented from child :/
-    int temp_val=0;
-    for (int k=0; k<mlt1[1].cols; k+=1)
-    {
-        for (int j=0; j<mlt1[1].rows; j++)
-        {
-            float sum1=0, sum2=0, sum3=0, mean1=0, mean2=0;
-            int num_layers=reference_spectrums[ref_spec_index].size();
-            for (int a=0; a<num_layers; a++)
-            {
-                mean1+=((float)1/(float)(num_layers-1)* (float)mlt1[a].at<uchar>(j,k))  ;
-                mean2+=((float)1/(float)(num_layers-1)* (float)reference_spectrums[ref_spec_index][a]) ;
-            }
-            for (int a=0; a<num_layers; a++)
-            {
-                sum1+=(mlt1[a].at<uchar>(j,k)-mean1)*(reference_spectrums[ref_spec_index][a]-mean2) ;
-                sum2+=(mlt1[a].at<uchar>(j,k)-mean1)*(mlt1[a].at<uchar>(j,k)-mean1);
-                sum3+=(reference_spectrums[ref_spec_index][a]-mean2)*(reference_spectrums[ref_spec_index][a]-mean2);
-            }
-            if (sum2<=0 || sum3<=0 )
-            {
-                temp_val =255; // set to white due to an error
-            }
-            else
-            {
-                float temp1= sum1/(sqrt(sum2)*sqrt(sum3));
-                double alpha_rad=acos(temp1);
-                temp_val =(int)((double)alpha_rad*(double)255/(double)3.14159) ;
-            }
-            spec_simil_img.at<uchar>(j,k)=temp_val; 
-    }
-}
-    */
-    
     ctpl::thread_pool p(num_threads);
     for (int k=0; k<mlt1[1].cols; k+=1)
     {
@@ -941,36 +910,43 @@ void  HyperFunctions::SCM_img()
     }
 }
 
+//---------------------------------------------------------
+// Name: SCM_img_Child
+// Description: Spectral Correlation Mapper (SCM) 
+// PreCondition: image spectrum (represented by X or a matrix) and reference spectrum (represented as Y or by a vector) 
+// PostCondition: A quotient of the sum of all (X - X_avg)(Y - Y_avg) and the square root of (X - X_avg)^2(Y - Y_avg)^2,
+// mathematically represented as R.
+//---------------------------------------------------------
 void SCM_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index){
     vector<Mat> mlt1=*mlt2; 
     vector<vector<int>>  reference_spectrums = *reference_spectrums2;
     int temp_val=0;
     
     for (int j=0; j<mlt1[1].rows; j++)
+    {
+        float sum1=0, sum2=0, sum3=0, mean1=0, mean2=0;
+        int num_layers = reference_spectrums[*ref_spec_index].size();   /// num of layers = length of spectrum
+        for (int a=0; a<num_layers; a++)
         {
-            float sum1=0, sum2=0, sum3=0, mean1=0, mean2=0;
-            int num_layers = reference_spectrums[*ref_spec_index].size();
-            for (int a=0; a<num_layers; a++)
-            {
-                mean1+=((float)1/(float)(num_layers-1)* (float)mlt1[a].at<uchar>(j,k))  ;
-                mean2+=((float)1/(float)(num_layers-1)* (float)reference_spectrums[*ref_spec_index][a]) ;
-            }
-            for (int a=0; a<num_layers; a++)
-            {
-                sum1+=(mlt1[a].at<uchar>(j,k)-mean1)*(reference_spectrums[*ref_spec_index][a]-mean2) ;
-                sum2+=(mlt1[a].at<uchar>(j,k)-mean1)*(mlt1[a].at<uchar>(j,k)-mean1);
-                sum3+=(reference_spectrums[*ref_spec_index][a]-mean2)*(reference_spectrums[*ref_spec_index][a]-mean2);
-            }
-            if (sum2<=0 || sum3<=0 )
-            {
-                temp_val =255; // set to white due to an error
-            }
-            else
-            {
-                float temp1= sum1/(sqrt(sum2)*sqrt(sum3));
-                double alpha_rad=acos(temp1);
-                temp_val =(int)((double)alpha_rad*(double)255/(double)3.14159) ;
-            }
-            spec_simil_img->at<uchar>(j,k)=temp_val; 
+            mean1+=((float)1/(float)(num_layers-1)* (float)mlt1[a].at<uchar>(j,k))  ;
+            mean2+=((float)1/(float)(num_layers-1)* (float)reference_spectrums[*ref_spec_index][a]) ;
         }
+        for (int a=0; a<num_layers; a++)
+        {
+            sum1+=(mlt1[a].at<uchar>(j,k)-mean1)*(reference_spectrums[*ref_spec_index][a]-mean2) ;
+            sum2+=(mlt1[a].at<uchar>(j,k)-mean1)*(mlt1[a].at<uchar>(j,k)-mean1);
+            sum3+=(reference_spectrums[*ref_spec_index][a]-mean2)*(reference_spectrums[*ref_spec_index][a]-mean2);
+        }
+        if (sum2<=0 || sum3<=0 )
+        {
+            temp_val =255; // set to white due to an error
+        }
+        else
+        {
+            float temp1= sum1/(sqrt(sum2)*sqrt(sum3));
+            double alpha_rad=acos(temp1);
+            temp_val =(int)((double)alpha_rad*(double)255/(double)3.14159) ;
+        }
+        spec_simil_img->at<uchar>(j,k)=temp_val;     
+    }
 }
