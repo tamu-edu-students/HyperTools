@@ -57,6 +57,9 @@ int main (int argc, char *argv[])
   button = gtk_builder_get_object (builder, "choose_file");
   g_signal_connect (button, "file-set", G_CALLBACK (choose_image_file), &HyperFunctions1); //Should be able to see what file they chose. Then call LoadImageHyper1
 
+  button = gtk_builder_get_object(builder, "choose_database");
+  g_signal_connect (button, "file-set", G_CALLBACK (choose_database), &HyperFunctions1); //See what database file you choose
+
   button = gtk_builder_get_object (builder, "spectrum_box");
   //Nothing happens when you click on the spectrum image
 
@@ -78,12 +81,14 @@ int main (int argc, char *argv[])
   button = gtk_builder_get_object (builder, "create_database");
   g_signal_connect (button, "clicked", G_CALLBACK (create_database), gtk_hyper_entry);
 
+  entry_struct *gtk_hyper_entry2, temp_var5;
+  gtk_hyper_entry2=&temp_var5;
 
   button = gtk_builder_get_object (builder, "spectrum_name");
-  (*gtk_hyper_entry).entry=button;
-  (*gtk_hyper_entry).HyperFunctions1=&HyperFunctions1;
+  (*gtk_hyper_entry2).entry=button;
+  (*gtk_hyper_entry2).HyperFunctions1=&HyperFunctions1;
   button = gtk_builder_get_object (builder, "save_spectrum");
-  g_signal_connect (button, "clicked", G_CALLBACK (save_spectrum), gtk_hyper_entry);
+  g_signal_connect (button, "clicked", G_CALLBACK (save_spectrum), gtk_hyper_entry2);
 
   
   image= gtk_builder_get_object (builder, "spec_curve");
@@ -96,6 +101,9 @@ int main (int argc, char *argv[])
   button = gtk_builder_get_object (builder, "image_box");
   g_signal_connect (G_OBJECT (button),"button_press_event",G_CALLBACK (button_press_callback),&HyperFunctions1);
   g_signal_connect (G_OBJECT (button),"button_press_event",G_CALLBACK (show_spectrum),gtk_hyper_image2);
+
+  button = gtk_builder_get_object (builder, "disp_ndvi_img");
+  g_signal_connect (button, "clicked", G_CALLBACK (show_ndvi_image), gtk_hyper_image);
 
   button = gtk_builder_get_object (builder, "disp_false_img");
   g_signal_connect (button, "clicked", G_CALLBACK (show_false_img), gtk_hyper_image);

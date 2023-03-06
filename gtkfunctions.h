@@ -41,8 +41,10 @@
 	static void set_spin_buttons_standard_rgb(GtkWidget *widget,  gpointer data);
 	
 	static void show_false_img(GtkWidget *widget,  gpointer data);
+	static void show_ndvi_img(GtkWidget *widget,  gpointer data);
 
 	static void choose_image_file(GtkFileChooser *widget,  gpointer data);	
+	static void choose_database(GtkFileChooser *widget,  gpointer data);
 
 	static void print_result(GtkSpinButton *widget,  gpointer data);
 
