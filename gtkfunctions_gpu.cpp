@@ -24,7 +24,7 @@ static void calc_semantic_gpu (GtkWidget *widget, gpointer   data)
     HyperFunctionsGPU *HyperFunctions1=static_cast<HyperFunctionsGPU*>(data_new);
     HyperFunctions1->read_ref_spec_json( HyperFunctions1->spectral_database);
     //int* test_array= HyperFunctions1->mat_to_oneD_array_parallel_parent(  );
-    HyperFunctions1->semantic_segmentation(HyperFunctions1->img_array_base);
+    HyperFunctions1->semantic_segmentation();
     //HyperFunctions1->DispClassifiedImage();
     //cv::waitKey();
     //delete test_array;

@@ -32,6 +32,7 @@ public:
     int num_lay;
     int *out;
     int *d_img_array, *d_out, *d_ref_spectrum; 
+    int* d_classified_img_array;
     int block_size = 512;
     int grid_size ;
     int *img_array_base;    
@@ -42,9 +43,9 @@ public:
     void deallocate_memory();
     void mat_to_oneD_array_parallel_parent();
     void oneD_array_to_mat(int* img_array);
-    void semantic_segmentation(int* test_array);
+    void semantic_segmentation();
     void oneD_array_to_mat(int* img_array, int cols, int rows, int channels, Mat* mlt1);
-    int* mat_to_oneD_array_parallel_parent(vector<Mat>* matvector1, int* img_array);
+    void mat_to_oneD_array_parallel_parent(vector<Mat>* matvector1);
 
 };
 
