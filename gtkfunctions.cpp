@@ -361,6 +361,8 @@ static void show_ndvi_image(GtkWidget *widget,  gpointer data)
 {
     //Along with the set_false_img_standard_rgb function, this uses bands that are hardcoded.
     //To ensure compatibility with other cameras this should be changed in the future.
+    
+    // not currently functional, this is a work in progress
 
     void * data_new=data;
     img_struct_gtk *img_struct1=static_cast<img_struct_gtk*>(data_new);

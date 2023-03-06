@@ -162,7 +162,6 @@
                 <child>
                   <object class="GtkButton" id="disp_ndvi_img">
                     <property name="label" translatable="yes">NDVI Filter Image</property>
-                    <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">True</property>
                   </object>
