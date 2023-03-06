@@ -13,27 +13,31 @@ using namespace cv;
 using namespace std;
 using namespace cv::xfeatures2d;
 
+// Displays first hyper image
 void HyperFunctions::LoadImageHyper1(string file_name)
 {
 	imreadmulti(file_name, mlt1);
 }
 
+// Displays second hyper image
 void HyperFunctions::LoadImageHyper2(string file_name)
 {
 	imreadmulti(file_name, mlt2);
 }
 
-
+// Displays classified image
 void HyperFunctions::LoadImageClassified(string file_name)
 {
 	classified_img = cv::imread(file_name);
 }
 
+// Displays first feature image
 void HyperFunctions::LoadFeatureImage1(string file_name)
 {
 	feature_img1 = cv::imread(file_name, IMREAD_GRAYSCALE);
 }
 
+// Displays second feature image
 void HyperFunctions::LoadFeatureImage2(string file_name)
 {
 	feature_img2 = cv::imread(file_name, IMREAD_GRAYSCALE);
@@ -225,7 +229,7 @@ void  HyperFunctions::DispSpecSim()
     imshow("Spectral Similarity Image", temp_img);
 }
 
-
+// To display edge detection image
 void  HyperFunctions::DispEdgeImage()
 {
     Mat temp_img;
@@ -233,6 +237,7 @@ void  HyperFunctions::DispEdgeImage()
     cv::imshow("Edge Detection Image", temp_img);
 }
 
+// Displays contour image
 void  HyperFunctions::DispContours()
 {
     Mat temp_img;
@@ -241,6 +246,7 @@ void  HyperFunctions::DispContours()
 
 }
 
+// To display difference image
 void  HyperFunctions::DispDifference()
 {
     Mat temp_img;
@@ -248,6 +254,7 @@ void  HyperFunctions::DispDifference()
     cv::imshow("Difference Image", temp_img);
 }
 
+// To display tiled image
 void  HyperFunctions::DispTiled()
 {
     Mat temp_img;
@@ -255,7 +262,8 @@ void  HyperFunctions::DispTiled()
     cv::imshow("Tiled Image", temp_img);
 }
 
-void  HyperFunctions::GenerateFalseImg()
+// Generates false image 
+void HyperFunctions::GenerateFalseImg()
 {
     vector<Mat> channels(3);
     channels[0]=mlt1[false_img_b]; //b
@@ -264,7 +272,13 @@ void  HyperFunctions::GenerateFalseImg()
     merge(channels,false_img); // create new single channel image
 }
 
-void  HyperFunctions::DifferenceOfImages()
+//---------------------------------------------------------
+// Name: DifferenceOfImages
+// Description: Primarily for semantic interface tool to see how different parameters affect results. 
+// Outputs a binary image with black and white pixels.
+// Black pixels represents no change between the filtered/approximated image and white pixels denotes a change.
+//---------------------------------------------------------
+void HyperFunctions::DifferenceOfImages()
 {
     DetectContours();
 	// create a copy of the incoming image in terms of size (length and width) and initialize as an all black image
@@ -284,7 +298,7 @@ void  HyperFunctions::DifferenceOfImages()
         }
      }   
 
-    difference_img= output_image; 
+    difference_img = output_image; 
 }
               
 //---------------------------------------------------------
@@ -293,7 +307,7 @@ void  HyperFunctions::DifferenceOfImages()
 // PreCondition: an output image prepared for edge detection
 // PostCondition: edge_image set to the modigfied output image after edge detection 
 //---------------------------------------------------------                  
-void HyperFunctions::EdgeDetection( )
+void HyperFunctions::EdgeDetection()
 {
 	// create a copy of the incoming image in terms of size (length and width) and initialize as an all black image
     Mat output_image(classified_img.rows, classified_img.cols, CV_8UC1, cv::Scalar(0));
@@ -403,8 +417,7 @@ void HyperFunctions::DetectContours()
     vector<vector<Point> > contour_approx_new;
     contour_approx_new=contours_approx;
         
-    
-    Mat drawing = Mat::zeros( edge_image.size(), CV_8UC3 );
+    Mat drawing = Mat::zeros(edge_image.size(), CV_8UC3);
     for (int i=0 ; i<contours_approx.size(); i++)
     {
         Mat drawing2 = Mat::zeros( edge_image.size(), CV_8UC1 );
@@ -446,7 +459,7 @@ void HyperFunctions::DetectContours()
     for( int i = 0; i< contours_approx.size(); i++ )
     {
         Vec3b color = contour_class[i];
-        string classification="unknown";
+        string classification = "unknown";
         for (int j=0; j< color_combos.size() ;j++)
         {
             if (color == color_combos[j])
@@ -484,16 +497,16 @@ void HyperFunctions::DetectContours()
         }
     }
     
-        Json::StyledWriter styledWriter;
-        file_id << styledWriter.write(event);
-        file_id.close();   
+    Json::StyledWriter styledWriter;
+    file_id << styledWriter.write(event);
+    file_id.close();   
     
-  // cv::imshow("Contour Image", drawing);
+    // cv::imshow("Contour Image", drawing);
     contour_img=drawing;
 
 } // end function
 
-
+// Creates tile image or default/base image
 void HyperFunctions::TileImage()
 {
     //vector<Mat> mlt1=*mlt2; 
@@ -538,15 +551,18 @@ void HyperFunctions::TileImage()
     tiled_img=base_image;
 }
 
-
-void HyperFunctions::read_spectral_json(string file_name )
+//---------------------------------------------------------
+// Name: read_spectral_json
+// Description: reads json file containing spectral information and RGB color values 
+// for creating a classified image. used in Image Tool.
+//---------------------------------------------------------  
+void HyperFunctions::read_spectral_json(string file_name)
 {
     // read spectral database and return classes and rgb values 
     Vec3b color;     
 
    	vector<Vec3b> color_combos;  
 	vector<string> class_list2; 
-	
 	
     ifstream ifs(file_name);
     Json::Reader reader;
@@ -558,19 +574,22 @@ void HyperFunctions::read_spectral_json(string file_name )
 
     for (auto const& id3 : completeJsonData["Color_Information"].getMemberNames()) 
     {
-       color[2] =  completeJsonData["Color_Information"][id3]["red_value"].asInt();
-       color[0] =  completeJsonData["Color_Information"][id3]["blue_value"].asInt();
-       color[1] =  completeJsonData["Color_Information"][id3]["green_value"].asInt();
+        color[2] =  completeJsonData["Color_Information"][id3]["red_value"].asInt();
+        color[0] =  completeJsonData["Color_Information"][id3]["blue_value"].asInt();
+        color[1] =  completeJsonData["Color_Information"][id3]["green_value"].asInt();
 
-      //cout<<id3<<color<<endl;
-       color_combos.push_back(color);
-       class_list2.push_back(id3);
+        //cout<<id3<<color<<endl;
+        color_combos.push_back(color);
+        class_list2.push_back(id3);
     }
 
     class_list=class_list2;
 }
 
-
+//---------------------------------------------------------
+// Name: writeJSON
+// Description: holds information about the extracted contours for navigation
+//---------------------------------------------------------  
 void HyperFunctions::writeJSON(Json::Value &event, vector<vector<Point> > &contours, int idx, string classification, int count)
 {
     Json::Value vec(Json::arrayValue);
@@ -603,6 +622,10 @@ void HyperFunctions::writeJSON(Json::Value &event, vector<vector<Point> > &conto
     //std::cout << event << std::endl;
 }
 
+//---------------------------------------------------------
+// Name: read_img_json
+// Description: obtains info about the camera/image to help convert pixel coordinates to GPS coordinates.
+//---------------------------------------------------------
 void  HyperFunctions::read_img_json(string file_name)
 {
     ifstream ifs(file_name);
@@ -617,6 +640,10 @@ void  HyperFunctions::read_img_json(string file_name)
 
 }
 
+//---------------------------------------------------------
+// Name: save_ref_spec_json
+// Description: Accesses camera information (camera_database) and modifies spectral database
+//---------------------------------------------------------
 void  HyperFunctions::save_ref_spec_json(string file_name)
 {
     int img_hist[mlt1.size()-1];
@@ -625,9 +652,9 @@ void  HyperFunctions::save_ref_spec_json(string file_name)
         img_hist[i]=0;
     }
     string user_input;
-    cout<< "Enter Classification of Pixel"<<endl;
+    cout << "Enter Classification of Pixel" <<endl;
     cin>>user_input;
-    ifstream ifs(camera_database );
+    ifstream ifs(camera_database);
     Json::Reader reader;
     Json::Value completeJsonData;
     reader.parse(ifs,completeJsonData);
@@ -663,6 +690,11 @@ void  HyperFunctions::save_ref_spec_json(string file_name)
     file_id.close();
 }
 
+//---------------------------------------------------------
+// Name: read_ref_spec_json
+// Description: reads reference spectrum information and RGB color values of items
+// within their databases and saves them
+//---------------------------------------------------------
 void  HyperFunctions::read_ref_spec_json(string file_name)
 {
     // read json file 
@@ -708,6 +740,10 @@ void  HyperFunctions::read_ref_spec_json(string file_name)
 
 }
 
+//---------------------------------------------------------
+// Name: save_new_spec_database_json
+// Description: saves spectral and RGB color information to their respective databases
+//---------------------------------------------------------
 void  HyperFunctions::save_new_spec_database_json(string file_name)
 {
     std::ofstream file_id3;
@@ -922,7 +958,7 @@ void SID_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* refere
 // PreCondition: SCM value from SCM_img_child
 // PostCondition: threadpool of SCM values
 //---------------------------------------------------------
-void  HyperFunctions::SCM_img()
+void HyperFunctions::SCM_img()
 {
     ctpl::thread_pool p(num_threads);
     for (int k=0; k<mlt1[1].cols; k+=1)
