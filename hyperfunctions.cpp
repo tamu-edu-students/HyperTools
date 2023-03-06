@@ -350,9 +350,9 @@ void HyperFunctions::DetectContours()
     }
    
     
-	vector<Vec3b> color_combos;  
+
 	read_spectral_json(spectral_database);
-	
+
 	contours_approx.clear();
 	
     vector<Vec4i> hierarchy;
@@ -539,9 +539,9 @@ void HyperFunctions::read_spectral_json(string file_name )
 
     Vec3b color;     
 
-   	vector<Vec3b> color_combos;  
+   	//vector<Vec3b> color_combos;  
 	vector<string> class_list2; 
-	
+	color_combos.clear();
 	
     ifstream ifs(file_name);
     Json::Reader reader;
