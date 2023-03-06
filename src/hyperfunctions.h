@@ -62,7 +62,7 @@ public:
 	int spec_sim_alg=0;
 	int ref_spec_index=0;
 	int num_threads=std::thread::hardware_concurrency();
-    int classification_threshold=255; // for semantic image, if no spectra are under threshold, pixel remains black. set to 255 to classify every pixel. 15 is good to tell if pixel is of same material and allow for some noise
+    int classification_threshold=10000; // for semantic image, if no spectra are under threshold, pixel remains black. set to 255 to classify every pixel. 15 is good to tell if pixel is of same material and allow for some noise
 
 	string spectral_database="../json/spectral_database1.json";
 	string camera_database="../json/camera_database.json";
