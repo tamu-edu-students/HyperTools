@@ -2,8 +2,8 @@
 #include "opencv2/opencv.hpp"
 #include <cmath>
 
-#include "hyperfunctions.cpp"
-#include "hypergpufunctions.cu"
+#include "../src/hyperfunctions.cpp"
+#include "../src/hypergpufunctions.cu"
 #include <cassert>
 #include "cuvis.h"
 using namespace cv;

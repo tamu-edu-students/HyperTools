@@ -34,8 +34,8 @@ find_package(CUDA)
         
         add_definitions(${GTK_CFLAGS_OTHER}) 
 
-        add_executable(cuda_example cuda_example.cu)
-        add_executable(gtk_cuda_example gtk_cuda_example.cu)
+        add_executable(cuda_example examples/cuda_example.cu)
+        add_executable(gtk_cuda_example examples/gtk_cuda_example.cu)
         # below is not necessary right now
         set_target_properties(gtk_cuda_example PROPERTIES
         CUDA_SEPARABLE_COMPILATION ON)
@@ -49,9 +49,10 @@ find_package(CUDA)
 else(use_CUDA)
 
 # Declare the executable target built from your sources
-add_executable(image_tool image_tool.cpp)
-add_executable(semantic_interface semantic_segmentation.cpp)
-add_executable(feature_tool feature_tool.cpp)
+add_executable(image_tool examples/image_tool.cpp)
+add_executable(semantic_interface examples/semantic_segmentation.cpp)
+add_executable(feature_tool examples/feature_tool.cpp)
+add_executable(ground_truth_example examples/ground_truth_example.cpp)
 
 add_definitions(${GTK3_CFLAGS} ${GTK3_CFLAGS_OTHER})
 
@@ -66,11 +67,11 @@ if (use_cuvis)
     link_directories(/lib/cuvis)
     link_libraries(cuvis)
 
-    add_executable(cubert_example cubert_example.cpp)
+    add_executable(cubert_example examples/cubert_example.cpp)
 
     if (use_CUDA)
 
-    add_executable(cuda_cubert_example cuda_cubert_example.cu)
+    add_executable(cuda_cubert_example examples/cuda_cubert_example.cu)
 
     endif(use_CUDA)
 

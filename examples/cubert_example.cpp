@@ -2,7 +2,7 @@
 #include "opencv2/opencv.hpp"
 #include <cmath>
 
-#include "hyperfunctions.cpp"
+#include "../src/hyperfunctions.cpp"
 #include "cuvis.hpp"
 #include <cassert>
 // #include "cuvis.h"

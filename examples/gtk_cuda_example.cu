@@ -1,10 +1,12 @@
-#include <gtk/gtk.h>
 #include <iostream>
 #include "opencv2/opencv.hpp"
 #include <cmath>
+#include "../src/hyperfunctions.cpp"
+#include "../src/hypergpufunctions.cu"
+#include <gtk/gtk.h>
+#include "../src/gtkfunctions.cpp"
+#include "../src/gtkfunctions_gpu.cpp"
 
-#include "gtkfunctions.cpp"
-#include "hyperfunctions.cpp"
 using namespace cv;
 using namespace std;
 
@@ -17,31 +19,27 @@ using namespace std;
   GObject *entry;
   HyperFunctions *HyperFunctions1;
   } ;
-
-  struct spin_struct {
-  GObject *button1;
-  GObject *button2;
-  GObject *button3;
-  HyperFunctions *HyperFunctions1;
-  } ;
   
+int main (int argc, char *argv[]) {
 
-int main (int argc, char *argv[])
-{
   GtkBuilder *builder;
   GObject *window;
   GObject *button;
   GError *error = NULL;
-  
-  HyperFunctions HyperFunctions1;
-
-  string file_name2="../../HyperImages/img1.tiff";
-
-  HyperFunctions1.LoadImageHyper1(file_name2);
+     
   
   gtk_init (&argc, &argv);
 
-  /* Construct a GtkBuilder instance and load our UI description */
+HyperFunctionsGPU HyperFunctions1;
+string file_name2="../../HyperImages/img1.tiff";
+HyperFunctions1.LoadImageHyper1(file_name2);
+int* test_array= HyperFunctions1.mat_to_oneD_array_parallel_parent(  );
+HyperFunctions1.img_array_base=test_array;
+// only difference between this file and image_tool.cpp is that gpu functions are used for semantic and spectral similarity images. 
+//if a new images is loaded during runtime, img_array_base will need to be updated
+
+    
+ /* Construct a GtkBuilder instance and load our UI description */
   builder = gtk_builder_new ();
   if (gtk_builder_add_from_file (builder, "../UI/image_tool.ui", &error) == 0)
     {
@@ -50,19 +48,38 @@ int main (int argc, char *argv[])
       return 1;
     }
 
+
   /* Connect signal handlers to the constructed widgets. */
   window = gtk_builder_get_object (builder, "window");
   g_signal_connect (window, "destroy", G_CALLBACK (gtk_main_quit), NULL);
+  
 
   button = gtk_builder_get_object (builder, "choose_file");
-  g_signal_connect (button, "file-set", G_CALLBACK (choose_image_file), &HyperFunctions1); //Should be able to see what file they chose. Then call LoadImageHyper1
+  g_signal_connect (button, "file-set", G_CALLBACK (choose_image_file_gpu), &HyperFunctions1); //Should be able to see what file they chose. Then call LoadImageHyper1
 
-  button = gtk_builder_get_object(builder, "choose_database");
-  g_signal_connect (button, "file-set", G_CALLBACK (choose_database), &HyperFunctions1); //See what database file you choose
+
+  /* Next 4 components are in progress and some are using placeholder callback functions*/
+
+  //button = gtk_builder_get_object (builder, "show_spectrum");
+  //g_signal_connect (button, "FIX", G_CALLBACK (show_spectrum), &HyperFunctions1); 
+  
+  
+    
+
+  button = gtk_builder_get_object (builder, "image_box"); 
+  //g_signal_connect (button, "clicked", G_CALLBACK (get_point_pos), &HyperFunctions1); //Have a new variable in hyperfunctions.h for point (global variable).
+  //Updating could be done through a hyperfunctions method. 
+  //int result=gtk_spin_button_get_value (widget);
+  //gtk functions.h in the cuvis integration inbutton press callback
+  //g_signal_connect (button, "clicked", G_CALLBACK (update_show_spectrum), &HyperFunctions1);
+  //Always recalculate but only display image if appropriate/ if toggled on.
+  //May need to pass in structs to give toggle switch position, pixel buffer / image file
+  //Could have c++ class with struct to store toggle and other UI data.
 
   button = gtk_builder_get_object (builder, "spectrum_box");
   //Nothing happens when you click on the spectrum image
 
+ 
   img_struct *gtk_hyper_image, temp_var1;
   gtk_hyper_image=&temp_var1;
   GObject *image;
@@ -81,14 +98,12 @@ int main (int argc, char *argv[])
   button = gtk_builder_get_object (builder, "create_database");
   g_signal_connect (button, "clicked", G_CALLBACK (create_database), gtk_hyper_entry);
 
-  entry_struct *gtk_hyper_entry2, temp_var5;
-  gtk_hyper_entry2=&temp_var5;
 
   button = gtk_builder_get_object (builder, "spectrum_name");
-  (*gtk_hyper_entry2).entry=button;
-  (*gtk_hyper_entry2).HyperFunctions1=&HyperFunctions1;
+  (*gtk_hyper_entry).entry=button;
+  (*gtk_hyper_entry).HyperFunctions1=&HyperFunctions1;
   button = gtk_builder_get_object (builder, "save_spectrum");
-  g_signal_connect (button, "clicked", G_CALLBACK (save_spectrum), gtk_hyper_entry2);
+  g_signal_connect (button, "clicked", G_CALLBACK (save_spectrum), gtk_hyper_entry);
 
   
   image= gtk_builder_get_object (builder, "spec_curve");
@@ -102,52 +117,36 @@ int main (int argc, char *argv[])
   g_signal_connect (G_OBJECT (button),"button_press_event",G_CALLBACK (button_press_callback),&HyperFunctions1);
   g_signal_connect (G_OBJECT (button),"button_press_event",G_CALLBACK (show_spectrum),gtk_hyper_image2);
 
-  // button set to invisible since the function does not work properly yet
-  //button = gtk_builder_get_object (builder, "disp_ndvi_img");
-  //g_signal_connect (button, "clicked", G_CALLBACK (show_ndvi_image), gtk_hyper_image);
-
   button = gtk_builder_get_object (builder, "disp_false_img");
   g_signal_connect (button, "clicked", G_CALLBACK (show_false_img), gtk_hyper_image);
 
   button = gtk_builder_get_object (builder, "disp_spec_sim_img");
-  g_signal_connect (button, "clicked", G_CALLBACK (calc_spec_sim), &HyperFunctions1);
+  g_signal_connect (button, "clicked", G_CALLBACK (calc_spec_sim_gpu), &HyperFunctions1);
   g_signal_connect (button, "clicked", G_CALLBACK (show_spec_sim_img), gtk_hyper_image);
 
   button = gtk_builder_get_object (builder, "disp_semantic_img");
-  g_signal_connect (button, "clicked", G_CALLBACK (calc_semantic), &HyperFunctions1);
+  g_signal_connect (button, "clicked", G_CALLBACK (calc_semantic_gpu), &HyperFunctions1);
   g_signal_connect (button, "clicked", G_CALLBACK (show_semantic_img), gtk_hyper_image);  
   
   button = gtk_builder_get_object (builder, "tiled_img");
   g_signal_connect (button, "clicked", G_CALLBACK (TileImage), gtk_hyper_image);
   
   
-  spin_struct *gtk_spin_buttons, temp_var4;
-  gtk_spin_buttons=&temp_var4;
-  (*gtk_spin_buttons).HyperFunctions1 = &HyperFunctions1;
-  
-
   //gtk_spin_button_set_value(rgb_spin[0],10); This is how you change the value of a spin button
   button = gtk_builder_get_object (builder, "spin_red");
-  (*gtk_spin_buttons).button1 = button;
-  g_signal_connect (button, "value-changed", G_CALLBACK (set_false_img_r), gtk_hyper_image);
+  g_signal_connect (button, "value-changed", G_CALLBACK (set_false_img_r), &HyperFunctions1);
   
  
   button = gtk_builder_get_object (builder, "spin_green");
-  (*gtk_spin_buttons).button2 = button;
-  g_signal_connect (button, "value-changed", G_CALLBACK (set_false_img_g), gtk_hyper_image);
+  g_signal_connect (button, "value-changed", G_CALLBACK (set_false_img_g), &HyperFunctions1);
   
   
   button = gtk_builder_get_object (builder, "spin_blue");
-  (*gtk_spin_buttons).button3 = button;
-  g_signal_connect (button, "value-changed", G_CALLBACK (set_false_img_b), gtk_hyper_image);  
+  g_signal_connect (button, "value-changed", G_CALLBACK (set_false_img_b), &HyperFunctions1);  
   
-  button = gtk_builder_get_object (builder, "reset_false_img");
-  g_signal_connect (button, "clicked", G_CALLBACK (set_false_img_reset), gtk_hyper_image);
-  g_signal_connect (button, "clicked", G_CALLBACK (set_spin_buttons_reset), gtk_spin_buttons);
 
   button = gtk_builder_get_object (builder, "false_img_standard");
   g_signal_connect (button, "clicked", G_CALLBACK (set_false_img_standard_rgb), gtk_hyper_image);
-  g_signal_connect (button, "clicked", G_CALLBACK (set_spin_buttons_standard_rgb), gtk_spin_buttons);
   //g_signal_connect (button, "clicked", G_CALLBACK (set_false_img_standard_rgb), &HyperFunctions1);
   //reset r,g,b spin buttons to standard values here
   // currently not implemented
