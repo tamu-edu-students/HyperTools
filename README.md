@@ -119,7 +119,8 @@ The sample files can be run with the following commands:
 `./cuda_cubert_example`
 
 
-
+## Video
+Link to video demoing some of the code: https://youtu.be/dIzrb7cCqlA
 
 ## Credits
 This package was developed by Anthony Medellin with help from Jacqueline Aleman, Anant Bhamri, Leo Feng, Adam Garsha, Sarah Lee, Albert Ma, Sudiksha Pradhan, Rijul Ranjan, and Alex Tran. 
