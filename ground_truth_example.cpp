@@ -8,20 +8,19 @@
 using namespace cv;
 using namespace std;
 
-  
+
   
 // https://www.ehu.eus/ccwintco/index.php/Hyperspectral_Remote_Sensing_Scenes 
 int main (int argc, char *argv[])
 {
     HyperFunctions HyperFunctions1;
-    string file_name1="../../HyperImages/Public_Images/hyperspectral_images/Indian_pines.tiff";
-    string file_name2="../../HyperImages/Public_Images/ground_truth/Indian_pines_gt.tiff";
+    string file_name1 = "../../HyperImages/hyperspectral_images/Indian_pines.tiff";
+    string file_name2 = "../../HyperImages/ground_truth/Indian_pines_gt.tiff";
     // step 1 load hyperspectral image 
     HyperFunctions1.LoadImageHyper1(file_name1);
 
     // step 2 load ground truth image
     Mat gt_img=imread(file_name2, IMREAD_COLOR);
-    
     
     // step 3 make sure ground truth image is 8 bit single channel
     // ref https://gist.github.com/yangcha/38f2fa630e223a8546f9b48ebbb3e61a
@@ -40,7 +39,7 @@ int main (int argc, char *argv[])
     }
     else
     {
-        cout<<"unsupported image type"<<endl;
+        cout << "unsupported image type" << endl;
     }
     cout<<gt_img.type()<<endl;
     
@@ -71,16 +70,15 @@ int main (int argc, char *argv[])
             class_coordinates[temp_val].push_back(temp_point);  
             //cout<<temp_val<<endl;
         }
-     }      
+    }
+
     // verify number of samples is right
     cout<<"class and number of samples in class"<<endl;
     for  (int i=0; i<class_coordinates.size() ; i++)
     {
-        cout<<i<<"  "<<class_coordinates[i].size()<<endl;
+        cout << i << "  " <<class_coordinates[i].size() << endl;
     
     }
-    
-    
     
     // find average spectrum for each semantic class
     for  (int i=0; i<class_coordinates.size() ; i++)
