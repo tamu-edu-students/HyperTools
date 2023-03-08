@@ -288,19 +288,12 @@ void  HyperFunctions::DifferenceOfImages()
 	
 }
               
-                  
-void HyperFunctions::EdgeDetection( )
+void EdgeDetection_Child(int id, int i, Mat* output_image, Mat* classified_img2)
 {
-	    // create a copy of the incoming image in terms of size (length and width) and initialize as an all black image
-    Mat output_image(classified_img.rows, classified_img.cols, CV_8UC1, cv::Scalar(0));
-    // using 8 bit image so white pixel has a value of 255
-
-    Vec3b temp_val, compare_val; // rgb value of image at a pixel 
 
     bool edge=false;
-
-     for(int i = 0; i <classified_img.rows; i++) 
-     {
+    Vec3b temp_val, compare_val; // rgb value of image at a pixel 
+    Mat classified_img=*classified_img2;
         for(int j = 0; j < classified_img.cols; j++)
         {
               edge=false;
@@ -332,14 +325,31 @@ void HyperFunctions::EdgeDetection( )
               if (edge)
               {
                   // set edge pixel to white
-                  output_image.at<uchar>(i,j)=255;            
+                  output_image->at<uchar>(i,j)=255;            
               }
          }
-     }  
 
-         edge_image=output_image;
+}  
+
+                  
+void HyperFunctions::EdgeDetection( )
+{
+	    // create a copy of the incoming image in terms of size (length and width) and initialize as an all black image
+    Mat output_image(classified_img.rows, classified_img.cols, CV_8UC1, cv::Scalar(0));
+    // using 8 bit image so white pixel has a value of 255
+
+    ctpl::thread_pool p(num_threads);
+    for(int i = 0; i <classified_img.rows; i++) 
+    {
+        p.push(EdgeDetection_Child,i,&output_image,&classified_img);
+    }  
+
+    edge_image=output_image;
+
 
 }
+
+
 void HyperFunctions::DetectContours()
 {
 
@@ -477,7 +487,8 @@ void HyperFunctions::DetectContours()
 
     }
     
-    writeJSON_full(contours_approx, contour_class, hierarchy);
+    // uncomment to write to 
+    //writeJSON_full(contours_approx, contour_class, hierarchy);
     
   // cv::imshow("Contour Image", drawing);
     contour_img=drawing;
