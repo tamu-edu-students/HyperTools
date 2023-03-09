@@ -111,10 +111,48 @@ int main (int argc, char *argv[])
     // write to json file 
     // reference hyperfunctions.cpp void  HyperFunctions::save_ref_spec_json(string item_name)
     
+    // below is a sample script and intended to be used as a framework
+    // needs to be written so numbers are ordered properly right now 1 is next to 10 instead of 2
+    string spectral_database="../json/spectral_database_gt.json";
+    ifstream ifs2(spectral_database);
+    Json::Reader reader2;
+    Json::Value completeJsonData2;
+    reader2.parse(ifs2,completeJsonData2);
+
+    std::ofstream file_id;
+    file_id.open(spectral_database);
+    Json::Value value_obj;
+    value_obj = completeJsonData2;
+    
+    vector<string> class_list{"Unknown", "Alfalfa", "Corn-notill", "Corn-mintill","Corn","Grass-pasture", "Grass-trees", "Grass-pasture-mowed","Hay-windrowed","Oats", "Soybean-notill", "Soybean-mintill", "Soybean-clean", "Wheat", "Woods", "Buildings-Grass-Trees-Drives", "Stone-Steel-Towers"};
+    
+    
+    for (int j=0; j<class_coordinates.size() ; j++)
+    {
+        // i should be the spectral wavelength (modify for loop)
+        for (int i=1; i<=5;i+=1)
+        {
+        value_obj["Spectral_Information"][class_list[j]][to_string(i)] = i*10; //i*10 should be value between 0-255 corresponding to reflectance
+
+        }
+        // may need to also set color information for visualization in addition to the class number 
+        value_obj["Color_Information"][class_list[j]]["Class_Number"] = j;
+    }
+    
+    Json::StyledWriter styledWriter;
+    file_id << styledWriter.write(value_obj);
+    file_id.close();
+    
     
     // perform semantic segmentation with spectral similarity algorithm 
     // only do 1 algorithm to start and then we can do loop with the others
     // compare gpu and cpu to verify the give same results and look at speed difference
+    
+    // does read_ref_spec_json need to be modified so 1 is next to 2 instead of 10 example (aka fix ordering)
+    // HyperFunctions1.read_ref_spec_json(spectral_database)    
+    //HyperFunctions1.SemanticSegmenter()
+    
+    
     
     
     // visualize results 
@@ -124,7 +162,7 @@ int main (int argc, char *argv[])
     imshow("gt img", gt_normal);
     imshow("hyper img", HyperFunctions1.mlt1[70]);
     // visualize the result of the semantic segmenter below
-    
+    // HyperFunctions1.DispClassifiedImage()
     cv::waitKey();*/
       
     
@@ -132,10 +170,23 @@ int main (int argc, char *argv[])
     // get accuracy per class 
     // go through vector<vector<Point>> class_coordinates
     // for each class go through points and compare point in ground truth image to the classified image
+    // may need to use rgb colors from json as well as the class number for comparison 
+    // as a result may not be able to do direct comparison
     
+ /*   for(int j = 0; j < HyperFunctions1classified_img.cols; j++)
+    {
+        for(int i = 0; i < classified_img.rows; i++)
+        {
+            Vec3b temp_val;
+            int compare_val;
+            temp_val=HyperFunctions1.classified_img.at<Vec3b>(i,j); // in form (y,x) 
+            compare_val=gt_img.at<uchar>(i,j);
+            // figure out which class temp_val belongs to
+            // what is the best way to keep track of accuracy?
+        }
+    }
     
-    
-   
+   */
   
   cout<<"done"<<endl;
   return 0;
