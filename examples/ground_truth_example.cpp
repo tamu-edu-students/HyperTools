@@ -105,14 +105,37 @@ int main (int argc, char *argv[])
     
     */ 
     
+    // set parameters for json file
+    // set wavelength of each layer and 8bit value (0-255)
+    // set semantic class name and associated number from gt image
+    // write to json file 
+    // reference hyperfunctions.cpp void  HyperFunctions::save_ref_spec_json(string item_name)
     
     
-    // extra display gt and hyperimg 
+    // perform semantic segmentation with spectral similarity algorithm 
+    // only do 1 algorithm to start and then we can do loop with the others
+    // compare gpu and cpu to verify the give same results and look at speed difference
+    
+    
+    // visualize results 
+     // extra display gt and hyperimg 
     /*Mat gt_normal;
     normalize(gt_img, gt_normal, 0,255, NORM_MINMAX, CV_8UC1);
     imshow("gt img", gt_normal);
     imshow("hyper img", HyperFunctions1.mlt1[70]);
+    // visualize the result of the semantic segmenter below
+    
     cv::waitKey();*/
+      
+    
+    
+    // get accuracy per class 
+    // go through vector<vector<Point>> class_coordinates
+    // for each class go through points and compare point in ground truth image to the classified image
+    
+    
+    
+   
   
   cout<<"done"<<endl;
   return 0;
