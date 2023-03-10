@@ -57,7 +57,8 @@ int main (int argc, char *argv[])
     cout<<"Number of semantic classes: "<<maxVal<<endl;
     // step 5 get pixel coordinates of each semantic class
     // vector size not initialized properly
-     vector<vector<Point>> class_coordinates((int)(maxVal+1));
+    // 2D array?
+    vector<vector<Point>> class_coordinates((int)(maxVal+1));
 
     // need to initialize so right size based on result of step 4
     int temp_val;
@@ -81,14 +82,21 @@ int main (int argc, char *argv[])
     }
     
     // find average spectrum for each semantic class
+    int avgSpectrums[class_coordinates.size()];
+    int sum = 0;
+    // int count = 0;
+    
     for  (int i=0; i<class_coordinates.size() ; i++)
     {
         // for each semantic class find the average ref spectrum 
         for  (int j=0; j<class_coordinates[i].size() ; j++)
         {
-    
+            sum += class_coordinates[i].at<Point>(j);
+            // count += 1;
         }
-        
+        avgSpectrums[i] = sum / class_coordinates[i].size();
+        sum = 0;
+        // count = 0;   
     }
     
     /*
