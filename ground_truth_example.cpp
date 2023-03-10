@@ -82,22 +82,66 @@ int main (int argc, char *argv[])
     }
     
     // find average spectrum for each semantic class
-    int avgSpectrums[class_coordinates.size()];
-    int sum = 0;
-    // int count = 0;
-    
-    for  (int i=0; i<class_coordinates.size() ; i++)
+    int avgSpectrums[class_coordinates.size()][HyperFunctions1.mlt1.size()];
+
+    for  (int i=0; i<class_coordinates.size() ; i++)    // for each class
     {
-        // for each semantic class find the average ref spectrum 
-        for  (int j=0; j<class_coordinates[i].size() ; j++)
+        for  (int j=0; j<HyperFunctions1.mlt1.size() ; j++)
         {
-            sum += class_coordinates[i].at<Point>(j);
-            // count += 1;
+            avgSpectrums[i][j] = 0;
         }
-        avgSpectrums[i] = sum / class_coordinates[i].size();
-        sum = 0;
-        // count = 0;   
     }
+    
+    for  (int i=0; i<class_coordinates.size() ; i++)    // for each class
+    {
+        for (int k = 0; k < class_coordinates[i].size(); k++){
+            Point tempPt = class_coordinates[i][k];
+            for  (int j=0; j<HyperFunctions1.mlt1.size() ; j++)
+            {
+                avgSpectrums[i][j] += HyperFunctions1.mlt1[j].at<uchar>(tempPt);
+            }
+        }
+
+        for  (int j=0; j<HyperFunctions1.mlt1.size() ; j++)
+        {
+            avgSpectrums[i][j] /= class_coordinates[i].size();
+            // cout << avgSpectrums[i][j] << endl;
+        }
+    }
+
+    // set parameters for json file
+    // set wavelength of each layer and 8bit value (0-255)
+    // set semantic class name and associated number from gt image
+    // write to json file 
+    // reference hyperfunctions.cpp void  HyperFunctions::save_ref_spec_json(string item_name)
+    
+    // below is a sample script and intended to be used as a framework
+    // needs to be written so numbers are ordered properly right now 1 is next to 10 instead of 2
+    string spectral_database="../json/spectral_database_gt.json";
+
+    std::ofstream file_id;
+    file_id.open(spectral_database);
+    Json::Value value_obj;
+    // value_obj = completeJsonData2;
+    
+    vector<string> class_list{"Unknown", "Alfalfa", "Corn-notill", "Corn-mintill","Corn","Grass-pasture", "Grass-trees", "Grass-pasture-mowed","Hay-windrowed","Oats", "Soybean-notill", "Soybean-mintill", "Soybean-clean", "Wheat", "Woods", "Buildings-Grass-Trees-Drives", "Stone-Steel-Towers"};
+    
+    
+    for (int j=0; j<class_coordinates.size() ; j++)
+    {
+        // i should be the spectral wavelength (modify for loop)
+        for (int i=0; i<=HyperFunctions1.mlt1.size();i+=1)
+        {
+            value_obj["Spectral_Information"][class_list[j]][to_string(i)] = avgSpectrums[j][i]; //i*10 should be value between 0-255 corresponding to reflectance
+
+        }
+        // may need to also set color information for visualization in addition to the class number 
+        value_obj["Color_Information"][class_list[j]]["Class_Number"] = j;
+    }
+    
+    Json::StyledWriter styledWriter;
+    file_id << styledWriter.write(value_obj);
+    file_id.close();
     
     /*
     
@@ -107,8 +151,6 @@ int main (int argc, char *argv[])
     {
         img_hist[i]=mlt1[i].at<uchar>(cur_loc);
     }
-    
-    
     */ 
     
     
