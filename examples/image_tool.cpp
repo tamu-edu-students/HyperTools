@@ -167,6 +167,9 @@ int main (int argc, char *argv[])
   //g_signal_connect (button, "toggled", G_CALLBACK (calc_semantic), &HyperFunctions1);
   //g_signal_connect (button, "toggled", G_CALLBACK (show_semantic_img), &HyperFunctions1);
 
+  button = gtk_builder_get_object (builder, "semantic_ED");
+  g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_EuD), &HyperFunctions1);
+
   button = gtk_builder_get_object (builder, "similarity_SAM");
   g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_SAM), &HyperFunctions1);
   //g_signal_connect (button, "toggled", G_CALLBACK (calc_spec_sim), &HyperFunctions1);
@@ -181,6 +184,9 @@ int main (int argc, char *argv[])
   g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_SID), &HyperFunctions1);
   //g_signal_connect (button, "toggled", G_CALLBACK (calc_spec_sim), &HyperFunctions1);
   //g_signal_connect (button, "toggled", G_CALLBACK (show_spec_sim_img), &HyperFunctions1);
+
+  button = gtk_builder_get_object (builder, "similarity_ED");
+  g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_EuD), &HyperFunctions1);
 
   // regenerate object list here here
   // need to set an initial item
