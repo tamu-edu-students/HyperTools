@@ -361,10 +361,15 @@ __global__ void img_test_classifier(int *out, int *img_array, int num_pixels, in
 
 void HyperFunctionsGPU::semantic_segmentation() {
     ref_spec_index = 0;
-    this->allocate_memory(); //allocating all the memory required to perform spectral similarity
-    vector<Mat> similarity_images;
     int tmp_len1 = reference_spectrums[0].size();
+    vector<Mat> similarity_images;
     int* ref_spectrum = new int[tmp_len1];
+
+    for (int i=0;i<reference_spectrums[ref_spec_index].size();i++)
+    {
+        ref_spectrum[i] = reference_spectrums[ref_spec_index][i]; 
+    }
+    cudaMemcpy(d_ref_spectrum, ref_spectrum, sizeof(int) * tmp_len1, cudaMemcpyHostToDevice);
 
     this->spec_sim_GPU(); 
     //performs spectral similarity, comparing each pixel in our image array to the first reference spectra. 
@@ -379,7 +384,6 @@ void HyperFunctionsGPU::semantic_segmentation() {
         similarity_images.push_back(spec_simil_img);
     }
 
-    this->deallocate_memory(); //deallocate memory on GPU used for spectral similarity algorithms
     int array_size2=similarity_images[1].rows*similarity_images[1].cols*similarity_images.size();  
     //converting the vector of matrices that store the similarity values for each reference spectrum into a 1-D array
 
