@@ -130,11 +130,38 @@ int main (int argc, char *argv[])
     for (int j=0; j<class_coordinates.size() ; j++)
     {
         // i should be the spectral wavelength (modify for loop)
-        for (int i=1; i<=5;i+=1)
+        for (int i=1; i<=12;i+=1)
         {
-        value_obj["Spectral_Information"][class_list[j]][to_string(i)] = i*10; //i*10 should be value between 0-255 corresponding to reflectance
+        
+        string zero_pad_result;
+        
+        if (i<10)
+        {
+            zero_pad_result="000"+to_string(i);
+        }
+        else if(i<100)
+        {
+            zero_pad_result="00"+to_string(i);
+        }
+        else if(i<1000)
+        {
+            zero_pad_result="0"+to_string(i);
+        }
+        else if (i<10000)
+        {
+            zero_pad_result=to_string(i);
+        }
+        else
+        {
+            cout<<" error: out of limit for spectral wavelength"<<endl;
+            return -1;
+        }
+        
+        value_obj["Spectral_Information"][class_list[j]][zero_pad_result] = i*10; //i*10 should be value between 0-255 corresponding to reflectance
 
         }
+        
+        
         // may need to also set color information for visualization in addition to the class number 
         value_obj["Color_Information"][class_list[j]]["Class_Number"] = j;
     }
