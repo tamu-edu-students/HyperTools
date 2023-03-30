@@ -350,6 +350,63 @@ void HyperFunctions::EdgeDetection( )
 }
 
 
+void Classification_Child(int id, int i, Mat* classified_img, Mat* edge_image, vector<vector<Point>>* contours_approx, vector<Vec4i>* hierarchy, vector <Vec3b>* contour_class)
+{
+    Mat b_hist, g_hist, r_hist;
+    int histSize = 256;
+    float range[] = { 0, 256 }; //the upper boundary is exclusive
+    const float* histRange[] = { range };
+    bool uniform = true, accumulate = false;
+    vector<Mat> bgr_planes;
+    split( *classified_img, bgr_planes );
+    Vec3b color_temp; 
+
+    
+
+    //for (int i=0 ; i<contours_approx->size(); i++)
+   // {
+     Mat drawing2 = Mat::zeros( edge_image->size(), CV_8UC1 );
+     Scalar color = Scalar( 255);
+     drawContours( drawing2, *contours_approx, i, color, FILLED, 8, *hierarchy, 0, Point() ); 
+     calcHist( &bgr_planes[0], 1, 0, drawing2, b_hist, 1, &histSize, histRange, uniform, accumulate );
+     calcHist( &bgr_planes[1], 1, 0, drawing2, g_hist, 1, &histSize, histRange, uniform, accumulate );
+     calcHist( &bgr_planes[2], 1, 0, drawing2, r_hist, 1, &histSize, histRange, uniform, accumulate );
+     int max_r=0, max_b=0, max_g=0;
+     int max_r_loc=0, max_b_loc=0, max_g_loc=0;
+     
+     
+        for (int j=0; j<256 ; j++)
+        {
+        //cout<<i<<"  "<<r_hist.at<float>(i)<<endl;
+            if (r_hist.at<float>(j) > max_r)
+            {
+                max_r=r_hist.at<float>(j);
+                max_r_loc=j;
+                color_temp[1]=max_r_loc;
+            }
+            
+            if (g_hist.at<float>(j) > max_g)
+            {
+                max_g=g_hist.at<float>(j);
+                max_g_loc=j;
+                color_temp[0]=max_g_loc;
+            }
+            
+            if (b_hist.at<float>(j) > max_b)
+            {
+                max_b=b_hist.at<float>(j);
+                max_b_loc=j;
+                color_temp[2]=max_b_loc;
+            }
+      
+        }
+        //contour_class.push_back( color_temp);    
+        (*contour_class)[i]=  color_temp;
+        //cout<<i<<" "<<color_temp<<endl;
+    //}
+
+}
+
 void HyperFunctions::DetectContours()
 {
 
@@ -364,7 +421,6 @@ void HyperFunctions::DetectContours()
 	read_spectral_json(spectral_database);
 
 	contours_approx.clear();
-	
     vector<Vec4i> hierarchy;
     double img_area_meters, img_area_pixels, contour_temp_area;
     img_area_pixels =  edge_image.rows*edge_image.cols ; 
@@ -383,6 +439,26 @@ void HyperFunctions::DetectContours()
          }     
     }
     
+    
+    Mat drawing = Mat::zeros( edge_image.size(), CV_8UC3 );
+    vector <Vec3b> contour_class(contours_approx.size()+1);
+    ctpl::thread_pool p(num_threads);
+    for(int i = 0; i <contours_approx.size(); i++) 
+    {
+        if (contours_approx[i].size()>2)
+        {
+            p.push(Classification_Child,i,&classified_img,&edge_image, &contours_approx, &hierarchy, &contour_class);
+        }
+    }  
+    
+    // wait until threadpool is finished here
+    while(p.n_idle()<num_threads)
+    {
+        //cout<<" running threads "<< p.size()  <<" idle threads "<<  p.n_idle()  <<endl;
+        //do nothing 
+    }
+    
+   /* 
     Mat b_hist, g_hist, r_hist;
     int histSize = 256;
     float range[] = { 0, 256 }; //the upper boundary is exclusive
@@ -391,9 +467,8 @@ void HyperFunctions::DetectContours()
     vector<Mat> bgr_planes;
     split( classified_img, bgr_planes );
     Vec3b color_temp; 
-    vector <Vec3b> contour_class;
-    vector<vector<Point> > contour_approx_new;
-    contour_approx_new=contours_approx;
+
+    
         
     
     Mat drawing = Mat::zeros( edge_image.size(), CV_8UC3 );
@@ -436,26 +511,33 @@ void HyperFunctions::DetectContours()
         }
         contour_class.push_back( color_temp);            
     }
-    int count =0;
+    */
+    
+
+    //int count =0;
     for( int i = 0; i< contours_approx.size(); i++ )
     {
-        Vec3b color = contour_class[i];
-        string classification="unknown";
-        for (int j=0; j< color_combos.size() ;j++)
-        {
-            if (color == color_combos[j])
-            {
-                classification=class_list[j];
-
-            }
-        }
+        
         
         if (contours_approx[i].size()>2)
         {
+            
+            Vec3b color = contour_class[i];
+
+            string classification="unknown";
+            for (int j=0; j< color_combos.size() ;j++)
+            {
+                if (color == color_combos[j])
+                {
+                    classification=class_list[j];
+
+                }
+            }
+            //cout<<i<<" here "<<color<<endl;
             if (contours_approx[i][0]==Point(0,0) && contours_approx[i][1]==Point(0,edge_image.rows-1)  && contours_approx[i][2]==Point(edge_image.cols-1,edge_image.rows-1)  && contours_approx[i][3]==Point(edge_image.cols-1,0))
             {
                 //writeJSON(event, contours_approx, i, "ballpark", count);
-                count++;
+                //count++;
                 Scalar temp_col=Scalar(color[2],color[0],color[1]);
                 drawContours( drawing, contours_approx, i, temp_col, FILLED, 8, hierarchy, 0, Point() );
             
@@ -470,7 +552,7 @@ void HyperFunctions::DetectContours()
                 if (contour_class[hierarchy[i][3]] != contour_class[i])
                 {
                      //writeJSON(event, contours_approx, i, classification,count);
-                     count++;
+                     //count++;
                     Scalar temp_col=Scalar(color[2],color[0],color[1]);
                     drawContours( drawing, contours_approx, i, temp_col, FILLED, 8, hierarchy, 0, Point() );
                 
