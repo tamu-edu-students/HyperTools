@@ -957,7 +957,7 @@ void  HyperFunctions::SemanticSegmenter()
 void  HyperFunctions::SpecSimilParent()
 {
 
-//spec_sim_alg SAM=0, SCM=1, SID=2
+//spec_sim_alg SAM=0, SCM=1, SID=2, EuD=3
 // ref_spec_index
 
     Mat temp_img(mlt1[1].rows, mlt1[1].cols, CV_8UC1, Scalar(0));
@@ -974,6 +974,10 @@ void  HyperFunctions::SpecSimilParent()
     else if (spec_sim_alg==2)
     {
         this->SID_img();
+    }
+    else if (spec_sim_alg==3)
+    {
+        this->EuD_img();
     }
 
 }
@@ -995,6 +999,16 @@ void  HyperFunctions::SID_img()
     for (int k=0; k<mlt1[1].cols; k+=1)
     {
          p.push(SID_img_Child, k, &mlt1,&reference_spectrums,&spec_simil_img,&ref_spec_index);
+    }
+
+}
+
+void  HyperFunctions::EuD_img()
+{
+    ctpl::thread_pool p(num_threads);
+    for (int k=0; k<mlt1[1].cols; k+=1)
+    {
+         p.push(EuD_img_Child, k, &mlt1,&reference_spectrums,&spec_simil_img,&ref_spec_index);
     }
 
 }
@@ -1028,6 +1042,41 @@ void SAM_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* refere
             float temp1= sum1/(sqrt(sum2)*sqrt(sum3));
             double alpha_rad=acos(temp1);
             temp_val=(int)((double)alpha_rad*(double)255/(double)3.14159) ;
+        }
+        spec_simil_img->at<uchar>(j,k)=temp_val; 
+    }
+}
+
+void EuD_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index)   
+{   
+    // single thread
+    vector<Mat> mlt1=*mlt2; 
+    vector<vector<int>>  reference_spectrums= *reference_spectrums2;
+    int temp_val=0;
+    for (int j=0; j<mlt1[1].rows; j++)
+    {
+        float sum1=0, sum2=0, sum3=0;
+        for (int a=0; a<reference_spectrums[*ref_spec_index].size(); a++)
+        {
+            sum3+=reference_spectrums[*ref_spec_index][a] *reference_spectrums[*ref_spec_index][a] ;
+        }
+        for (int a=0; a<reference_spectrums[*ref_spec_index].size(); a++)
+        {
+            
+            int temp_val2=mlt1[a].at<uchar>(j,k);
+            sum1+=temp_val2*reference_spectrums[*ref_spec_index][a] ;
+            sum2+=temp_val2*temp_val2;
+        }
+        if (sum1<=0 || sum2<=0 || sum3<=0 )
+        {
+            temp_val=255; // set to white due to an error
+        }
+        else
+        {
+            float temp1= sum1/(sqrt(sum2)*sqrt(sum3));
+            double alpha_rad=acos(temp1);
+            temp1 = sin(alpha_rad/2);
+            temp_val=(int)((double)temp1*(double)255) ;
         }
         spec_simil_img->at<uchar>(j,k)=temp_val; 
     }
