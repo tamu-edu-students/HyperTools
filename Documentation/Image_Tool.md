@@ -7,7 +7,9 @@ This is still a work in progress. Parts of the user interface are not operationa
 The sample file can be run with the following command:
 `./image_tool`
 
-![IMAGETOOL](../images/startingpage)
+<img src = “docimages/Startingpage.png”>
+
+![IMAGETOOL](Startingpage.png)
 
 ### False Image:
  Combines and rearranges the ratios of the rgb from one or multiple source images that results in a final image. Helping to visualize information not easily seen by the human eye and approach the image from a different perspective.
