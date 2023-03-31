@@ -1,6 +1,6 @@
 #pragma once
 #include <iostream>
-#include "opencv2/opencv.hpp"
+#include <opencv2/opencv.hpp>
 #include <cmath>
 #include "hyperfunctions.h"
 #include <fstream>
@@ -8,7 +8,7 @@
 #include <jsoncpp/json/writer.h>
 #include <stdio.h>
 #include "ctpl.h"
-#include "opencv2/xfeatures2d.hpp"
+#include <opencv2/xfeatures2d.hpp>
 using namespace cv;
 using namespace std;
 using namespace cv::xfeatures2d;
