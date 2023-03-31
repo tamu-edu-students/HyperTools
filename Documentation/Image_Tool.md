@@ -24,6 +24,7 @@ Displays the contour image of the semantic segmentation image. *(Outlined in bla
 :Demonstates the different spectral similarities algorithms to specify classification.
 
 ### Spectral Similarity Image:
+Generates a spectral Similarity Image, similar to Semantic Image, classifies based by the different spectral similarities algorithms.
 
 ### Spectral Database: 
 Import old/new databases, saving reference curves for classification and spectral/semantation.
@@ -37,7 +38,7 @@ Displays json image of tiled image of the semantic image at various points of th
 **Standard RGB Image:**
 **Quit:** Closes the Hyperspectral Image Analysis Tool.
 
-### (None): 
+### File Chooser: 
 Import a new hyperspectral image
 
 **Replace sample name inside the cpp folder**
