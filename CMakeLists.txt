@@ -26,7 +26,7 @@ if (use_CUDA)
 find_package(CUDA)
     if(CUDA_FOUND)
         enable_language(CUDA)
-        set(CMAKE_CUDA_STANDARD 17)
+        #set(CMAKE_CUDA_STANDARD 17)
 
         if(NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
             set(CMAKE_CUDA_ARCHITECTURES 75)
@@ -76,6 +76,5 @@ if (use_cuvis)
     endif(use_CUDA)
 
 endif()
-
 
 

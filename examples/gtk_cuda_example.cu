@@ -33,8 +33,12 @@ int main (int argc, char *argv[]) {
 HyperFunctionsGPU HyperFunctions1;
 string file_name2="../../HyperImages/img1.tiff";
 HyperFunctions1.LoadImageHyper1(file_name2);
-int* test_array= HyperFunctions1.mat_to_oneD_array_parallel_parent(  );
-HyperFunctions1.img_array_base=test_array;
+//HyperFunctions1.mat_to_oneD_array_parallel_parent(  );
+    HyperFunctions1.read_ref_spec_json(HyperFunctions1.spectral_database);
+    
+    HyperFunctions1.mat_to_oneD_array_parallel_parent();
+    
+    HyperFunctions1.allocate_memory();
 // only difference between this file and image_tool.cpp is that gpu functions are used for semantic and spectral similarity images. 
 //if a new images is loaded during runtime, img_array_base will need to be updated
 
