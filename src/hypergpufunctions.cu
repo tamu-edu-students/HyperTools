@@ -192,6 +192,7 @@ void HyperFunctionsGPU::spec_sim_GPU() {
 
     cudaDeviceSynchronize();
     cudaMemcpyAsync(out, d_out, sizeof(int) * N_size, cudaMemcpyDeviceToHost); 
+    cudaDeviceSynchronize();
 
     //Mat test_img1(mlt1[1].rows, mlt1[1].cols, CV_8UC1, Scalar(0));
     //spec_simil_img=test_img1;
