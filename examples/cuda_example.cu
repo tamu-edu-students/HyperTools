@@ -4,42 +4,53 @@
 #include "../src/hyperfunctions.cpp"
 #include "../src/hypergpufunctions.cu"
 
+using namespace std::chrono;
 using namespace cv;
 using namespace std;
 
 
 int main (int argc, char *argv[]) {
-
     HyperFunctionsGPU HyperFunctions1;
+
     string file_name2="../../HyperImages/img1.tiff";
     HyperFunctions1.LoadImageHyper1(file_name2);
     HyperFunctions1.read_ref_spec_json(HyperFunctions1.spectral_database);
-    
-    int* test_array= HyperFunctions1.mat_to_oneD_array_parallel_parent(  );
+
+    int* test_array= HyperFunctions1.mat_to_oneD_array_parallel_parent();
+
+    HyperFunctions1.allocate_memory(test_array);
+    auto start = high_resolution_clock::now();
+
+    HyperFunctions1.spec_sim_alg = 0;
+    HyperFunctions1.spec_sim_GPU();
+
+    auto end = high_resolution_clock::now();
+
+    cout << "Time taken : " << (float)duration_cast<milliseconds>(end-start).count() / (float)1000 << " " << "seconds";
 
 
-    //HyperFunctions1.allocate_memory(test_array);
+    HyperFunctions1.DispSpecSim();
 
-    //HyperFunctions1.spec_sim_GPU();
-    //HyperFunctions1.DispSpecSim();
-    //cv::waitKey();
+    cv::waitKey();
 
-    /*HyperFunctions1.spec_sim_alg=1;
+    HyperFunctions1.spec_sim_alg=2;
+
     HyperFunctions1.spec_sim_GPU();
     HyperFunctions1.DispSpecSim();
+
     cv::waitKey();
 
     HyperFunctions1.spec_sim_alg=2;    
     HyperFunctions1.spec_sim_GPU();
     HyperFunctions1.DispSpecSim();
-    cv::waitKey();*/
-
-    //HyperFunctions1.deallocate_memory();
-
-
-    HyperFunctions1.semantic_segmentation(test_array);
-    HyperFunctions1.DispClassifiedImage();
     cv::waitKey();
+
+    HyperFunctions1.deallocate_memory();
+
+
+    //HyperFunctions1.semantic_segmentation(test_array);
+    //HyperFunctions1.DispClassifiedImage();
+    //cv::waitKey();
     
     /*HyperFunctions1.spec_sim_alg=1;
     HyperFunctions1.semantic_segmentation(test_array);
