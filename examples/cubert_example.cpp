@@ -203,6 +203,7 @@ GtkBuilder *builder;
   
   HyperFunctions HyperFunctions1;
    HyperFunctions1.mlt1=mlt1;
+   HyperFunctions1.spectral_database="../json/spectral_database_new.json";
 
 
 
