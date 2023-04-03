@@ -13,6 +13,7 @@ using namespace cv;
 using namespace std;
 using namespace cv::xfeatures2d;
 
+// Loads first hyperspectral image for analysis
 void HyperFunctions::LoadImageHyper1(string file_name)
 {
     mlt1.clear();
@@ -20,27 +21,34 @@ void HyperFunctions::LoadImageHyper1(string file_name)
     
 }
 
+// Loads second hyperspectral image for analysis
+// mainly used for feature matching 
 void HyperFunctions::LoadImageHyper2(string file_name)
 {
+	mlt2.clear();
 	imreadmulti(file_name, mlt2);
 }
 
-
+// Loads a segmented or classified image
+// mainly used to reprocess classified images through filtering and polygon simplification
 void HyperFunctions::LoadImageClassified(string file_name)
 {
 	classified_img = cv::imread(file_name);
 }
 
+// loads the first grayscale image for feature analysis
 void HyperFunctions::LoadFeatureImage1(string file_name)
 {
 	feature_img1 = cv::imread(file_name, IMREAD_GRAYSCALE);
 }
 
+//  loads the second grayscale image for feature analysis
 void HyperFunctions::LoadFeatureImage2(string file_name)
 {
 	feature_img2 = cv::imread(file_name, IMREAD_GRAYSCALE);
 }
 
+// Displays side by side feature images
 void  HyperFunctions::DispFeatureImgs()
 {
    Mat temp_img, temp_img2, temp_img3;
@@ -52,6 +60,8 @@ void  HyperFunctions::DispFeatureImgs()
    imshow("Feature Images", temp_img);
 }
 
+
+// Detects, describes, and matches keypoints between 2 feature images
 void  HyperFunctions::FeatureExtraction()
 {
    	// feature_detector=0; 0 is sift, 1 is surf, 2 is orb, 3 is fast 
@@ -152,12 +162,14 @@ void  HyperFunctions::FeatureExtraction()
    imshow("Feature Images Matched", temp_img);
 }
 
-
+// Finds the transformation matrix between two images
 void HyperFunctions::FeatureTransformation()
 {
+    // camera intrinsic parameters
     //double focal = 718.8560;
     cv::Point2d pp(607.1928, 185.2157);
     Mat cameraMatrix = Mat::eye(3, 3, CV_64F);
+    
     //recovering the pose and the essential matrix
     Mat E,R,t, mask;
     vector<Point2f> points1;
@@ -167,7 +179,8 @@ void HyperFunctions::FeatureTransformation()
       points1.push_back(keypoints1[matches[i].queryIdx].pt);
       points2.push_back(keypoints2[matches[i].trainIdx].pt);
     }
-
+    
+    // uses ransac to filter out outliers
     E = findEssentialMat(points1, points2, cameraMatrix, RANSAC, 0.999, 1.0, mask);
     recoverPose(E, points1, points2, cameraMatrix, R, t, mask);
     // E = findEssentialMat(points2, points1, focal, pp, RANSAC, 0.999, 1.0, mask);
@@ -195,6 +208,8 @@ void HyperFunctions::FeatureTransformation()
 
 }
 
+
+// To display classified image
 void  HyperFunctions::DispClassifiedImage()
 {
 
@@ -203,7 +218,7 @@ void  HyperFunctions::DispClassifiedImage()
    imshow("Classified Image", temp_img);
 }
 
-
+// To display false image (RGB layers are set by the user from the hyperspectral image)
 void  HyperFunctions::DispFalseImage()
 {
    Mat temp_img;
@@ -212,6 +227,7 @@ void  HyperFunctions::DispFalseImage()
    imshow("False Image", temp_img);
 }
 
+// To display spectral similarity image
 void  HyperFunctions::DispSpecSim()
 {
    Mat temp_img;
@@ -219,7 +235,7 @@ void  HyperFunctions::DispSpecSim()
    imshow("Spectral Similarity Image", temp_img);
 }
 
-
+// To display edge detection image (edges are from the classified image)
 void  HyperFunctions::DispEdgeImage()
 {
        Mat temp_img;
@@ -227,6 +243,7 @@ void  HyperFunctions::DispEdgeImage()
     cv::imshow("Edge Detection Image", temp_img);
 }
 
+// Displays contour image (based on the classified image)
 void  HyperFunctions::DispContours()
 {
           Mat temp_img;
@@ -235,6 +252,7 @@ void  HyperFunctions::DispContours()
 
 }
 
+// Displays the differences between the classified image and the contour image
 void  HyperFunctions::DispDifference()
 {
        Mat temp_img;
@@ -242,6 +260,7 @@ void  HyperFunctions::DispDifference()
     cv::imshow("Difference Image", temp_img);
 }
 
+// displays the tiled image (each image layer of the hyperspectral image is a tile)
 void  HyperFunctions::DispTiled()
 {
        Mat temp_img;
@@ -249,6 +268,7 @@ void  HyperFunctions::DispTiled()
     cv::imshow("Tiled Image", temp_img);
 }
 
+// generates the false image by setting the RGB layers to what the user defines
 void  HyperFunctions::GenerateFalseImg()
 {
 
@@ -261,6 +281,12 @@ void  HyperFunctions::GenerateFalseImg()
     
 }
 
+//---------------------------------------------------------
+// Name: DifferenceOfImages
+// Description: Primarily for semantic interface tool to see how different parameters affect results. 
+// Outputs a binary image with black and white pixels.
+// Black pixels represents no change between the filtered/approximated image and white pixels denotes a change.
+//---------------------------------------------------------
 void  HyperFunctions::DifferenceOfImages()
 {
 
@@ -287,7 +313,12 @@ void  HyperFunctions::DifferenceOfImages()
     difference_img= output_image; 
 	
 }
-              
+
+
+// creates a binary image that sets boundary pixels as white and non-boundary pixels as black
+// input is a classified image
+// the output of this is used to find the contours in the image
+// this is multi-threaded for speed requirements
 void EdgeDetection_Child(int id, int i, Mat* output_image, Mat* classified_img2)
 {
 
@@ -349,7 +380,7 @@ void HyperFunctions::EdgeDetection( )
 
 }
 
-
+// threaded function for DetectContours
 void Classification_Child(int id, int i, Mat* classified_img, Mat* edge_image, vector<vector<Point>>* contours_approx, vector<Vec4i>* hierarchy, vector <Vec3b>* contour_class)
 {
     Mat b_hist, g_hist, r_hist;
@@ -407,6 +438,8 @@ void Classification_Child(int id, int i, Mat* classified_img, Mat* edge_image, v
 
 }
 
+// Description: to identify and extract the boundaries (or contours) of specific objects 
+// in an image to make out the shapes of objects.
 void HyperFunctions::DetectContours()
 {
 
@@ -569,7 +602,7 @@ void HyperFunctions::DetectContours()
 
     }
     
-    // uncomment to write to 
+    // uncomment to write contours to json file 
     //writeJSON_full(contours_approx, contour_class, hierarchy);
     
   // cv::imshow("Contour Image", drawing);
@@ -578,6 +611,8 @@ void HyperFunctions::DetectContours()
 
 } // end function
 
+// Creates tile image or default/base image
+// assumes 164 layers in hyperspectral image
 void   HyperFunctions::TileImage()
 {
     
@@ -624,7 +659,11 @@ void   HyperFunctions::TileImage()
     tiled_img=base_image;
 }
 
-
+//---------------------------------------------------------
+// Name: read_spectral_json
+// Description: reads json file containing spectral information and RGB color values 
+// for creating a classified image. used in Image Tool.
+//---------------------------------------------------------  
 void HyperFunctions::read_spectral_json(string file_name )
 {
 
@@ -658,7 +697,10 @@ void HyperFunctions::read_spectral_json(string file_name )
 class_list=class_list2;
 }
 
-
+//---------------------------------------------------------
+// Name: writeJSON
+// Description: holds information about the extracted contours for navigation
+//---------------------------------------------------------  
 void HyperFunctions::writeJSON(Json::Value &event, vector<vector<Point> > &contours, int idx, string classification, int count)
 {
 
@@ -692,6 +734,10 @@ void HyperFunctions::writeJSON(Json::Value &event, vector<vector<Point> > &conto
     //std::cout << event << std::endl;
 }
 
+//---------------------------------------------------------
+// Name: writeJSON
+// Description: holds information about the extracted contours for navigation
+//---------------------------------------------------------  
 void HyperFunctions::writeJSON_full(vector<vector<Point> > contours, vector <Vec3b> contour_class,vector<Vec4i> hierarchy)
 {
 
@@ -780,6 +826,10 @@ void HyperFunctions::writeJSON_full(vector<vector<Point> > contours, vector <Vec
 
 }
 
+//---------------------------------------------------------
+// Name: read_img_json
+// Description: obtains info about the camera/image to help convert pixel coordinates to GPS coordinates.
+//---------------------------------------------------------
 void  HyperFunctions::read_img_json(string file_name)
 {
 
@@ -796,6 +846,10 @@ void  HyperFunctions::read_img_json(string file_name)
 
 
 }
+
+// saves spectral and color information to json file of spectral curves
+// assumes a ultris x20 hyperspectral image
+// Accesses camera information (camera_database) and modifies spectral database
 void  HyperFunctions::save_ref_spec_json(string item_name)
 {
     int img_hist[mlt1.size()-1];
@@ -844,6 +898,7 @@ void  HyperFunctions::save_ref_spec_json(string item_name)
 
 }
 
+// reads spectral and color information from items in json file
 void  HyperFunctions::read_ref_spec_json(string file_name)
 {
     
@@ -892,6 +947,7 @@ void  HyperFunctions::read_ref_spec_json(string file_name)
 
 }
 
+// creates a blank spectral database to fill in
 void  HyperFunctions::save_new_spec_database_json()
 {
     std::ofstream file_id3;
@@ -905,7 +961,11 @@ void  HyperFunctions::save_new_spec_database_json()
 
 }
 
-
+//---------------------------------------------------------
+// Name: SemanticSegmenter
+// Description: Takes hyperspectral data and assigns each pixel a color
+// based on which reference spectra it is most similar to.
+//---------------------------------------------------------
 void  HyperFunctions::SemanticSegmenter()
 {
 
@@ -953,7 +1013,11 @@ void  HyperFunctions::SemanticSegmenter()
     classified_img=temp_class_img;
 }
 
-
+//---------------------------------------------------------
+// Name: SpecSimilParent
+// Description: to determine the similarity between sets
+// of data (spectral curves) within threadpool based on their spectral properties
+//---------------------------------------------------------
 void  HyperFunctions::SpecSimilParent()
 {
 
@@ -982,6 +1046,11 @@ void  HyperFunctions::SpecSimilParent()
 
 }
 
+//---------------------------------------------------------
+// Name: SAM_img
+// PreCondition: SAM score output from SAM_img_child 
+// PostCondition: threadpool of SAM values
+//---------------------------------------------------------
 void HyperFunctions::SAM_img()
 {
     ctpl::thread_pool p(num_threads);
@@ -993,6 +1062,12 @@ void HyperFunctions::SAM_img()
     }
 
 }
+
+//---------------------------------------------------------
+// Name: SID_img
+// PreCondition: SID value as produced by SID_img_child
+// PostCondition: threadpool of SID values
+//---------------------------------------------------------
 void  HyperFunctions::SID_img()
 {
     ctpl::thread_pool p(num_threads);
@@ -1013,6 +1088,11 @@ void  HyperFunctions::EuD_img()
 
 }
 
+//---------------------------------------------------------
+// Name: SAM_img_child
+// PreCondition: test spectra (t) and reference spectra r of a set lenghth 
+// PostCondition: Spectral Angle Mapper (SAM) score using arccos()
+//---------------------------------------------------------
 void SAM_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index)   
 {   
     // single thread
@@ -1082,6 +1162,15 @@ void EuD_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* refere
     }
 }
 
+
+//---------------------------------------------------------
+// Name: SID_img_Child
+// Description: Spectral information divergence (SID) method computes spectral similarity
+// based on the divergence between the probability distributions of the two spectra r and t
+// PreCondition: reference spectra as a vector and test spectra as a matrix  
+// PostCondition: SID represented as q_i*log(q_i/p_i) + p_i*log(p_i/q_i) 
+// for q_i and p_i representing the distribution values of reference and test spectra respectively
+//---------------------------------------------------------
 void SID_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index)   
 {   
     // single thread
@@ -1126,6 +1215,11 @@ void SID_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* refere
     }
 }
 
+//---------------------------------------------------------
+// Name: SCM_img
+// PreCondition: SCM value from SCM_img_child
+// PostCondition: threadpool of SCM values
+//---------------------------------------------------------
 void  HyperFunctions::SCM_img()
 {
     /* leaving this here in case this is not the way SCM is supposed to be implemented from child :/
@@ -1169,6 +1263,14 @@ void  HyperFunctions::SCM_img()
     }
 }
 
+
+//---------------------------------------------------------
+// Name: SCM_img_Child
+// Description: Spectral Correlation Mapper (SCM) 
+// PreCondition: image spectrum (represented by X or a matrix) and reference spectrum (represented as Y or by a vector) 
+// PostCondition: A quotient of the sum of all (X - X_avg)(Y - Y_avg) and the square root of (X - X_avg)^2(Y - Y_avg)^2,
+// mathematically represented as R.
+//---------------------------------------------------------
 void SCM_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index){
     vector<Mat> mlt1=*mlt2; 
     vector<vector<int>>  reference_spectrums = *reference_spectrums2;
