@@ -1,11 +1,8 @@
-# cmake needs this line
 cmake_minimum_required(VERSION 3.10)
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 set(CMAKE_CXX_STANDARD 17)
 # Define project name
 project(user_interface_project C CXX)
-
-
 
 find_package(OpenCV  REQUIRED)
 find_package(PkgConfig REQUIRED)
@@ -35,10 +32,10 @@ find_package(CUDA)
         add_definitions(${GTK_CFLAGS_OTHER}) 
 
         add_executable(cuda_example examples/cuda_example.cu)
-        #add_executable(gtk_cuda_example examples/gtk_cuda_example.cu)
+        add_executable(gtk_cuda_example examples/gtk_cuda_example.cu)
         # below is not necessary right now
-        #set_target_properties(gtk_cuda_example PROPERTIES
-        #CUDA_SEPARABLE_COMPILATION ON)
+        set_target_properties(gtk_cuda_example PROPERTIES
+        CUDA_SEPARABLE_COMPILATION ON)
 
 
     else(CUDA_FOUND)

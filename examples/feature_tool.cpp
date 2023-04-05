@@ -2,9 +2,9 @@
 #include <iostream>
 #include "opencv2/opencv.hpp"
 #include <cmath>
-
 #include "../src/gtkfunctions.cpp"
 #include "../src/hyperfunctions.cpp"
+
 using namespace cv;
 using namespace std;
 

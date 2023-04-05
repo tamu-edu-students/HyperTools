@@ -29,7 +29,7 @@ int main (int argc, char *argv[])
     char* const distanceLoc =  const_cast<char*>(dist_img.c_str());
     char* const factoryDir =  const_cast<char*>(factor_dir.c_str());
     char* const outDir =  const_cast<char*>(output_dir.c_str());
-
+    
     CUVIS_MESU mesu;
     CUVIS_MESU_METADATA mesu_data;
     CUVIS_MESU dark;
@@ -105,7 +105,7 @@ int main (int argc, char *argv[])
     cuvis_measurement_free(&dark);
     cuvis_measurement_free(&white);
     cuvis_measurement_free(&distance); 
-   
+
     HyperFunctionsGPU HyperFunctions1;
     HyperFunctions1.mlt1=mlt1;
     auto start = high_resolution_clock::now();

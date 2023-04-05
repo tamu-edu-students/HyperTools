@@ -1,11 +1,10 @@
 #include <iostream>
 #include "opencv2/opencv.hpp"
 #include <cmath>
-
 #include "../src/hyperfunctions.cpp"
 #include "cuvis.hpp"
 #include <cassert>
-// #include "cuvis.h"
+
 using namespace cv;
 using namespace std;
 
@@ -21,8 +20,6 @@ int main (int argc, char *argv[])
     string dist_img="../../HyperImages/cornfields/Calibration/distanceCalib__session_000_790_snapshot16423004058237746.cu3";
     string factor_dir="../../HyperImages/cornfields/Calibration/"; // requires init.daq file
     string output_dir="../../HyperImages/cornfields/results/";
-
-
 
     char* const userSettingsDir =  const_cast<char*>(cubert_settings.c_str());
     char* const measurementLoc =  const_cast<char*>(cubert_img.c_str());
@@ -56,13 +53,13 @@ int main (int argc, char *argv[])
     for (auto const& mode : target_modes)
     {
         procArgs.processing_mode = mode.second;
-    if (proc.is_capable(mesu, procArgs))
-    {
-      proc.set_processingArgs(procArgs);
-      proc.apply(mesu);
-      saveArgs.export_dir = std::filesystem::path(outDir) / mode.first;
-      mesu.save(saveArgs);
-    }
+        if (proc.is_capable(mesu, procArgs))
+        {
+          proc.set_processingArgs(procArgs);
+          proc.apply(mesu);
+          saveArgs.export_dir = std::filesystem::path(outDir) / mode.first;
+          mesu.save(saveArgs);
+        }
     }
 
     vector<Mat> mlt1;

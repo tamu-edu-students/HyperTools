@@ -7,10 +7,8 @@
 #include <string>
 #include <opencv2/plot.hpp>
 
-
 using namespace std;
 using namespace cv;
-
 
 struct img_struct_gtk {
     GtkImage *image;
@@ -93,8 +91,7 @@ static void show_semantic_img2(GtkWidget *widget,  gpointer data)
 
 static void show_spec_sim_img(GtkWidget *widget,  gpointer data)
 {
-
-    
+  
     void * data_new=data;
     img_struct_gtk *img_struct1=static_cast<img_struct_gtk*>(data_new);
     void * data_new2=img_struct1->HyperFunctions1;
@@ -105,9 +102,6 @@ static void show_spec_sim_img(GtkWidget *widget,  gpointer data)
   
     set_pix_buf_from_cv( output, img_struct1->image);
       
-
-    
-    
 }
 
 static void show_contours(GtkWidget *widget,  gpointer data)
@@ -197,7 +191,6 @@ static void set_false_img_r(GtkSpinButton *widget,  gpointer data)
     HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new2);
     HyperFunctions1->false_img_r=result;
     HyperFunctions1->GenerateFalseImg();
-    //HyperFunctions1->DispFalseImage();
 
     cv::Mat output=HyperFunctions1->false_img;
     cv::resize(output,output,Size(HyperFunctions1->WINDOW_WIDTH, HyperFunctions1->WINDOW_HEIGHT),INTER_LINEAR); 
@@ -236,7 +229,6 @@ static void set_false_img_b(GtkSpinButton *widget,  gpointer data)
     HyperFunctions1->false_img_b=result;
     HyperFunctions1->GenerateFalseImg();
     
-
     cv::Mat output=HyperFunctions1->false_img;
     cv::resize(output,output,Size(HyperFunctions1->WINDOW_WIDTH, HyperFunctions1->WINDOW_HEIGHT),INTER_LINEAR); 
   
@@ -322,11 +314,11 @@ static void set_false_img_standard_rgb(GtkWidget *widget,  gpointer data)
 }
 
 static void set_spin_buttons_reset(GtkWidget *widget,  gpointer data) {
-    //At some point in the future, this function and set_spin_buttons_standard_rgb should be altered to avoid repeating code
+
     void * data_new=data;
     spin_struct_gtk *spin_struct1=static_cast<spin_struct_gtk*>(data_new);
-    void * data_new2=spin_struct1->HyperFunctions1;
-    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new2);
+    //void * data_new2=spin_struct1->HyperFunctions1;
+    //HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new2);
 
     gtk_spin_button_set_value((*spin_struct1).button1,0);
     gtk_spin_button_set_value((*spin_struct1).button2,0);
@@ -357,36 +349,6 @@ static void show_false_img(GtkWidget *widget,  gpointer data)
     set_pix_buf_from_cv( output, img_struct1->image);
 }
 
-static void show_ndvi_image(GtkWidget *widget,  gpointer data)
-{
-    //Along with the set_false_img_standard_rgb function, this uses bands that are hardcoded.
-    //To ensure compatibility with other cameras this should be changed in the future.
-    
-    // not currently functional, this is a work in progress
-
-    void * data_new=data;
-    img_struct_gtk *img_struct1=static_cast<img_struct_gtk*>(data_new);
-    void * data_new2=img_struct1->HyperFunctions1;
-    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new2);
-    //HyperFunctions1->GenerateFalseImg();
-    //NDVI= (NIR-R) / (NIR +R)
-    //All channels will display the same formula until a color version is discovered
-    vector<Mat>& mlt1 = HyperFunctions1->mlt1;
-    Mat ndvi_img;
-    Mat white_img(mlt1[1].rows, mlt1[1].cols, CV_8UC1, Scalar(255,255,255));  
-    vector<Mat> channels(3);
-    int r = 163;
-    int nir = 112; //In progress. I think the problem is that the values are unsigned so hitting 0 keeps it there.
-    channels[0]=(((mlt1[nir] - mlt1[r]) / (mlt1[nir] + mlt1[r]))*100000)+white_img/2; //b
-    channels[1]=channels[0]; //g
-    channels[2]=channels[0]; //b
-    merge(channels,ndvi_img); // create new single channel image
-
-    cv::Mat output=ndvi_img;
-    cv::resize(output,output,Size(HyperFunctions1->WINDOW_WIDTH, HyperFunctions1->WINDOW_HEIGHT),INTER_LINEAR); 
-    
-    set_pix_buf_from_cv( output, img_struct1->image);
-}
 
 static void clear_database(GtkWidget *widget,  gpointer data)
 {
@@ -420,10 +382,6 @@ static void choose_database(GtkFileChooser *widget,  gpointer data)
 static void save_spectrum(GtkWidget *widget,  gpointer data)
 {
 
-    /*void * data_new=data;
-    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
-    HyperFunctions1->save_ref_spec_json("blah");  // need to get name into here*/
-    
     void * data_new=data;
     entry_struct_gtk *entry_struct1=static_cast<entry_struct_gtk*>(data_new);
     void * data_new2=entry_struct1->HyperFunctions1;
@@ -463,7 +421,7 @@ static void print_transformation(GtkWidget *widget,  gpointer data)
 
 static void get_text_gtk(GtkWidget *widget,  gpointer data)
 {
-    void * data_new=data;
+    //void * data_new=data;
     //HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
     cout<<gtk_entry_get_text(GTK_ENTRY(widget))<<endl;
 }
@@ -661,26 +619,19 @@ static void calc_spec_sim(GtkWidget *widget,  gpointer data)
 {
     void * data_new=data;
     HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
-    //gboolean T = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
-    //if (T==1) 
-    //{
+   
     HyperFunctions1->read_ref_spec_json(HyperFunctions1->spectral_database);
     HyperFunctions1->SpecSimilParent();
-   //HyperFunctions1->DispSpecSim();
-   //}
+   
 }
 static void calc_semantic(GtkWidget *widget,  gpointer data)
 {
     void * data_new=data;
     HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
-    //gboolean T = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
-    //if (T==1) 
-
-   // {
+    
         HyperFunctions1->read_ref_spec_json( HyperFunctions1->spectral_database);
         HyperFunctions1->SemanticSegmenter();
-        //HyperFunctions1->DispClassifiedImage();
-    //}
+       
 }	
 
 
@@ -695,7 +646,7 @@ static void get_class_list(GtkComboBoxText *widget, GdkEventButton *event, gpoin
         // import class list here and add to textbox
         vector<string> class_list= HyperFunctions1->class_list;
         
-        //cout<<"fov"<<HyperFunctions1->fov<<endl;
+
         gtk_combo_box_text_remove_all(widget);
         for (int i=0; i<class_list.size(); i++)
         {
@@ -710,7 +661,7 @@ static void get_class_list(GtkComboBoxText *widget, GdkEventButton *event, gpoin
 static void get_list_item(GtkComboBox *widget,  gpointer data)
 {
 
-    //cout<<data<<endl;
+
     void * data_new=data;
     HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
     HyperFunctions1->read_spectral_json( "../json/spectral_database1.json");

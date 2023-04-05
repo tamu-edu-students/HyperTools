@@ -125,7 +125,7 @@ __global__ void img_test_multi_thread_SID(int *out, int *img_array, int n, int n
 
 /**
  * 
- * 
+ * Spectral Corellation Mapper function for spectral similarity analysis
  * 
  * 
  * 
@@ -178,11 +178,7 @@ __global__ void img_test_multi_thread_SCM(int *out, int *img_array, int n, int n
 
 void HyperFunctionsGPU::spec_sim_GPU() {
 
-    if (spec_sim_alg == 0) { //running the multithreaded algorithms
-        /*float sum = 0;
-        for (int a=0; a<num_lay-1; a++) {
-            sum+=ref_spectrum[a] *ref_spectrum[a]; //sum of squared reference spectra values
-        }*/
+    if (spec_sim_alg == 0) { 
         img_test_multi_thread_SAM<<<grid_size,block_size>>>(d_out, d_img_array, N_size, num_lay, d_ref_spectrum);
     } else if (spec_sim_alg == 1) {
         img_test_multi_thread_SCM<<<grid_size,block_size>>>(d_out, d_img_array, N_size, num_lay, d_ref_spectrum);
@@ -194,8 +190,6 @@ void HyperFunctionsGPU::spec_sim_GPU() {
     cudaMemcpyAsync(out, d_out, sizeof(int) * N_size, cudaMemcpyDeviceToHost); 
     cudaDeviceSynchronize();
 
-    //Mat test_img1(mlt1[1].rows, mlt1[1].cols, CV_8UC1, Scalar(0));
-    //spec_simil_img=test_img1;
     this->oneD_array_to_mat(out);   
 }
 

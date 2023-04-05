@@ -40,7 +40,6 @@ int main (int argc, char *argv[])
   GError *error = NULL;
   gtk_init (&argc, &argv);
 
-  /* Construct a GtkBuilder instance and load our UI description */
   builder = gtk_builder_new ();
   if (gtk_builder_add_from_file (builder, "../UI/image_tool.ui", &error) == 0)
     {
@@ -49,15 +48,11 @@ int main (int argc, char *argv[])
       return 1;
     }
 
-  /* Connect signal handlers to the constructed widgets. */
   window = gtk_builder_get_object (builder, "window");
   g_signal_connect (window, "destroy", G_CALLBACK (gtk_main_quit), NULL);
 
   button = gtk_builder_get_object (builder, "choose_file");
   g_signal_connect (button, "file-set", G_CALLBACK (choose_image_file), &HyperFunctions1); 
-
-  button = gtk_builder_get_object(builder, "choose_database");
-  g_signal_connect (button, "file-set", G_CALLBACK (choose_database), &HyperFunctions1); 
 
   button = gtk_builder_get_object (builder, "spectrum_box");
 
