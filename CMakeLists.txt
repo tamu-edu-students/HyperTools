@@ -35,10 +35,10 @@ find_package(CUDA)
         add_definitions(${GTK_CFLAGS_OTHER}) 
 
         add_executable(cuda_example examples/cuda_example.cu)
-        add_executable(gtk_cuda_example examples/gtk_cuda_example.cu)
+        #add_executable(gtk_cuda_example examples/gtk_cuda_example.cu)
         # below is not necessary right now
-        set_target_properties(gtk_cuda_example PROPERTIES
-        CUDA_SEPARABLE_COMPILATION ON)
+        #set_target_properties(gtk_cuda_example PROPERTIES
+        #CUDA_SEPARABLE_COMPILATION ON)
 
 
     else(CUDA_FOUND)
@@ -52,7 +52,6 @@ else(use_CUDA)
 add_executable(image_tool examples/image_tool.cpp)
 add_executable(semantic_interface examples/semantic_segmentation.cpp)
 add_executable(feature_tool examples/feature_tool.cpp)
-add_executable(ground_truth_example examples/ground_truth_example.cpp)
 
 add_definitions(${GTK3_CFLAGS} ${GTK3_CFLAGS_OTHER})
 

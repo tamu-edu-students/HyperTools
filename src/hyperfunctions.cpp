@@ -1311,7 +1311,7 @@ void HyperFunctions::thickEdgeContourApproximation(int idx){
     
 
     int sz = contours_approx[idx].size();
-    double thicknessParameter = 10*polygon_approx_coeff;
+    //double thicknessParameter = 10*polygon_approx_coeff;
 
     int endPt = 2;
     int stPt = 1-1;

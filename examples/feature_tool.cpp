@@ -11,19 +11,20 @@ using namespace std;
 
 int main (int argc, char *argv[])
 {
-  GtkBuilder *builder;
-  GObject *window;
-  GObject *button;
-  GError *error = NULL;
+ 
+  string file_name3="../../HyperImages/img1.tiff";
+  string file_name4="../../HyperImages/img2.tiff";
   
   HyperFunctions HyperFunctions1;
-  string file_name3="../../HyperImages/img1.tiff";
-  string file_name4="../../HyperImages/session_002_491_REF.tiff";
   HyperFunctions1.LoadImageHyper1(file_name3);
   HyperFunctions1.feature_img1=HyperFunctions1.mlt1[0];
   HyperFunctions1.LoadImageHyper2(file_name4);
   HyperFunctions1.feature_img2=HyperFunctions1.mlt2[0];
   
+  GtkBuilder *builder;
+  GObject *window;
+  GObject *button;
+  GError *error = NULL;
   gtk_init (&argc, &argv);
 
   /* Construct a GtkBuilder instance and load our UI description */
