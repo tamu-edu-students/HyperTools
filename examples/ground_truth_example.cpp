@@ -7,7 +7,7 @@
 #include "../src/hyperfunctions.cpp"
 using namespace cv;
 using namespace std;
-
+using namespace std::chrono;
 
   
 // https://www.ehu.eus/ccwintco/index.php/Hyperspectral_Remote_Sensing_Scenes 
@@ -211,7 +211,10 @@ int main (int argc, char *argv[])
     // set alg to SAM and perform semantic segmentation
     //cout << "Segmenting Image with SAM algorithm" << endl;
     HyperFunctions1.spec_sim_alg = 0;
+    auto start = high_resolution_clock::now();
     HyperFunctions1.SemanticSegmenter();
+    auto end = high_resolution_clock::now();
+     cout << "Time taken : " << (float)duration_cast<milliseconds>(end-start).count() / (float)1000 << " " << "seconds"<<endl;
     //HyperFunctions1.DispClassifiedImage();
     //cv::waitKey();
     
