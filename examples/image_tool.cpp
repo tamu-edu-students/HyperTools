@@ -2,9 +2,9 @@
 #include <iostream>
 #include "opencv2/opencv.hpp"
 #include <cmath>
-
 #include "../src/gtkfunctions.cpp"
 #include "../src/hyperfunctions.cpp"
+
 using namespace cv;
 using namespace std;
 
@@ -99,8 +99,8 @@ int main (int argc, char *argv[])
   
   
   button = gtk_builder_get_object (builder, "image_box");
-  g_signal_connect (G_OBJECT (button),"button_press_event",G_CALLBACK (button_press_callback),&HyperFunctions1);
-  g_signal_connect (G_OBJECT (button),"button_press_event",G_CALLBACK (show_spectrum),gtk_hyper_image2);
+  //g_signal_connect (G_OBJECT (button),"button_press_event",G_CALLBACK (button_press_callback),&HyperFunctions1);
+  g_signal_connect (G_OBJECT (button),"button_press_event",G_CALLBACK (button_callback_and_show_spectrum), gtk_hyper_image2);
 
   // button set to invisible since the function does not work properly yet
   //button = gtk_builder_get_object (builder, "disp_ndvi_img");
