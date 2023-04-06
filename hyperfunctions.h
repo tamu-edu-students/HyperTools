@@ -46,8 +46,8 @@ public:
 	double min_area=0.0;
 	double gps1, gps2;
 
-	int WINDOW_WIDTH =1000;
-	int WINDOW_HEIGHT= 800;
+	int WINDOW_WIDTH =500;
+	int WINDOW_HEIGHT= 400;
 	int feature_detector=0;
 	int feature_descriptor=0;
 	int feature_matcher=0;

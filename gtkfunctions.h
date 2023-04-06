@@ -70,4 +70,5 @@
 	static void get_class_list(GtkComboBoxText *widget,  GdkEventButton *event,gpointer data);
 	static void button_press_callback(GtkWidget *widget,  GdkEventButton *event, gpointer data);
 	static void show_spectrum(GtkWidget *widget,GdkEventButton *event,  gpointer data);
+	static void button_callback_and_show_spectrum(GtkWidget *widget, GdkEventButton *event, gpointer data);
 
