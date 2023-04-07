@@ -15,10 +15,10 @@ int main (int argc, char *argv[])
 {
     
     //ground truth and hyperspectral image file names
-    //string file_name1 = "../../../HyperImages/hyperspectral_images/Indian_pines.tiff";
-    //string file_name2 = "../../../HyperImages/ground_truth/Indian_pines_gt.tiff";
-    string file_name1 = "../../HyperImages/Public_Images/hyperspectral_images/Indian_pines.tiff";
-    string file_name2 = "../../HyperImages/Public_Images/ground_truth/Indian_pines_gt.tiff";
+    string file_name1 = "../../HyperImages/hyperspectral_images/Indian_pines.tiff";
+    string file_name2 = "../../HyperImages/ground_truth/Indian_pines_gt.tiff";
+    // string file_name1 = "../../HyperImages/Public_Images/hyperspectral_images/Indian_pines.tiff";
+    // string file_name2 = "../../HyperImages/Public_Images/ground_truth/Indian_pines_gt.tiff";
     
     //name of database being created
     string spectral_database="../json/spectral_database_gt.json";
