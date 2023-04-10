@@ -2,17 +2,18 @@
 #include <iostream>
 #include "opencv2/opencv.hpp"
 #include <cmath>
-
 #include "../src/gtkfunctions.cpp"
 #include "../src/hyperfunctions.cpp"
+
 using namespace cv;
 using namespace std;
 
-
 int
-main (int   argc,
-      char *argv[])
+main (int   argc, char *argv[])
 {
+  string file_name2="../images/lena3.png";
+  string file_name3="../json/lena3.json";
+  
   GtkBuilder *builder;
   GObject *window;
   GObject *button;
@@ -20,17 +21,12 @@ main (int   argc,
   GtkAdjustment *adjustment;
   GtkSpinButton *spinbutton;
   
-
-    
-    
   HyperFunctions HyperFunctions1;
-  gpointer HyperFunctions2 = static_cast<gpointer>(&HyperFunctions1); 
-  string file_name2="../images/lena3.png";
-  string file_name3="../json/lena3.json";
+  gpointer HyperFunctions2 = static_cast<gpointer>(&HyperFunctions1);
   HyperFunctions1.LoadImageClassified(file_name2);
   HyperFunctions1.read_img_json(file_name3);
   
-    gtk_init (&argc, &argv);
+  gtk_init (&argc, &argv);
 
   /* Construct a GtkBuilder instance and load our UI description */
   builder = gtk_builder_new ();
