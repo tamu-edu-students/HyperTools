@@ -7,7 +7,7 @@ This is still a work in progress. Parts of the user interface are not operationa
 The sample file can be run with the following command:
 `./image_tool`
 
-![IMAGETOOL](../images/startingpage)
+<img src = docimages/Startingpage.png>
 
 ### False Image:
  Combines and rearranges the ratios of the rgb from one or multiple source images that results in a final image. Helping to visualize information not easily seen by the human eye and approach the image from a different perspective.
@@ -24,6 +24,7 @@ Displays the contour image of the semantic segmentation image. *(Outlined in bla
 :Demonstates the different spectral similarities algorithms to specify classification.
 
 ### Spectral Similarity Image:
+Generates a spectral Similarity Image, similar to Semantic Image, classifies based by the different spectral similarities algorithms.
 
 ### Spectral Database: 
 Import old/new databases, saving reference curves for classification and spectral/semantation.
@@ -37,7 +38,7 @@ Displays json image of tiled image of the semantic image at various points of th
 **Standard RGB Image:**
 **Quit:** Closes the Hyperspectral Image Analysis Tool.
 
-### (None): 
+### File Chooser: 
 Import a new hyperspectral image
 
 **Replace sample name inside the cpp folder**
