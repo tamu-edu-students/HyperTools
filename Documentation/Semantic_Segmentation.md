@@ -6,19 +6,23 @@ New contour approximation method which provides a label to pixels in the image b
 ![IMAGETOOL](../images/semantic1)
 
 ### Show Original Image:
-Displays the original Classified Image’s contour approximation of the semantic map of the area.
+Displays the original input Segmantic Image that is processed by the rest of the Semantic Segmatation tool.
 
 ### Min Countour Area (m^2):
 Changes the minimum amount of square meters in relation to pixels to be rendered in the updated image. Increasing the minimum(+) helps to reduce noise in the image by filtering out polygons below a certain size.
+In order to convert pixels to area(meters squared) the user needs to know the average distance between the image taken to the ground. Parameter "double avgDist", average space to area
 
 ### Polygon Approximation Coefficient:
 Approximate polygons through increasing the approximation coefficient(+) which reduces the number of vertices in a polygon.
+Parameter "double polygon_approx_coeff"
+
 
 ### Show Differences
-Finds the edge of all objects by determining where the contour color changes in comparison to the surrounding pixels. The image is then reproduced with the edge highlighted in white demonstrating high contrast against the black background.
+
 
 ### Edge Detection: 
-Creates a copy of the incoming image in terms of size (length and width) and initialize as an all black image. Displays black and white image of white outlines of edges of the contour image.
+Finds the edge of all objects by determining where the contour color changes in comparison to the surrounding pixels. The image is then reproduced with the edge highlighted in white demonstrating high contrast against the black background.
+
 
 ### Show Contours:
 Displays image of contour image.
