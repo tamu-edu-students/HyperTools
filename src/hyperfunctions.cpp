@@ -1190,7 +1190,7 @@ void SID_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* refere
             if (ref_sum<1){ref_sum+=1;}
             if (pix_sum<1){pix_sum+=1;}
             
-            float ref_new[200], pix_new[200];
+            float ref_new[300], pix_new[300];
             for (int a=0; a<reference_spectrums[*ref_spec_index].size(); a++)
             {
                 ref_new[a]=reference_spectrums[*ref_spec_index][a] / ref_sum ;
