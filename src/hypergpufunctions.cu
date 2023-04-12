@@ -100,7 +100,7 @@ __global__ void img_test_multi_thread_SID(int *out, int *img_array, int n, int n
         if (ref_sum<1){ref_sum+=1;}
         if (pix_sum<1){pix_sum+=1;}
         
-        float ref_new[200], pix_new[200];
+        float ref_new[300], pix_new[300];
         
         for (int a=0; a<num_layers-1; a++)
         {
