@@ -16,7 +16,7 @@ include_directories(${GTK3_INCLUDE_DIRS} )
 link_directories(${GTK3_LIBRARY_DIRS} )
 
 #change below to true to use GPU or false to not use GPU
-set(use_CUDA false) 
+set(use_CUDA true) 
 
 link_libraries(jsoncpp ${GTK3_LIBRARIES} ${OpenCV_LIBS})
 
@@ -59,7 +59,7 @@ add_definitions(${GTK3_CFLAGS} ${GTK3_CFLAGS_OTHER})
 endif(use_CUDA)
 
 
-set (use_cuvis false)
+set (use_cuvis true)
 
 if (use_cuvis)
 
@@ -68,10 +68,11 @@ if (use_cuvis)
     link_libraries(cuvis)
 
     add_executable(cubert_example examples/cubert_example.cpp)
-
+    add_executable(deeplab_example examples/deeplab_example.cpp)
     if (use_CUDA)
 
     add_executable(cuda_cubert_example examples/cuda_cubert_example.cu)
+
 
     endif(use_CUDA)
 
