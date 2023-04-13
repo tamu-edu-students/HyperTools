@@ -13,7 +13,7 @@ using namespace std;
 int main (int argc, char *argv[])
 {
     string cubert_settings="../../HyperImages/settings/";  //ultris20.settings file
-    string cubert_img="/media/anthony/Antonio/HyperCode/HyperImages/hyperspectral-images/cu3/session_000_342.cu3";//"../../HyperImages/export/Ref/session_002_490.cu3";//cornfields/session_002/session_002_490.cu3";
+    string cubert_img="../../HyperImages/segmented-datasets/Wextel-Dataset/session_002_492.cu3";//"../../HyperImages/export/Ref/session_002_490.cu3";//cornfields/session_002/session_002_490.cu3";
     string dark_img="../../HyperImages/cornfields/Calibration/dark__session_002_003_snapshot16423119279414228.cu3";
     string white_img="../../HyperImages/cornfields/Calibration/white__session_002_752_snapshot16423136896447489.cu3";
     string dist_img="../../HyperImages/cornfields/Calibration/distanceCalib__session_000_790_snapshot16423004058237746.cu3";
@@ -30,7 +30,9 @@ int main (int argc, char *argv[])
 
     cuvis::General::init(userSettingsDir);
     cuvis::General::set_log_level(loglevel_info);
+
     cuvis::Measurement mesu(measurementLoc);
+
     cuvis::Measurement dark(darkLoc);
     cuvis::Measurement white(whiteLoc);
     cuvis::Measurement distance(distanceLoc);
