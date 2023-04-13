@@ -68,11 +68,13 @@ if (use_cuvis)
     link_libraries(cuvis)
 
     add_executable(cubert_example examples/cubert_example.cpp)
+    add_executable(deeplab_example examples/deeplab_example.cpp)
     add_executable(cubert_tiff examples/cubert_export_tiff.cpp)
 
     if (use_CUDA)
 
     add_executable(cuda_cubert_example examples/cuda_cubert_example.cu)
+
 
     endif(use_CUDA)
 
