@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include "ctpl.h"
 #include "opencv2/xfeatures2d.hpp"
+
 using namespace cv;
 using namespace std;
 using namespace cv::xfeatures2d;
@@ -60,7 +61,6 @@ void  HyperFunctions::DispFeatureImgs()
    imshow("Feature Images", temp_img);
 }
 
-
 // Detects, describes, and matches keypoints between 2 feature images
 void  HyperFunctions::FeatureExtraction()
 {
@@ -78,7 +78,6 @@ void  HyperFunctions::FeatureExtraction()
   {
     cout<<"invalid feature combination"<<endl;
   }
-  
   
   int minHessian = 400;
   Ptr<SURF> detector_SURF = SURF::create( minHessian ); 
@@ -205,9 +204,7 @@ void HyperFunctions::FeatureTransformation()
    //cout<<"inliers: " <<inlier_num<< " num of matches: "<<mask.rows<<endl;
    //cout<<" accuracy of feature matching: "<< (double)inlier_num/(double)(mask.rows)<<endl;
 
-
 }
-
 
 // To display classified image
 void  HyperFunctions::DispClassifiedImage()
@@ -222,7 +219,6 @@ void  HyperFunctions::DispClassifiedImage()
 void  HyperFunctions::DispFalseImage()
 {
    Mat temp_img;
-
    cv::resize(false_img,temp_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR); 
    imshow("False Image", temp_img);
 }
@@ -238,33 +234,32 @@ void  HyperFunctions::DispSpecSim()
 // To display edge detection image (edges are from the classified image)
 void  HyperFunctions::DispEdgeImage()
 {
-       Mat temp_img;
-   cv::resize(edge_image,temp_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR); 
+    Mat temp_img;
+    cv::resize(edge_image,temp_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR); 
     cv::imshow("Edge Detection Image", temp_img);
 }
 
 // Displays contour image (based on the classified image)
 void  HyperFunctions::DispContours()
 {
-          Mat temp_img;
-   cv::resize(contour_img,temp_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR); 
-       cv::imshow("Contour Image", temp_img);
-
+    Mat temp_img;
+    cv::resize(contour_img,temp_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR); 
+    cv::imshow("Contour Image", temp_img);
 }
 
 // Displays the differences between the classified image and the contour image
 void  HyperFunctions::DispDifference()
 {
-       Mat temp_img;
-   cv::resize(difference_img,temp_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR); 
+    Mat temp_img;
+    cv::resize(difference_img,temp_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR); 
     cv::imshow("Difference Image", temp_img);
 }
 
 // displays the tiled image (each image layer of the hyperspectral image is a tile)
 void  HyperFunctions::DispTiled()
 {
-       Mat temp_img;
-   cv::resize(tiled_img,temp_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR); 
+    Mat temp_img;
+    cv::resize(tiled_img,temp_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR); 
     cv::imshow("Tiled Image", temp_img);
 }
 
@@ -314,7 +309,6 @@ void  HyperFunctions::DifferenceOfImages()
 	
 }
 
-
 // creates a binary image that sets boundary pixels as white and non-boundary pixels as black
 // input is a classified image
 // the output of this is used to find the contours in the image
@@ -349,7 +343,7 @@ void EdgeDetection_Child(int id, int i, Mat* output_image, Mat* classified_img2)
                         {
                             edge=true;
                         }            
-                   }           
+                    }           
                 }        
               }
             
@@ -359,13 +353,11 @@ void EdgeDetection_Child(int id, int i, Mat* output_image, Mat* classified_img2)
                   output_image->at<uchar>(i,j)=255;            
               }
          }
-
 }  
-
                   
 void HyperFunctions::EdgeDetection( )
 {
-	    // create a copy of the incoming image in terms of size (length and width) and initialize as an all black image
+    // create a copy of the incoming image in terms of size (length and width) and initialize as an all black image
     Mat output_image(classified_img.rows, classified_img.cols, CV_8UC1, cv::Scalar(0));
     // using 8 bit image so white pixel has a value of 255
 
@@ -376,8 +368,6 @@ void HyperFunctions::EdgeDetection( )
     }  
 
     edge_image=output_image;
-
-
 }
 
 // threaded function for DetectContours
@@ -392,10 +382,6 @@ void Classification_Child(int id, int i, Mat* classified_img, Mat* edge_image, v
     split( *classified_img, bgr_planes );
     Vec3b color_temp; 
 
-    
-
-    //for (int i=0 ; i<contours_approx->size(); i++)
-   // {
      Mat drawing2 = Mat::zeros( edge_image->size(), CV_8UC1 );
      Scalar color = Scalar( 255);
      drawContours( drawing2, *contours_approx, i, color, FILLED, 8, *hierarchy, 0, Point() ); 
@@ -408,7 +394,6 @@ void Classification_Child(int id, int i, Mat* classified_img, Mat* edge_image, v
      
         for (int j=0; j<256 ; j++)
         {
-        //cout<<i<<"  "<<r_hist.at<float>(i)<<endl;
             if (r_hist.at<float>(j) > max_r)
             {
                 max_r=r_hist.at<float>(j);
@@ -431,11 +416,7 @@ void Classification_Child(int id, int i, Mat* classified_img, Mat* edge_image, v
             }
       
         }
-        //contour_class.push_back( color_temp);    
         (*contour_class)[i]=  color_temp;
-        //cout<<i<<" "<<color_temp<<endl;
-    //}
-
 }
 
 // Description: to identify and extract the boundaries (or contours) of specific objects 
@@ -448,8 +429,6 @@ void HyperFunctions::DetectContours()
     {
     EdgeDetection();
     }
-   
-    
 
 	read_spectral_json(spectral_database);
 
@@ -458,7 +437,6 @@ void HyperFunctions::DetectContours()
     double img_area_meters, img_area_pixels, contour_temp_area;
     img_area_pixels =  edge_image.rows*edge_image.cols ; 
     img_area_meters= pow(double(2)*avgDist* tan(fov*3.14159/double(180)/(double)2),2);   
-    
     
     findContours( edge_image, contours_approx, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0, 0) ); 
     
@@ -470,8 +448,7 @@ void HyperFunctions::DetectContours()
             contours_approx[i].clear();                   
             contours_approx[i].push_back(Point(0, 0));
          }     
-    }
-    
+    }    
     
     Mat drawing = Mat::zeros( edge_image.size(), CV_8UC3 );
     vector <Vec3b> contour_class(contours_approx.size()+1);
@@ -491,67 +468,9 @@ void HyperFunctions::DetectContours()
         //do nothing 
     }
     
-   /* 
-    Mat b_hist, g_hist, r_hist;
-    int histSize = 256;
-    float range[] = { 0, 256 }; //the upper boundary is exclusive
-    const float* histRange[] = { range };
-    bool uniform = true, accumulate = false;
-    vector<Mat> bgr_planes;
-    split( classified_img, bgr_planes );
-    Vec3b color_temp; 
-
-    
-        
-    
-    Mat drawing = Mat::zeros( edge_image.size(), CV_8UC3 );
-    for (int i=0 ; i<contours_approx.size(); i++)
-    {
-     Mat drawing2 = Mat::zeros( edge_image.size(), CV_8UC1 );
-     Scalar color = Scalar( 255);
-     drawContours( drawing2, contours_approx, i, color, FILLED, 8, hierarchy, 0, Point() ); 
-     calcHist( &bgr_planes[0], 1, 0, drawing2, b_hist, 1, &histSize, histRange, uniform, accumulate );
-     calcHist( &bgr_planes[1], 1, 0, drawing2, g_hist, 1, &histSize, histRange, uniform, accumulate );
-     calcHist( &bgr_planes[2], 1, 0, drawing2, r_hist, 1, &histSize, histRange, uniform, accumulate );
-     int max_r=0, max_b=0, max_g=0;
-     int max_r_loc=0, max_b_loc=0, max_g_loc=0;
-     
-     
-        for (int j=0; j<256 ; j++)
-        {
-        //cout<<i<<"  "<<r_hist.at<float>(i)<<endl;
-            if (r_hist.at<float>(j) > max_r)
-            {
-                max_r=r_hist.at<float>(j);
-                max_r_loc=j;
-                color_temp[1]=max_r_loc;
-            }
-            
-            if (g_hist.at<float>(j) > max_g)
-            {
-                max_g=g_hist.at<float>(j);
-                max_g_loc=j;
-                color_temp[0]=max_g_loc;
-            }
-            
-            if (b_hist.at<float>(j) > max_b)
-            {
-                max_b=b_hist.at<float>(j);
-                max_b_loc=j;
-                color_temp[2]=max_b_loc;
-            }
-      
-        }
-        contour_class.push_back( color_temp);            
-    }
-    */
-    
-
     //int count =0;
     for( int i = 0; i< contours_approx.size(); i++ )
     {
-        
-        
         if (contours_approx[i].size()>2)
         {
             
@@ -563,7 +482,6 @@ void HyperFunctions::DetectContours()
                 if (color == color_combos[j])
                 {
                     classification=class_list[j];
-
                 }
             }
             //cout<<i<<" here "<<color<<endl;
@@ -587,25 +505,14 @@ void HyperFunctions::DetectContours()
                      //writeJSON(event, contours_approx, i, classification,count);
                      //count++;
                     Scalar temp_col=Scalar(color[2],color[0],color[1]);
-                    drawContours( drawing, contours_approx, i, temp_col, FILLED, 8, hierarchy, 0, Point() );
-                
-                }
-                
-            
-            }
-        
-        
+                    drawContours( drawing, contours_approx, i, temp_col, FILLED, 8, hierarchy, 0, Point() );                
+                }                           
+            }               
         }
-    
-
-
-
     }
     
     // uncomment to write contours to json file 
     //writeJSON_full(contours_approx, contour_class, hierarchy);
-    
-  // cv::imshow("Contour Image", drawing);
     contour_img=drawing;
     
 
@@ -615,9 +522,6 @@ void HyperFunctions::DetectContours()
 // assumes 164 layers in hyperspectral image
 void   HyperFunctions::TileImage()
 {
-    
-
-    //vector<Mat> mlt1=*mlt2; 
     Mat empty_img= mlt1[0]*0;
     Mat h1,h2,h3,h4,h5,h6,h7,h8,h9,h10,h11,h12,h13, base_image;
     
@@ -653,9 +557,6 @@ void   HyperFunctions::TileImage()
     Mat matArray14[]={h1,h2,h3,h4,h5 ,h6,h7,h8,h9,h10,h11,h12,h13 };
     vconcat(matArray14,13,base_image);
        
-    //resize(base_image, base_image, Size(800, 800), INTER_LINEAR);
-    //cv::imshow("Tiled Image", base_image);
-    //return base_image;
     tiled_img=base_image;
 }
 
@@ -670,8 +571,7 @@ void HyperFunctions::read_spectral_json(string file_name )
 // read spectral database and return classes and rgb values 
 
     Vec3b color;     
-
-   	//vector<Vec3b> color_combos;  
+ 
 	vector<string> class_list2; 
 	color_combos.clear();
 	
@@ -712,8 +612,7 @@ void HyperFunctions::writeJSON(Json::Value &event, vector<vector<Point> > &conto
         arr.append(contours[idx][i].x);
         arr.append(contours[idx][i].y);
         vec.append(arr);
-    }
-    
+    }    
     
     // change below to the correct classification  
     string Name;
@@ -730,8 +629,6 @@ void HyperFunctions::writeJSON(Json::Value &event, vector<vector<Point> > &conto
     event["features"][count]["properties"]["traversability_ped"] = "100";
     event["features"][count]["geometry"]["type"] = "LineString";
     event["features"][count]["geometry"]["coordinates"]=vec;
-    //count++;
-    //std::cout << event << std::endl;
 }
 
 //---------------------------------------------------------
@@ -743,39 +640,30 @@ void HyperFunctions::writeJSON_full(vector<vector<Point> > contours, vector <Vec
 
     std::ofstream file_id;
     file_id.open(output_polygons);
-
     Json::Value event; 
     // initialise JSON file 
     event["type"] = "FeatureCollection";
     event["generator"] = "Img Segmentation";    
     string Name;
      
-
     int count=0 ;
     int idx=0;
     string classification = class_list[idx];
 
-
     for (int idx=0; idx < contours.size()  ; idx ++)
-    {
-    
+    {    
         bool write_to_file=false;
-
         if (contours[idx].size()>2 && contour_class[hierarchy[idx][3]] != contour_class[idx] && idx>0)
-        {
-            
+        {            
             Vec3b color = contour_class[idx];
             classification="unknown";
-            //cout<<"here "<<contour_class[idx]<<endl;
             for (int j=0; j< color_combos.size() ;j++)
             {
                 if (color == color_combos[j])
                 {
                     classification=class_list[j];
-
                 }
-            }
-            
+            }            
 
             write_to_file=true;
         }
@@ -793,13 +681,10 @@ void HyperFunctions::writeJSON_full(vector<vector<Point> > contours, vector <Vec
             Json::Value vec(Json::arrayValue);
             for (int i = 0; i< contours[idx].size(); i++){
                 Json::Value arr(Json::arrayValue);
-                //cout << (contours[idx][i].x) << endl;
-                //cout << (contours[idx][i].y) << endl;
                 arr.append(contours[idx][i].x);
                 arr.append(contours[idx][i].y);
                 vec.append(arr);
-            }
-            
+            }            
 
             if (idx>0)
             {
@@ -817,8 +702,7 @@ void HyperFunctions::writeJSON_full(vector<vector<Point> > contours, vector <Vec
             event["features"][count]["geometry"]["coordinates"]=vec;
             count++;
         }
-    }
-    
+    }    
 
     Json::StyledWriter styledWriter;
     file_id << styledWriter.write(event);
@@ -833,7 +717,6 @@ void HyperFunctions::writeJSON_full(vector<vector<Point> > contours, vector <Vec
 void  HyperFunctions::read_img_json(string file_name)
 {
 
-
     ifstream ifs(file_name);
     Json::Reader reader;
     Json::Value completeJsonData;
@@ -843,7 +726,6 @@ void  HyperFunctions::read_img_json(string file_name)
     avgDist=completeJsonData["AvgDistanceMeters"].asDouble();
     gps1=completeJsonData["GPS1"].asDouble();
     gps2= completeJsonData["GPS2"].asDouble();
-
 
 }
 
@@ -859,8 +741,6 @@ void  HyperFunctions::save_ref_spec_json(string item_name)
     }
 
     string user_input=item_name;
-    //cout<< "Enter Classification of Pixel"<<endl;
-    //cin>>user_input;
     ifstream ifs(camera_database );
     Json::Reader reader;
     Json::Value completeJsonData;
@@ -900,9 +780,7 @@ void  HyperFunctions::save_ref_spec_json(string item_name)
 
 // reads spectral and color information from items in json file
 void  HyperFunctions::read_ref_spec_json(string file_name)
-{
-    
-
+{    
     // read json file 
     ifstream ifs2(file_name);
     Json::Reader reader2;
@@ -941,10 +819,7 @@ void  HyperFunctions::read_ref_spec_json(string file_name)
         color[1] =  completeJsonData2["Color_Information"][id3]["blue_value"].asInt();
         color[2] =  completeJsonData2["Color_Information"][id3]["green_value"].asInt();
         reference_colors.push_back(color);
-
     }
-
-
 }
 
 // creates a blank spectral database to fill in
@@ -1060,7 +935,6 @@ void HyperFunctions::SAM_img()
         p.push(SAM_img_Child, k, &mlt1,&reference_spectrums,&spec_simil_img,&ref_spec_index);
 
     }
-
 }
 
 //---------------------------------------------------------
@@ -1075,7 +949,6 @@ void  HyperFunctions::SID_img()
     {
          p.push(SID_img_Child, k, &mlt1,&reference_spectrums,&spec_simil_img,&ref_spec_index);
     }
-
 }
 
 void  HyperFunctions::EuD_img()
@@ -1085,7 +958,6 @@ void  HyperFunctions::EuD_img()
     {
          p.push(EuD_img_Child, k, &mlt1,&reference_spectrums,&spec_simil_img,&ref_spec_index);
     }
-
 }
 
 //---------------------------------------------------------
@@ -1162,7 +1034,6 @@ void EuD_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* refere
     }
 }
 
-
 //---------------------------------------------------------
 // Name: SID_img_Child
 // Description: Spectral information divergence (SID) method computes spectral similarity
@@ -1204,14 +1075,10 @@ void SID_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* refere
                 sum2+= pix_new[a]*log(pix_new[a]/ref_new[a]);   // p_i*log(p_i/q_i)
             }   
             
-            
-            
             temp_val=(sum1+sum2) *60;
             if (temp_val>255){temp_val=255;}
 
-
-        spec_simil_img->at<uchar>(j,k)=temp_val; 
-    
+        spec_simil_img->at<uchar>(j,k)=temp_val;     
     }
 }
 
@@ -1221,41 +1088,7 @@ void SID_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* refere
 // PostCondition: threadpool of SCM values
 //---------------------------------------------------------
 void  HyperFunctions::SCM_img()
-{
-    /* leaving this here in case this is not the way SCM is supposed to be implemented from child :/
-    int temp_val=0;
-    for (int k=0; k<mlt1[1].cols; k+=1)
-    {
-        for (int j=0; j<mlt1[1].rows; j++)
-        {
-            float sum1=0, sum2=0, sum3=0, mean1=0, mean2=0;
-            int num_layers=reference_spectrums[ref_spec_index].size();
-            for (int a=0; a<num_layers; a++)
-            {
-                mean1+=((float)1/(float)(num_layers-1)* (float)mlt1[a].at<uchar>(j,k))  ;
-                mean2+=((float)1/(float)(num_layers-1)* (float)reference_spectrums[ref_spec_index][a]) ;
-            }
-            for (int a=0; a<num_layers; a++)
-            {
-                sum1+=(mlt1[a].at<uchar>(j,k)-mean1)*(reference_spectrums[ref_spec_index][a]-mean2) ;
-                sum2+=(mlt1[a].at<uchar>(j,k)-mean1)*(mlt1[a].at<uchar>(j,k)-mean1);
-                sum3+=(reference_spectrums[ref_spec_index][a]-mean2)*(reference_spectrums[ref_spec_index][a]-mean2);
-            }
-            if (sum2<=0 || sum3<=0 )
-            {
-                temp_val =255; // set to white due to an error
-            }
-            else
-            {
-                float temp1= sum1/(sqrt(sum2)*sqrt(sum3));
-                double alpha_rad=acos(temp1);
-                temp_val =(int)((double)alpha_rad*(double)255/(double)3.14159) ;
-            }
-            spec_simil_img.at<uchar>(j,k)=temp_val; 
-    }
-}
-    */
-    
+{    
     ctpl::thread_pool p(num_threads);
     for (int k=0; k<mlt1[1].cols; k+=1)
     {
@@ -1305,14 +1138,10 @@ void SCM_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* refere
         }
 }
 
-
-
 void HyperFunctions::thickEdgeContourApproximation(int idx){
     
 
     int sz = contours_approx[idx].size();
-    double thicknessParameter = 10*polygon_approx_coeff;
-
     int endPt = 2;
     int stPt = 1-1;
     int midPt = 1;
@@ -1370,6 +1199,5 @@ void HyperFunctions::thickEdgeContourApproximation(int idx){
     } 
 
     int siz = contours_approx[idx].size();
-    //cout<<" start "<<sz<<" end "<<siz<<endl;
 
 }
