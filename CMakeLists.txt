@@ -16,7 +16,7 @@ include_directories(${GTK3_INCLUDE_DIRS} )
 link_directories(${GTK3_LIBRARY_DIRS} )
 
 #change below to true to use GPU or false to not use GPU
-set(use_CUDA true) 
+set(use_CUDA false) 
 
 link_libraries(jsoncpp ${GTK3_LIBRARIES} ${OpenCV_LIBS})
 
@@ -49,10 +49,10 @@ find_package(CUDA)
 else(use_CUDA)
 
 # Declare the executable target built from your sources
-add_executable(image_tool examples/image_tool.cpp)
+#add_executable(image_tool examples/image_tool.cpp)
 add_executable(semantic_interface examples/semantic_segmentation.cpp)
 add_executable(feature_tool examples/feature_tool.cpp)
-add_executable(ground_truth_example examples/ground_truth_example.cpp)
+#add_executable(ground_truth_example examples/ground_truth_example.cpp)
 
 add_definitions(${GTK3_CFLAGS} ${GTK3_CFLAGS_OTHER})
 
@@ -69,6 +69,7 @@ if (use_cuvis)
 
     add_executable(cubert_example examples/cubert_example.cpp)
     add_executable(deeplab_example examples/deeplab_example.cpp)
+    add_executable(image_tool examples/image_tool.cpp)
     if (use_CUDA)
 
     add_executable(cuda_cubert_example examples/cuda_cubert_example.cu)

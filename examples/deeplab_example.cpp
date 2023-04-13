@@ -7,34 +7,40 @@
 #include "cuvis.h"
 #include <filesystem>
 
+
 using namespace  std::filesystem;
 using namespace cv;
 using namespace std;
 using namespace std::chrono;
 
+int reprocess_data_child(int id, int j, string path, string rgb_path_train, string label_path_train, string cubert_settings, string dark_img, string white_img, string dist_img, string factor_dir, string output_dir, vector<string> cu3_files,string rgb_path_val, string label_path_val);
+
+int load_data_child(int id, int j, string path, string rgb_path_train, string label_path_train, string cubert_settings, vector<string> cu3_files,string rgb_path_val, string label_path_val);   
+
 int main (int argc, char *argv[])
 {
    //directory path for input 
-   string path("../../HyperImages/cornfields/session_002");
+   string path("/media/anthony/Antonio/HyperCode/HyperImages/segmented-datasets/Wextel-Dataset");
    // diectory path for output rgb images
-  string rgb_path("../../HyperImages/export/deeplab/train/Images");
-   string label_path("../../HyperImages/export/deeplab/train/Labels");
+  string rgb_path_train("../../HyperImages/export/deeplab/train/Images");
+   string label_path_train("../../HyperImages/export/deeplab/train/Labels");
+     string rgb_path_val("../../HyperImages/export/deeplab/val/Images");
+   string label_path_val("../../HyperImages/export/deeplab/val/Labels");
    
    // calibration files
    string cubert_settings="../../HyperImages/settings/";  //ultris20.settings file
+    
+    // below for reprocessing
     string dark_img="../../HyperImages/cornfields/Calibration/dark__session_002_003_snapshot16423119279414228.cu3";
     string white_img="../../HyperImages/cornfields/Calibration/white__session_002_752_snapshot16423136896447489.cu3";
     string dist_img="../../HyperImages/cornfields/Calibration/distanceCalib__session_000_790_snapshot16423004058237746.cu3";
     string factor_dir="../../HyperImages/cornfields/Calibration/"; // requires init.daq file
     string output_dir="../../HyperImages/cornfields/results/";
    
-   
-   
-   
-   
-   
-   
-   
+   // set low enough to not overload ram
+   // 7 threads for reprocessing code
+   	int num_threads=std::thread::hardware_concurrency(); // number of parallel threads
+    ctpl::thread_pool p2(num_threads);
    
    //extension 
    string ext(".cu3");
@@ -46,16 +52,159 @@ int main (int argc, char *argv[])
     {
         if (p.path().extension() == ext)
         {
-            cout << "file "<< k <<"  "<<p.path().stem().string() << '\n';
+            
             k++;
+            string temp_string=p.path().stem().string();
+            char temp_char=temp_string[0];
+            //cout<<temp_char <<endl;
+            if(temp_char=='s')
+            {
             cu3_files.push_back(p.path().stem().string());
+            cout << "file "<< k <<"  "<<p.path().stem().string() << '\n';
+            }
         }
             
     }
-auto start = high_resolution_clock::now();
+    
+    
+    // writes an empty view file because sdk requires it
+    Mat view_img(410,410,0);
+    
     for(int j=0; j<cu3_files.size() ; j++)
     {
+            imwrite(path+"/"+cu3_files[j]+"_view.tiff",view_img);
+            
+    }
     
+    
+    
+    
+    // process images to reflectance and save 
+    // multithreaded 
+auto start = high_resolution_clock::now();
+
+//load_data_child(0, 1,  path,  rgb_path_train,  label_path_train,  cubert_settings,   cu3_files, rgb_path_val  , label_path_val);   
+
+    for(int j=0; j<cu3_files.size() ; j++)
+    {
+    //p2.push(reprocess_data_child,j,  path,  rgb_path_train,  label_path_train,  cubert_settings,  dark_img,  white_img,  dist_img,  factor_dir,  output_dir,  cu3_files,rgb_path_val  , label_path_val);
+    p2.push(load_data_child,j,  path,  rgb_path_train,  label_path_train,  cubert_settings,   cu3_files,rgb_path_val  , label_path_val);
+    
+   }
+     
+   
+       // wait until threadpool is finished here
+    while(p2.n_idle()<num_threads)
+    {
+        //cout<<" running threads "<< p.size()  <<" idle threads "<<  p.n_idle()  <<endl;
+        //do nothing 
+    }
+auto end = high_resolution_clock::now();
+cout << "Time taken : " << (float)duration_cast<milliseconds>(end-start).count() / (float)1000 << " " << "seconds"<<endl;
+
+
+
+  return 0;
+}
+int load_data_child(int id, int j, string path, string rgb_path_train, string label_path_train, string cubert_settings, vector<string> cu3_files,string rgb_path_val, string label_path_val)
+{
+
+    string cubert_img=path+"/"+cu3_files[j]+".cu3";
+    
+    char* const measurementLoc =  const_cast<char*>(cubert_img.c_str());
+    char* const userSettingsDir =  const_cast<char*>(cubert_settings.c_str());
+    
+    
+
+    cuvis::General::init(userSettingsDir);
+    cuvis::General::set_log_level(loglevel_info);
+    cuvis::Measurement mesu(measurementLoc);
+    if (mesu.get_meta()->measurement_flags.size() > 0)
+    {
+        std::cout << "  Flags" << std::endl;
+        for (auto const& flags : mesu.get_meta()->measurement_flags)
+        {
+            std::cout << "  - " << flags.first << " (" << flags.second << ")" << std::endl;
+        }
+    }
+
+    assert(
+        mesu.get_meta()->processing_mode == Cube_Raw &&
+        "This example requires raw mode");
+
+    auto const& cube_it = mesu.get_imdata()->find(CUVIS_MESU_CUBE_KEY);
+    assert(
+        cube_it != mesu.get_imdata()->end() &&
+        "Cube not found");
+
+    auto cube = std::get<cuvis::image_t<std::uint16_t>>(cube_it->second);
+
+    cv::Mat img(
+    cv::Size(cube._width, cube._height),
+    CV_16UC(cube._channels),
+    const_cast<void*>(reinterpret_cast<const void*>(cube._data)),
+    cv::Mat::AUTO_STEP);
+    vector<Mat> mlt1;
+    
+    for (int i=0; i<img.channels();i++)
+    {
+    cv::Mat singleChannel;
+    cv::extractChannel(
+        img, singleChannel, i); // extract channel 25 as an example
+    singleChannel.convertTo(singleChannel, CV_8U, 1 / 16.0);
+    mlt1.push_back(singleChannel);
+    //cv::imshow("Individual channel", singleChannel);
+    //cv::waitKey(50);
+    }
+
+  // write rgb image out 
+  Mat false_img;
+  vector<Mat> channels(3);
+  channels[0]=mlt1[25]; //b
+  channels[1]=mlt1[40]; //g
+  channels[2]=mlt1[78]; //r
+  merge(channels,false_img); // create new single channel image
+
+   
+   
+   HyperFunctions HyperFunctions1;
+    HyperFunctions1.mlt1=mlt1;
+    HyperFunctions1.num_threads=10;
+    HyperFunctions1.read_ref_spec_json(HyperFunctions1.spectral_database);
+    HyperFunctions1.SemanticSegmenter();
+   
+   // HyperFunctions1.classified_img assumes values are the labels
+   Mat label_img;
+   label_img = HyperFunctions1.classified_img;
+   cvtColor(label_img, label_img, COLOR_BGR2GRAY);
+    
+    if (j%4==0)
+    {
+        //cout<<"multiple of 4 "<<j<<endl;
+        imwrite(label_path_val+"/"+cu3_files[j]+".png",label_img);
+        cout<<"saved labeled image for "<<cu3_files[j]<<endl;
+        imwrite(rgb_path_val+"/"+cu3_files[j]+".png",false_img);
+        cout<<"saved rgb image for "<<cu3_files[j]<<endl;
+        
+    }
+    else
+    {
+        imwrite(label_path_train+"/"+cu3_files[j]+".png",label_img);
+        cout<<"saved labeled image for "<<cu3_files[j]<<endl;
+        imwrite(rgb_path_train+"/"+cu3_files[j]+".png",false_img);
+        cout<<"saved rgb image for "<<cu3_files[j]<<endl;
+    
+    }
+    
+
+  
+return -1;
+}
+
+
+
+int reprocess_data_child(int id, int j, string path, string rgb_path_train, string label_path_train, string cubert_settings, string dark_img, string white_img, string dist_img, string factor_dir, string output_dir, vector<string> cu3_files,string rgb_path_val, string label_path_val)
+{
     string cubert_img=path+"/"+cu3_files[j]+".cu3";
     
 
@@ -151,11 +300,11 @@ auto start = high_resolution_clock::now();
   channels[2]=mlt1[78]; //r
   merge(channels,false_img); // create new single channel image
 
-   imwrite(rgb_path+"/"+cu3_files[j]+".png",false_img);
-    cout<<"saved rgb image for "<<cu3_files[j]<<endl;
+   
    
    HyperFunctions HyperFunctions1;
     HyperFunctions1.mlt1=mlt1;
+    HyperFunctions1.num_threads=10;
     HyperFunctions1.read_ref_spec_json(HyperFunctions1.spectral_database);
     HyperFunctions1.SemanticSegmenter();
    
@@ -163,13 +312,31 @@ auto start = high_resolution_clock::now();
    Mat label_img;
    label_img = HyperFunctions1.classified_img;
    cvtColor(label_img, label_img, COLOR_BGR2GRAY);
-   imwrite(label_path+"/"+cu3_files[j]+".png",label_img);
-       cout<<"saved labeled image for "<<cu3_files[j]<<endl;
-   }
-auto end = high_resolution_clock::now();
-cout << "Time taken : " << (float)duration_cast<milliseconds>(end-start).count() / (float)1000 << " " << "seconds"<<endl;
-
-  return 0;
-}
-
-
+    
+    if (j%4==0)
+    {
+        //cout<<"multiple of 4 "<<j<<endl;
+        imwrite(label_path_val+"/"+cu3_files[j]+".png",label_img);
+        cout<<"saved labeled image for "<<cu3_files[j]<<endl;
+        imwrite(rgb_path_val+"/"+cu3_files[j]+".png",false_img);
+        cout<<"saved rgb image for "<<cu3_files[j]<<endl;
+        
+    }
+    else
+    {
+        imwrite(label_path_train+"/"+cu3_files[j]+".png",label_img);
+        cout<<"saved labeled image for "<<cu3_files[j]<<endl;
+        imwrite(rgb_path_train+"/"+cu3_files[j]+".png",false_img);
+        cout<<"saved rgb image for "<<cu3_files[j]<<endl;
+    
+    }
+    
+   
+    
+    
+  return 0;     
+}        
+       
+       
+       
+       
