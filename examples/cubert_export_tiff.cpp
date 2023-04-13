@@ -12,6 +12,8 @@ using namespace std;
 
 int main (int argc, char *argv[])
 {
+    // the exported image is raw and not reflectance. As a result, the exported image is very dark
+    
     string cubert_settings="../../HyperImages/settings/";  //ultris20.settings file
     string cubert_img="../../HyperImages/segmented-datasets/Wextel-Dataset/session_002_492.cu3";//"../../HyperImages/export/Ref/session_002_490.cu3";//cornfields/session_002/session_002_490.cu3";
     string dark_img="../../HyperImages/cornfields/Calibration/dark__session_002_003_snapshot16423119279414228.cu3";

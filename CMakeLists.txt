@@ -59,7 +59,7 @@ add_definitions(${GTK3_CFLAGS} ${GTK3_CFLAGS_OTHER})
 endif(use_CUDA)
 
 
-set (use_cuvis true)
+set (use_cuvis false)
 
 if (use_cuvis)
 
