@@ -240,7 +240,7 @@ int main (int argc, char *argv[])
         cout << "Accuracy of class:   " << i<<"  "<<class_list[i] << ":  " << (double)(accuracy_by_class[i] ) <<" / "<<class_coordinates[i].size()<< "   "<<(double)(accuracy_by_class[i] ) /(double)class_coordinates[i].size() *100 <<"%"<< endl;
     }
     
-
+ 
 
 
     // setting SAM as ground "ground truth"
