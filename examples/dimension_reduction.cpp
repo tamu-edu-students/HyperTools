@@ -40,7 +40,7 @@ int main (int argc, char *argv[])
     int reduced_image_layers = 3;
     string input_file_path = "../../HyperImages/img1.tiff";//"../../../HyperImages/hyperspectral_images/Indian_pines.tiff";
     string reduced_file_path = "../../HyperImages/dimension_reduced.tiff";
-    
+     
     // userinput during startup
     if (argc > 1) {
         reduced_image_layers = stoi(argv[1]);
