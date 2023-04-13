@@ -1,17 +1,47 @@
 #include <iostream>
 #include "opencv2/opencv.hpp"
 #include <cmath>
-
 #include "../src/hyperfunctions.cpp"
+
 using namespace cv;
 using namespace std;
 using namespace std::chrono;
 
+// references  https://docs.opencv.org/3.4/d3/db0/samples_2cpp_2pca_8cpp-example.html
+// https://docs.opencv.org/3.4/d1/dee/tutorial_introduction_to_pca.html
+
+static  Mat formatImagesForPCA(const vector<Mat> &data)
+{
+    Mat dst(static_cast<int>(data.size()), data[0].rows*data[0].cols, CV_32F);
+    for(unsigned int i = 0; i < data.size(); i++)
+    {
+        Mat image_row = data[i].clone().reshape(1,1);
+        Mat row_i = dst.row(i);
+        image_row.convertTo(row_i,CV_32F);
+    }
+    return dst;
+}
+
+static Mat toGrayscale(InputArray _src) {
+    Mat src = _src.getMat();
+    // only allow one channel
+    if(src.channels() != 1) {
+        CV_Error(Error::StsBadArg, "Only Matrices with one channel are supported");
+    }
+    // create and return normalized image
+    Mat dst;
+    cv::normalize(_src, dst, 0, 255, NORM_MINMAX, CV_8UC1);
+    return dst;
+}
+
+
 int main (int argc, char *argv[])
 {
     int reduced_image_layers = 3;
-    string input_file_path = "../../../HyperImages/hyperspectral_images/Indian_pines.tiff";
-    string reduced_file_path = "../../../HyperImages/hyperspectral_images/dimension_reduced.tiff";
+    string input_file_path = "../../HyperImages/img1.tiff";//"../../../HyperImages/hyperspectral_images/Indian_pines.tiff";
+    string reduced_file_path = "../../HyperImages/dimension_reduced.tiff";
+    
+    // userinput during startup
     if (argc > 1) {
         reduced_image_layers = stoi(argv[1]);
     }
@@ -27,6 +57,35 @@ int main (int argc, char *argv[])
     HyperFunctions1.LoadImageHyper1(input_file_path);
 
     vector<Mat> inputImage = HyperFunctions1.mlt1;
+    
+    
+    // below is anthony test code 
+    
+    // Reshape and stack images into a rowMatrix
+    Mat data = formatImagesForPCA(inputImage);
+    // perform PCA
+    PCA pca(data, cv::Mat(), PCA::DATA_AS_ROW, 0.95); 
+    
+    // Demonstration of the effect of retainedVariance on the first image
+    Mat point = pca.project(data.row(0)); // project into the eigenspace, thus the image becomes a "point"
+    Mat reconstruction = pca.backProject(point); // re-create the image from the "point"
+    reconstruction = reconstruction.reshape(inputImage[0].channels(), inputImage[0].rows); // reshape from a row vector into image shape
+    reconstruction = toGrayscale(reconstruction); // re-scale for displaying purposes
+    
+    imshow("PCA Results", reconstruction);
+    imwrite(reduced_file_path,reconstruction);
+    cv::waitKey();
+    
+    
+    
+    
+    
+    
+    
+    
+    // below is reference code from Adam
+    
+    
     /*
     // Combine all input images into a single matrix
     Mat combined_data;
@@ -80,7 +139,7 @@ int main (int argc, char *argv[])
     //Combine the data from all layers into a single matrix
     //Necessary step for the SVD/PCA stuff
     //Each row is one of the original layers
-    Mat combined_data(inputImage[0].rows * inputImage[0].cols, inputImage.size(), CV_32F);
+ /*   Mat combined_data(inputImage[0].rows * inputImage[0].cols, inputImage.size(), CV_32F);
     for (int i = 0; i < inputImage.size(); i++) { //For each layer in the original tiff
         Mat layer_float;
         inputImage[i].convertTo(layer_float, CV_32F);
@@ -104,7 +163,7 @@ int main (int argc, char *argv[])
         Mat layerAsImage = layer.reshape(0, inputImage[0].rows);
         important_layers_reconstructed.push_back(layer);
     }
-
+*/
 /*
     //Taking each final layer out of the projected pca
     Mat finalImage[reduced_image_layers];

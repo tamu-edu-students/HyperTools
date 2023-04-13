@@ -62,6 +62,11 @@ int main (int argc, char *argv[])
     minMaxLoc( gt_img, &minVal, &maxVal, &minLoc, &maxLoc );
     cout<<"Number of semantic classes: "<<maxVal<<endl;
     
+    if (maxVal<1)
+    {
+        cout<<"improper input"<<endl;
+        return -1;
+    }
     
     
     // get pixel coordinates of each semantic class
