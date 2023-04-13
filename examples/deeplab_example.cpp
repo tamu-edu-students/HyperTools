@@ -20,7 +20,7 @@ int load_data_child(int id, int j, string path, string rgb_path_train, string la
 int main (int argc, char *argv[])
 {
    //directory path for input 
-   string path("/media/anthony/Antonio/HyperCode/HyperImages/segmented-datasets/Wextel-Dataset");
+   string path("../../HyperImages/segmented-datasets/Wextel-Dataset");
    // diectory path for output rgb images
   string rgb_path_train("../../HyperImages/export/deeplab/train/Images");
    string label_path_train("../../HyperImages/export/deeplab/train/Labels");
@@ -47,7 +47,7 @@ int main (int argc, char *argv[])
    int k=0;
    vector<string> cu3_files;
     
-    // put all cu3 files from director into vector for processing
+    // put all cu3 files from directory into vector for processing
     for (auto &p : std::filesystem::recursive_directory_iterator(path))
     {
         if (p.path().extension() == ext)
@@ -83,7 +83,6 @@ int main (int argc, char *argv[])
     // multithreaded 
 auto start = high_resolution_clock::now();
 
-//load_data_child(0, 1,  path,  rgb_path_train,  label_path_train,  cubert_settings,   cu3_files, rgb_path_val  , label_path_val);   
 
     for(int j=0; j<cu3_files.size() ; j++)
     {
@@ -106,6 +105,9 @@ cout << "Time taken : " << (float)duration_cast<milliseconds>(end-start).count()
 
   return 0;
 }
+
+
+
 int load_data_child(int id, int j, string path, string rgb_path_train, string label_path_train, string cubert_settings, vector<string> cu3_files,string rgb_path_val, string label_path_val)
 {
 
