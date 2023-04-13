@@ -69,6 +69,7 @@ if (use_cuvis)
 
     add_executable(cubert_example examples/cubert_example.cpp)
     add_executable(deeplab_example examples/deeplab_example.cpp)
+    add_executable(cubert_tiff examples/cubert_export_tiff.cpp)
 
     if (use_CUDA)
 
