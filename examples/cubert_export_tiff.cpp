@@ -4,6 +4,7 @@
 #include "../src/hyperfunctions.cpp"
 #include "cuvis.hpp"
 #include <cassert>
+#include <opencv2/imgcodecs.hpp>
 
 using namespace cv;
 using namespace std;
@@ -11,15 +12,13 @@ using namespace std;
 
 int main (int argc, char *argv[])
 {
-
-    // below shows how to process image for reflectances using the cornfields dataset
     string cubert_settings="../../HyperImages/settings/";  //ultris20.settings file
-    string cubert_img="../../HyperImages/cornfields/session_002/session_002_490.cu3";
+    string cubert_img="/media/anthony/Antonio/HyperCode/HyperImages/hyperspectral-images/cu3/session_000_342.cu3";//"../../HyperImages/export/Ref/session_002_490.cu3";//cornfields/session_002/session_002_490.cu3";
     string dark_img="../../HyperImages/cornfields/Calibration/dark__session_002_003_snapshot16423119279414228.cu3";
     string white_img="../../HyperImages/cornfields/Calibration/white__session_002_752_snapshot16423136896447489.cu3";
     string dist_img="../../HyperImages/cornfields/Calibration/distanceCalib__session_000_790_snapshot16423004058237746.cu3";
     string factor_dir="../../HyperImages/cornfields/Calibration/"; // requires init.daq file
-    string output_dir="../../HyperImages/cornfields/results/";
+    string output_dir="../../HyperImages/export";//cornfields/results/";
 
     char* const userSettingsDir =  const_cast<char*>(cubert_settings.c_str());
     char* const measurementLoc =  const_cast<char*>(cubert_img.c_str());
@@ -27,7 +26,7 @@ int main (int argc, char *argv[])
     char* const whiteLoc =  const_cast<char*>(white_img.c_str());
     char* const distanceLoc =  const_cast<char*>(dist_img.c_str());
     char* const factoryDir =  const_cast<char*>(factor_dir.c_str());
-    char* const outDir =  const_cast<char*>(output_dir.c_str());
+    char* const exportDir =  const_cast<char*>(output_dir.c_str());
 
     cuvis::General::init(userSettingsDir);
     cuvis::General::set_log_level(loglevel_info);
@@ -46,7 +45,8 @@ int main (int argc, char *argv[])
     cuvis::ProcessingArgs procArgs;
     cuvis::SaveArgs saveArgs;
     saveArgs.allow_overwrite = true;
-
+    
+  
     std::map<std::string, cuvis::processing_mode_t> target_modes = {{"Ref", cuvis::processing_mode_t::Cube_Reflectance}};
 
 
@@ -57,11 +57,16 @@ int main (int argc, char *argv[])
         {
           proc.set_processingArgs(procArgs);
           proc.apply(mesu);
-          saveArgs.export_dir = std::filesystem::path(outDir) / mode.first;
-          mesu.save(saveArgs);
+          //saveArgs.export_dir = std::filesystem::path(exportDir) / mode.first;
+          //mesu.save(saveArgs);
         }
     }
 
+   
+
+
+
+// below is for visualization 
     vector<Mat> mlt1;
     auto const& cube_it = mesu.get_imdata()->find(CUVIS_MESU_CUBE_KEY);
     assert(
@@ -86,13 +91,24 @@ int main (int argc, char *argv[])
     } 
 
 
-    HyperFunctions HyperFunctions1;
-    HyperFunctions1.mlt1=mlt1;
-    HyperFunctions1.read_ref_spec_json(HyperFunctions1.spectral_database);
-    HyperFunctions1.SemanticSegmenter();
-    HyperFunctions1.DispClassifiedImage();
-    cv::waitKey();
+// below is for export 
+ assert(mesu.get_meta()->processing_mode != cuvis::processing_mode_t::Preview);
+    {
+        std::cout << "Export to Multi-Channel Tiff" << std::endl;
+        cuvis::TiffArgs args;
+        char exportDirMulti[CUVIS_MAXBUF];
+        strcpy(exportDirMulti, exportDir);
+        strcat(exportDirMulti, "/multi");
+        args.export_dir = exportDirMulti;
+        args.format = cuvis::tiff_format_t::tiff_format_MultiPage;
+        cuvis::TiffExporter exporter(args);
+        exporter.apply(mesu);
+    }
 
+    std::cout << "finished." << std::endl;
+    
+    
 
   return 0;
 }
+

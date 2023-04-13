@@ -26,7 +26,7 @@ if (use_CUDA)
 find_package(CUDA)
     if(CUDA_FOUND)
         enable_language(CUDA)
-        set(CMAKE_CUDA_STANDARD 17)
+        #set(CMAKE_CUDA_STANDARD 17)
 
         if(NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
             set(CMAKE_CUDA_ARCHITECTURES 75)
@@ -52,7 +52,7 @@ else(use_CUDA)
 add_executable(image_tool examples/image_tool.cpp)
 add_executable(semantic_interface examples/semantic_segmentation.cpp)
 add_executable(feature_tool examples/feature_tool.cpp)
-add_executable(ground_truth_example examples/ground_truth_example.cpp)
+#add_executable(ground_truth_example examples/ground_truth_example.cpp)
 
 add_definitions(${GTK3_CFLAGS} ${GTK3_CFLAGS_OTHER})
 
@@ -68,6 +68,7 @@ if (use_cuvis)
     link_libraries(cuvis)
 
     add_executable(cubert_example examples/cubert_example.cpp)
+    add_executable(cubert_tiff examples/cubert_export_tiff.cpp)
 
     if (use_CUDA)
 
@@ -76,6 +77,5 @@ if (use_cuvis)
     endif(use_CUDA)
 
 endif()
-
 
 
