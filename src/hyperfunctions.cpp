@@ -523,6 +523,42 @@ void HyperFunctions::DetectContours()
 void   HyperFunctions::TileImage()
 {
     Mat empty_img= mlt1[0]*0;
+    int num_chan=mlt1.size();
+    int num_tile_rows=ceil(sqrt(num_chan));
+    int cur_lay=0;
+    vector<Mat> matArrayRows;
+    Mat matArray[num_chan];
+   
+    for (int i=0; i<num_tile_rows; i++)
+    {
+        for (int j=0; j<num_tile_rows; j++)
+        {
+            if (cur_lay<num_chan)
+            {
+                matArray[j]=mlt1[cur_lay];          
+            }
+            else
+            {
+                matArray[j]=empty_img;      
+            }
+            cur_lay++;
+        }
+        
+        Mat temp_row;
+        hconcat(matArray,num_tile_rows,temp_row);
+        matArrayRows.push_back(temp_row);
+    }
+    for (int i=0; i<num_tile_rows; i++)
+    {
+        matArray[i]=matArrayRows[i];
+    }
+    
+    Mat temp_tile;
+    vconcat(matArray,num_tile_rows,temp_tile);
+   
+    tiled_img=temp_tile;
+    
+    /*Mat empty_img= mlt1[0]*0;
     Mat h1,h2,h3,h4,h5,h6,h7,h8,h9,h10,h11,h12,h13, base_image;
     
     // 13 x 13 tile image singe 164 bands
@@ -557,7 +593,7 @@ void   HyperFunctions::TileImage()
     Mat matArray14[]={h1,h2,h3,h4,h5 ,h6,h7,h8,h9,h10,h11,h12,h13 };
     vconcat(matArray14,13,base_image);
        
-    tiled_img=base_image;
+    tiled_img=base_image;*/
 }
 
 //---------------------------------------------------------
@@ -734,7 +770,78 @@ void  HyperFunctions::read_img_json(string file_name)
 // Accesses camera information (camera_database) and modifies spectral database
 void  HyperFunctions::save_ref_spec_json(string item_name)
 {
-    int img_hist[mlt1.size()-1];
+    int img_hist[mlt1.size()];
+    for (int i=0; i<mlt1.size();i++)
+    {
+        img_hist[i]=mlt1[i].at<uchar>(cur_loc);
+    }
+    string user_input=item_name;
+    
+    // modify spectral database  
+    ifstream ifs2(spectral_database);
+    Json::Reader reader2;
+    Json::Value completeJsonData2;
+    reader2.parse(ifs2,completeJsonData2);
+    
+    std::ofstream file_id;
+    file_id.open(spectral_database);
+    Json::Value value_obj;
+    value_obj = completeJsonData2;
+    // save histogram to json file 
+    
+    for (int i=0; i<mlt1.size(); i++)
+    {
+        string zero_pad_result;
+    
+        if (i<10)
+        {
+            zero_pad_result="000"+to_string(i);
+        }
+        else if(i<100)
+        {
+            zero_pad_result="00"+to_string(i);
+        }
+        else if(i<1000)
+        {
+            zero_pad_result="0"+to_string(i);
+        }
+        else if (i<10000)
+        {
+            zero_pad_result=to_string(i);
+        }
+        else
+        {
+            cout<<" error: out of limit for spectral wavelength"<<endl;
+            return ;
+        }
+
+
+        value_obj["Spectral_Information"][user_input][zero_pad_result] = img_hist[i];
+
+    }
+
+    // change to 163, 104, 64 layer value, order is bgr
+
+    if (mlt1.size()==164)
+    {
+        value_obj["Color_Information"][user_input]["red_value"]=img_hist[64];
+        value_obj["Color_Information"][user_input]["blue_value"]=img_hist[104];
+        value_obj["Color_Information"][user_input]["green_value"]=img_hist[163];
+    }
+    else 
+    {
+        value_obj["Color_Information"][user_input]["red_value"]=img_hist[1 * mlt1.size() / 3];
+        value_obj["Color_Information"][user_input]["blue_value"]=img_hist[2 * mlt1.size() / 3];
+        value_obj["Color_Information"][user_input]["green_value"]=img_hist[3 * mlt1.size() / 3-1];
+    }
+    // write out to json file 
+    Json::StyledWriter styledWriter;
+    file_id << styledWriter.write(value_obj);
+    file_id.close();
+
+    
+    
+    /*int img_hist[mlt1.size()-1];
     for (int i=0; i<=mlt1.size()-1;i++)
     {
         img_hist[i]=mlt1[i].at<uchar>(cur_loc);
@@ -775,6 +882,7 @@ void  HyperFunctions::save_ref_spec_json(string item_name)
     Json::StyledWriter styledWriter;
     file_id << styledWriter.write(value_obj);
     file_id.close();
+    */
 
 }
 
@@ -847,7 +955,7 @@ void  HyperFunctions::SemanticSegmenter()
 //classified_img
 
     vector<Mat> temp_results;
-    
+
     for (int i=0; i<reference_spectrums.size();i++)
     {
         ref_spec_index=i;
@@ -855,7 +963,7 @@ void  HyperFunctions::SemanticSegmenter()
         temp_results.push_back(spec_simil_img);
     }
     Mat temp_class_img(mlt1[1].rows, mlt1[1].cols, CV_8UC3, Scalar(0,0,0));
-    
+
     for(int k = 0; k < mlt1[1].rows; k++)
     {
         for (int j=0; j < mlt1[1].cols; j++)
@@ -870,6 +978,7 @@ void  HyperFunctions::SemanticSegmenter()
                     if (low_val<=classification_threshold){
                         temp_class_img.at<Vec3b>(Point(k,j)) = reference_colors[i];
                     }
+                    
                 }
                 else
                 {
@@ -883,8 +992,11 @@ void  HyperFunctions::SemanticSegmenter()
                 }
             }
         }
+        
        
     }
+
+
     classified_img=temp_class_img;
 }
 

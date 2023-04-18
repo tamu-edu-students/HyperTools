@@ -4,6 +4,8 @@
 #include <cmath>
 #include "../src/gtkfunctions.cpp"
 #include "../src/hyperfunctions.cpp"
+#include "cuvis.hpp"
+
 
 using namespace cv;
 using namespace std;
@@ -28,11 +30,58 @@ HyperFunctions *HyperFunctions1;
 
 int main (int argc, char *argv[])
 {
-  string file_name2="../../HyperImages/img1.tiff";
+  string file_name2="/media/anthony/Antonio/HyperCode/HyperImages/export/multi/session_000_007_snapshot_ref.tiff";// "../../HyperImages/Public_Images/hyperspectral_images/Indian_pines.tiff";//"../../HyperImages/img1.tiff";
 
   HyperFunctions HyperFunctions1;
+  // function for tiff file 
   HyperFunctions1.LoadImageHyper1(file_name2);
+
+     HyperFunctions1.read_ref_spec_json( HyperFunctions1.spectral_database);
+      HyperFunctions1.SemanticSegmenter();
+   return -1;
+  /*
   
+  
+
+  
+    // function for .cu3 file
+   // string cubert_img="../../HyperImages/2023_04_13_Relay1/ultris5ohnerelay_000/ultris5ohnerelay_000_004_snapshot.cu3";
+        string cubert_img="../../HyperImages/2023_04_13_Relay1/session_000/session_000_007_snapshot.cu3";
+    // calibration files
+    string cubert_settings="../../HyperImages/settings/";  //ultris20.settings file
+    char* const measurementLoc =  const_cast<char*>(cubert_img.c_str());
+    char* const userSettingsDir =  const_cast<char*>(cubert_settings.c_str());
+  
+  
+    cuvis::Measurement mesu(measurementLoc);
+  cuvis::ProcessingContext proc(mesu);
+
+     auto const& cube_it = mesu.get_imdata()->find(CUVIS_MESU_CUBE_KEY);
+    auto cube = std::get<cuvis::image_t<std::uint16_t>>(cube_it->second);
+
+    cv::Mat img(
+    cv::Size(cube._width, cube._height),
+    CV_16UC(cube._channels),
+    const_cast<void*>(reinterpret_cast<const void*>(cube._data)),
+    cv::Mat::AUTO_STEP);
+    vector<Mat> mlt1;
+
+    for (int i=0; i<img.channels();i++)
+    {
+    cv::Mat singleChannel;
+    cv::extractChannel(
+        img, singleChannel, i); // extract channel 25 as an example
+    singleChannel.convertTo(singleChannel, CV_8U, 1 / 16.0);
+    mlt1.push_back(singleChannel);
+    cv::imshow("Individual channel", singleChannel);
+    cv::waitKey(50);
+    }
+    HyperFunctions1.mlt1=mlt1;  
+
+*/
+
+ 
+ 
   GtkBuilder *builder;
   GObject *window;
   GObject *button;
