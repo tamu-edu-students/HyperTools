@@ -37,9 +37,9 @@ static Mat toGrayscale(InputArray _src) {
 
 int main (int argc, char *argv[])
 {
-    int reduced_image_layers = 3;
-    string input_file_path = "../../HyperImages/img1.tiff";//"../../../HyperImages/hyperspectral_images/Indian_pines.tiff";
-    string reduced_file_path = "../../HyperImages/dimension_reduced.tiff";
+    int reduced_image_layers = 5;
+    string input_file_path = "../../../HyperImages/hyperspectral_images/Indian_pines.tiff";
+    string reduced_file_path = "../../../HyperImages/dimension_reduced.tiff";
      
     // userinput during startup
     if (argc > 1) {
@@ -58,22 +58,39 @@ int main (int argc, char *argv[])
 
     vector<Mat> inputImage = HyperFunctions1.mlt1;
     
-    
+    //imwritemulti("testing_imwritemulti.tiff", inputImage, {259, 1});
     // below is anthony test code 
     
     // Reshape and stack images into a rowMatrix
     Mat data = formatImagesForPCA(inputImage);
     // perform PCA
-    PCA pca(data, cv::Mat(), PCA::DATA_AS_ROW, 0.95); 
-    
+    PCA pca(data, cv::Mat(), PCA::DATA_AS_ROW, reduced_image_layers); 
+
+
+    Mat principal_components = pca.eigenvectors;
+
+    vector<Mat> ReducedImage;
+    for (int i = 0; i < reduced_image_layers; i++) {
+        Mat layer = principal_components*data.t();
+        //Mat layer = principal_components.row(i)*data.t();
+        //layer = pca.backProject(layer);
+        //layer = layer.reshape(inputImage[0].channels(), inputImage[0].rows); // reshape from a row vector into image shape
+        layer = toGrayscale(layer);
+        ReducedImage.push_back(layer);
+    }
+
+    //imshow("PCA Results", ReducedImage);
+    imwritemulti(reduced_file_path,ReducedImage);
+
+    /*
     // Demonstration of the effect of retainedVariance on the first image
     Mat point = pca.project(data.row(0)); // project into the eigenspace, thus the image becomes a "point"
     Mat reconstruction = pca.backProject(point); // re-create the image from the "point"
     reconstruction = reconstruction.reshape(inputImage[0].channels(), inputImage[0].rows); // reshape from a row vector into image shape
     reconstruction = toGrayscale(reconstruction); // re-scale for displaying purposes
-    
-    imshow("PCA Results", reconstruction);
-    imwrite(reduced_file_path,reconstruction);
+    */
+    //imshow("PCA Results", reconstruction);
+    //imwritemulti(reduced_file_path,reconstruction);
     cv::waitKey();
     
     
