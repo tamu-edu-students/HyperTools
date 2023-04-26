@@ -19,23 +19,23 @@ for i in jsonAsDict["Spectral_Information"]:
 '''
 
 firstClass = list(jsonAsDict['Spectral_Information'].keys())[0]
-
+plt.figure().set_figwidth(15)
 
 x = [int(key) for key in jsonAsDict['Spectral_Information'][firstClass].keys()] # assuming all inner dictionaries have the same keys
 ys = []
 for i in jsonAsDict["Spectral_Information"]:
-    print(i)
+    #print(i)
     ys.append([jsonAsDict["Spectral_Information"][i][key] for key in jsonAsDict["Spectral_Information"][i].keys()])
     plt.plot(x, ys[-1], label=i)
 
 # Customize chart
-plt.xlabel('X-axis')
-plt.ylabel('Y-axis')
-plt.title('Data from Dictionary of Dictionaries')
+plt.xlabel('Band')
+plt.ylabel('Reflectance (0-255)')
+plt.title('Indian Pines Spectra')
 plt.legend()
-
 # Display chart
-plt.show()
+plt.savefig("ReferenceSpectraPlot.png")
+#plt.show()
 
 #y2 = [data['Item2'][key] for key in data['Item2'].keys()]
 
