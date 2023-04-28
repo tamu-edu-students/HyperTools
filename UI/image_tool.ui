@@ -12,7 +12,13 @@
     <property name="step-increment">1</property>
     <property name="page-increment">10</property>
   </object>
-  <object class="GtkAdjustment" id="adj_image_value">
+  <object class="GtkAdjustment" id="adj_image_height">
+    <property name="lower">500</property>
+    <property name="upper">2000</property>
+    <property name="step-increment">10</property>
+    <property name="page-increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="adj_image_width">
     <property name="lower">500</property>
     <property name="upper">2000</property>
     <property name="step-increment">10</property>
@@ -787,7 +793,7 @@
           <object class="GtkSpinButton" id="spin_height">
             <property name="visible">True</property>
             <property name="can-focus">True</property>
-            <property name="adjustment">adj_image_value</property>
+            <property name="adjustment">adj_image_height</property>
           </object>
           <packing>
             <property name="left-attach">4</property>
@@ -798,7 +804,7 @@
           <object class="GtkSpinButton" id="spin_width">
             <property name="visible">True</property>
             <property name="can-focus">True</property>
-            <property name="adjustment">adj_image_value</property>
+            <property name="adjustment">adj_image_width</property>
           </object>
           <packing>
             <property name="left-attach">4</property>
