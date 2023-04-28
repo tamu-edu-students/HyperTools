@@ -243,7 +243,39 @@ static void set_false_img_b(GtkSpinButton *widget,  gpointer data)
     set_pix_buf_from_cv( output, img_struct1->image);
        
 }
+static void set_image_width(GtkSpinButton *widget,  gpointer data)
+{  
+     int result=gtk_spin_button_get_value (widget);
+    void * data_new=data;
+    img_struct_gtk *img_struct1=static_cast<img_struct_gtk*>(data_new);
+    void * data_new2=img_struct1->HyperFunctions1;
+    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new2);
+    HyperFunctions1->WINDOW_WIDTH=result;
+    HyperFunctions1->GenerateFalseImg();
+    
 
+    cv::Mat output=HyperFunctions1->false_img;
+    cv::resize(output,output,Size(HyperFunctions1->WINDOW_WIDTH, HyperFunctions1->WINDOW_HEIGHT),INTER_LINEAR); 
+  
+    set_pix_buf_from_cv( output, img_struct1->image);
+
+}
+static void set_image_height(GtkSpinButton *widget,  gpointer data)
+{
+     int result=gtk_spin_button_get_value (widget);
+    void * data_new=data;
+    img_struct_gtk *img_struct1=static_cast<img_struct_gtk*>(data_new);
+    void * data_new2=img_struct1->HyperFunctions1;
+    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new2);
+    HyperFunctions1->WINDOW_HEIGHT=result;
+    HyperFunctions1->GenerateFalseImg();
+    
+
+    cv::Mat output=HyperFunctions1->false_img;
+    cv::resize(output,output,Size(HyperFunctions1->WINDOW_WIDTH, HyperFunctions1->WINDOW_HEIGHT),INTER_LINEAR); 
+  
+    set_pix_buf_from_cv( output, img_struct1->image);
+}
 
 static void set_pix_buf_from_cv(cv::Mat output, GtkImage *image)
 {
@@ -618,7 +650,6 @@ static void button_press_callback(GtkWidget *widget,  GdkEventButton *event, gpo
 
 static void show_spectrum(GtkWidget *widget, GdkEventButton *event, gpointer data)
 {
-    cout << "Is this working" << endl;
     void * data_new=data;
     img_struct_gtk *img_struct1=static_cast<img_struct_gtk*>(data_new);
     void * data_new2=img_struct1->HyperFunctions1;
@@ -705,7 +736,6 @@ static void button_callback_and_show_spectrum(GtkWidget *widget, GdkEventButton 
     plot->setInvertOrientation( true );
     plot->setMinY(0);
     plot->setMaxY(256);
-    
     
     plot->render(plot_result);
     cv::Mat output=plot_result;        //HyperFunctions1->false_img;

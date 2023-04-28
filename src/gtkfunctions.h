@@ -5,7 +5,8 @@
 
     static void set_pix_buf_from_cv(cv::Mat output, GtkImage *image);
     
-    
+    static void set_image_height(GtkSpinButton *widget,  gpointer data);
+	static void set_image_width(GtkSpinButton *widget,  gpointer data);
     
 	static void set_false_img_r(GtkSpinButton *widget,  gpointer data);
 	static void set_false_img_g(GtkSpinButton *widget,  gpointer data);
