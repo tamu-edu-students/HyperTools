@@ -80,17 +80,17 @@ int main (int argc, char *argv[])
     }
 
     //imshow("PCA Results", ReducedImage);
-    imwritemulti(reduced_file_path,ReducedImage);
+    //imwritemulti(reduced_file_path,ReducedImage);
 
-    /*
+    
     // Demonstration of the effect of retainedVariance on the first image
     Mat point = pca.project(data.row(0)); // project into the eigenspace, thus the image becomes a "point"
     Mat reconstruction = pca.backProject(point); // re-create the image from the "point"
     reconstruction = reconstruction.reshape(inputImage[0].channels(), inputImage[0].rows); // reshape from a row vector into image shape
     reconstruction = toGrayscale(reconstruction); // re-scale for displaying purposes
-    */
-    //imshow("PCA Results", reconstruction);
-    //imwritemulti(reduced_file_path,reconstruction);
+    
+    imshow("PCA Results", reconstruction);
+    imwritemulti(reduced_file_path,reconstruction);
     cv::waitKey();
     
     
