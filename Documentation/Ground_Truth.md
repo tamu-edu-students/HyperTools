@@ -7,8 +7,8 @@ The sample file can be run with the following command after it is built. Instruc
 
 `./ground_truth_example`
 
-### ***Replace sample name variables inside the ground_truth_example.cpp file***
-These variables are for the associated semantically segmented image and the corresponding json file that contains information about the image such as the FOV of the camera, GPS location of the center of the image, and height of the camera from the ground.
+### Variables:
+These variables are for the associated hyperspectral image and ground truth image. It assumes that that the ground truth image is a single channel image with pixel values that are integers from 0-N, where N is the number of semantic classes. 
 
 `string file_name1="../../HyperImages/`*Indian_pines_corrected*`.tiff";`
 `string file_name2="../../HyperImages/`*Indian_pines_gt*`.tiff";`
