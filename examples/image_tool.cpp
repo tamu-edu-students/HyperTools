@@ -4,8 +4,6 @@
 #include <cmath>
 #include "../src/gtkfunctions.cpp"
 #include "../src/hyperfunctions.cpp"
-#include "cuvis.hpp"
-
 
 using namespace cv;
 using namespace std;
