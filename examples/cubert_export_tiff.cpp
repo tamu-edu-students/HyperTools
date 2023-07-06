@@ -12,7 +12,7 @@ using namespace std;
 
 int main (int argc, char *argv[])
 {
-    // the exported image is raw and not reflectance. As a result, the exported image is very dark
+    /*// the exported image is raw and not reflectance. As a result, the exported image is very dark
     
     string cubert_settings="../../HyperImages/settings/";  //ultris20.settings file
     string cubert_img="../../HyperImages/segmented-datasets/Wextel-Dataset/session_002_492.cu3";//"../../HyperImages/export/Ref/session_002_490.cu3";//cornfields/session_002/session_002_490.cu3";
@@ -66,8 +66,22 @@ int main (int argc, char *argv[])
         }
     }
 
+   */
    
+   // below is if image is already processed
+       // function for .cu3 file
+    string cubert_img="../../HyperImages/2023_04_13_Relay1/session_000/session_000_007_snapshot.cu3";
+        string output_dir="../../HyperImages/export";//cornfields/results/";
+    // calibration files
+    string cubert_settings="../../HyperImages/settings/";  //ultris20.settings file
+    char* const measurementLoc =  const_cast<char*>(cubert_img.c_str());
+    char* const userSettingsDir =  const_cast<char*>(cubert_settings.c_str());
+      char* const exportDir =  const_cast<char*>(output_dir.c_str());
+  
+    cuvis::Measurement mesu(measurementLoc);
+  cuvis::ProcessingContext proc(mesu);
 
+     
 
 
 // below is for visualization 
