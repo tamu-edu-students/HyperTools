@@ -9,7 +9,7 @@
 
 using namespace cv;
 using namespace std;
-
+using namespace std::chrono;
 
 /**
  * Measures spectral similarity between our image and a reference spectrum
@@ -34,7 +34,8 @@ __global__ void img_test_multi_thread_SAM(int *out, int *img_array, int n, int n
     // threadIdx : thread index within the block 
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
-    float sum1=0, sum2=0, sum3=0;
+    float sum1=0, sum2=0;
+    float sum3 = 0;
     for (int a=0; a<num_layers-1; a++) {
         sum3+=ref_spectrum[a] *ref_spectrum[a]; //sum of squared reference spectra values
     }
@@ -74,8 +75,8 @@ __global__ void img_test_multi_thread_SAM(int *out, int *img_array, int n, int n
 
 __global__ void img_test_multi_thread_SID(int *out, int *img_array, int n, int num_layers, int* ref_spectrum) 
 {
-    
     // parallelize tasks
+    
     // pixels are stored with all pixel values next to eachother for the layers    
     // n is number of pixels 
     // blockID : block index within the grid
@@ -99,7 +100,7 @@ __global__ void img_test_multi_thread_SID(int *out, int *img_array, int n, int n
         if (ref_sum<1){ref_sum+=1;}
         if (pix_sum<1){pix_sum+=1;}
         
-        float ref_new[200], pix_new[200];
+        float ref_new[300], pix_new[300];
         
         for (int a=0; a<num_layers-1; a++)
         {
@@ -124,14 +125,13 @@ __global__ void img_test_multi_thread_SID(int *out, int *img_array, int n, int n
 
 /**
  * 
- * 
+ * Spectral Corellation Mapper function for spectral similarity analysis
  * 
  * 
  * 
 */
 __global__ void img_test_multi_thread_SCM(int *out, int *img_array, int n, int num_layers, int* ref_spectrum) 
-{
-    
+{ 
     // parallelize tasks
     // pixels are stored with all pixel values next to eachother for the layers    
     // n is number of pixels 
@@ -172,7 +172,7 @@ __global__ void img_test_multi_thread_SCM(int *out, int *img_array, int n, int n
 
 /**
  * Calls the multithreaded spectral similarity algorithms, based on the variable spec_sim_alg, set in
-     * hyperfunctions.cpp.
+    hyperfunctions.cpp.
  * Retrieves output in "out", then calls oneD_array_to_mat(out) to convert out into the OPENCV matrix "spec_simil_img".
 */
 
@@ -186,16 +186,16 @@ void HyperFunctionsGPU::spec_sim_GPU() {
         img_test_multi_thread_SID<<<grid_size,block_size>>>(d_out, d_img_array, N_size, num_lay, d_ref_spectrum);
     }
 
-    cudaMemcpy(out, d_out, sizeof(int) * N_size, cudaMemcpyDeviceToHost); 
+    cudaDeviceSynchronize();
+    cudaMemcpyAsync(out, d_out, sizeof(int) * N_size, cudaMemcpyDeviceToHost); 
+    cudaDeviceSynchronize();
 
-    //Mat test_img1(mlt1[1].rows, mlt1[1].cols, CV_8UC1, Scalar(0));
-    //spec_simil_img=test_img1;
     this->oneD_array_to_mat(out);   
 }
 
 void HyperFunctionsGPU::deallocate_memory() 
 {
-    cudaFree(d_img_array); cudaFree(d_ref_spectrum); cudaFree(d_out);
+    cudaFree(d_ref_spectrum); cudaFree(d_out); cudaFreeHost(out);
 }
 
 /* allocating CUDA memory. 
@@ -204,8 +204,7 @@ void HyperFunctionsGPU::deallocate_memory()
 * Set the number of threads per block to be 512 - this is the maximum threads per block for older GPUs.
 * Grid size is the number of of blocks, given by the number of threads / block size + 1. 
 */
-void HyperFunctionsGPU::allocate_memory(int* img_array) {
-    
+void HyperFunctionsGPU::allocate_memory() {
     N_points=mlt1[1].rows*mlt1[1].cols*mlt1.size(); 
     N_size=mlt1[1].rows*mlt1[1].cols;    
     num_lay=  mlt1.size();
@@ -215,21 +214,19 @@ void HyperFunctionsGPU::allocate_memory(int* img_array) {
     int tmp_len1=reference_spectrums[ref_spec_index].size(); 
 
     cudaHostAlloc ((void**)&out, sizeof(int) * N_size, cudaHostAllocDefault);
-    cudaMalloc((void**)&d_img_array, sizeof(int) * N_points);
     cudaMalloc((void**)&d_out, sizeof(int) * N_size);
     cudaMalloc((void**)&d_ref_spectrum, sizeof(int) * tmp_len1);
 
     //allocating memory on the GPU device
 
-    int* ref_spectrum=new int[tmp_len1];
+    ref_spectrum=new int[tmp_len1];
     for (int i=0;i<reference_spectrums[ref_spec_index].size();i++)
     {
         ref_spectrum[i] = reference_spectrums[ref_spec_index][i]; 
         //converting the 2-D array of reference spectrums into one-D for CUDA processing
     }
-    cudaMemcpy(d_img_array, img_array, sizeof(int) *  N_points, cudaMemcpyHostToDevice);
     cudaMemcpy(d_ref_spectrum, ref_spectrum, sizeof(int) * tmp_len1, cudaMemcpyHostToDevice);
-
+    delete[] ref_spectrum;
     //copying our existing memory that holds image data and reference spectrum data to the 
     //allocated memory on the GPU
 }
@@ -240,20 +237,8 @@ void HyperFunctionsGPU::allocate_memory(int* img_array) {
 */
 void HyperFunctionsGPU::oneD_array_to_mat(int* img_array)
 {
-    /*int val_it=0;
-    for (int k=0; k<spec_simil_img.cols; k++)
-    {
-        for (int j=0; j<spec_simil_img.rows; j++)
-        {
-            spec_simil_img.at<uchar>(j,k)=img_array[val_it]; 
-            val_it+=1;
-            //Conversion of 1-d array containing pixel values to 8 bit one channel 2-d OPENCV matrix
-        }
-    }*/
     spec_simil_img = cv::Mat(mlt1[1].rows, mlt1[1].cols, CV_32SC1, img_array);
     spec_simil_img.convertTo(spec_simil_img, CV_8UC1); //converting to 8 bit unsigned, 1 channel. 
-    cv::transpose(spec_simil_img, spec_simil_img);
-
 }
 
 /**
@@ -264,80 +249,55 @@ void HyperFunctionsGPU::oneD_array_to_mat(int* img_array)
 void HyperFunctionsGPU::oneD_array_to_mat(int* img_array, int cols, int rows, int channels, Mat* mlt1)
 {
 
-    /*Mat classified_img = *mlt1;
-    int val_it=0;
-    for (int k=0; k<cols; k++)
-    {
-        for (int j=0; j<rows; j++)
-        {
-            Vec3b color = classified_img.at<Vec3b>(Point(0,0));
-            color[0]=img_array[val_it];
-            color[1]=img_array[val_it+1];
-            color[2]=img_array[val_it+2];
-            //cout<<color<<endl;
-            classified_img.at<Vec3b>(Point(k,j))= color;
-            val_it+=3;
-        }
-    }*/
-
     *mlt1 = cv::Mat(mlt1->rows, mlt1->cols, CV_32SC3, img_array);
     mlt1->convertTo(*mlt1, CV_8UC3);
-    cv::transpose(*mlt1, *mlt1);
-
 }
 
 
-void mat_to_oneD_array_parallel_child(int id,vector<Mat>* mlt2, int* host_img_array, int val_it, int k )
-{
-    vector<Mat> mlt1=*mlt2; 
-    if (k<mlt1[1].cols)
-    {
-        for (int j=0; j<mlt1[1].rows; j++)
-        {
-            for (int i=0; i<mlt1.size();i++)
-            {
-                host_img_array[val_it]=mlt1[i].at<uchar>(j,k);
-                val_it+=1;    
-            }
-        }
+__global__ void mat_to_oneD_array_child(uchar* mat_array, int* img_array, int n, int start, int inc) 
+{ 
+
+    // blockID : block index within the grid
+    // blockDim : how many threads per block
+    // threadIdx : thread index within the block 
+    int tid = blockIdx.x * blockDim.x + threadIdx.x; //unique thread ID
+    if (tid < n){
+       img_array[tid * inc + start] = mat_array[tid];
     }
 }
 
-int* HyperFunctionsGPU::mat_to_oneD_array_parallel_parent()
+void HyperFunctionsGPU::mat_to_oneD_array_parallel_parent()
 {
     int array_size=mlt1[1].rows*mlt1[1].cols*mlt1.size();    
-    int* img_array= new int[array_size];
-    int val_it=0;
-    ctpl::thread_pool p(num_threads);
-
-    /*for (int i = 0; i < mlt1.size(); i++) {
-        uchar* mat_array = mlt1[i].clone().data;
-    }*/
-    for (int k=0; k<mlt1[1].cols; k+=1)
-    {
-        p.push(mat_to_oneD_array_parallel_child, &mlt1,img_array, val_it,k);
-        val_it+=mlt1[0].rows*mlt1.size();
+    uchar* d_mat_array; 
+    int sz = mlt1[1].rows * mlt1[1].cols;
+    cudaHostAlloc ((void**)&d_mat_array, sizeof(uchar) * sz, cudaHostAllocDefault);
+    cudaMalloc((void**)&d_img_array, sizeof(int) * array_size);
+    int grid_size1 = (sz + block_size) / block_size;
+    for (int i = 0; i < mlt1.size(); i++) {
+        uchar* mat_array = (uchar*)mlt1[i].data;
+        cudaMemcpyAsync(d_mat_array, mat_array, sizeof(uchar) * sz, cudaMemcpyHostToDevice);
+        mat_to_oneD_array_child<<<grid_size1, block_size>>>(d_mat_array, d_img_array, sz, i, mlt1.size());
     }
-
-    return img_array;
-
+    cudaFreeHost(d_mat_array);  
 }
 
-int* HyperFunctionsGPU::mat_to_oneD_array_parallel_parent(vector<Mat>* matvector1, int* img_array)
+void HyperFunctionsGPU::mat_to_oneD_array_parallel_parent(vector<Mat>* matvector1)
 {
     vector<Mat> matvector = *matvector1;
-    int array_size=matvector[1].rows*matvector[1].cols*matvector.size();    
-    int val_it=0;
-    ctpl::thread_pool p(num_threads);
-
-    for (int k=0; k<matvector[1].cols; k+=1)
-    {
-        p.push(mat_to_oneD_array_parallel_child, &matvector, img_array, val_it,k);
-        val_it+=matvector[0].rows*matvector.size();
-
+    uchar* d_mat_array;
+    int array_size=matvector[1].rows*matvector[1].cols*matvector.size();  
+    int sz = matvector[1].rows * matvector[1].cols;
+    cudaHostAlloc ((void**)&d_mat_array, sizeof(uchar) * sz, cudaHostAllocDefault);
+    cudaMalloc((void**)&d_classified_img_array, sizeof(int) * array_size);
+    block_size = 512;
+    int grid_size1 = (sz + block_size) / block_size;
+    for (int i = 0; i < matvector.size(); i++) {
+        uchar* mat_array = (uchar*)matvector[i].data;
+        cudaMemcpy(d_mat_array, mat_array, sizeof(uchar) * sz, cudaMemcpyHostToDevice);
+        mat_to_oneD_array_child<<<grid_size1, block_size>>>(d_mat_array, d_classified_img_array, sz, i, matvector.size());
     }
-    return img_array;
-
+    cudaFreeHost(d_mat_array);  
 }
 
 /**
@@ -394,17 +354,21 @@ __global__ void img_test_classifier(int *out, int *img_array, int num_pixels, in
  * 
 */
 
-void HyperFunctionsGPU::semantic_segmentation(int* test_array) {
+void HyperFunctionsGPU::semantic_segmentation() {
     ref_spec_index = 0;
-    this->allocate_memory(test_array); //allocating all the memory required to perform spectral similarity
-    vector<Mat> similarity_images;
     int tmp_len1 = reference_spectrums[0].size();
+    vector<Mat> similarity_images;
     int* ref_spectrum = new int[tmp_len1];
+
+    for (int i=0;i<reference_spectrums[ref_spec_index].size();i++)
+    {
+        ref_spectrum[i] = reference_spectrums[ref_spec_index][i]; 
+    }
+    cudaMemcpy(d_ref_spectrum, ref_spectrum, sizeof(int) * tmp_len1, cudaMemcpyHostToDevice);
 
     this->spec_sim_GPU(); 
     //performs spectral similarity, comparing each pixel in our image array to the first reference spectra. 
     similarity_images.push_back(spec_simil_img);  
-
     for (int i = 1; i < reference_spectrums.size(); i++) { //loop to iterate through all the reference spectras. 
         for (int j=0; j < reference_spectrums[i].size(); j++) {
             ref_spectrum[j] = reference_spectrums[i][j]; //updating the reference spectrum we are comparing our pixels to. 
@@ -415,17 +379,12 @@ void HyperFunctionsGPU::semantic_segmentation(int* test_array) {
         similarity_images.push_back(spec_simil_img);
     }
 
-    this->deallocate_memory(); //deallocate memory on GPU used for spectral similarity algorithms
     int array_size2=similarity_images[1].rows*similarity_images[1].cols*similarity_images.size();  
-
-
-    int* classified_img_array = new int[array_size2]; 
     //converting the vector of matrices that store the similarity values for each reference spectrum into a 1-D array
 
+    mat_to_oneD_array_parallel_parent(&similarity_images);
 
-    mat_to_oneD_array_parallel_parent(&similarity_images, classified_img_array);
-
-    int *d_color_info, *d_out2, *d_clasified_img_array, *out2;
+    int *d_color_info, *d_out2, *out2;
     int N_size_sim = similarity_images[1].rows*similarity_images[1].cols*3; 
     int N_points_sim = similarity_images[1].rows*similarity_images[1].cols*similarity_images.size(); 
     int grid_size_sim = ((N_points + block_size) / block_size);
@@ -440,7 +399,6 @@ void HyperFunctionsGPU::semantic_segmentation(int* test_array) {
     */
    
     cudaHostAlloc ((void**)&out2, sizeof(int) *N_size_sim, cudaHostAllocDefault); 
-    cudaMalloc((void**)&d_clasified_img_array, sizeof(int) * N_points_sim); 
     cudaMalloc((void**)&d_out2, sizeof(int) * N_size_sim);
     int temp_val=reference_colors.size() * 3;
     cudaMalloc((void**)&d_color_info, sizeof(int) * temp_val);
@@ -454,25 +412,26 @@ void HyperFunctionsGPU::semantic_segmentation(int* test_array) {
         reference_colors_c[i*3+2] = reference_colors[i][2];
     }
 
-    cudaMemcpy(d_clasified_img_array, classified_img_array, sizeof(int) *  N_points_sim, cudaMemcpyHostToDevice);
     cudaMemcpy(d_color_info, reference_colors_c, sizeof(int) * temp_val, cudaMemcpyHostToDevice);
-
     //multi-threaded function to find the most similar spectra for a pixel and color it based on the color assigned to that spectra
-    img_test_classifier<<<grid_size_sim,block_size>>>(d_out2, d_clasified_img_array, N_size_sim/3, similarity_images.size(), d_color_info,classification_threshold);
+    img_test_classifier<<<grid_size_sim,block_size>>>(d_out2, d_classified_img_array, N_size_sim/3, similarity_images.size(), d_color_info,classification_threshold);
 
     /**
      * copying the color image into out2, and converting that into a OPENCV matrix. 
     */
 
     cudaMemcpy(out2, d_out2, sizeof(int) * N_size_sim, cudaMemcpyDeviceToHost);
+   
     Mat test_img2(similarity_images[1].rows, similarity_images[1].cols, CV_8UC3, Scalar(0,0,0)); 
     oneD_array_to_mat(out2, similarity_images[1].cols,similarity_images[1].rows,3, &test_img2);
     classified_img = test_img2;
 
     cudaFree(d_color_info);
     cudaFree(d_out2);
-    cudaFree(d_clasified_img_array);
-    free(classified_img_array);
+    cudaFree(d_classified_img_array);
+    cudaFreeHost(out2);
+    delete[] reference_colors_c;
+    delete[] ref_spectrum;
 
 }
 
