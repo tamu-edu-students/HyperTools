@@ -87,9 +87,5 @@ The below commands can be used to mount a Docker Volume that contains HyperTools
 
 ### Mac
 
-Not sure what the correct command is. We need to reset up docker image to use hypercode_base instead of hypercode_code
 
-`docker run -it --rm -e DISPLAY="${IP}:0" -v /tmp/.X11-unix:/tmp/.X11-unix hypercode_code`
-
-
-`% docker run -it -e DISPLAY="${IP}:0" -v / tmp./.X11-unix:/tmp/.X11-unix hypercode_code`
+`docker run -it --rm -e DISPLAY="${IP}:0" -v /tmp/.X11-unix:/tmp/.X11-unix hypercode_base`

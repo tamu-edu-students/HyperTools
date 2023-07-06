@@ -1,14 +1,13 @@
 # Semantic Segmentation Tool: 
 ## Overview
 
-This tool facilitates processing of a semantically segmented image. The aim is to process and extract information from the image for input into other repos. It converts images that were classified at the pixel-level to contours (polygonal features) with associated class labels. This tool also has capabilities to simplify contours and filter contours below a user-defined size. 
+This tool facilitates processing of a segmented image. The aim is to process and extract information from the image for input into other repos. It converts images that were classified at the pixel-level to contours (polygonal features) with associated class labels. This tool also has capabilities to simplify contours and filter contours below a user-defined size. 
 
 The sample file can be run with the following command after it is built. Instructions for building the code are found on the main ReadMe file for the repo. 
 
 `./semantic_segmentation`
 
-![IMAGETOOL](../images/semantic1)
-**Replace sample name variables inside the semantic_segmentation.cpp file**
+### Variables:
 These variables are for the associated semantically segmented image and the corresponding json file that contains information about the image such as the FOV of the camera, GPS location of the center of the image, and height of the camera from the ground.
 
   `string file_name2="../images/`*lena3*`.png";`
@@ -16,7 +15,7 @@ These variables are for the associated semantically segmented image and the corr
 
 
 ### Show Original Image:
-Displays the original input Segmantically Segmented Image that is processed by the rest of the Semantic Segmatation tool.
+Displays the original input Semantically Segmented Image that is processed by the rest of the Semantic Segmentation tool.
 
 
 ### Edge Detection: 

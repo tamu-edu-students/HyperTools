@@ -14,8 +14,7 @@ The below user interface should appear on startup. Sometimes it may be slow to s
 <img src = docimages/Startingpage.png>
 
 
-**Replace sample file name variable inside the image_tool.cpp file**
-
+### Variables:
 This is the hyperspectral image that is loaded on startup. It is not necessary, but recommended. A hyperspectral image can be loaded from the user interface during run-time. If a hyperspectral image is not loaded, errors may occur.  
 
 
@@ -24,7 +23,7 @@ This is the hyperspectral image that is loaded on startup. It is not necessary, 
 
 ### False Image:
 
- This capability allows specific layers to be set as the red, blue, and green channels of a false image. The individual layers are combined together to generate the false image. This is helpul for visualizing hyperspectral images and looking at specific wavelengths to create custom filters. 
+ This capability allows specific layers to be set as the red, blue, and green channels of a false image. The individual layers are combined together to generate the false image. This is helpful for visualizing hyperspectral images and looking at specific wavelengths to create custom filters. 
  
 
 **Image Layer:**
@@ -48,12 +47,12 @@ Different spectral similarity algorithms can be used to generate a semantic segm
 
 
 ### Spectral Similarity Image:
-Different spectral similarity algorithms can be used to generate a semantic segmentation image. The radio button for the desired spectral simialarity button for analysis should be selected. The items in the reference spectral database are loaded. The item and related reference spectrum can be selected with the drop down box under "Object Being Analyzed". After both the algorithm and object are selected, click the "Update Spectral Similarity Image" button. This will perform the analysis and show the result in the user interface. 
+Different spectral similarity algorithms can be used to generate a semantic segmentation image. The radio button for the desired spectral similarity button for analysis should be selected. The items in the reference spectral database are loaded. The item and related reference spectrum can be selected with the drop down box under "Object Being Analyzed". After both the algorithm and object are selected, click the "Update Spectral Similarity Image" button. This will perform the analysis and show the result in the user interface. 
 
 
 ### Spectral Database: 
 
-This tab has multiple capabilities dealing with a spectral database. A spectral database can be loaded with the file chooser in the tab. A new spectral database can be created with the "Create Database" button. The name of the database will be what is entered in the text box next to the button. The created databse is blank, but can be filled by save spectrums. A spectrum can be saved by clicking the "Save Spectrum to Database" button. This should be selected after entering a name of the spectum. The spectrum that is saved will be the one that is displaying in the user interface. In order to select a new spectrum, click a new point in the hyperspectral image. The last capability in this tab is to clear the database. This will remove all spectral and color information associated with the spectral database. 
+This tab has multiple capabilities dealing with a spectral database. A spectral database can be loaded with the file chooser in the tab. A new spectral database can be created with the "Create Database" button. The name of the database will be what is entered in the text box next to the button. The created database is blank, but can be filled by save spectrums. A spectrum can be saved by clicking the "Save Spectrum to Database" button. This should be selected after entering a name of the spectrum. The spectrum that is saved will be the one that is displaying in the user interface. In order to select a new spectrum, click a new point in the hyperspectral image. The last capability in this tab is to clear the database. This will remove all spectral and color information associated with the spectral database. 
 
 
 ### Tiled Image: 
