@@ -38,7 +38,7 @@ static Mat toGrayscale(InputArray _src) {
 int main (int argc, char *argv[])
 {
     int reduced_image_layers = 5;
-    string input_file_path = "../../../HyperImages/hyperspectral_images/Indian_pines.tiff";
+    string input_file_path = "../../HyperImages/img1.tiff";
     string reduced_file_path = "../../../HyperImages/dimension_reduced.tiff";
      
     // userinput during startup
@@ -90,6 +90,7 @@ int main (int argc, char *argv[])
     reconstruction = toGrayscale(reconstruction); // re-scale for displaying purposes
     
     imshow("PCA Results", reconstruction);
+    //not writing multiple layers yet
     imwritemulti(reduced_file_path,reconstruction);
     cv::waitKey();
     
