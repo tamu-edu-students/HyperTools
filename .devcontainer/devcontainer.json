@@ -1,0 +1,13 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/cpp
+{
+	
+	// this uses the opencv 4.2 version for integration with cuvis sdk
+	"image": "hypertools_4_2:latest" ,
+	
+	"mounts": [
+		"source=${localWorkspaceFolder}/../HyperImages,target=/workspaces/HyperImages,type=bind,consistency=cached"
+	  ]
+	
+
+}
