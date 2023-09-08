@@ -3,7 +3,10 @@
 {
 	
 	// this uses the opencv 4.2 version for integration with cuvis sdk
-	"image": "hypertools_4_2:latest" ,
+	// make sure to uncomment the image that is desired for development
+	// "image": "hypertools_4_2:latest" ,
+	// sudo docker build -t hypertools_cubert -f Dockerfile_cubert .
+	"image": "hypertools_cubert:latest" ,
 	
 	"mounts": [
 		"source=${localWorkspaceFolder}/../HyperImages,target=/workspaces/HyperImages,type=bind,consistency=cached"
