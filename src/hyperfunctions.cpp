@@ -1072,6 +1072,15 @@ void  HyperFunctions::EuD_img()
     }
 }
 
+void  HyperFunctions::Cos_img()
+{
+    ctpl::thread_pool p(num_threads);
+    for (int k=0; k<mlt1[1].cols; k+=1)
+    {
+         p.push(Cos_img_Child, k, &mlt1,&reference_spectrums,&spec_simil_img,&ref_spec_index);
+    }
+}
+
 //---------------------------------------------------------
 // Name: SAM_img_child
 // PreCondition: test spectra (t) and reference spectra r of a set lenghth 
@@ -1313,3 +1322,4 @@ void HyperFunctions::thickEdgeContourApproximation(int idx){
     int siz = contours_approx[idx].size();
 
 }
+
