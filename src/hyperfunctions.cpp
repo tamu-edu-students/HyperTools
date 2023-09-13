@@ -1026,9 +1026,12 @@ void  HyperFunctions::SpecSimilParent()
     {
         this->SID_img();
     }
-    else if (spec_sim_alg==3)
+    else if (spec_sim_alg==30)
     {
         this->EuD_img();
+    }
+    else if(spec_sim_alg==3){
+        this->Cos_img();
     }
 
 }
@@ -1080,6 +1083,41 @@ void  HyperFunctions::Cos_img()
          p.push(Cos_img_Child, k, &mlt1,&reference_spectrums,&spec_simil_img,&ref_spec_index);
     }
 }
+
+//-----------------------------------
+// Name: Cos_img_img
+// PreCondition: Cosine value as produced by Cos_img_child
+// PostCondition: threadpool of Cosine values
+//---------------------------------------------------------
+void Cos_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index)   
+{   
+    // single thread
+    vector<Mat> mlt1=*mlt2; 
+    vector<vector<int>>  reference_spectrums= *reference_spectrums2;
+    int temp_val=0;
+    for (int j=0; j<mlt1[1].rows; j++)
+    {
+        float dot_product = 0.0, sq_a = 0.0, sq_b = 0.0;
+        for(int i =0 ; i < reference_spectrums[*ref_spec_index].size(); i++){
+            int temp_val2 = mlt1[i].at<uchar>(j,k);
+            dot_product += reference_spectrums[*ref_spec_index][i] * temp_val2 ;
+            sq_a += reference_spectrums[*ref_spec_index][i] * reference_spectrums[*ref_spec_index][i];
+            sq_b += temp_val2 * temp_val2;
+        }
+        if (dot_product<=0 || sq_a<=0 || sq_b<=0 )
+        {
+            temp_val=255; // set to white due to an error
+        }
+        else
+        {
+            temp_val = dot_product / (sqrt(sq_a) * sqrt(sq_b));
+        }
+        spec_simil_img->at<uchar>(j,k)=temp_val; 
+    }
+}
+
+
+
 
 //---------------------------------------------------------
 // Name: SAM_img_child
