@@ -560,6 +560,14 @@ static void set_spec_sim_alg_EuD(GtkWidget *widget,  gpointer data)
     if (T==1) {HyperFunctions1->spec_sim_alg=3;}
 }
 
+static void set_spec_sim_alg_chi_squared(GtkWidget *widget,  gpointer data)
+{
+    void * data_new=data;
+    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
+    gboolean T = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+    if (T==1) {HyperFunctions1->spec_sim_alg=4;}
+}
+
 static void load_img(GtkWidget *widget,  GtkImage*  data)
 {
   
