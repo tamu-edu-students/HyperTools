@@ -108,7 +108,8 @@ void  HyperFunctions::FeatureExtraction()
       detector_FAST->detect( feature_img1, keypoints1 );
       detector_FAST->detect( feature_img2, keypoints2 );  
   }
-  	
+  	// test
+    
   	// feature_descriptor=0; 0 is sift, 1 is surf, 2 is orb
   if(feature_descriptor==0)
   {
