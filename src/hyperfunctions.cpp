@@ -1028,7 +1028,7 @@ void  HyperFunctions::SpecSimilParent()
     }
     else if (spec_sim_alg==3)
     {
-        this->EuD_img();
+        this->City_img();
     }
 
 }
@@ -1340,6 +1340,7 @@ void City_Block_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* ref
     for (int j=0; j<mlt1[1].rows; j++)
     {
         float sum1=0;
+        int scale = 0;
         for (int a=0; a<reference_spectrums[*ref_spec_index].size(); a++)
         {
             int temp_val2=mlt1[a].at<uchar>(j,k); //extracts temp of mlt at location j,k
@@ -1353,7 +1354,7 @@ void City_Block_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* ref
         else
         {
             //assign temp_val, unsure if this is done correctly.
-            temp_val = sum1;
+            temp_val = sum1/(reference_spectrums[*ref_spec_index].size() + 255);
         }
         spec_simil_img->at<uchar>(j,k)=temp_val; 
 }
