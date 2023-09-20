@@ -1313,3 +1313,38 @@ void HyperFunctions::thickEdgeContourApproximation(int idx){
     int siz = contours_approx[idx].size();
 
 }
+
+/* City Block Algorithm*/
+
+//parent and child
+void City_Block_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index)   
+{
+//utilize mat1 and mat2 
+    //mlt2 is the image, reference spectrums2 is the referencing, spec_simil is where we put it, ref_spec_index is where we 
+    vector<Mat> mlt1=*mlt2; //dereferences
+    vector<vector<int>>  reference_spectrums= *reference_spectrums2;
+    int temp_val;
+    //iterate through the rows of mlt1
+    for (int j=0; j<mlt1[1].rows; j++)
+    {
+        float sum1=0;
+        for (int a=0; a<reference_spectrums[*ref_spec_index].size(); a++)
+        {
+            int temp_val2=mlt1[a].at<uchar>(j,k); //extracts temp of mlt at location j,k
+            sum1+=abs(temp_val2 - reference_spectrums[*ref_spec_index][a]);
+        }
+
+        if (sum1<=0)
+        {
+            temp_val=255; // set to white due to an error
+        }
+        else
+        {
+            //assign temp_val
+            temp_val = sum1;
+            
+        }
+        spec_simil_img->at<uchar>(j,k)=temp_val; 
+}
+}
+
