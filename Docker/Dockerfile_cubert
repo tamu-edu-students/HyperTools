@@ -55,6 +55,25 @@ RUN wget https://cloud.cubert-gmbh.de/index.php/s/kKVtx0x2fmYqVgx/download && \
     dpkg -i --force-overwrite ./libcuvis_3.2.0-1.deb && \
     dpkg -i --force-overwrite ./libcuvisxx_3.2.0-1.deb 
 
+RUN apt update
+RUN apt install software-properties-common
+RUN add-apt-repository ppa:deadsnakes/ppa
+RUN apt install python3.9 -y
+RUN apt install python3-pip -y
+
+RUN echo 'alias python="/usr/bin/python3.9"' >> ~/.bashrc 
+RUN echo 'alias python3="/usr/bin/python3.9"' >> ~/.bashrc 
+RUN echo 'export CUVIS="/lib/cuvis"' >> ~/.bashrc 
+RUN echo 'export CUVIS_DATA="/opt/cuvis"' >> ~/.bashrc 
+
+RUN cd cuvis.sdk/Python/src 
+
+RUN apt update -y
+RUN apt upgrade -y
+RUN cp 3.2.0/Ubuntu\ 20.04/cuvis_il.py cuvis.sdk/Python/src/cuvis/
+
+RUN cd cuvis.sdk/Python/src && python3.9 setup.py install
+
 WORKDIR /home
 
 RUN cd /home &&\
