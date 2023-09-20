@@ -1314,7 +1314,19 @@ void HyperFunctions::thickEdgeContourApproximation(int idx){
 
 }
 
-/* City Block Algorithm*/
+//---------------------------------------------------------
+// Name: City_img
+// PreCondition: City Block value from City_Block_Child
+// PostCondition: threadpool of City Block values
+//---------------------------------------------------------
+void  HyperFunctions::City_img()
+{    
+    ctpl::thread_pool p(num_threads);
+    for (int k=0; k<mlt1[1].cols; k+=1)
+    {
+         p.push(City_Block_Child, k, &mlt1,&reference_spectrums,&spec_simil_img,&ref_spec_index);
+    }
+}
 
 //parent and child
 void City_Block_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index)   
@@ -1340,9 +1352,8 @@ void City_Block_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* ref
         }
         else
         {
-            //assign temp_val
+            //assign temp_val, unsure if this is done correctly.
             temp_val = sum1;
-            
         }
         spec_simil_img->at<uchar>(j,k)=temp_val; 
 }
