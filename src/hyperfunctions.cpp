@@ -1008,7 +1008,7 @@ void  HyperFunctions::SemanticSegmenter()
 void  HyperFunctions::SpecSimilParent()
 {
 
-//spec_sim_alg SAM=0, SCM=1, SID=2, EuD=3
+//spec_sim_alg SAM=0, SCM=1, SID=2, EuD=3, cSq=4
 // ref_spec_index
 
     Mat temp_img(mlt1[1].rows, mlt1[1].cols, CV_8UC1, Scalar(0));
@@ -1030,6 +1030,77 @@ void  HyperFunctions::SpecSimilParent()
     {
         this->EuD_img();
     }
+    else if (spec_sim_alg==4)
+    {
+        this->cSq_img();
+    }
+
+}
+
+//---------------------------------------------------------
+// Name: cSq_img
+// PreCondition: cSq value as produced by cSq_img_child
+// PostCondition: threadpool of cSq values
+//---------------------------------------------------------
+void HyperFunctions::cSq_img()
+{
+    ctpl::thread_pool p(num_threads);
+    
+    for (int k=0; k<mlt1[1].cols; k+=1)
+    {
+        p.push(cSq_img_Child, k, &mlt1,&reference_spectrums,&spec_simil_img,&ref_spec_index);
+
+    }
+}
+
+//---------------------------------------------------------
+// Name: cSq_img_child
+// PreCondition:  
+// PostCondition: 
+//---------------------------------------------------------
+void cSq_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index)   
+{   
+    // single thread
+    // vector<Mat> mlt1=*mlt2; 
+    // vector<vector<int>>  reference_spectrums= *reference_spectrums2;
+    // int temp_val=0;
+
+
+    // calc the chi-square distance
+    double minDistance = numeric_limits<double>::max(); //255
+    int bestMatchIndex = -1;
+
+    Mat currentImage = (*mlt2)[k]; // declare and initialize currentImage
+
+    for (int i = 0; i < reference_spectrums2->size(); ++i)
+    {
+        vector<int>& referenceSpectrum = (*reference_spectrums2)[i];
+
+        // calc the chi-square distance
+        double distance = 0.0;
+        for (int j = 0; j < referenceSpectrum.size(); ++j)
+        {
+            if (currentImage.at<int>(j) + referenceSpectrum[j] > 0)
+            {
+                distance += pow(currentImage.at<int>(j) - referenceSpectrum[j], 2) / (currentImage.at<int>(j) + referenceSpectrum[j]);
+            }
+
+            spec_simil_img->at<uchar>(j,k)=distance; // distance -> temp_val
+
+        }
+
+        // if (distance < minDistance)
+        // {
+        //     minDistance = distance;
+        //     bestMatchIndex = i;
+        // }
+
+        // spec_simil_img->at<uchar>(j,k)=distance; // distance -> temp_val
+    }
+
+    // update the output Mat and reference index ---> depends on output wants
+    // *spec_simil_img = currentImage.clone();
+    // *ref_spec_index = bestMatchIndex;
 
 }
 
