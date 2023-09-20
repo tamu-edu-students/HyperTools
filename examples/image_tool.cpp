@@ -149,6 +149,15 @@ int main (int argc, char *argv[])
   button = gtk_builder_get_object (builder, "semantic_chi_squared");
   g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_chi_squared), &HyperFunctions1);
 
+  button = gtk_builder_get_object (builder, "semantic_cosine_similarity");
+  g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_cosine_similarity), &HyperFunctions1);
+
+  button = gtk_builder_get_object (builder, "semantic_city_block");
+  g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_city_block), &HyperFunctions1);
+
+  button = gtk_builder_get_object (builder, "semantic_jm_distance");
+  g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_jm_distance), &HyperFunctions1);
+
   button = gtk_builder_get_object (builder, "similarity_SAM");
   g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_SAM), &HyperFunctions1);
 
@@ -161,8 +170,17 @@ int main (int argc, char *argv[])
   button = gtk_builder_get_object (builder, "similarity_ED");
   g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_EuD), &HyperFunctions1);
 
-   button = gtk_builder_get_object (builder, "similarity_chi_squared");
+  button = gtk_builder_get_object (builder, "similarity_chi_squared");
   g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_chi_squared), &HyperFunctions1);
+
+  button = gtk_builder_get_object (builder, "similarity_cosine_similarity");
+  g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_cosine_similarity), &HyperFunctions1);
+
+  button = gtk_builder_get_object (builder, "similarity_city_block");
+  g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_city_block), &HyperFunctions1);
+
+  button = gtk_builder_get_object (builder, "similarity_jm_distance");
+  g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_jm_distance), &HyperFunctions1);
 
   button = gtk_builder_get_object (builder, "similarity_items");
   g_signal_connect (button, "set-focus-child", G_CALLBACK (get_class_list), &HyperFunctions1);

@@ -24,6 +24,13 @@ static void set_spec_sim_alg_SAM(GtkWidget *widget,  gpointer data);
 static void set_spec_sim_alg_SCM(GtkWidget *widget,  gpointer data);
 static void set_spec_sim_alg_SID(GtkWidget *widget,  gpointer data);
 static void set_spec_sim_alg_EuD(GtkWidget *widget,  gpointer data);
+
+static void set_spec_sim_alg_chi_squared(GtkWidget *widget,  gpointer data);
+static void set_spec_sim_alg_cosine_similarity(GtkWidget *widget,  gpointer data);
+static void set_spec_sim_alg_city_block(GtkWidget *widget,  gpointer data);
+static void set_spec_sim_alg_jm_distance(GtkWidget *widget,  gpointer data);
+
+
 static void set_spin_buttons_reset(GtkWidget *widget,  gpointer data);
 static void set_spin_buttons_standard_rgb(GtkWidget *widget,  gpointer data);
 static void set_zoom1(GtkWidget *widget,  gpointer data);
