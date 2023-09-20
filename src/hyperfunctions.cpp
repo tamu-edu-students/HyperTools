@@ -1030,7 +1030,10 @@ void  HyperFunctions::SpecSimilParent()
     {
         this->EuD_img();
     }
-
+    else if (spec_sim_alg==7)
+    {
+        this->JM_img();
+    }
 }
 
 //---------------------------------------------------------
@@ -1069,6 +1072,15 @@ void  HyperFunctions::EuD_img()
     for (int k=0; k<mlt1[1].cols; k+=1)
     {
          p.push(EuD_img_Child, k, &mlt1,&reference_spectrums,&spec_simil_img,&ref_spec_index);
+    }
+}
+
+void  HyperFunctions::JM_img()
+{
+    ctpl::thread_pool p(num_threads);
+    for (int k=0; k<mlt1[1].cols; k+=1)
+    {
+         p.push(JM_img_Child, k, &mlt1,&reference_spectrums,&spec_simil_img,&ref_spec_index);
     }
 }
 
@@ -1143,6 +1155,38 @@ void EuD_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* refere
             temp_val=(int)((double)temp1*(double)255) ;
         }
         spec_simil_img->at<uchar>(j,k)=temp_val; 
+    }
+}
+
+void JM_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index)   
+{   
+    // single thread
+    vector<Mat> mlt1=*mlt2; 
+    vector<vector<int>>  reference_spectrums= *reference_spectrums2;
+
+    for (int j=0; j<mlt1[1].rows; j++)
+    {
+        //JM relies on the vectors being probability distributions (values for each wavelength must add to 1)
+        //Therefore when calculating BC we must divide the values by the integral.
+        double referenceSpecIntegral = 0;
+        double pixelSpecIntegral = 0;
+
+        for (int i=0; i<reference_spectrums[*ref_spec_index].size(); i++)
+        {
+            referenceSpecIntegral += reference_spectrums[*ref_spec_index][i];
+            pixelSpecIntegral += mlt1[i].at<uchar>(j,k);
+        }
+
+        double BC = 0;
+        for (int i=0; i<reference_spectrums[*ref_spec_index].size(); i++)
+        {
+            BC += sqrt((reference_spectrums[*ref_spec_index][i]/referenceSpecIntegral) * (mlt1[i].at<uchar>(j,k)/pixelSpecIntegral));
+        }
+
+        double Bhattacharrya = -log(BC); //Intermediate step in calculating JM_distance
+        double JM_distance = sqrt(2* (1 - pow(M_E, -Bhattacharrya)));
+        double JM_distance_scaled = JM_distance * 180.312229203; //Scaling from 0-sqrt(2) up to 0-255
+        spec_simil_img->at<uchar>(j,k)=JM_distance_scaled; 
     }
 }
 
