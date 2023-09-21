@@ -11,7 +11,7 @@ using namespace std;
 int main (int argc, char *argv[])
 {
   string file_name3="../../HyperImages/img1.tiff";
-  string file_name4="../../HyperImages/img2.tiff";
+  string file_name4="../../HyperImages/img1.tiff";
   
   HyperFunctions HyperFunctions1;
   HyperFunctions1.LoadImageHyper1(file_name3);
