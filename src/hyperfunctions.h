@@ -51,7 +51,6 @@ public:
 	double min_area=0.0;
 	double polygon_approx_coeff=0;
 
-	
 	int classification_threshold=255; // for semantic image, if no spectra are under threshold, pixel remains black. set to 255 to classify every pixel. 15 is good to tell if pixel is of same material and allow for some noise
 	int false_img_r=0; // layer value used for red channel in false image
 	int false_img_g=0;  // layer value used for green channel in false image
