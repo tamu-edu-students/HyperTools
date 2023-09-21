@@ -15,14 +15,14 @@
   <object class="GtkAdjustment" id="adj_image_height">
     <property name="lower">500</property>
     <property name="upper">2000</property>
-    <property name="step-increment">10</property>
-    <property name="page-increment">10</property>
+    <property name="step_increment">10</property>
+    <property name="page_increment">10</property>
   </object>
   <object class="GtkAdjustment" id="adj_image_width">
     <property name="lower">500</property>
     <property name="upper">2000</property>
-    <property name="step-increment">10</property>
-    <property name="page-increment">10</property>
+    <property name="step_increment">10</property>
+    <property name="page_increment">10</property>
   </object>
   <object class="GtkAdjustment" id="adj_red_init">
     <property name="upper">163</property>
@@ -48,7 +48,6 @@
       <placeholder/>
     </child>
     <child>
-      <!-- n-columns=7 n-rows=8 -->
       <object class="GtkGrid" id="grid">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
@@ -778,65 +777,64 @@
         <child>
           <object class="GtkSeparator" id="separator_1">
             <property name="visible">True</property>
-            <property name="can-focus">False</property>
+            <property name="can_focus">False</property>
             <property name="opacity">0</property>
-            <property name="margin-top">5</property>
-            <property name="margin-bottom">5</property>
+            <property name="margin_top">5</property>
+            <property name="margin_bottom">5</property>
           </object>
           <packing>
-            <property name="left-attach">0</property>
-            <property name="top-attach">1</property>
+            <property name="left_attach">0</property>
+            <property name="top_attach">1</property>
             <property name="width">7</property>
           </packing>
         </child>
         <child>
           <object class="GtkSeparator" id="separator_2">
             <property name="visible">True</property>
-            <property name="can-focus">False</property>
+            <property name="can_focus">False</property>
             <property name="opacity">0</property>
-            <property name="margin-start">5</property>
-            <property name="margin-end">5</property>
+            <property name="margin_start">5</property>
+            <property name="margin_end">5</property>
             <property name="orientation">vertical</property>
           </object>
           <packing>
-            <property name="left-attach">2</property>
-            <property name="top-attach">0</property>
+            <property name="left_attach">2</property>
+            <property name="top_attach">0</property>
             <property name="height">5</property>
           </packing>
         </child>
         <child>
           <object class="GtkLabel" id="cur_img">
             <property name="visible">True</property>
-            <property name="can-focus">False</property>
+            <property name="can_focus">False</property>
             <property name="label" translatable="yes">Output Image </property>
           </object>
           <packing>
-            <property name="left-attach">4</property>
-            <property name="top-attach">2</property>
+            <property name="left_attach">4</property>
+            <property name="top_attach">2</property>
           </packing>
         </child>
         <child>
-          <!-- n-columns=2 n-rows=3 -->
           <object class="GtkGrid">
             <property name="visible">True</property>
-            <property name="can-focus">False</property>
+            <property name="can_focus">False</property>
             <property name="halign">start</property>
             <child>
               <object class="GtkEventBox" id="spectrum_box">
                 <property name="visible">True</property>
-                <property name="can-focus">False</property>
+                <property name="can_focus">False</property>
                 <child>
                   <object class="GtkLabel" id="y_axis_label">
                     <property name="visible">True</property>
-                    <property name="can-focus">False</property>
+                    <property name="can_focus">False</property>
                     <property name="label" translatable="yes">Reflectance Value</property>
                     <property name="angle">90</property>
                   </object>
                 </child>
               </object>
               <packing>
-                <property name="left-attach">0</property>
-                <property name="top-attach">1</property>
+                <property name="left_attach">0</property>
+                <property name="top_attach">1</property>
               </packing>
             </child>
             <child>
@@ -846,43 +844,33 @@
                 <property name="label" translatable="yes">Pixel Spectrum</property>
               </object>
               <packing>
-                <property name="left-attach">1</property>
-                <property name="top-attach">0</property>
+                <property name="left_attach">1</property>
+                <property name="top_attach">0</property>
               </packing>
             </child>
             <child>
               <object class="GtkLabel" id="x_axis_label">
                 <property name="visible">True</property>
-                <property name="can-focus">False</property>
+                <property name="can_focus">False</property>
                 <property name="label" translatable="yes">Wavelength</property>
                 <attributes>
                   <attribute name="gravity" value="south"/>
                 </attributes>
-
-                <property name="can_focus">False</property>
-                <child>
-                  <object class="GtkImage" id="spec_curve">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="stock">gtk-missing-image</property>
-                  </object>
-                </child>
-
               </object>
               <packing>
-                <property name="left-attach">1</property>
-                <property name="top-attach">2</property>
+                <property name="left_attach">1</property>
+                <property name="top_attach">2</property>
               </packing>
             </child>
             <child>
               <object class="GtkImage" id="spec_curve">
                 <property name="visible">True</property>
-                <property name="can-focus">False</property>
+                <property name="can_focus">False</property>
                 <property name="stock">gtk-missing-image</property>
               </object>
               <packing>
-                <property name="left-attach">1</property>
-                <property name="top-attach">1</property>
+                <property name="left_attach">1</property>
+                <property name="top_attach">1</property>
               </packing>
             </child>
             <child>
@@ -900,7 +888,6 @@
         <child>
           <object class="GtkLabel" id="height_value">
             <property name="visible">True</property>
-
             <property name="can_focus">False</property>
             <property name="opacity">0</property>
             <property name="margin_top">5</property>
@@ -910,18 +897,15 @@
             <property name="left_attach">0</property>
             <property name="top_attach">1</property>
             <property name="width">7</property>
-
           </packing>
         </child>
         <child>
           <object class="GtkLabel" id="width_value">
             <property name="visible">True</property>
-
             <property name="can_focus">False</property>
             <property name="opacity">0</property>
             <property name="margin_start">5</property>
             <property name="margin_end">5</property>
-            <property name="orientation">vertical</property>
           </object>
           <packing>
             <property name="left_attach">2</property>
@@ -932,36 +916,41 @@
         <child>
           <object class="GtkLabel" id="image_size_label">
             <property name="visible">True</property>
-            <property name="can-focus">False</property>
+            <property name="can_focus">False</property>
             <property name="label" translatable="yes">Set Image Size:</property>
           </object>
           <packing>
-            <property name="left-attach">3</property>
-            <property name="top-attach">5</property>
+            <property name="left_attach">3</property>
+            <property name="top_attach">5</property>
           </packing>
         </child>
         <child>
           <object class="GtkSpinButton" id="spin_height">
             <property name="visible">True</property>
-            <property name="can-focus">True</property>
+            <property name="can_focus">True</property>
             <property name="adjustment">adj_image_height</property>
           </object>
           <packing>
-            <property name="left-attach">4</property>
-            <property name="top-attach">6</property>
+            <property name="left_attach">4</property>
+            <property name="top_attach">6</property>
           </packing>
         </child>
         <child>
           <object class="GtkSpinButton" id="spin_width">
             <property name="visible">True</property>
-            <property name="can-focus">True</property>
+            <property name="can_focus">True</property>
             <property name="adjustment">adj_image_width</property>
           </object>
           <packing>
-            <property name="left-attach">4</property>
-            <property name="top-attach">7</property>
-
+            <property name="left_attach">4</property>
+            <property name="top_attach">7</property>
           </packing>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
         </child>
         <child>
           <placeholder/>
