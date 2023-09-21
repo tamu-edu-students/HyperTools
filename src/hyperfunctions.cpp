@@ -119,7 +119,7 @@ for (int y = 0; y < feature_img1.rows; y += spacing) {
   } 
   else if (feature_detector==3) 
   {
-    //custom spacing feature detectors
+    //custom spacing feature detector
     drawKeypoints(feature_img1, keypoints, feature_img1);
     drawKeypoints(feature_img2, keypoints, feature_img2);
 
