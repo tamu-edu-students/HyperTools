@@ -6,9 +6,9 @@
 	// make sure to uncomment the image that is desired for development
 	// docker build commands are to create the docker image
 	// docker build -t hypertools_4_2 -f Dockerfile_4_2_OpenCV .
-	 "image": "hypertools_4_2:latest" ,
+	//  "image": "hypertools_4_2:latest" ,
 	// docker build -t hypertools_cubert -f Dockerfile_cubert .
-	// "image": "hypertools_cubert:latest" ,
+	 "image": "hypertools_cubert:latest" ,
 	
 	"mounts": [
 		// below two mounts are for visualization on windows machine if there are issues
