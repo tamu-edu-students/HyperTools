@@ -65,20 +65,27 @@ set (use_cuvis false)
 
 if (use_cuvis)
 
-    include_directories(/lib_cuvis )
-    link_directories(/lib/cuvis)
-    link_libraries(cuvis)
+    list(APPEND CMAKE_MODULE_PATH "/cuvis.sdk/Cpp/SDK/cmake/")
+    find_package(CuvisCpp REQUIRED)
+
 
     add_executable(cubert_example examples/cubert_example.cpp)
-    add_executable(deeplab_example examples/deeplab_example.cpp)
-    add_executable(cubert_tiff examples/cubert_export_tiff.cpp)
+    target_link_libraries(cubert_example PRIVATE cuvis::cpp)
 
-    if (use_CUDA)
+    # include_directories(/lib_cuvis )
+    # link_directories(/lib/cuvis)
+    # link_libraries(cuvis)
 
-    add_executable(cuda_cubert_example examples/cuda_cubert_example.cu)
+    # add_executable(cubert_example examples/cubert_example.cpp)
+    # add_executable(deeplab_example examples/deeplab_example.cpp)
+    # add_executable(cubert_tiff examples/cubert_export_tiff.cpp)
+
+    # if (use_CUDA)
+
+    # add_executable(cuda_cubert_example examples/cuda_cubert_example.cu)
 
 
-    endif(use_CUDA)
+    # endif(use_CUDA)
 
 endif()
 
