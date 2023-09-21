@@ -38,3 +38,4 @@
 *.ui~
 
 *.json
+*.DS_Store
