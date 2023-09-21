@@ -50,10 +50,10 @@ else(use_CUDA)
 
 # Declare the executable target built from your sources
 add_executable(image_tool examples/image_tool.cpp)
-add_executable(semantic_interface examples/semantic_segmentation.cpp)
+# add_executable(semantic_interface examples/semantic_segmentation.cpp)
 add_executable(feature_tool examples/feature_tool.cpp)
-add_executable(ground_truth_example examples/ground_truth_example.cpp)
-add_executable(dimension_reduction examples/dimension_reduction.cpp)
+# add_executable(ground_truth_example examples/ground_truth_example.cpp)
+# add_executable(dimension_reduction examples/dimension_reduction.cpp)
 
 
 add_definitions(${GTK3_CFLAGS} ${GTK3_CFLAGS_OTHER})
@@ -61,24 +61,31 @@ add_definitions(${GTK3_CFLAGS} ${GTK3_CFLAGS_OTHER})
 endif(use_CUDA)
 
 
-set (use_cuvis false)
+set (use_cuvis true)
 
 if (use_cuvis)
 
-    include_directories(/lib_cuvis )
-    link_directories(/lib/cuvis)
-    link_libraries(cuvis)
+    list(APPEND CMAKE_MODULE_PATH "/cuvis.sdk/Cpp/SDK/cmake/")
+    find_package(CuvisCpp REQUIRED)
+
 
     add_executable(cubert_example examples/cubert_example.cpp)
-    add_executable(deeplab_example examples/deeplab_example.cpp)
-    add_executable(cubert_tiff examples/cubert_export_tiff.cpp)
+    target_link_libraries(cubert_example PRIVATE cuvis::cpp)
 
-    if (use_CUDA)
+    # include_directories(/lib_cuvis )
+    # link_directories(/lib/cuvis)
+    # link_libraries(cuvis)
 
-    add_executable(cuda_cubert_example examples/cuda_cubert_example.cu)
+    # add_executable(cubert_example examples/cubert_example.cpp)
+    # add_executable(deeplab_example examples/deeplab_example.cpp)
+    # add_executable(cubert_tiff examples/cubert_export_tiff.cpp)
+
+    # if (use_CUDA)
+
+    # add_executable(cuda_cubert_example examples/cuda_cubert_example.cu)
 
 
-    endif(use_CUDA)
+    # endif(use_CUDA)
 
 endif()
 
