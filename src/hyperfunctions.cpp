@@ -1026,11 +1026,11 @@ void  HyperFunctions::SpecSimilParent()
     {
         this->SID_img();
     }
-    else if (spec_sim_alg==30)
+    else if (spec_sim_alg==3)
     {
         this->EuD_img();
     }
-    else if(spec_sim_alg==3){
+    else if(spec_sim_alg==4){
         this->Cos_img();
     }
 
@@ -1110,15 +1110,13 @@ void Cos_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* refere
         }
         else
         {
-            temp_val = dot_product / (sqrt(sq_a) * sqrt(sq_b));
+            temp_val = (acos(dot_product / (sqrt(sq_a) * sqrt(sq_b)))) * double(100);
+            //temp_val = temp_val / 3.14159;
         }
+
         spec_simil_img->at<uchar>(j,k)=temp_val; 
     }
 }
-
-
-
-
 //---------------------------------------------------------
 // Name: SAM_img_child
 // PreCondition: test spectra (t) and reference spectra r of a set lenghth 
