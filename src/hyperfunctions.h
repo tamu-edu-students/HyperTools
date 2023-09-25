@@ -32,6 +32,7 @@ public:
 	Mat false_img;
 	Mat feature_img1;
 	Mat feature_img2;
+	Mat feature_img_combined; 
 	Mat spec_simil_img;
 	Mat tiled_img;
 			
