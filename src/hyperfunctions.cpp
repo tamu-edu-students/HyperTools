@@ -1110,7 +1110,7 @@ void Cos_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* refere
         }
         else
         {
-            temp_val = (acos(dot_product / (sqrt(sq_a) * sqrt(sq_b)))) * double(100);
+            temp_val = (acos(dot_product / (sqrt(sq_a) * sqrt(sq_b)))) * double(255);
             //temp_val = temp_val / 3.14159;
         }
 
