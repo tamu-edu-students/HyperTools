@@ -1016,7 +1016,7 @@ void  HyperFunctions::SpecSimilParent()
 
     if (spec_sim_alg==0)
     {
-        this->SAM_img();
+        this->cSq_img();
     }
     else if (spec_sim_alg==1)
     {
@@ -1067,27 +1067,82 @@ void cSq_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* refere
 
 
     // calc the chi-square distance
-    double minDistance = numeric_limits<double>::max(); //255
-    int bestMatchIndex = -1;
+    // double minDistance = numeric_limits<double>::max(); //255
+    // int bestMatchIndex = -1;
 
-    Mat currentImage = (*mlt2)[k]; // declare and initialize currentImage
 
-    for (int i = 0; i < reference_spectrums2->size(); ++i)
-    {
-        vector<int>& referenceSpectrum = (*reference_spectrums2)[i];
+    vector<Mat> mlt1=*mlt2; 
+    vector<vector<int>>  reference_spectrums= *reference_spectrums2;
 
-        // calc the chi-square distance
-        double distance = 0.0;
-        for (int j = 0; j < referenceSpectrum.size(); ++j)
-        {
-            if (currentImage.at<int>(j) + referenceSpectrum[j] > 0)
-            {
-                distance += pow(currentImage.at<int>(j) - referenceSpectrum[j], 2) / (currentImage.at<int>(j) + referenceSpectrum[j]);
-            }
+    double sqrDist = 0;
+    double sum = 0;
+    double chiSq = 0;
 
-            spec_simil_img->at<uchar>(j,k)=distance; // distance -> temp_val
+    double xIntg;
+    double yIntg;
 
+
+    for (int j=0; j<mlt1[1].rows; j++) {
+        sqrDist = 0;
+        sum = 0;
+        chiSq = 0;
+
+        xIntg = 0;
+        yIntg = 0;
+
+
+        for (int n=0; n < reference_spectrums[*ref_spec_index].size(); n++) {
+            xIntg += reference_spectrums[*ref_spec_index][n];
+            yIntg = mlt1[n].at<uchar>(j,k);
+            
         }
+
+        for (int n=0; n < reference_spectrums[*ref_spec_index].size(); n++) {
+
+            sqrDist = pow((reference_spectrums[*ref_spec_index][n]/xIntg) - (mlt1[n].at<uchar>(j,k) / yIntg), 2);
+
+            sum = (reference_spectrums[*ref_spec_index][n]/xIntg) + (mlt1[n].at<uchar>(j,k) / yIntg);
+
+            chiSq += (1/2) * (sqrDist / sum);
+
+            // cout << "x >>" << reference_spectrums[*ref_spec_index][n] << endl;
+            // cout << "y >>" << mlt1[n].at<uchar>(j,k) << endl;
+        }
+
+        chiSq = (1/2) * (sqrDist / sum);
+        // if (chiSq > 255) std::cout << "Over" << std::endl;
+        // if (j % 10 == 0) { 
+        //     cout << "chiSq >>" << chiSq << endl;
+
+        // }
+        // cout << "chiSqr >>" << chiSq << endl;
+
+        spec_simil_img->at<uchar>(j,k) = chiSq;
+    }
+
+
+
+
+
+    // Mat currentImage = (*mlt2)[k]; // declare and initialize currentImage
+
+
+    // for (int i = 0; i < reference_spectrums2->size(); ++i)
+    // {
+    //     vector<int>& referenceSpectrum = (*reference_spectrums2)[i];
+
+    //     // calc the chi-square distance
+    //     double distance = 0.0;
+    //     for (int j = 0; j < referenceSpectrum.size(); ++j)
+    //     {
+    //         if (currentImage.at<int>(j) + referenceSpectrum[j] > 0)
+    //         {
+    //             distance += pow(currentImage.at<int>(j) - referenceSpectrum[j], 2) / (currentImage.at<int>(j) + referenceSpectrum[j]);
+    //         }
+
+    //         spec_simil_img->at<uchar>(j,k)=distance; // distance -> temp_val
+
+    //     }
 
         // if (distance < minDistance)
         // {
@@ -1096,7 +1151,7 @@ void cSq_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* refere
         // }
 
         // spec_simil_img->at<uchar>(j,k)=distance; // distance -> temp_val
-    }
+    
 
     // update the output Mat and reference index ---> depends on output wants
     // *spec_simil_img = currentImage.clone();
