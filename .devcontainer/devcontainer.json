@@ -6,18 +6,23 @@
 	// make sure to uncomment the image that is desired for development
 	// docker build commands are to create the docker image
 	// docker build -t hypertools_4_2 -f Dockerfile_4_2_OpenCV .
-	// "image": "hypertools_4_2:latest" ,
+	// "image": "hypertools_4_2_cuda:latest" ,
 	// docker build -t hypertools_cubert -f Dockerfile_cubert .
 	 "image": "hypertools_cubert:latest" ,
 	
-	"mounts": [
-		// below two mounts are for visualization on windows machine if there are issues
-		"source=/run/desktop/mnt/host/wslg/.X11-unix,target=/tmp/.X11-unix,type=bind,consistency=cached",
-		"source=/run/desktop/mnt/host/wslg,target=/mnt/wslg,type=bind,consistency=cached",
-		// below mounts hypertools and folder containing hyper images
-		"source=${localWorkspaceFolder}/../HyperImages,target=/workspaces/HyperImages,type=bind,consistency=cached"
-	  ],
+	 "mounts": [
+	// 	// below two mounts are for visualization on windows machine if there are issues
+	// 	// "source=/run/desktop/mnt/host/wslg/.X11-unix,target=/tmp/.X11-unix,type=bind,consistency=cached",
+	// 	// "source=/run/desktop/mnt/host/wslg,target=/mnt/wslg,type=bind,consistency=cached",
+	// 	// below mounts hypertools and folder containing hyper images
+	 	"source=${localWorkspaceFolder}/../HyperImages,target=/workspaces/HyperImages,type=bind,consistency=cached"
+	   ],
 
-	"remoteEnv": {"DISPLAY":":0"}
+	// "remoteEnv": {"DISPLAY":":0"},
+	
+	"runArgs": [
+		"--gpus",
+		"all"
+	]
 
 }
