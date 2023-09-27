@@ -1028,7 +1028,7 @@ void  HyperFunctions::SpecSimilParent()
     }
     else if (spec_sim_alg==3)
     {
-        this->City_img();
+        this->EuD_img();
     }
 
 }
