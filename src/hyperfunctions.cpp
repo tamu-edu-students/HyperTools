@@ -1353,8 +1353,8 @@ void City_Block_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* ref
         }
         else
         {
-            //assign temp_val, unsure if this is done correctly.
-            temp_val = sum1/(reference_spectrums[*ref_spec_index].size() + 255);
+            //TODO: 255 is an arbitrary value, we will change this in testing:
+            temp_val = sum1/(reference_spectrums[*ref_spec_index].size() + 255); 
         }
         spec_simil_img->at<uchar>(j,k)=temp_val; 
 }
