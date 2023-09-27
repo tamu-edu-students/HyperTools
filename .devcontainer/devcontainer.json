@@ -10,6 +10,10 @@
 	// docker build -t hypertools_cubert -f Dockerfile_cubert .
 	 "image": "hypertools_cubert:latest" ,
 	
+	 /*
+	 docker network create --driver bridge --subnet 192.168.200.0/24 my_custom_network
+	docker run -d --name hypertools_cubert --network my_custom_network --ip 192.168.200.20 hypertools_cubert:latest
+	*/
 	 "mounts": [
 	// 	// below two mounts are for visualization on windows machine if there are issues
 	// 	// "source=/run/desktop/mnt/host/wslg/.X11-unix,target=/tmp/.X11-unix,type=bind,consistency=cached",
