@@ -1030,7 +1030,7 @@ void  HyperFunctions::SpecSimilParent()
     {
         this->EuD_img();
     }
-    else if(spec_sim_alg==4){
+    else if(spec_sim_alg==5){
         this->Cos_img();
     }
 
