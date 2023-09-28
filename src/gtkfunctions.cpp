@@ -447,17 +447,63 @@ static void save_spectrum(GtkWidget *widget,  gpointer data)
 
 static void feature_results(GtkWidget *widget,  gpointer data)
 {
+    // void * data_new=data;
+    // HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
+    // HyperFunctions1->FeatureExtraction();
+
+
     void * data_new=data;
-    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
+    img_struct_gtk *img_struct1=static_cast<img_struct_gtk*>(data_new);
+    void * data_new2=img_struct1->HyperFunctions1;
+    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new2);
+  
     HyperFunctions1->FeatureExtraction();
-       
+   
+ 
+    cv::Mat output=HyperFunctions1->feature_img_combined;
+
+    cv::resize(output,output,Size(HyperFunctions1->WINDOW_WIDTH, HyperFunctions1->WINDOW_HEIGHT),INTER_LINEAR); 
+  
+    set_pix_buf_from_cv( output, img_struct1->image);
+
+/*
+ int result=gtk_spin_button_get_value (widget);
+    void * data_new=data;
+    img_struct_gtk *img_struct1=static_cast<img_struct_gtk*>(data_new);
+    void * data_new2=img_struct1->HyperFunctions1;
+    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new2);
+    HyperFunctions1->false_img_r=result;
+    HyperFunctions1->GenerateFalseImg();
+
+    cv::Mat output=HyperFunctions1->false_img;
+    cv::resize(output,output,Size(HyperFunctions1->WINDOW_WIDTH, HyperFunctions1->WINDOW_HEIGHT),INTER_LINEAR); 
+  
+    set_pix_buf_from_cv( output, img_struct1->image);
+
+*/
+
+
 }	
 
 static void feature_images(GtkWidget *widget,  gpointer data)
 {
+    // void * data_new=data;
+    // HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
+    // HyperFunctions1->DispFeatureImgs();
+
     void * data_new=data;
-    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
+    img_struct_gtk *img_struct1=static_cast<img_struct_gtk*>(data_new);
+    void * data_new2=img_struct1->HyperFunctions1;
+    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new2);
+  
     HyperFunctions1->DispFeatureImgs();
+   
+ 
+    cv::Mat output=HyperFunctions1->feature_img_combined;
+
+    cv::resize(output,output,Size(HyperFunctions1->WINDOW_WIDTH, HyperFunctions1->WINDOW_HEIGHT),INTER_LINEAR); 
+  
+    set_pix_buf_from_cv( output, img_struct1->image);
        
 }	
 
