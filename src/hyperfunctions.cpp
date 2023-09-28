@@ -58,7 +58,8 @@ void  HyperFunctions::DispFeatureImgs()
    Mat matArray1[]={temp_img2,temp_img3};
    hconcat(matArray1,2,temp_img);
    cv::resize(temp_img,temp_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR); 
-   imshow("Feature Images", temp_img);
+   feature_img_combined=temp_img;
+    //    imshow("Feature Images ", feature_img_combined);
 }
 
 // Detects, describes, and matches keypoints between 2 feature images
@@ -167,7 +168,9 @@ for(auto i = 0; i<matches.size();i++)
   drawMatches( feature_img1, keypoints1, feature_img2, keypoints2, matches, temp_img ); 
 
    cv::resize(temp_img,temp_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR); 
-   imshow("Feature Images Matched", temp_img);
+   
+   feature_img_combined= temp_img;
+//    imshow("Feature Images ", feature_img_combined);
 }
 
 // Finds the transformation matrix between two images
