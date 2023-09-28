@@ -157,7 +157,10 @@ void  HyperFunctions::FeatureExtraction()
 
 for(auto i = 0; i<matches.size();i++)
 {
-    
+    auto match_1 = keypoints1[matches.at(i).queryIdx].pt;
+    auto match_2 = keypoints2[matches.at(i).trainIdx].pt;
+
+    if(match1.distance)
 }
 
   Mat temp_img;  
