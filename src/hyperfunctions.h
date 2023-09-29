@@ -17,8 +17,9 @@ void EuD_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* refere
 void SAM_img_Child(int id, int k, vector<Mat>* mlt1, vector<vector<int>>* reference_spectrums,Mat* spec_simil_img,int* ref_spec_index);   
 void SCM_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index);
 void SID_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index);
+void Cos_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index);
+void JM_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index);
 void City_Block_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index);
-
 
 class HyperFunctions 
 {
@@ -34,6 +35,7 @@ public:
 	Mat false_img;
 	Mat feature_img1;
 	Mat feature_img2;
+	Mat feature_img_combined; 
 	Mat spec_simil_img;
 	Mat tiled_img;
 			
@@ -104,9 +106,10 @@ public:
 	void SCM_img();
 	void SemanticSegmenter();
 	void SID_img();
-	void SpecSimilParent();
+	void Cos_img();
+	void JM_img();
 	void City_img();
-
+	void SpecSimilParent();
 
 	//functions involving json files
 	void read_img_json(string file_name);
