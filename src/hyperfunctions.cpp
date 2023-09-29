@@ -58,7 +58,8 @@ void  HyperFunctions::DispFeatureImgs()
    Mat matArray1[]={temp_img2,temp_img3};
    hconcat(matArray1,2,temp_img);
    cv::resize(temp_img,temp_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR); 
-   imshow("Feature Images", temp_img);
+   feature_img_combined=temp_img;
+    //    imshow("Feature Images ", feature_img_combined);
 }
 
 // Detects, describes, and matches keypoints between 2 feature images
@@ -158,7 +159,9 @@ void  HyperFunctions::FeatureExtraction()
   drawMatches( feature_img1, keypoints1, feature_img2, keypoints2, matches, temp_img ); 
 
    cv::resize(temp_img,temp_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR); 
-   imshow("Feature Images Matched", temp_img);
+   
+   feature_img_combined= temp_img;
+//    imshow("Feature Images ", feature_img_combined);
 }
 
 // Finds the transformation matrix between two images
@@ -1033,7 +1036,10 @@ void  HyperFunctions::SpecSimilParent()
     else if(spec_sim_alg==5){
         this->Cos_img();
     }
-
+    else if (spec_sim_alg==7)
+    {
+        this->JM_img();
+    }
 }
 
 //---------------------------------------------------------
@@ -1075,6 +1081,15 @@ void  HyperFunctions::EuD_img()
     }
 }
 
+void  HyperFunctions::JM_img()
+{
+    ctpl::thread_pool p(num_threads);
+    for (int k=0; k<mlt1[1].cols; k+=1)
+    {
+         p.push(JM_img_Child, k, &mlt1,&reference_spectrums,&spec_simil_img,&ref_spec_index);
+    }
+}
+
 void  HyperFunctions::Cos_img()
 {
     ctpl::thread_pool p(num_threads);
@@ -1083,6 +1098,7 @@ void  HyperFunctions::Cos_img()
          p.push(Cos_img_Child, k, &mlt1,&reference_spectrums,&spec_simil_img,&ref_spec_index);
     }
 }
+
 
 //-----------------------------------
 // Name: Cos_img_img
@@ -1117,6 +1133,7 @@ void Cos_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* refere
         spec_simil_img->at<uchar>(j,k)=temp_val; 
     }
 }
+
 //---------------------------------------------------------
 // Name: SAM_img_child
 // PreCondition: test spectra (t) and reference spectra r of a set lenghth 
@@ -1188,6 +1205,38 @@ void EuD_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* refere
             temp_val=(int)((double)temp1*(double)255) ;
         }
         spec_simil_img->at<uchar>(j,k)=temp_val; 
+    }
+}
+
+void JM_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index)   
+{   
+    // single thread
+    vector<Mat> mlt1=*mlt2; 
+    vector<vector<int>>  reference_spectrums= *reference_spectrums2;
+
+    for (int j=0; j<mlt1[1].rows; j++)
+    {
+        //JM relies on the vectors being probability distributions (values for each wavelength must add to 1)
+        //Therefore when calculating BC we must divide the values by the integral.
+        double referenceSpecIntegral = 0;
+        double pixelSpecIntegral = 0;
+
+        for (int i=0; i<reference_spectrums[*ref_spec_index].size(); i++)
+        {
+            referenceSpecIntegral += reference_spectrums[*ref_spec_index][i];
+            pixelSpecIntegral += mlt1[i].at<uchar>(j,k);
+        }
+
+        double BC = 0;
+        for (int i=0; i<reference_spectrums[*ref_spec_index].size(); i++)
+        {
+            BC += sqrt((reference_spectrums[*ref_spec_index][i]/referenceSpecIntegral) * (mlt1[i].at<uchar>(j,k)/pixelSpecIntegral));
+        }
+
+        double Bhattacharrya = -log(BC); //Intermediate step in calculating JM_distance
+        double JM_distance = sqrt(2* (1 - pow(M_E, -Bhattacharrya)));
+        double JM_distance_scaled = JM_distance * 180.312229203; //Scaling from 0-sqrt(2) up to 0-255
+        spec_simil_img->at<uchar>(j,k)=JM_distance_scaled; 
     }
 }
 
@@ -1358,4 +1407,3 @@ void HyperFunctions::thickEdgeContourApproximation(int idx){
     int siz = contours_approx[idx].size();
 
 }
-

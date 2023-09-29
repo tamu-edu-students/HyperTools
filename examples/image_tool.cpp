@@ -8,22 +8,25 @@
 using namespace cv;
 using namespace std;
 
-struct img_struct {
-GObject *image;
-HyperFunctions *HyperFunctions1;
-} ;
+  struct img_struct {
+  GObject *image;
+  HyperFunctions *HyperFunctions1;
+  } ;
+  
+  struct entry_struct {
+  GObject *entry;
+  HyperFunctions *HyperFunctions1;
+  } ;
 
-struct entry_struct {
-GObject *entry;
-HyperFunctions *HyperFunctions1;
-} ;
+  struct spin_struct {
+  GObject *button1;
+  GObject *button2;
+  GObject *button3;
+  GObject *button4;
+  GObject *button5;
+  HyperFunctions *HyperFunctions1;
+  } ;
 
-struct spin_struct {
-GObject *button1;
-GObject *button2;
-GObject *button3;
-HyperFunctions *HyperFunctions1;
-} ;
   
 
 int main (int argc, char *argv[])
@@ -47,6 +50,7 @@ int main (int argc, char *argv[])
       g_clear_error (&error);
       return 1;
     }
+
 
   /* Connect signal handlers to the constructed widgets. */
   window = gtk_builder_get_object (builder, "window");
@@ -93,8 +97,10 @@ int main (int argc, char *argv[])
   (*gtk_hyper_image2).HyperFunctions1=&HyperFunctions1;
   
   button = gtk_builder_get_object (builder, "image_box");
-  g_signal_connect (G_OBJECT (button),"button_press_event",G_CALLBACK (button_press_callback),&HyperFunctions1);
-  g_signal_connect (G_OBJECT (button),"button_press_event",G_CALLBACK (show_spectrum),gtk_hyper_image2);
+  //g_signal_connect (G_OBJECT (button),"button_press_event",G_CALLBACK (button_press_callback),&HyperFunctions1);
+  g_signal_connect (G_OBJECT (button),"button_press_event",G_CALLBACK (button_callback_and_show_spectrum), gtk_hyper_image2);
+
+
 
   button = gtk_builder_get_object (builder, "disp_false_img");
   g_signal_connect (button, "clicked", G_CALLBACK (show_false_img), gtk_hyper_image);
@@ -125,6 +131,15 @@ int main (int argc, char *argv[])
   button = gtk_builder_get_object (builder, "spin_blue");
   (*gtk_spin_buttons).button3 = button;
   g_signal_connect (button, "value-changed", G_CALLBACK (set_false_img_b), gtk_hyper_image);  
+
+
+  button = gtk_builder_get_object (builder, "spin_height");
+  (*gtk_spin_buttons).button4 = button;
+  g_signal_connect (G_OBJECT (button), "value-changed",G_CALLBACK (set_image_height), gtk_hyper_image);
+  
+  button = gtk_builder_get_object (builder,"spin_width");
+  (*gtk_spin_buttons).button5 = button;
+  g_signal_connect (G_OBJECT (button), "value-changed",G_CALLBACK (set_image_width), gtk_hyper_image);
   
   button = gtk_builder_get_object (builder, "reset_false_img");
   g_signal_connect (button, "clicked", G_CALLBACK (set_false_img_reset), gtk_hyper_image);
