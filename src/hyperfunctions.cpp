@@ -58,7 +58,8 @@ void  HyperFunctions::DispFeatureImgs()
    Mat matArray1[]={temp_img2,temp_img3};
    hconcat(matArray1,2,temp_img);
    cv::resize(temp_img,temp_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR); 
-   imshow("Feature Images", temp_img);
+   feature_img_combined=temp_img;
+    //    imshow("Feature Images ", feature_img_combined);
 }
 
 // Detects, describes, and matches keypoints between 2 feature images
@@ -158,7 +159,9 @@ void  HyperFunctions::FeatureExtraction()
   drawMatches( feature_img1, keypoints1, feature_img2, keypoints2, matches, temp_img ); 
 
    cv::resize(temp_img,temp_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR); 
-   imshow("Feature Images Matched", temp_img);
+   
+   feature_img_combined= temp_img;
+//    imshow("Feature Images ", feature_img_combined);
 }
 
 // Finds the transformation matrix between two images
@@ -1034,8 +1037,18 @@ void  HyperFunctions::SpecSimilParent()
     {
         this->cSq_img();
     }
-
+    else if(spec_sim_alg==5){
+        this->Cos_img();
+    }
+    else if(spec_sim_alg==6){
+        this->City_img();
+    }
+    else if (spec_sim_alg==7)
+    {
+        this->JM_img();
+    }
 }
+
 
 //---------------------------------------------------------
 // Name: cSq_img
@@ -1157,6 +1170,7 @@ void cSq_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* refere
     // *spec_simil_img = currentImage.clone();
     // *ref_spec_index = bestMatchIndex;
 
+
 }
 
 //---------------------------------------------------------
@@ -1195,6 +1209,104 @@ void  HyperFunctions::EuD_img()
     for (int k=0; k<mlt1[1].cols; k+=1)
     {
          p.push(EuD_img_Child, k, &mlt1,&reference_spectrums,&spec_simil_img,&ref_spec_index);
+    }
+}
+
+void  HyperFunctions::JM_img()
+{
+    ctpl::thread_pool p(num_threads);
+    for (int k=0; k<mlt1[1].cols; k+=1)
+    {
+         p.push(JM_img_Child, k, &mlt1,&reference_spectrums,&spec_simil_img,&ref_spec_index);
+    }
+}
+
+void  HyperFunctions::Cos_img()
+{
+    ctpl::thread_pool p(num_threads);
+    for (int k=0; k<mlt1[1].cols; k+=1)
+    {
+         p.push(Cos_img_Child, k, &mlt1,&reference_spectrums,&spec_simil_img,&ref_spec_index);
+    }
+}
+
+//---------------------------------------------------------
+// Name: City_img
+// PreCondition: City Block value from City_Block_Child
+// PostCondition: threadpool of City Block values
+//---------------------------------------------------------
+void  HyperFunctions::City_img()
+{    
+    ctpl::thread_pool p(num_threads);
+    for (int k=0; k<mlt1[1].cols; k+=1)
+    {
+         p.push(City_Block_Child, k, &mlt1,&reference_spectrums,&spec_simil_img,&ref_spec_index);
+    }
+}
+
+//parent and child
+void City_Block_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index)   
+{
+//utilize mat1 and mat2 
+    //mlt2 is the image, reference spectrums2 is the referencing, spec_simil is where we put it, ref_spec_index is where we 
+    vector<Mat> mlt1=*mlt2; //dereferences
+    vector<vector<int>>  reference_spectrums= *reference_spectrums2;
+    int temp_val;
+    //iterate through the rows of mlt1
+    for (int j=0; j<mlt1[1].rows; j++)
+    {
+        float sum1=0;
+        int scale = 0;
+        for (int a=0; a<reference_spectrums[*ref_spec_index].size(); a++)
+        {
+            int temp_val2=mlt1[a].at<uchar>(j,k); //extracts temp of mlt at location j,k
+            sum1+=abs(temp_val2 - reference_spectrums[*ref_spec_index][a]);
+        }
+
+        if (sum1<=0)
+        {
+            temp_val=255; // set to white due to an error
+        }
+        else
+        {
+            //TODO: 255 is an arbitrary value, we will change this in testing:
+            temp_val = sum1/(reference_spectrums[*ref_spec_index].size() + 255); 
+        }
+        spec_simil_img->at<uchar>(j,k)=temp_val; 
+    }
+}
+
+//-----------------------------------
+// Name: Cos_img_img
+// PreCondition: Cosine value as produced by Cos_img_child
+// PostCondition: threadpool of Cosine values
+//---------------------------------------------------------
+void Cos_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index)   
+{   
+    // single thread
+    vector<Mat> mlt1=*mlt2; 
+    vector<vector<int>>  reference_spectrums= *reference_spectrums2;
+    int temp_val=0;
+    for (int j=0; j<mlt1[1].rows; j++)
+    {
+        float dot_product = 0.0, sq_a = 0.0, sq_b = 0.0;
+        for(int i =0 ; i < reference_spectrums[*ref_spec_index].size(); i++){
+            int temp_val2 = mlt1[i].at<uchar>(j,k);
+            dot_product += reference_spectrums[*ref_spec_index][i] * temp_val2 ;
+            sq_a += reference_spectrums[*ref_spec_index][i] * reference_spectrums[*ref_spec_index][i];
+            sq_b += temp_val2 * temp_val2;
+        }
+        if (dot_product<=0 || sq_a<=0 || sq_b<=0 )
+        {
+            temp_val=255; // set to white due to an error
+        }
+        else
+        {
+            temp_val = (acos(dot_product / (sqrt(sq_a) * sqrt(sq_b)))) * double(255);
+            //temp_val = temp_val / 3.14159;
+        }
+
+        spec_simil_img->at<uchar>(j,k)=temp_val; 
     }
 }
 
@@ -1269,6 +1381,38 @@ void EuD_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* refere
             temp_val=(int)((double)temp1*(double)255) ;
         }
         spec_simil_img->at<uchar>(j,k)=temp_val; 
+    }
+}
+
+void JM_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index)   
+{   
+    // single thread
+    vector<Mat> mlt1=*mlt2; 
+    vector<vector<int>>  reference_spectrums= *reference_spectrums2;
+
+    for (int j=0; j<mlt1[1].rows; j++)
+    {
+        //JM relies on the vectors being probability distributions (values for each wavelength must add to 1)
+        //Therefore when calculating BC we must divide the values by the integral.
+        double referenceSpecIntegral = 0;
+        double pixelSpecIntegral = 0;
+
+        for (int i=0; i<reference_spectrums[*ref_spec_index].size(); i++)
+        {
+            referenceSpecIntegral += reference_spectrums[*ref_spec_index][i];
+            pixelSpecIntegral += mlt1[i].at<uchar>(j,k);
+        }
+
+        double BC = 0;
+        for (int i=0; i<reference_spectrums[*ref_spec_index].size(); i++)
+        {
+            BC += sqrt((reference_spectrums[*ref_spec_index][i]/referenceSpecIntegral) * (mlt1[i].at<uchar>(j,k)/pixelSpecIntegral));
+        }
+
+        double Bhattacharrya = -log(BC); //Intermediate step in calculating JM_distance
+        double JM_distance = sqrt(2* (1 - pow(M_E, -Bhattacharrya)));
+        double JM_distance_scaled = JM_distance * 180.312229203; //Scaling from 0-sqrt(2) up to 0-255
+        spec_simil_img->at<uchar>(j,k)=JM_distance_scaled; 
     }
 }
 

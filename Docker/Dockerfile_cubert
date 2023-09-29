@@ -1,0 +1,83 @@
+FROM ubuntu:20.04
+
+ENV DEBIAN_FRONTEND noninteractive
+
+RUN apt-get update
+RUN apt-get upgrade -y
+
+RUN apt-get install cmake build-essential  g++ wget unzip libgtk2.0-dev pkg-config  libjsoncpp-dev libcanberra-gtk-module libgtk2.0-dev libgtk-3-dev libboost-all-dev glade  git -y 
+
+
+RUN mkdir -p opencv_build cd opencv_build && \
+    wget -O opencv.zip https://github.com/opencv/opencv/archive/4.2.0.zip && \
+    wget -O opencv_contrib.zip https://github.com/opencv/opencv_contrib/archive/4.2.0.zip && \
+    unzip opencv.zip &&\
+    rm opencv.zip && \
+    unzip opencv_contrib.zip &&\
+    rm opencv_contrib.zip && \
+    mkdir -p build && \ 
+    cd build 
+
+
+RUN cmake \
+    -DOPENCV_ENABLE_NONFREE:BOOL=ON  \
+    -DOPENCV_EXTRA_MODULES_PATH=../opencv_contrib-4.2.0/modules  ../opencv-4.2.0/     \
+    -D OPENCV_GENERATE_PKGCONFIG=ON 
+
+
+RUN make -j$(nproc) &&\
+    make install && \
+    ldconfig
+ 
+RUN apt-get install  language-pack-en-base -y
+
+RUN apt remove --purge --auto-remove cmake -y && \
+    apt update && \
+    apt install -y software-properties-common lsb-release && \
+    apt clean all 
+
+RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - |  tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/null  && \
+    apt-add-repository "deb https://apt.kitware.com/ubuntu/ $(lsb_release -cs) main"  && \
+    apt update && \
+    apt install kitware-archive-keyring -y && \
+    rm /etc/apt/trusted.gpg.d/kitware.gpg && \
+    apt update && \
+    apt install cmake -y && \
+    apt-get install build-essential -y 
+
+RUN git clone https://github.com/cubert-hyperspectral/cuvis.sdk.git
+
+RUN wget https://cloud.cubert-gmbh.de/index.php/s/kKVtx0x2fmYqVgx/download && \
+    unzip download && \
+    cd 3.2.0 && \
+    cd Ubuntu\ 20.04/  && \
+    apt install ./cuviscommon_3.2.0-1.deb -y && \
+    dpkg -i --force-overwrite ./libcuvis_3.2.0-1.deb && \
+    dpkg -i --force-overwrite ./libcuvisxx_3.2.0-1.deb 
+
+RUN apt update
+RUN apt install software-properties-common
+RUN add-apt-repository ppa:deadsnakes/ppa
+RUN apt install python3.9 python3-pip python3-tk -y
+
+RUN echo 'alias python="/usr/bin/python3.9"' >> ~/.bashrc 
+RUN echo 'alias python3="/usr/bin/python3.9"' >> ~/.bashrc 
+RUN echo 'export CUVIS="/lib/cuvis"' >> ~/.bashrc 
+RUN echo 'export CUVIS_DATA="/opt/cuvis"' >> ~/.bashrc 
+
+RUN cd cuvis.sdk/Python/src 
+
+RUN apt update -y
+RUN apt upgrade -y
+RUN cp 3.2.0/Ubuntu\ 20.04/cuvis_il.py cuvis.sdk/Python/src/cuvis/
+RUN cp 3.2.0/Ubuntu\ 20.04/_cuvis_pyil.so cuvis.sdk/Python/src/cuvis/
+
+RUN cd cuvis.sdk/Python/src && python3.9 -m pip install  --editable .   && \
+    python3.9 -m pip install -U Pillow
+
+
+WORKDIR /home
+
+RUN cd /home &&\
+    bash
+
