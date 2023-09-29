@@ -19,7 +19,7 @@ void SCM_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* refere
 void SID_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index);
 void Cos_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index);
 void JM_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index);
-
+void City_Block_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index);
 
 class HyperFunctions 
 {
@@ -108,6 +108,7 @@ public:
 	void SID_img();
 	void Cos_img();
 	void JM_img();
+	void City_img();
 	void SpecSimilParent();
 
 	//functions involving json files
