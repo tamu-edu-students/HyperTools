@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 project(user_interface_project C CXX)
 
 #change below to true to use GPU or false to not use GPU
-set(use_CUDA false) 
+set(use_CUDA true) 
 #change below to true to use cuvis.sdk
 set (use_cuvis true)
 
@@ -62,7 +62,6 @@ if (use_cuvis)
 
     list(APPEND CMAKE_MODULE_PATH "/cuvis.sdk/Cpp/SDK/cmake/")
     find_package(CuvisCpp REQUIRED)    
-
 
     add_executable(cubert_example examples/cubert_example.cpp)
     target_link_libraries(cubert_example PRIVATE cuvis::cpp)
