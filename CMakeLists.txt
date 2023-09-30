@@ -6,9 +6,9 @@ set(CMAKE_CXX_STANDARD 17)
 project(user_interface_project C CXX)
 
 #change below to true to use GPU or false to not use GPU
-set(use_CUDA true) 
+set(use_CUDA false) 
 #change below to true to use cuvis.sdk
-set (use_cuvis true)
+set (use_cuvis false)
 
 
 find_package(OpenCV  REQUIRED)
@@ -33,10 +33,9 @@ if (use_CUDA)
             add_definitions(${GTK_CFLAGS_OTHER}) 
 
             add_executable(cuda_example examples/cuda_example.cu)
-            add_executable(gtk_cuda_example examples/gtk_cuda_example.cu)
+            # add_executable(gtk_cuda_example examples/gtk_cuda_example.cu)
             # below is not necessary right now
-            set_target_properties(gtk_cuda_example PROPERTIES
-            CUDA_SEPARABLE_COMPILATION ON)
+            # set_target_properties(gtk_cuda_example PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
 
         else(CUDA_FOUND)
