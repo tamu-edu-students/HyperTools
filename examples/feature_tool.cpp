@@ -8,6 +8,12 @@
 using namespace cv;
 using namespace std;
 
+struct img_struct {
+GObject *image;
+HyperFunctions *HyperFunctions1;
+} ;
+
+
 int main (int argc, char *argv[])
 {
   string file_name3="../../HyperImages/img1.tiff";
@@ -35,12 +41,21 @@ int main (int argc, char *argv[])
     }
 
   /* Connect signal handlers to the constructed widgets. */
+
+  img_struct *gtk_hyper_image, temp_var1;
+  gtk_hyper_image=&temp_var1;
+  GObject *image;
+  image= gtk_builder_get_object (builder, "disp_img");
+  
+  (*gtk_hyper_image).image=image;
+  (*gtk_hyper_image).HyperFunctions1=&HyperFunctions1;
+
   window = gtk_builder_get_object (builder, "window");
   g_signal_connect (window, "destroy", G_CALLBACK (gtk_main_quit), NULL);
   
   button = gtk_builder_get_object (builder, "spin_image_layer");
   g_signal_connect (button, "value-changed", G_CALLBACK (set_img_layer), &HyperFunctions1);
-  g_signal_connect (button, "value-changed", G_CALLBACK (feature_images), &HyperFunctions1);  
+  g_signal_connect (button, "value-changed", G_CALLBACK (feature_images), gtk_hyper_image); 
 
   button = gtk_builder_get_object (builder, "detect_SIFT");
   g_signal_connect (button, "toggled", G_CALLBACK (set_feature_detector_SIFT), &HyperFunctions1);
@@ -70,10 +85,10 @@ int main (int argc, char *argv[])
   g_signal_connect (button, "toggled", G_CALLBACK (set_feature_matcher_FLANN), &HyperFunctions1);
 
   button = gtk_builder_get_object (builder, "show_results");
-  g_signal_connect (button, "clicked", G_CALLBACK (feature_results), &HyperFunctions1);
+  g_signal_connect (button, "clicked", G_CALLBACK (feature_results), gtk_hyper_image);
 
   button = gtk_builder_get_object (builder, "show_base_imgs");
-  g_signal_connect (button, "clicked", G_CALLBACK (feature_images), &HyperFunctions1);
+  g_signal_connect (button, "clicked", G_CALLBACK (feature_images), gtk_hyper_image);
   
   button = gtk_builder_get_object (builder, "disp_transformation");
   g_signal_connect (button, "clicked", G_CALLBACK (print_transformation), &HyperFunctions1);  

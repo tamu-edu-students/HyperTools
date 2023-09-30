@@ -17,6 +17,9 @@ void EuD_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* refere
 void SAM_img_Child(int id, int k, vector<Mat>* mlt1, vector<vector<int>>* reference_spectrums,Mat* spec_simil_img,int* ref_spec_index);   
 void SCM_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index);
 void SID_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index);
+void Cos_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index);
+void JM_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index);
+void City_Block_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index);
 
 class HyperFunctions 
 {
@@ -32,6 +35,7 @@ public:
 	Mat false_img;
 	Mat feature_img1;
 	Mat feature_img2;
+	Mat feature_img_combined; 
 	Mat spec_simil_img;
 	Mat tiled_img;
 			
@@ -51,7 +55,6 @@ public:
 	double min_area=0.0;
 	double polygon_approx_coeff=0;
 
-	
 	int classification_threshold=255; // for semantic image, if no spectra are under threshold, pixel remains black. set to 255 to classify every pixel. 15 is good to tell if pixel is of same material and allow for some noise
 	int false_img_r=0; // layer value used for red channel in false image
 	int false_img_g=0;  // layer value used for green channel in false image
@@ -103,6 +106,9 @@ public:
 	void SCM_img();
 	void SemanticSegmenter();
 	void SID_img();
+	void Cos_img();
+	void JM_img();
+	void City_img();
 	void SpecSimilParent();
 
 	//functions involving json files
