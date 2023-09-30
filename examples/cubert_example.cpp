@@ -13,7 +13,7 @@ int main (int argc, char *argv[])
 {
 
     // below shows how to process image for reflectances using the cornfields dataset
-    string cubert_settings="../../HyperImages/settings/";  //ultris20.settings file
+    string cubert_settings="../settings/";  //ultris20.settings file
     string cubert_img="../../HyperImages/cornfields/session_002/session_002_490.cu3";
     string dark_img="../../HyperImages/cornfields/Calibration/dark__session_002_003_snapshot16423119279414228.cu3";
     string white_img="../../HyperImages/cornfields/Calibration/white__session_002_752_snapshot16423136896447489.cu3";
@@ -85,14 +85,14 @@ int main (int argc, char *argv[])
         cv::waitKey(50);
     } 
 
-
+  /* example of using hypertools 
     HyperFunctions HyperFunctions1;
     HyperFunctions1.mlt1=mlt1;
     HyperFunctions1.read_ref_spec_json(HyperFunctions1.spectral_database);
     HyperFunctions1.SemanticSegmenter();
     HyperFunctions1.DispClassifiedImage();
     cv::waitKey();
-
+  */
 
   return 0;
 }
