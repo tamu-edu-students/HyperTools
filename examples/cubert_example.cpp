@@ -19,7 +19,7 @@ int main (int argc, char *argv[])
     string white_img="../../HyperImages/cornfields/Calibration/white__session_002_752_snapshot16423136896447489.cu3";
     string dist_img="../../HyperImages/cornfields/Calibration/distanceCalib__session_000_790_snapshot16423004058237746.cu3";
     string factor_dir="../../HyperImages/cornfields/Calibration/"; // requires init.daq file
-    string output_dir="../../HyperImages/cornfields/results/";
+    string output_dir="../../HyperImages/export/";
 
     char* const userSettingsDir =  const_cast<char*>(cubert_settings.c_str());
     char* const measurementLoc =  const_cast<char*>(cubert_img.c_str());

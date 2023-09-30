@@ -15,13 +15,14 @@ int main (int argc, char *argv[])
 {
     
     //ground truth and hyperspectral image file names
-    //string file_name1 = "../../HyperImages/hyperspectral_images/Indian_pines.tiff";
-   // string file_name2 = "../../HyperImages/ground_truth/Indian_pines_gt.tiff";
-     string file_name1 = "../../HyperImages/Public_Images/hyperspectral_images/Indian_pines.tiff";
-     string file_name2 = "../../HyperImages/Public_Images/ground_truth/Indian_pines_gt.tiff";
+    string file_name1 = "../../HyperImages/Public_Images/hyperspectral_images/Indian_pines.tiff";
+    string file_name2 = "../../HyperImages/Public_Images/ground_truth/Indian_pines_gt.tiff";
     
-    //name of database being created
+    //name of spectral database being created
     string spectral_database="../json/spectral_database_gt.json";
+    
+    // name of semantic classes 
+    vector<string> class_list{"Unknown","Alfalfa", "Corn-notill", "Corn-mintill","Corn","Grass-pasture", "Grass-trees", "Grass-pasture-mowed","Hay-windrowed","Oats", "Soybean-notill", "Soybean-mintill", "Soybean-clean", "Wheat", "Woods", "Buildings-Grass-Trees-Drives", "Stone-Steel-Towers"};
     
     
     HyperFunctions HyperFunctions1;
@@ -150,9 +151,7 @@ int main (int argc, char *argv[])
     Json::Value value_obj;
     // value_obj = completeJsonData2;
     
-    // class list for indian pines
-    vector<string> class_list{"Unknown","Alfalfa", "Corn-notill", "Corn-mintill","Corn","Grass-pasture", "Grass-trees", "Grass-pasture-mowed","Hay-windrowed","Oats", "Soybean-notill", "Soybean-mintill", "Soybean-clean", "Wheat", "Woods", "Buildings-Grass-Trees-Drives", "Stone-Steel-Towers"};
-    
+   
     
     for (int j=1; j<class_coordinates.size() ; j++)
     {
