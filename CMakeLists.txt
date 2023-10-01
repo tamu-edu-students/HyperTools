@@ -6,9 +6,9 @@ set(CMAKE_CXX_STANDARD 17)
 project(user_interface_project C CXX)
 
 #change below to true to use GPU or false to not use GPU
-set(use_CUDA true) 
+set(use_CUDA false) 
 #change below to true to use cuvis.sdk
-set (use_cuvis false)
+set (use_cuvis true)
 
 
 find_package(OpenCV  REQUIRED)
@@ -64,11 +64,11 @@ if (use_cuvis)
     list(APPEND CMAKE_MODULE_PATH "/cuvis.sdk/Cpp/SDK/cmake/")
     find_package(CuvisCpp REQUIRED)    
 
-    # add_executable(cubert_example examples/cubert_example.cpp)
-    # target_link_libraries(cubert_example PRIVATE cuvis::cpp)
+    add_executable(cubert_example examples/cubert_example.cpp)
+    target_link_libraries(cubert_example PRIVATE cuvis::cpp)
 
-    add_executable(deeplab_example examples/deeplab_example.cpp)
-    target_link_libraries(deeplab_example PRIVATE cuvis::cpp)
+    # add_executable(deeplab_example examples/deeplab_example.cpp)
+    # target_link_libraries(deeplab_example PRIVATE cuvis::cpp)
 
     # add_executable(cubert_tiff examples/cubert_export_tiff.cpp)
     # target_link_libraries(cubert_tiff PRIVATE cuvis::cpp)
