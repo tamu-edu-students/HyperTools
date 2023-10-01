@@ -28,9 +28,9 @@
 	// "remoteEnv": {"DISPLAY":":0"},
 	
 	// below is used when cuda image is being used
-	/*"runArgs": [
-		"--gpus",
-		"all"
-	]*/
+	// "runArgs": [
+	// 	"--gpus",
+	// 	"all"
+	// ]
 
 }

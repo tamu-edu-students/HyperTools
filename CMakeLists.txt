@@ -1,5 +1,5 @@
 # cmake needs this line
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.16)
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 set(CMAKE_CXX_STANDARD 17)
 # Define project name
@@ -31,11 +31,13 @@ if (use_CUDA)
             endif()
             
             add_definitions(${GTK_CFLAGS_OTHER}) 
+            cmake_policy(SET CMP0146 NEW) 
 
             add_executable(cuda_example examples/cuda_example.cu)
-            # add_executable(gtk_cuda_example examples/gtk_cuda_example.cu)
-            # below is not necessary right now
-            # set_target_properties(gtk_cuda_example PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+            set_target_properties(cuda_example PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+
+            add_executable(gtk_cuda_example examples/gtk_cuda_example.cu)
+            set_target_properties(gtk_cuda_example PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
 
         else(CUDA_FOUND)
@@ -66,12 +68,18 @@ if (use_cuvis)
     target_link_libraries(cubert_example PRIVATE cuvis::cpp)
 
     # add_executable(deeplab_example examples/deeplab_example.cpp)
-    # add_executable(cubert_tiff examples/cubert_export_tiff.cpp)
+    # target_link_libraries(deeplab_example PRIVATE cuvis::cpp)
+
+    add_executable(cubert_tiff examples/cubert_export_tiff.cpp)
+    target_link_libraries(cubert_tiff PRIVATE cuvis::cpp)
 
     # if (use_CUDA)
 
-    # add_executable(cuda_cubert_example examples/cuda_cubert_example.cu)
+    #     list(APPEND CMAKE_MODULE_PATH "/cuvis.sdk/C/SDK/cmake/")
+    #     find_package(Cuvis REQUIRED)
 
+    #     add_executable(cuda_cubert_example examples/cuda_cubert_example.cu)
+    #     target_link_libraries(cuda_cubert_example PRIVATE cuvis::c)
 
     # endif(use_CUDA)
 

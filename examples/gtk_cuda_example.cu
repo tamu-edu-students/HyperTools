@@ -29,7 +29,8 @@ HyperFunctions *HyperFunctions1;
 
 
 // not everything from image_tool is completely functional here
-// just a basic UI with gpu capabilities
+// just a basic UI with gpu capabilities for some of the functions 
+// for full capbilities of the ui, use of the image_tool is needed
 int main (int argc, char *argv[]) {
 
   string file_name2="../../HyperImages/img1.tiff";
