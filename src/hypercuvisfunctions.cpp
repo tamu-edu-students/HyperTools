@@ -83,6 +83,7 @@ void HyperFunctionsCuvis::LoadImageHyper1(string file_name)
             // cv::waitKey(50);
         } 
 
+
     }
     else if (file_ext=="cu3s")
     {
@@ -138,9 +139,7 @@ void HyperFunctionsCuvis::LoadImageHyper1(string file_name)
             mlt1.push_back(singleChannel);
             // cv::imshow(" Individual channel ", singleChannel);
             // cv::waitKey(50);
-        } 
-
-        
+        }         
 
     }
     else if (file_ext=="tiff")
@@ -225,6 +224,7 @@ void HyperFunctionsCuvis::LoadImageHyper2(string file_name)
             // cv::imshow(" Individual channel ", singleChannel);
             // cv::waitKey(50);
         } 
+        
 
     }
     else if (file_ext=="cu3s")
@@ -283,7 +283,6 @@ void HyperFunctionsCuvis::LoadImageHyper2(string file_name)
             // cv::waitKey(50);
         } 
 
-        
 
     }
     else if (file_ext=="tiff")
@@ -291,4 +290,59 @@ void HyperFunctionsCuvis::LoadImageHyper2(string file_name)
         imreadmulti(file_name, mlt2);
     }
    
+}
+
+
+//export cubert image to multipage tiff image
+//assumes cu3s as input
+void HyperFunctionsCuvis::ExportTiff()
+{
+
+    string cubert_settings="../../HyperImages/settings/";  //ultris20.settings file
+    char* const sessionLoc  =  const_cast<char*>(cubert_img.c_str());
+    char* const userSettingsDir =  const_cast<char*>(cubert_settings.c_str());
+    char* const exportDir =  const_cast<char*>(output_dir.c_str());
+
+    cuvis::General::init(userSettingsDir);
+    cuvis::General::set_log_level(loglevel_info);
+    cuvis::SessionFile sess(sessionLoc);
+
+    std::cout << "loading measurement... " << std::endl;
+    auto optmesu = sess.get_mesu(0);
+    assert(optmesu.has_value());
+    cuvis::Measurement mesu = optmesu.value();
+
+    cuvis::ProcessingArgs procArgs;   
+    procArgs.processing_mode = cuvis::processing_mode_t::Cube_Reflectance;
+
+    char* const factoryDir =  const_cast<char*>(factor_dir.c_str());
+    cuvis::Calibration calib(factoryDir);
+    cuvis::ProcessingContext proc(calib);
+    proc.set_processingArgs(procArgs);
+    
+    // not sure of how to change the processing mode
+    // right now it is just set to raw
+    // maybe it is because calibration files are not in cu3s file
+
+    // proc.apply(mesu);
+    
+    cout<<mesu.get_meta()->processing_mode<<" process mode "<<endl;
+    
+    
+    assert(mesu.get_meta()->processing_mode != cuvis::processing_mode_t::Preview);
+    {
+        std::cout << "Export to Multi-Page Tiff" << std::endl;
+        cuvis::TiffArgs args;
+        char exportDirMulti[CUVIS_MAXBUF];
+        strcpy(exportDirMulti, exportDir);
+        strcat(exportDirMulti, "/multi");
+        args.export_dir = exportDirMulti;
+        args.format = cuvis::tiff_format_t::tiff_format_MultiPage;
+        cuvis::TiffExporter exporter(args);
+        exporter.apply(mesu);
+     }
+
+
+    
+
 }

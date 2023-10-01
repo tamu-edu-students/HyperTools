@@ -22,10 +22,10 @@ public:
     string dark_img;
     string white_img;
     string dist_img;
-    
 
     void LoadImageHyper1(string file_name);
     void LoadImageHyper2(string file_name);
+    void ExportTiff();
 
 
 };
