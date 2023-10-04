@@ -23,7 +23,7 @@ int main (int argc, char *argv[])
     // HyperFunctions1.cubert_settings="../settings/ultris5";  //camera settings file 
     // HyperFunctions1.factor_dir="/workspaces/HyperTools/settings/ultris5"; // requires init.daq file
 
-    HyperFunctions1.LoadImageHyper1(HyperFunctions1.cubert_img);
+    HyperFunctions1.LoadImageHyper(HyperFunctions1.cubert_img);
 
     //below only works for  ultris20 images due to different number of layers in default spectral database
     HyperFunctions1.read_ref_spec_json(HyperFunctions1.spectral_database);

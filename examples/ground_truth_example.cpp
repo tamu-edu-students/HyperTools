@@ -27,7 +27,7 @@ int main (int argc, char *argv[])
     
     HyperFunctions HyperFunctions1;
     // load hyperspectral image 
-    HyperFunctions1.LoadImageHyper1(file_name1);
+    HyperFunctions1.LoadImageHyper(file_name1);
 
     // load ground truth image
     Mat gt_img=imread(file_name2, IMREAD_COLOR);
