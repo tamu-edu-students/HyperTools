@@ -38,7 +38,7 @@ static void choose_image_file(GtkFileChooser *widget,  gpointer data) {
     file_chosen = gtk_file_chooser_get_filename(widget);
     void * data_new=data;
     HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
-    HyperFunctions1->LoadImageHyper1(file_chosen);
+    HyperFunctions1->LoadImageHyper(file_chosen);
     
 }
 
