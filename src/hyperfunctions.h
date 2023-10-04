@@ -77,7 +77,7 @@ public:
 	void LoadFeatureImage1(string file_name);
 	void LoadFeatureImage2(string file_name);
 	void LoadImageClassified(string file_name);
-	virtual void LoadImageHyper(string file_name, bool isImage1 = true);
+	virtual void LoadImageHyper(string file_name, bool isImage1);
 
 	//functions to display different types of images
 	void DispClassifiedImage();

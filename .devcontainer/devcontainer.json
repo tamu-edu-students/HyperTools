@@ -23,14 +23,18 @@
 		
 		// below mounts hyperimages in container
 		"source=${localWorkspaceFolder}/../HyperImages,target=/workspaces/HyperImages,type=bind,consistency=cached"
-	  ]
+	  ],
 
 	// "remoteEnv": {"DISPLAY":":0"},
 	
 	// below is used when cuda image is being used
-	// "runArgs": [
-	// 	"--gpus",
-	// 	"all"
-	// ]
+	"runArgs": [
+		"-p", "8080:80",  
+		"-p", "3000:3000",
+		"-p", "8089:80",
+		"--gpus=all",
+		"--network=my_custom_network",
+		"ip=192.168.200.20"
+	]
 
 }

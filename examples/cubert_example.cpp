@@ -19,16 +19,17 @@ int main (int argc, char *argv[])
     HyperFunctions1.white_img = "../../HyperImages/cornfields/Calibration/white__session_002_752_snapshot16423136896447489.cu3";
     HyperFunctions1.dist_img = "../../HyperImages/cornfields/Calibration/distanceCalib__session_000_790_snapshot16423004058237746.cu3";
 
-    // HyperFunctions1.cubert_img = "/workspaces/HyperImages/test_imgs/Auto_001.cu3s";
-    // HyperFunctions1.cubert_settings="../settings/ultris5";  //camera settings file 
-    // HyperFunctions1.factor_dir="/workspaces/HyperTools/settings/ultris5"; // requires init.daq file
+    HyperFunctions1.cubert_img = "/workspaces/HyperImages/test_imgs/Auto_001.cu3s";
+    HyperFunctions1.cubert_settings="../settings/ultris5";  //camera settings file 
+    HyperFunctions1.factor_dir="/workspaces/HyperTools/settings/ultris5"; // requires init.daq file
 
-    HyperFunctions1.LoadImageHyper(HyperFunctions1.cubert_img);
-
+    // HyperFunctions1.LoadImageHyper(HyperFunctions1.cubert_img);
+    // string file_name, const int exposure_ms, const int num_image
+    HyperFunctions1.TakeImageHyper1("qferg",20, 1);
     //below only works for  ultris20 images due to different number of layers in default spectral database
-    HyperFunctions1.read_ref_spec_json(HyperFunctions1.spectral_database);
-    HyperFunctions1.SemanticSegmenter();
-    HyperFunctions1.DispClassifiedImage();
+    // HyperFunctions1.read_ref_spec_json(HyperFunctions1.spectral_database);
+    // HyperFunctions1.SemanticSegmenter();
+    // HyperFunctions1.DispClassifiedImage();
     cv::waitKey();
 
 
