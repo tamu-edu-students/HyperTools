@@ -30,6 +30,7 @@ RUN make -j$(nproc) &&\
     make install && \
     ldconfig
  
+RUN apt-get install  language-pack-en-base -y
 
 WORKDIR /home
 
