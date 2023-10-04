@@ -1091,13 +1091,13 @@ void cSq_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* refere
         yIntg = 0;
 
 
-        for (int n=0; n < reference_spectrums[*ref_spec_index].size(); n++) {
+        for (int n = 0; n < reference_spectrums[*ref_spec_index].size(); n++) {
             xIntg += reference_spectrums[*ref_spec_index][n];
-            yIntg = mlt1[n].at<uchar>(j,k);
+            yIntg += mlt1[n].at<uchar>(j,k);
             
         }
 
-        for (int n=0; n < reference_spectrums[*ref_spec_index].size(); n++) {
+        for (int n = 0; n < reference_spectrums[*ref_spec_index].size(); n++) {
 
             sqrDist = pow((reference_spectrums[*ref_spec_index][n]/xIntg) - (mlt1[n].at<uchar>(j,k) / yIntg), 2);
 
@@ -1105,8 +1105,11 @@ void cSq_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* refere
 
             chiSq += (1/2) * (sqrDist / sum);
 
-            // cout << "x >>" << reference_spectrums[*ref_spec_index][n] << endl;
-            // cout << "y >>" << mlt1[n].at<uchar>(j,k) << endl;
+            // if (n % 10) {
+            //     cout << "x >>" << reference_spectrums[*ref_spec_index][n] << endl;
+            //     cout << "y >>" << mlt1[n].at<uchar>(j,k) << endl; // some nums some chars
+            // }
+            
         }
 
         chiSq = (1/2) * (sqrDist / sum);
