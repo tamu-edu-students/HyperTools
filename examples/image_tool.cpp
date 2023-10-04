@@ -120,6 +120,8 @@ int main (int argc, char *argv[])
   gtk_spin_buttons=&temp_var4;
   (*gtk_spin_buttons).HyperFunctions1 = &HyperFunctions1;
 
+  int hello = 100;
+
   button = gtk_builder_get_object (builder, "spin_red");
   (*gtk_spin_buttons).button1 = button;
   g_signal_connect (button, "value-changed", G_CALLBACK (set_false_img_r), gtk_hyper_image);

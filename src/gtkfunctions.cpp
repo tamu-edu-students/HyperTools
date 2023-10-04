@@ -325,9 +325,15 @@ static void set_false_img_standard_rgb(GtkWidget *widget,  gpointer data)
     void * data_new2=img_struct1->HyperFunctions1;
     HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new2);  
   
+    HyperFunctions1->false_img_r=31; //Hard-coded for the ultris5 camera
+    HyperFunctions1->false_img_g=13;
+    HyperFunctions1->false_img_b=2;
+
+    /*
     HyperFunctions1->false_img_r=163;
     HyperFunctions1->false_img_g=104;
     HyperFunctions1->false_img_b=65;
+    */
     HyperFunctions1->GenerateFalseImg();
  
     cv::Mat output=HyperFunctions1->false_img;
