@@ -33,3 +33,10 @@
 
 #build directory
 **/build/*
+
+# temp ui 
+*.ui~
+
+*.json
+*.DS_Store
+*.log

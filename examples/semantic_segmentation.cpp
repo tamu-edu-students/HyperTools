@@ -2,17 +2,18 @@
 #include <iostream>
 #include "opencv2/opencv.hpp"
 #include <cmath>
+#include "../src/gtkfunctions.cpp"
+#include "../src/hyperfunctions.cpp"
 
-#include "gtkfunctions.cpp"
-#include "hyperfunctions.cpp"
 using namespace cv;
 using namespace std;
 
-
 int
-main (int   argc,
-      char *argv[])
+main (int   argc, char *argv[])
 {
+  string file_name2="../images/lena3.png";
+  string file_name3="../json/lena3.json";
+  
   GtkBuilder *builder;
   GObject *window;
   GObject *button;
@@ -20,21 +21,16 @@ main (int   argc,
   GtkAdjustment *adjustment;
   GtkSpinButton *spinbutton;
   
-
-    
-    
   HyperFunctions HyperFunctions1;
-  gpointer HyperFunctions2 = static_cast<gpointer>(&HyperFunctions1); 
-  string file_name2="../lena.png";
-  string file_name3="../json/lena3.json";
+  gpointer HyperFunctions2 = static_cast<gpointer>(&HyperFunctions1);
   HyperFunctions1.LoadImageClassified(file_name2);
   HyperFunctions1.read_img_json(file_name3);
   
-    gtk_init (&argc, &argv);
+  gtk_init (&argc, &argv);
 
   /* Construct a GtkBuilder instance and load our UI description */
   builder = gtk_builder_new ();
-  if (gtk_builder_add_from_file (builder, "../test.ui", &error) == 0)
+  if (gtk_builder_add_from_file (builder, "../UI/segmentation.ui", &error) == 0)
     {
       g_printerr ("Error loading file: %s\n", error->message);
       g_clear_error (&error);
@@ -54,28 +50,23 @@ main (int   argc,
   button = gtk_builder_get_object (builder, "show_differences");
   g_signal_connect (button, "clicked", G_CALLBACK (show_difference), &HyperFunctions1);
 
- 
-
-  
- 
-  
-  button = gtk_builder_get_object (builder, "event_box1");
-  g_signal_connect (G_OBJECT (button),"button_press_event",G_CALLBACK (button_press_callback),NULL);
-  
-   GObject *image;
-  image= gtk_builder_get_object (builder, "image1");
-  
-   button = gtk_builder_get_object (builder, "orig_img");
-  g_signal_connect (button, "clicked", G_CALLBACK (load_img),image);
-  
-  
-  
+  button = gtk_builder_get_object (builder, "orig_img");
+  g_signal_connect (button, "clicked", G_CALLBACK (show_semantic_img2), &HyperFunctions1);
   
   button = gtk_builder_get_object (builder, "scale_approx_poly");
   g_signal_connect (button, "value-changed", G_CALLBACK (set_approx_poly), &HyperFunctions1);
   
   button = gtk_builder_get_object (builder, "scale_min_area");
   g_signal_connect (button, "value-changed", G_CALLBACK (set_min_area), &HyperFunctions1);
+  
+  button = gtk_builder_get_object (builder, "fidelity1");
+  g_signal_connect (button, "clicked", G_CALLBACK (set_zoom1), &HyperFunctions1);
+  
+  button = gtk_builder_get_object (builder, "fidelity2");
+  g_signal_connect (button, "clicked", G_CALLBACK (set_zoom2), &HyperFunctions1);
+  
+  button = gtk_builder_get_object (builder, "fidelity3");
+  g_signal_connect (button, "clicked", G_CALLBACK (set_zoom3), &HyperFunctions1);
   
   button = gtk_builder_get_object (builder, "quit");
   g_signal_connect (button, "clicked", G_CALLBACK (gtk_main_quit), NULL);
