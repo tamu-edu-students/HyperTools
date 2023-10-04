@@ -6,6 +6,9 @@
 #include "hyperfunctions.h"
 #include "hypercuvisfunctions.h"
 #include "ctpl.h"
+#include "cuvis.hpp"
+#include <cassert>
+#include <iostream>
 
 using namespace cv;
 using namespace std;
@@ -148,6 +151,86 @@ void HyperFunctionsCuvis::LoadImageHyper1(string file_name)
     }
     
     
+    
+}
+
+void HyperFunctionsCuvis::TakeImageHyper1(string file_name, const int exposure_ms, const int num_images) {
+
+    // Take image using cuvis and put it in the export directory
+
+    char* const userSettingsDir = cubert_settings;
+    char* const factoryDir = factor_dir;
+    char* const recDir = output_dir;
+
+    // Loading user settings
+    cuvis::General::init(userSettingsDir);
+    cuvis::General::set_log_level(loglevel_info);
+
+    std::cout << "Loading Calibration and processing context..." << std::endl;
+    // Loading calibration and processing context
+    cuvis::Calibration calib(factoryDir);
+    cuvis::ProcessingContext proc(calib);
+    cuvis::AcquisitionContext acq(calib);
+
+    cuvis::SaveArgs saveArgs;
+    saveArgs.allow_overwrite = true;
+    saveArgs.export_dir = recDir;
+    saveArgs.allow_session_file = true;
+
+    cuvis::CubeExporter exporter(saveArgs);
+
+    while (cuvis::hardware_state_t::hardware_state_offline == acq.get_state())
+    {
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+
+    std::cout << "Camera is online" << std::endl;
+    acq.set_operation_mode(cuvis::operation_mode_t::OperationMode_Software).get();
+    acq.set_integration_time(exposure_ms).get();
+
+    std::cout << "Start recording now" << std::endl;
+    for (int k = 0; k < num_images; k++)
+    {
+        std::cout << "Record image #" << k << "... (async) ";
+        auto async_mesu = acq.capture();
+        auto mesu_res = async_mesu.get(std::chrono::milliseconds(500));
+        if (mesu_res.first == cuvis::async_result_t::done &&
+            mesu_res.second.has_value())
+        {
+        auto& mesu = mesu_res.second.value();
+
+        proc.apply(mesu);
+        exporter.apply(mesu);
+
+        std::cout << "done" << std::endl;
+        }
+        else
+        {
+        std::cout << "failed" << std::endl;
+        }
+    }
+
+    //uncomment for recording in queue mode
+    /* 
+    for (int k = 0; k < num_images; k++)
+    {
+        std::cout << "Record image #" << k << "... (queue)";
+        acq.capture_queue();
+        auto mesu = acq.get_next_measurement(std::chrono::milliseconds(500));
+        if (mesu)
+        {
+            proc.apply(mesu.value());
+            exporter.apply(mesu.value());
+            std::cout << "done" << std::endl;
+        }
+        else
+        {
+            std::cout << "failed" << std::endl;
+        }
+        std::cout << "done" << std::endl;
+    }
+    */
+    std::cout << "finished." << std::endl;
     
 }
 
