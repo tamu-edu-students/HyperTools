@@ -24,6 +24,7 @@ public:
     string dist_img;
 
     void LoadImageHyper1(string file_name);
+    void TakeImageHyper1(string file_name, const int exposure_ms, const int num_images);
     void LoadImageHyper2(string file_name);
     void ExportTiff();
 
