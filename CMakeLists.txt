@@ -8,7 +8,7 @@ project(user_interface_project C CXX)
 #change below to true to use GPU or false to not use GPU
 set(use_CUDA false) 
 #change below to true to use cuvis.sdk
-set (use_cuvis false)
+set (use_cuvis true)
 
 
 find_package(OpenCV  REQUIRED)
@@ -72,6 +72,9 @@ if (use_cuvis)
 
     add_executable(cubert_tiff examples/cubert_export_tiff.cpp)
     target_link_libraries(cubert_tiff PRIVATE cuvis::cpp)
+
+    add_executable(cubert_example1 examples/SSItest.cpp)
+    target_link_libraries(cubert_example1 PRIVATE cuvis::cpp)
 
     # if (use_CUDA)
 

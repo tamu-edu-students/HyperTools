@@ -12,32 +12,31 @@
 
 int main (int argc, char *argv[])
 {
-
     HyperFunctionsCuvis HyperFunctions1;
     string testImg = "/workspaces/HyperTools/images/lena3.png";
-    //take image from camera
-    HyperFunctions1.TakeImageHyper1();
-    // HyperFunctions1.takeimage
-
+    // take image from camera
+    // exposure = 20ms, num images = 1
+    HyperFunctions1.TakeImageHyper1("blah", 20, 1);
 
     HyperFunctions1.cubert_img = "/workspaces/HyperImages/export/Auto_001.cu3s";
     HyperFunctions1.cubert_settings="../settings/ultris5";  //camera settings file 
     HyperFunctions1.factor_dir="../settings/ultris5"; // requires init.daq file
+    HyperFunctions1.spectral_database = "test"; // replace with ultris5 database
     HyperFunctions1.LoadImageHyper1(HyperFunctions1.cubert_img);
 
     //go through and display images
-
-    Mat singleChannel
-    for (size_t i = 0; i < size of mlt1; i++)
+    Mat singleChannel; 
+    for (size_t i = 0; i < HyperFunctions1.mlt1.size(); i++)
     {
-        singleChannel=mlt1[i];
-        // cv::imshow(" Individual channel ", singleChannel);
-        // cv::waitKey(50);    }
+        singleChannel = HyperFunctions1.mlt1[i];
+        cv::imshow("Individual channel: ", singleChannel);
+        cv::waitKey(50);  
     }
-//load spectral database
 
-//show specsimilarity image
-
-
+    //load spectral database
+    HyperFunctions1.read_ref_spec_json(HyperFunctions1.spectral_database);
+    HyperFunctions1.SemanticSegmenter();
+    HyperFunctions1.DispClassifiedImage();
+    //show specsimilarity image
 }
 
