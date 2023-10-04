@@ -15,20 +15,20 @@ using namespace std;
 using namespace cv::xfeatures2d;
 
 // Loads first hyperspectral image for analysis
-void HyperFunctions::LoadImageHyper1(string file_name)
+void HyperFunctions::LoadImageHyper(string file_name, bool isImage1=true)
 {
-    mlt1.clear();
-	imreadmulti(file_name, mlt1);
+    if (isImage1) {
+        mlt1.clear();
+	    imreadmulti(file_name, mlt1);
+    }
+    else {
+        mlt2.clear();
+	    imreadmulti(file_name, mlt2);
+    }
+
     
 }
 
-// Loads second hyperspectral image for analysis
-// mainly used for feature matching 
-void HyperFunctions::LoadImageHyper2(string file_name)
-{
-	mlt2.clear();
-	imreadmulti(file_name, mlt2);
-}
 
 // Loads a segmented or classified image
 // mainly used to reprocess classified images through filtering and polygon simplification
