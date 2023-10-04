@@ -36,6 +36,7 @@ static void choose_image_file(GtkFileChooser *widget,  gpointer data) {
 
     gchar* file_chosen;
     file_chosen = gtk_file_chooser_get_filename(widget);
+
     void * data_new=data;
     HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
     HyperFunctions1->LoadImageHyper1(file_chosen);
@@ -353,6 +354,18 @@ static void set_spin_buttons_reset(GtkWidget *widget,  gpointer data)
     gtk_spin_button_set_value((*spin_struct1).button1,0);
     gtk_spin_button_set_value((*spin_struct1).button2,0);
     gtk_spin_button_set_value((*spin_struct1).button3,0);
+}
+
+static void adjust_spin_ranges(GtkWidget *widget,  gpointer data) {
+    void * data_new=data;
+    spin_struct_gtk *spin_struct1=static_cast<spin_struct_gtk*>(data_new);
+    void * data_new2=spin_struct1->HyperFunctions1;
+    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new2);
+
+    std::cout << HyperFunctions1->mlt1.size()-1 << std::endl;
+    gtk_spin_button_set_range((*spin_struct1).button1, 0, HyperFunctions1->mlt1.size());
+    gtk_spin_button_set_range((*spin_struct1).button2, 0, HyperFunctions1->mlt1.size());
+    gtk_spin_button_set_range((*spin_struct1).button3, 0, HyperFunctions1->mlt1.size());
 }
 
 static void set_spin_buttons_standard_rgb(GtkWidget *widget,  gpointer data) {
