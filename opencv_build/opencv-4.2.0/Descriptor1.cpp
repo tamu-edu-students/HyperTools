@@ -51,6 +51,7 @@ int main()
   cv::Mat img1 = cv::imread("../images/lena3.png");
   cv::Mat img2 = img1;
   cv::imshow ("image1",img2);
+  cv::waitKey(0);
 
 
 
@@ -60,13 +61,13 @@ int main()
 
  
 
-  detector-> detect(img1,keypoint1,descriptors1);
-  detector-> detect (img1,keypoint2,descriptors2);
+  detector-> detect(img1,keypoint1);
+  detector-> detect (img1,keypoint2);
  
   computeCustomDescriptor(img1,keypoint1,descriptors1);
   computeCustomDescriptor(img2,keypoint2,descriptors2);
 
-  std::cout << "Custom Descriptors:\n" <<descriptors1<< "\n";
+   std::cout << "Custom Descriptors:\n" <<descriptors1<< "\n";
 
  
   
