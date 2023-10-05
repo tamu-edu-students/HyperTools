@@ -22,12 +22,12 @@ void computeCustomDescriptor ( const cv::Mat& img, std::vector<cv::KeyPoint> & k
 
   for ( size_t i = 0; i < keypoints.size(); ++i)
   {
-    float x = keypoints[i].x;
-    float y = keypoints[i].y;
+    float x = keypoints[i].pt.x;
+    float y = keypoints[i].pt.y;
 // usinig hessian blob integer approximation 
     for (int j = 0; j <descriptorSize; ++j)
     {
-      float scale = 1.0f = (j -descriptorSize/2) * 0.1f;
+      float scale = 1.0f + (j -descriptorSize/2) * 0.1f;
 
       int det_Hessian =  
       img.at<uchar>(cvRound (y +scale), cvRound(x + scale))
@@ -48,11 +48,11 @@ int main()
   int minHessian = 400;
   Ptr<SURF> detector = SURF::create(minHessian);
 
-  cv::Mat img1 = cv::imread("img1.tiff", cv::IMREAD_GRAYSCALE);
+  cv::Mat img1 = cv::imread("Hyperspectral_research/Hyperimages/image.tiff", IMREAD_COLOR);
   cv:: Mat img2 = img1;
+  cv::imshow ("image1",img1);
 
-
-  cv::cvtColor(img1,cv::COLOR_BGR2GRAY);
+ // cv::cvtColor(img1,cv::COLOR_BGR2GRAY);
 
 
   std::vector<cv::KeyPoint> keypoint1,keypoint2;
@@ -68,7 +68,7 @@ int main()
 
   std::cout << "Custom Descriptors:\n" <<descriptors1<< "\n";
 
-
+ 
   
   /* Ptr<DescriptorMatcher> matcher = DescriptorMatcher::create(DescriptorMatcher::BRUTEFORCE);
   std::vector<DMatch> matches;
