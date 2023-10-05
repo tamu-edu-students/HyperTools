@@ -22,13 +22,20 @@ void computeCustomDescriptor ( const cv::Mat& img, std::vector<cv::KeyPoint> & k
 
   for ( size_t i = 0; i < keypoints.size(); ++i)
   {
-    float x = keypoints[i].pt.x;
-    float y = keypoints[i].pt.y;
-
-
+    float x = keypoints[i].x;
+    float y = keypoints[i].y;
+// usinig hessian blob integer approximation 
     for (int j = 0; j <descriptorSize; ++j)
     {
-      descriptors.at<float>(i,j) = x*0.1 + y* 0.5 + j*0.2;
+      float scale = 1.0f = (j -descriptorSize/2) * 0.1f;
+
+      int det_Hessian =  
+      img.at<uchar>(cvRound (y +scale), cvRound(x + scale))
+      * img.at<uchar>(cvRound (y-scale), cvRound(x - scale))
+      - img.at<uchar> (cvRound(y + scale), cvRound (x-scale))
+      * img.at<uchar> (cvRound(y -scale), cvRound(x + scale ));
+
+      descriptors.at<float>(i,j) = static_cast<float>(det_Hessian);
     }
   }
 
@@ -41,20 +48,29 @@ int main()
   int minHessian = 400;
   Ptr<SURF> detector = SURF::create(minHessian);
 
-  cv::Mat img1 = cv::imread("img1.tiff", cv::IMREAD_COLOR);
+  cv::Mat img1 = cv::imread("img1.tiff", cv::IMREAD_GRAYSCALE);
   cv:: Mat img2 = img1;
+
+
+  cv::cvtColor(img1,cv::COLOR_BGR2GRAY);
 
 
   std::vector<cv::KeyPoint> keypoint1,keypoint2;
   cv::Mat descriptors1, descriptors2;
+
+ 
 
   detector-> detect(img1,keypoint1,descriptors1);
   detector-> detect (img1,keypoint2,descriptors2);
  
   computeCustomDescriptor(img1,keypoint1,descriptors1);
   computeCustomDescriptor(img2,keypoint2,descriptors2);
+
+  std::cout << "Custom Descriptors:\n" <<descriptors1<< "\n";
+
+
   
-  Ptr<DescriptorMatcher> matcher = DescriptorMatcher::create(DescriptorMatcher::BRUTEFORCE);
+  /* Ptr<DescriptorMatcher> matcher = DescriptorMatcher::create(DescriptorMatcher::BRUTEFORCE);
   std::vector<DMatch> matches;
   matcher -> match (descriptors1,descriptors2,matches);
 
@@ -64,7 +80,7 @@ int main()
 
 
   waitKey();
-  return 0;
+  return 0;*/
 }
 
 /*else
