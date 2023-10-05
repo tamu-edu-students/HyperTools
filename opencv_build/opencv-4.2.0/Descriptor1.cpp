@@ -1,44 +1,87 @@
 #include <iostream>
 #include "opencv2/opencv.hpp"
+//#ifdef HAVE_OPENCV_XFEATURES2D
 #include "opencv2/highgui.hpp"
 #include "opencv2/features2d.hpp"
 #include "opencv2/xfeatures2d.hpp"
 
-using namespace cv;
 
+using namespace cv;
+using namespace cv::xfeatures2d;
+using std::cout;
+//using std::end1;
+
+
+void computeCustomDescriptor ( const cv::Mat& img, std::vector<cv::KeyPoint> & keypoints,cv::Mat& descriptors)
+{
+  int descriptorSize = 128;
+
+  //create descriptor matrix
+
+  descriptors = cv::Mat(keypoints.size(),descriptorSize, CV_32F);
+
+  for ( size_t i = 0; i < keypoints.size(); ++i)
+  {
+    float x = keypoints[i].pt.x;
+    float y = keypoints[i].pt.y;
+
+
+    for (int j = 0; j <descriptorSize; ++j)
+    {
+      descriptors.at<float>(i,j) = x*0.1 + y* 0.5 + j*0.2;
+    }
+  }
+
+}
 
 
 int main()
 {
  //initializing SURF detector
   int minHessian = 400;
-  //cv::Ptr<SURF> detector = SURF::create(minHessian);
-  Ptr<cv::xfeatures2d::SURF> detector = cv::xfeatures2d::SURF::create(minHessian);
+  Ptr<SURF> detector = SURF::create(minHessian);
 
   cv::Mat img1 = cv::imread("img1.tiff", cv::IMREAD_COLOR);
-  // using the img.tiff as the image that we would be taking data points from
+  cv:: Mat img2 = img1;
 
-  std::vector<cv::KeyPoint> key1 , key2;
+
+  std::vector<cv::KeyPoint> keypoint1,keypoint2;
   cv::Mat descriptors1, descriptors2;
+
+  detector-> detect(img1,keypoint1,descriptors1);
+  detector-> detect (img1,keypoint2,descriptors2);
+ 
+  computeCustomDescriptor(img1,keypoint1,descriptors1);
+  computeCustomDescriptor(img2,keypoint2,descriptors2);
+  
+  Ptr<DescriptorMatcher> matcher = DescriptorMatcher::create(DescriptorMatcher::BRUTEFORCE);
+  std::vector<DMatch> matches;
+  matcher -> match (descriptors1,descriptors2,matches);
+
+  cv::Mat img_matches;
+  drawMatches(img1,keypoint1,img2,keypoint2,matches,img_matches);
+  imshow("Mathces",img_matches);
+
+
+  waitKey();
+  return 0;
+}
+
+/*else
+int main ()
+{
+  std::cout <<"This tutorial code needs the xfeatures2d contib module to be run" << std::end1;
+  return 0;
+}
+#endif */
+
+
+
+
 // creating vector for the keypoints that will be detected from image
 // getting variables descriptor from opencv and naming them. 
 
-// Using the detector to detect points to be stored into a array. That wil be made into a 1D array
- 
-  detector -> detectAndCompute (img1, cv::noArray(),key1 , descriptors1);
-  detector -> detectAndCompute (img1, cv::noArray(),key1 , descriptors2);
-  std::vector<float> descriptor1D; // vector values of the descriptor changed to flaots
-  //std::vector<float> descriptor1D2;
-// making the descriptors into 1D descriptors
-
-  for (const cv::KeyPoint & point: key1)
-  {
-    int x = static_cast<int>(point.pt.x); // takes the x vallues of the keypoints stores it in the new varaible x same for the y 
-    int y = static_cast<int>(point.pt.y);
-    float descriptor_val = descriptors1.at<float>(y,x); // gives us access to the keypoint locations of the descriptor.
-  }
 
 
-  
+  //computing / creating descriptors
 
-}
