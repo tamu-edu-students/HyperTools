@@ -48,11 +48,11 @@ int main()
   int minHessian = 400;
   Ptr<SURF> detector = SURF::create(minHessian);
 
-  cv::Mat img1 = cv::imread("Hyperspectral_research/Hyperimages/image.tiff", IMREAD_COLOR);
-  cv:: Mat img2 = img1;
-  cv::imshow ("image1",img1);
+  cv::Mat img1 = cv::imread("../images/lena3.png");
+  cv::Mat img2 = img1;
+  cv::imshow ("image1",img2);
 
- // cv::cvtColor(img1,cv::COLOR_BGR2GRAY);
+
 
 
   std::vector<cv::KeyPoint> keypoint1,keypoint2;
