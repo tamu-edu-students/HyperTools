@@ -54,7 +54,7 @@ int main (int argc, char *argv[])
 
     HyperFunctions HyperFunctions1;
     // load hyperspectral image 
-    HyperFunctions1.LoadImageHyper1(input_file_path);
+    HyperFunctions1.LoadImageHyper(input_file_path);
 
     vector<Mat> inputImage = HyperFunctions1.mlt1;
     
