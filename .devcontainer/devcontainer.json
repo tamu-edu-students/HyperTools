@@ -10,8 +10,8 @@
 
 
 	// make sure to uncomment the image that is desired for development
-	"image": "hypertools_4_2:latest" ,
-	// "image": "hypertools_cubert:latest" ,
+	// "image": "hypertools_4_2:latest" ,
+	"image": "hypertools_cubert:latest" ,
 	// "image": "hypertools_4_2_cuda:latest" ,
 	// "image": "hypertools_current_opencv:latest" ,
 	// "image": "hypertools_cubert_cuda:latest" ,
@@ -25,16 +25,16 @@
 		"source=${localWorkspaceFolder}/../HyperImages,target=/workspaces/HyperImages,type=bind,consistency=cached"
 	  ],
 
-	// "remoteEnv": {"DISPLAY":":0"},
+	"remoteEnv": {"DISPLAY":":0"},
 	
 	// below is used when cuda image is being used
 	"runArgs": [
-		"-p", "8080:80",  
-		"-p", "3000:3000",
-		"-p", "8089:80",
+		// "-p", "8080:80",  
+		// "-p", "3000:3000",
+		// "-p", "8089:80",
 		"--gpus=all",
-		"--network=my_custom_network",
-		"ip=192.168.200.20"
+		// "--network=host", //my_custom_network",
+		// "ip=192.168.200.20"
 	]
 
 }
