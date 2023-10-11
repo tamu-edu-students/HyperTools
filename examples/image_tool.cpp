@@ -70,17 +70,20 @@ int main (int argc, char *argv[])
   GObject* spin_red_button = gtk_builder_get_object (builder, "spin_red");
   (*gtk_spin_buttons).button1 = spin_red_button;
   g_signal_connect (spin_red_button, "value-changed", G_CALLBACK (set_false_img_r), gtk_hyper_image);
-  //gtk_spin_button_set_range(spin_red_button, 0, HyperFunctions1.mlt1.size());
+  GtkSpinButton *spin_button = GTK_SPIN_BUTTON(spin_red_button);
+  gtk_spin_button_set_range(spin_button, 0, HyperFunctions1.mlt1.size()-1);
  
   GObject* spin_green_button = gtk_builder_get_object (builder, "spin_green");
   (*gtk_spin_buttons).button2 = spin_green_button;
   g_signal_connect (spin_green_button, "value-changed", G_CALLBACK (set_false_img_g), gtk_hyper_image);
-  //gtk_spin_button_set_range(spin_green_button, 0, HyperFunctions1.mlt1.size());
+  spin_button = GTK_SPIN_BUTTON(spin_green_button);
+  gtk_spin_button_set_range(spin_button, 0, HyperFunctions1.mlt1.size()-1);
   
   GObject* spin_blue_button = gtk_builder_get_object (builder, "spin_blue");
   (*gtk_spin_buttons).button3 = spin_blue_button;
   g_signal_connect (spin_blue_button, "value-changed", G_CALLBACK (set_false_img_b), gtk_hyper_image);
-  //gtk_spin_button_set_range(spin_blue_button, 0, HyperFunctions1.mlt1.size());
+  spin_button = GTK_SPIN_BUTTON(spin_blue_button);
+  gtk_spin_button_set_range(spin_button, 0, HyperFunctions1.mlt1.size()-1);
 
   /* Connect signal handlers to the constructed widgets. */
   window = gtk_builder_get_object (builder, "window");
