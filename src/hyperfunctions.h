@@ -114,6 +114,8 @@ public:
 	void writeJSON(Json::Value &event, vector<vector<Point> > &contours, int idx, string classification, int count);
 	void writeJSON_full(vector<vector<Point> > contours, vector <Vec3b> contour_class,vector<Vec4i> hierarchy);
 
+	//function about match-filtering
+	void filter_matches(vector<Dmatch> matches);
 };
 
 #endif 

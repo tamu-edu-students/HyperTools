@@ -154,15 +154,8 @@ void  HyperFunctions::FeatureExtraction()
         matcher->match( descriptors1, descriptors2, matches );        
     }  
   }   
-    
-
-for(auto i = 0; i<matches.size();i++)
-{
-    auto match_1 = keypoints1[matches.at(i).queryIdx].pt;
-    auto match_2 = keypoints2[matches.at(i).trainIdx].pt;
-
-    if(match1.distance)
-}
+    bool turn_on_filter = false;
+    filter_matches(matches, turn_on_filter);
 
   Mat temp_img;  
   drawMatches( feature_img1, keypoints1, feature_img2, keypoints2, matches, temp_img ); 
@@ -172,7 +165,20 @@ for(auto i = 0; i<matches.size();i++)
    feature_img_combined= temp_img;
 //    imshow("Feature Images ", feature_img_combined);
 }
-
+void filter_matches(vector<Dmatch> matches, bool filter)
+{
+    if(filter)
+    {
+        vector<Dmatch> good_matches;
+        for(auto i = 0; i<matches.size();i++)
+        {
+            if(matches.at(i).distance > .75)
+            {
+                good_matches.push_back(matches.at(i));
+            }
+        }
+    }
+}
 // Finds the transformation matrix between two images
 void HyperFunctions::FeatureTransformation()
 {
