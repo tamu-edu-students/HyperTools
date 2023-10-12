@@ -17,6 +17,9 @@ void EuD_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* refere
 void SAM_img_Child(int id, int k, vector<Mat>* mlt1, vector<vector<int>>* reference_spectrums,Mat* spec_simil_img,int* ref_spec_index);   
 void SCM_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index);
 void SID_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index);
+void Cos_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index);
+void JM_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index);
+void City_Block_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index);
 
 class HyperFunctions 
 {
@@ -75,8 +78,7 @@ public:
 	void LoadFeatureImage1(string file_name);
 	void LoadFeatureImage2(string file_name);
 	void LoadImageClassified(string file_name);
-	void LoadImageHyper1(string file_name);
-	void LoadImageHyper2(string file_name);
+	virtual void LoadImageHyper(string file_name, bool isImage1);
 
 	//functions to display different types of images
 	void DispClassifiedImage();
@@ -104,6 +106,9 @@ public:
 	void SCM_img();
 	void SemanticSegmenter();
 	void SID_img();
+	void Cos_img();
+	void JM_img();
+	void City_img();
 	void SpecSimilParent();
 
 	//functions involving json files

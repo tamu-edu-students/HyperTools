@@ -20,7 +20,7 @@ int load_data_child(int id, int j, string path, string rgb_path_train, string la
 int main (int argc, char *argv[])
 {
    //directory path for input 
-   string path("../../HyperImages/segmented-datasets/Wextel-Dataset");
+   string path("../../HyperImages/cornfields/session_002/");
    // diectory path for output rgb images
   string rgb_path_train("../../HyperImages/export/deeplab/train/Images");
    string label_path_train("../../HyperImages/export/deeplab/train/Labels");
@@ -28,14 +28,14 @@ int main (int argc, char *argv[])
    string label_path_val("../../HyperImages/export/deeplab/val/Labels");
    
    // calibration files
-   string cubert_settings="../../HyperImages/settings/";  //ultris20.settings file
+   string cubert_settings="../settings/";  //ultris20.settings file
     
     // below for reprocessing
     string dark_img="../../HyperImages/cornfields/Calibration/dark__session_002_003_snapshot16423119279414228.cu3";
     string white_img="../../HyperImages/cornfields/Calibration/white__session_002_752_snapshot16423136896447489.cu3";
     string dist_img="../../HyperImages/cornfields/Calibration/distanceCalib__session_000_790_snapshot16423004058237746.cu3";
     string factor_dir="../../HyperImages/cornfields/Calibration/"; // requires init.daq file
-    string output_dir="../../HyperImages/cornfields/results/";
+    string output_dir="../../HyperImages/export/";
    
    // set low enough to not overload ram
    // 7 threads for reprocessing code
@@ -86,8 +86,9 @@ auto start = high_resolution_clock::now();
 
     for(int j=0; j<cu3_files.size() ; j++)
     {
-    //p2.push(reprocess_data_child,j,  path,  rgb_path_train,  label_path_train,  cubert_settings,  dark_img,  white_img,  dist_img,  factor_dir,  output_dir,  cu3_files,rgb_path_val  , label_path_val);
-    p2.push(load_data_child,j,  path,  rgb_path_train,  label_path_train,  cubert_settings,   cu3_files,rgb_path_val  , label_path_val);
+    
+      reprocess_data_child(1,j,  path,  rgb_path_train,  label_path_train,  cubert_settings,  dark_img,  white_img,  dist_img,  factor_dir,  output_dir,  cu3_files,rgb_path_val  , label_path_val );
+      // p2.push(load_data_child,j,  path,  rgb_path_train,  label_path_train,  cubert_settings,   cu3_files,rgb_path_val  , label_path_val);
     
    }
      

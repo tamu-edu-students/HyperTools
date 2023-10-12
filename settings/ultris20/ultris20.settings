@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- The ULTRIS20 hardware and HW-performance settings settings for Laptop -->
+<settings version="2.4.2" xmlns="http://cubert-gmbh.de/core/settings.xsd">
+
+	<!-- packet delay setting. Recommended value: 10000 -->
+	<property id="ULTRIS20_GevSCPD" value="10000"></property>
+	
+	<!-- frame transmission delay setting. Recommended value: 8 -->
+	<property id="ULTRIS20_GevSCFTD" value="0"></property>
+	
+	<!-- steam driver model (hardware-specific) use: Socket or Driver or leave tag away to utilize recommended default -->
+	<!--<property id="ULTRIS20_StreamDriverModel" value="Socket"></property>-->
+	
+	<!-- force a packet size, leave away for auto-negotiation (recommended) -->
+	<!--<property id="ULTRIS20_ForcedPacketSize" value="32000"></property>-->
+	
+	<!-- the max. number of images to be pre-fetched. Recommended value: 8 -->
+	<property id="ULTRIS20_DeviceBufferCount" value="8"></property>
+
+	<!-- force a packet size, leave away for auto-negotiation (recommended) -->
+	<!--<property id="ULTRIS20_" value="32000"></property>-->
+	
+	<!-- Sub-pixel factor for distance calibration, default: 8 -->
+	<property id="ULTRIS20_DistanceCalibration_SuperResolutionFactor" value="8"></property>
+	<!-- zoom-in factor for distance calibration, default: 1 -->
+	<property id="ULTRIS20_DistanceCalibration_Zoom" value="1"></property>
+	
+	
+	
+</settings>
