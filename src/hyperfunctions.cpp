@@ -65,7 +65,7 @@ void  HyperFunctions::DispFeatureImgs()
 void  HyperFunctions::FeatureExtraction()
 {
    	// feature_detector=0; 0 is sift, 1 is surf, 2 is orb, 3 is fast 
-	// feature_descriptor=0; 0 is sift, 1 is surf, 2 is orb
+	// feature_descriptor=0; 0 is sift, 1 is surf, 2 is orb, 3 is customDescriptor
 	// feature_matcher=0; 0 is flann, 1 is bf
   //cout<<feature_detector<<" "<<feature_descriptor<<" "<<feature_matcher<<endl;
   if (feature_detector==0 && feature_descriptor==2)
@@ -109,7 +109,7 @@ void  HyperFunctions::FeatureExtraction()
       detector_FAST->detect( feature_img2, keypoints2 );  
   }
   	
-  	// feature_descriptor=0; 0 is sift, 1 is surf, 2 is orb
+  	// feature_descriptor=0; 0 is sift, 1 is surf, 2 is orb,3 is customeDescriptor
   if(feature_descriptor==0)
   {
     detector_SIFT->compute( feature_img1, keypoints1 , descriptors1);
@@ -125,6 +125,11 @@ void  HyperFunctions::FeatureExtraction()
     detector_ORB->compute( feature_img1, keypoints1 , descriptors1);
     detector_ORB->compute( feature_img2, keypoints2 , descriptors2 );
   }  
+  else if(feature_descriptor ==3)
+  {
+    feature_detector->computeCustoomDescriptor(feature_img1, keypoints1, descriptors1);
+    feature_detector->computeCustoomDescriptor(feature_img2, keypoints2, descriptors2);
+  }
   
   	// feature_matcher=0; 0 is flann, 1 is bf
   if(feature_matcher==0)

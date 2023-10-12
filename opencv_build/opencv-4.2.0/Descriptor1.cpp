@@ -12,7 +12,7 @@ using std::cout;
 //using std::end1;
 
 
-void computeCustomDescriptor ( const cv::Mat& img, std::vector<cv::KeyPoint> & keypoints,cv::Mat& descriptors)
+void computeCustomDescriptor ( const cv::Mat& feature_img, std::vector<cv::KeyPoint> & keypoints,cv::Mat& descriptors)
 {
   int descriptorSize = 128;
 
@@ -30,10 +30,10 @@ void computeCustomDescriptor ( const cv::Mat& img, std::vector<cv::KeyPoint> & k
       float scale = 1.0f + (j -descriptorSize/2) * 0.1f;
 
       int det_Hessian =  
-      img.at<uchar>(cvRound (y +scale), cvRound(x + scale))
-      * img.at<uchar>(cvRound (y-scale), cvRound(x - scale))
-      - img.at<uchar> (cvRound(y + scale), cvRound (x-scale))
-      * img.at<uchar> (cvRound(y -scale), cvRound(x + scale ));
+      feature_img.at<uchar>(cvRound (y +scale), cvRound(x + scale))
+      * feature_img.at<uchar>(cvRound (y-scale), cvRound(x - scale))
+      - feature_img.at<uchar> (cvRound(y + scale), cvRound (x-scale))
+      * feature_img.at<uchar> (cvRound(y -scale), cvRound(x + scale ));
 
       descriptors.at<float>(i,j) = static_cast<float>(det_Hessian);
     }
@@ -66,11 +66,10 @@ int main()
   computeCustomDescriptor(img1,keypoint1,descriptors1);
   computeCustomDescriptor(img2,keypoint2,descriptors2);
 
-  std::cout << "Custom Descriptors:\n" <<descriptors1<< "\n";
 
  
   
-  /* Ptr<DescriptorMatcher> matcher = DescriptorMatcher::create(DescriptorMatcher::BRUTEFORCE);
+  Ptr<DescriptorMatcher> matcher = DescriptorMatcher::create(DescriptorMatcher::BRUTEFORCE);
   std::vector<DMatch> matches;
   matcher -> match (descriptors1,descriptors2,matches);
 
@@ -80,16 +79,9 @@ int main()
 
 
   waitKey();
-  return 0;*/
-}
-
-/*else
-int main ()
-{
-  std::cout <<"This tutorial code needs the xfeatures2d contib module to be run" << std::end1;
   return 0;
 }
-#endif */
+
 
 
 
