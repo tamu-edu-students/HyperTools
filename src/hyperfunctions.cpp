@@ -62,6 +62,17 @@ void  HyperFunctions::DispFeatureImgs()
     //    imshow("Feature Images ", feature_img_combined);
 }
 
+void HyperFunctions::CreateCustomFeatureDetector(int hessVal, vector<KeyPoint> &keypoints, Mat feature_img)
+{
+    for (int y = 0; y < feature_img.rows; y += hessVal) {
+        for (int x = 0; x < feature_img.cols; x += hessVal) {
+            keypoints.push_back(cv::KeyPoint(static_cast<float>(x), static_cast<float>(y), 1));
+        }
+    }
+
+    drawKeypoints(feature_img, keypoints, feature_img);
+}
+
 // Detects, describes, and matches keypoints between 2 feature images
 void  HyperFunctions::FeatureExtraction()
 {
@@ -112,8 +123,9 @@ void  HyperFunctions::FeatureExtraction()
   else if (feature_detector==4) 
   {
     //custom feature detector  
-    CustomFeatureDetector(50);  //input is the spacing between keypoints
-
+    int spacing = 100;
+    CreateCustomFeatureDetector(spacing, keypoints1, feature_img1);  //input is the spacing between keypoints
+    CreateCustomFeatureDetector(spacing, keypoints2, feature_img2);
   }
 
   	// feature_descriptor=0; 0 is sift, 1 is surf, 2 is orb
