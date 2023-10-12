@@ -152,20 +152,21 @@ def extract_rgb(cube, red_layer=78 , green_layer=40, blue_layer=25,  visualize=F
 if __name__ == "__main__":
 
 
-   
+   # make sure terminal is in the right directory when running this file
+   # I was running from the examples directory of hypertools
     
-    userSettingsDir = "../HyperImages/settings/" 
-    measurementLoc = "../HyperImages/cornfields/session_002/session_002_490.cu3" 
-    darkLoc = "../HyperImages/cornfields/Calibration/dark__session_002_003_snapshot16423119279414228.cu3"
-    whiteLoc = "../HyperImages/cornfields/Calibration/white__session_002_752_snapshot16423136896447489.cu3"
-    distanceLoc = "../HyperImages/cornfields/Calibration/distanceCalib__session_000_790_snapshot16423004058237746.cu3"
-    factoryDir = "../HyperImages/settings/"
-    outDir ="../HyperImages/export/"
+    userSettingsDir = "../settings/" 
+    measurementLoc = "../../HyperImages/cornfields/session_002/session_002_490.cu3"
+    darkLoc = "../../HyperImages/cornfields/Calibration/dark__session_002_003_snapshot16423119279414228.cu3"
+    whiteLoc = "../../HyperImages/cornfields/Calibration/white__session_002_752_snapshot16423136896447489.cu3"
+    distanceLoc = "../../HyperImages/cornfields/Calibration/distanceCalib__session_000_790_snapshot16423004058237746.cu3"
+    factoryDir = "../settings/" # init.daq file
+    outDir ="../../HyperImages/export/"
     
     # use below if image is already processed
     # cube= loadMeasurement(userSettingsDir, measurementLoc, False)
     # use below is raw mode is required
-    cube = reprocessMeasurement(userSettingsDir,measurementLoc,darkLoc,whiteLoc,distanceLoc,factoryDir,outDir, True)
+    cube = reprocessMeasurement(userSettingsDir,measurementLoc,darkLoc,whiteLoc,distanceLoc,factoryDir,outDir, False)
     data = cube.array[:,:, :] # x,y,chan
-    print(data.shape)
+    # print(data.shape)
     rgb_img= extract_rgb(cube,visualize=True)

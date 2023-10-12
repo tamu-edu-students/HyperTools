@@ -20,9 +20,9 @@ int main (int argc, char *argv[])
   string file_name4="../../HyperImages/img1.tiff"; //CHANGED TO TEST
   
   HyperFunctions HyperFunctions1;
-  HyperFunctions1.LoadImageHyper1(file_name3);
+  HyperFunctions1.LoadImageHyper(file_name3);
   HyperFunctions1.feature_img1=HyperFunctions1.mlt1[0];
-  HyperFunctions1.LoadImageHyper2(file_name4);
+  HyperFunctions1.LoadImageHyper(file_name4, false);
   HyperFunctions1.feature_img2=HyperFunctions1.mlt2[0];
   
   GtkBuilder *builder;

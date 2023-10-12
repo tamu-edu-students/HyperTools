@@ -17,6 +17,9 @@ void EuD_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* refere
 void SAM_img_Child(int id, int k, vector<Mat>* mlt1, vector<vector<int>>* reference_spectrums,Mat* spec_simil_img,int* ref_spec_index);   
 void SCM_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index);
 void SID_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index);
+void Cos_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index);
+void JM_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index);
+void City_Block_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index);
 
 class HyperFunctions 
 {
@@ -74,8 +77,7 @@ public:
 	void LoadFeatureImage1(string file_name);
 	void LoadFeatureImage2(string file_name);
 	void LoadImageClassified(string file_name);
-	void LoadImageHyper1(string file_name);
-	void LoadImageHyper2(string file_name);
+	virtual void LoadImageHyper(string file_name, bool isImage1);
 
 	//functions to display different types of images
 	void DispClassifiedImage();
@@ -103,6 +105,9 @@ public:
 	void SCM_img();
 	void SemanticSegmenter();
 	void SID_img();
+	void Cos_img();
+	void JM_img();
+	void City_img();
 	void SpecSimilParent();
 
 	//functions involving json files
@@ -113,6 +118,19 @@ public:
 	void save_ref_spec_json(string item_name); 
 	void writeJSON(Json::Value &event, vector<vector<Point> > &contours, int idx, string classification, int count);
 	void writeJSON_full(vector<vector<Point> > contours, vector <Vec3b> contour_class,vector<Vec4i> hierarchy);
+
+	//Custom Feature Detector
+	void CustomFeatureDetector(int hessVal){
+		std::vector<cv::KeyPoint> keypoints;
+		for (int y = 0; y < feature_img1.rows; y += hessVal) {
+    		for (int x = 0; x < feature_img1.cols; x += hessVal) {
+        		keypoints.push_back(cv::KeyPoint(static_cast<float>(x), static_cast<float>(y), 1));
+    		}
+		}
+
+		drawKeypoints(feature_img1, keypoints, feature_img1);
+    	drawKeypoints(feature_img2, keypoints, feature_img2);
+	}
 
 };
 
