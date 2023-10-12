@@ -80,6 +80,12 @@ int main (int argc, char *argv[])
   
   button = gtk_builder_get_object (builder, "match_bf");
   g_signal_connect (button, "toggled", G_CALLBACK (set_feature_matcher_BF), &HyperFunctions1);
+
+   button = gtk_builder_get_object (builder, "filter_1");
+  g_signal_connect (button, "toggled", G_CALLBACK (set_filter_1), &HyperFunctions1);
+
+   button = gtk_builder_get_object (builder, "filter_na");
+  g_signal_connect (button, "toggled", G_CALLBACK (set_filter_na), &HyperFunctions1);
   
   button = gtk_builder_get_object (builder, "match_flann");
   g_signal_connect (button, "toggled", G_CALLBACK (set_feature_matcher_FLANN), &HyperFunctions1);

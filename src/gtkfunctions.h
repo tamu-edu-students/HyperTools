@@ -25,6 +25,10 @@ static void set_spec_sim_alg_SCM(GtkWidget *widget,  gpointer data);
 static void set_spec_sim_alg_SID(GtkWidget *widget,  gpointer data);
 static void set_spec_sim_alg_EuD(GtkWidget *widget,  gpointer data);
 
+static void set_filter_1(GtkWidget *widget,  gpointer data);
+
+static void set_filter_na(GtkWidget *widget,  gpointer data);
+
 
     static void set_pix_buf_from_cv(cv::Mat output, GtkImage *image);
     
