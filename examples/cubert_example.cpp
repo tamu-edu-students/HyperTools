@@ -19,9 +19,9 @@ int main (int argc, char *argv[])
     // HyperFunctions1.white_img = "../../HyperImages/cornfields/Calibration/white__session_002_752_snapshot16423136896447489.cu3";
     // HyperFunctions1.dist_img = "../../HyperImages/cornfields/Calibration/distanceCalib__session_000_790_snapshot16423004058237746.cu3";
 
-    HyperFunctions1.dark_img = "../../HyperImages/Calib2/Dark.cu3s";
-    HyperFunctions1.white_img = "../../HyperImages/Calib2/White.cu3s";
-    HyperFunctions1.dist_img = "../../HyperImages/Calib2/Dist.cu3s";
+    HyperFunctions1.dark_img = "../../HyperImages/Calib20/Dark.cu3s";
+    HyperFunctions1.white_img = "../../HyperImages/Calib20/White.cu3s";
+    HyperFunctions1.dist_img = "../../HyperImages/Calib20/Dist.cu3s";
 
 
     HyperFunctions1.cubert_img = "../../HyperImages/export/Auto_001.cu3s";
@@ -32,7 +32,7 @@ int main (int argc, char *argv[])
 
     
     // string file_name, const int exposure_ms, const int num_image
-    HyperFunctions1.TakeImageHyper1("qferg",50, 1);
+    // HyperFunctions1.TakeImageHyper1("qferg",20, 1);
     // leads to a seg fault so will need to fix above
     
     
@@ -44,14 +44,14 @@ int main (int argc, char *argv[])
 
     //  HyperFunctions1.LoadImageHyper(HyperFunctions1.cubert_img);
     
-    // HyperFunctions1.ReprocessCu3s();    
-    // HyperFunctions1.false_img_b=10;
-    // HyperFunctions1.false_img_g=20;
-    // HyperFunctions1.false_img_r=30;
-    // HyperFunctions1.GenerateFalseImg();
-    // // HyperFunctions1.DispFalseImage();
+    HyperFunctions1.ReprocessCu3s();    
+    HyperFunctions1.false_img_b=10;
+    HyperFunctions1.false_img_g=20;
+    HyperFunctions1.false_img_r=30;
+    HyperFunctions1.GenerateFalseImg();
+    // HyperFunctions1.DispFalseImage();
 
-    // cv::imwrite(HyperFunctions1.output_dir+"test_img.png", HyperFunctions1.false_img);
+    cv::imwrite(HyperFunctions1.output_dir+"test_img.png", HyperFunctions1.false_img);
 
     
     cv::waitKey();

@@ -4,6 +4,7 @@
 #include <cmath>
 #include "../src/gtkfunctions.cpp"
 #include "../src/hyperfunctions.cpp"
+#include "../src/hypercuvisfunctions.cpp"
 
 using namespace cv;
 using namespace std;
@@ -31,10 +32,22 @@ using namespace std;
 
 int main (int argc, char *argv[])
 {
-  string file_name2="../../HyperImages/img1.tiff";
+  // string file_name2="../../HyperImages/img1.tiff";
 
-  HyperFunctions HyperFunctions1;
-  HyperFunctions1.LoadImageHyper(file_name2);
+  HyperFunctionsCuvis HyperFunctions1;
+  // HyperFunctions1.LoadImageHyper(file_name2);
+  HyperFunctions1.dark_img = "../../HyperImages/Calib20/Dark.cu3s";
+    HyperFunctions1.white_img = "../../HyperImages/Calib20/White.cu3s";
+    HyperFunctions1.dist_img = "../../HyperImages/Calib20/Dist.cu3s";
+
+
+    HyperFunctions1.cubert_img = "../../HyperImages/export/Auto_001.cu3s";
+    // HyperFunctions1.cubert_img = "../../HyperImages/export/Ref/Auto_001.cu3s";
+
+    HyperFunctions1.cubert_settings="../settings/ultris5";  //camera settings file 
+    HyperFunctions1.factor_dir="../settings/ultris5"; // requires init.daq file
+    HyperFunctions1.ReprocessCu3s();    
+
   
   GtkBuilder *builder;
   GObject *window;
