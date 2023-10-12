@@ -86,7 +86,7 @@ void  HyperFunctions::FeatureExtraction()
     return;
   }
   
-  if(feature_detector<0 || feature_detector>5 || feature_descriptor<0 || feature_descriptor>2 || feature_matcher<0 || feature_matcher>1)
+  if(feature_detector<0 || feature_detector>4 || feature_descriptor<0 || feature_descriptor>2 || feature_matcher<0 || feature_matcher>1)
   {
     cout<<"invalid feature combination"<<endl;
   }
@@ -99,7 +99,7 @@ void  HyperFunctions::FeatureExtraction()
   Ptr<DescriptorMatcher> matcher;
   Mat descriptors1, descriptors2;
 
-// feature_detector=0; 0 is sift, 1 is surf, 2 is orb, 3 is fast, 9 is custom
+// feature_detector=0; 0 is sift, 1 is surf, 2 is orb, 3 is fast, 4 is custom
   if(feature_detector==0)
   {
     detector_SIFT->detect( feature_img1, keypoints1 );
