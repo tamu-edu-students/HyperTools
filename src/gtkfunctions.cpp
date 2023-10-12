@@ -510,6 +510,13 @@ static void set_feature_descriptor_ORB(GtkWidget *widget,  gpointer data)
     if (T==1) {HyperFunctions1->feature_descriptor=2;}
 
 }
+static void set_Custom_descriptor(GtkWidget *widget,  gpointer data)
+{
+    void * data_new=data;
+    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
+    gboolean T = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+    if (T==1) {HyperFunctions1->feature_descriptor=3;}
+
 static void set_feature_matcher_FLANN(GtkWidget *widget,  gpointer data)
 {
     void * data_new=data;

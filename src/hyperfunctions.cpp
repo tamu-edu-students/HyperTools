@@ -127,8 +127,8 @@ void  HyperFunctions::FeatureExtraction()
   }  
   else if(feature_descriptor ==3)
   {
-    feature_detector->computeCustoomDescriptor(feature_img1, keypoints1, descriptors1);
-    feature_detector->computeCustoomDescriptor(feature_img2, keypoints2, descriptors2);
+    detector_SURF->computeCustomDescriptor(feature_img1, keypoints1, descriptors1);
+    detector_SURF->computeCustomDescriptor(feature_img2, keypoints2, descriptors2);
   }
   
   	// feature_matcher=0; 0 is flann, 1 is bf

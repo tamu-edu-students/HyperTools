@@ -18,6 +18,7 @@ static void set_feature_detector_FAST(GtkWidget *widget,  gpointer data);
 static void set_feature_descriptor_SIFT(GtkWidget *widget,  gpointer data);
 static void set_feature_descriptor_SURF(GtkWidget *widget,  gpointer data);
 static void set_feature_descriptor_ORB(GtkWidget *widget,  gpointer data);
+static void set_Custom_descriptor(GTKEidger *widget, gpointer data);
 static void set_feature_matcher_FLANN(GtkWidget *widget,  gpointer data);
 static void set_feature_matcher_BF(GtkWidget *widget,  gpointer data);	
 static void set_spec_sim_alg_SAM(GtkWidget *widget,  gpointer data);
