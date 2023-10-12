@@ -65,6 +65,7 @@ public:
     int WINDOW_WIDTH = 800; // width of displayed image
 	int WINDOW_HEIGHT= 800; // height of displayed image
     
+	int filter = 0;
 
 	string camera_database="../json/camera_database.json"; // holds camera properties
 	string output_polygons="../json/file.json";  // output contour results
@@ -115,7 +116,7 @@ public:
 	void writeJSON_full(vector<vector<Point> > contours, vector <Vec3b> contour_class,vector<Vec4i> hierarchy);
 
 	//function about match-filtering
-	void filter_matches(vector<Dmatch> matches);
+	void filter_matches(vector<DMatch> &matches);
 };
 
 #endif 

@@ -52,8 +52,12 @@ RUN wget https://cloud.cubert-gmbh.de/index.php/s/kKVtx0x2fmYqVgx/download && \
     cd 3.2.0 && \
     cd Ubuntu\ 20.04/  && \
     apt install ./cuviscommon_3.2.0-1.deb -y && \
+    
+RUN cd 3.2.0 && \
+    cd Ubuntu\ 20.04/  && \
+    dpkg -i --force-overwrite ./libcuvisxx_3.2.0-1.deb \
     dpkg -i --force-overwrite ./libcuvis_3.2.0-1.deb && \
-    dpkg -i --force-overwrite ./libcuvisxx_3.2.0-1.deb 
+
 
 RUN apt update
 RUN apt install software-properties-common

@@ -550,6 +550,23 @@ static void set_feature_detector_SURF(GtkWidget *widget,  gpointer data)
     if (T==1) {HyperFunctions1->feature_detector=1;}
 
 }
+static void set_filter_1(GtkWidget *widget,  gpointer data)
+{
+    void * data_new=data;
+    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
+    gboolean T = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+    if (T==1) {HyperFunctions1->filter=1;}
+
+}
+static void set_filter_na(GtkWidget *widget,  gpointer data)
+{
+    void * data_new=data;
+    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
+    gboolean T = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+    if (T==1) {HyperFunctions1->filter=0;}
+
+}
+
 static void set_feature_detector_ORB(GtkWidget *widget,  gpointer data)
 {
     void * data_new=data;

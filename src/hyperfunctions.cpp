@@ -154,8 +154,8 @@ void  HyperFunctions::FeatureExtraction()
         matcher->match( descriptors1, descriptors2, matches );        
     }  
   }   
-    bool turn_on_filter = false;
-    filter_matches(matches, turn_on_filter);
+   
+    filter_matches(matches);
 
   Mat temp_img;  
   drawMatches( feature_img1, keypoints1, feature_img2, keypoints2, matches, temp_img ); 
@@ -165,16 +165,17 @@ void  HyperFunctions::FeatureExtraction()
    feature_img_combined= temp_img;
 //    imshow("Feature Images ", feature_img_combined);
 }
-void filter_matches(vector<Dmatch> matches, bool filter)
+void HyperFunctions::filter_matches(vector<DMatch> &matches)
 {
-    if(filter)
+    if(filter == 1)
     {
-        vector<Dmatch> good_matches;
-        for(auto i = 0; i<matches.size();i++)
+       // vector<Dmatch> good_matches;
+        for(size_t i = 0; i<matches.size();i++)
         {
-            if(matches.at(i).distance > .75)
+            if(matches.at(i).distance < .75)
             {
-                good_matches.push_back(matches.at(i));
+                matches.erase(matches.begin() + i);
+                i--;
             }
         }
     }
