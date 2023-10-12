@@ -87,16 +87,7 @@ void  HyperFunctions::FeatureExtraction()
   Ptr<ORB> detector_ORB = ORB::create();
   Ptr<DescriptorMatcher> matcher;
   Mat descriptors1, descriptors2;
-  //custom feature detectors 
-  std::vector<cv::KeyPoint> keypoints;
-  int spacing = 100;
-for (int y = 0; y < feature_img1.rows; y += spacing) {
-    for (int x = 0; x < feature_img1.cols; x += spacing) {
-        keypoints.push_back(cv::KeyPoint(static_cast<float>(x), static_cast<float>(y), 1));
-    }
-}
 
-    
 // feature_detector=0; 0 is sift, 1 is surf, 2 is orb, 3 is fast, 9 is custom
   if(feature_detector==0)
   {
@@ -120,9 +111,8 @@ for (int y = 0; y < feature_img1.rows; y += spacing) {
   } 
   else if (feature_detector==4) 
   {
-    //custom spacing feature detectors
-    drawKeypoints(feature_img1, keypoints, feature_img1);
-    drawKeypoints(feature_img2, keypoints, feature_img2);
+    //custom feature detector  
+    CustomFeatureDetector(50);  //input is the spacing between keypoints
 
   }
 
