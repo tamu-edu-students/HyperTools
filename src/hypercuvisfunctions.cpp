@@ -178,9 +178,9 @@ void HyperFunctionsCuvis::TakeImageHyper1(string file_name, const int exposure_m
 
     // Take image using cuvis and put it in the export directory
 
-    char* const userSettingsDir = cubert_settings;
-    char* const factoryDir = factor_dir;
-    char* const recDir = output_dir;
+    char* const userSettingsDir = const_cast<char*>(cubert_settings.c_str());
+    char* const factoryDir = const_cast<char*>(factor_dir.c_str());
+    char* const recDir = const_cast<char*>(output_dir.c_str());
 
     // Loading user settings
     cuvis::General::init(userSettingsDir);
