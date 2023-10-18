@@ -33,7 +33,12 @@ int main (int argc, char *argv[])
 {
   string file_name2="../../HyperImages/img1.tiff";
 
-  HyperFunctions HyperFunctions1;
+  #ifdef HYPERCUVISFUNCTIONS_H  //do hypercuvis functions, else base functions
+  HyperFunctionsCuvis HyperFunctions1;
+  #else
+  HyperFunctions HyperFunctions1; 
+  #endif
+
   HyperFunctions1.LoadImageHyper(file_name2);
   
   GtkBuilder *builder;
