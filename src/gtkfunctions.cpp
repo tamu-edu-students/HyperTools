@@ -325,16 +325,26 @@ static void set_false_img_standard_rgb(GtkWidget *widget,  gpointer data)
     img_struct_gtk *img_struct1=static_cast<img_struct_gtk*>(data_new);
     void * data_new2=img_struct1->HyperFunctions1;
     HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new2);  
-  
-    HyperFunctions1->false_img_r=31; //Hard-coded for the ultris5 camera
-    HyperFunctions1->false_img_g=13;
-    HyperFunctions1->false_img_b=2;
+    
+    //query size of mlt1, find out how many layers in the standard image
+    // std::cout << HyperFunctions1->mlt1.size() << std::endl;
 
-    /*
-    HyperFunctions1->false_img_r=163;
-    HyperFunctions1->false_img_g=104;
-    HyperFunctions1->false_img_b=65;
-    */
+    if(HyperFunctions1->mlt1.size() == 51){ //ultris5
+        HyperFunctions1->false_img_r=31; //Hard-coded for the ultris5 camera
+        HyperFunctions1->false_img_g=13;
+        HyperFunctions1->false_img_b=2;
+    }
+    else if(HyperFunctions1->mlt1.size() == 164){
+        HyperFunctions1->false_img_r=163;
+        HyperFunctions1->false_img_g=104;
+        HyperFunctions1->false_img_b=65;
+    }
+    else{
+        int size = HyperFunctions1->mlt1.size();
+        HyperFunctions1->false_img_r=size-1;
+        HyperFunctions1->false_img_g=size*2/3;
+        HyperFunctions1->false_img_b=size/3;
+    }
     HyperFunctions1->GenerateFalseImg();
  
     cv::Mat output=HyperFunctions1->false_img;
