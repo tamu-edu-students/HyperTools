@@ -1111,12 +1111,18 @@ void cSq_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* refere
         }
 
         for (int n = 0; n < reference_spectrums[*ref_spec_index].size(); n++) {
+            // sqrDist += pow((reference_spectrums[*ref_spec_index][n]/xIntg) - (mlt1[n].at<uchar>(j,k) / yIntg), 2);
+
+            // sum += (reference_spectrums[*ref_spec_index][n]/xIntg) + (mlt1[n].at<uchar>(j,k) / yIntg);
+
+            //chiSq += (sqrDist / sum);
+
 
             sqrDist = pow((reference_spectrums[*ref_spec_index][n]/xIntg) - (mlt1[n].at<uchar>(j,k) / yIntg), 2);
 
             sum = (reference_spectrums[*ref_spec_index][n]/xIntg) + (mlt1[n].at<uchar>(j,k) / yIntg);
 
-            chiSq += (1/2) * (sqrDist / sum);
+            chiSq += (sqrDist / sum);
 
             // if (n % 10) {
             //     cout << "x >>" << reference_spectrums[*ref_spec_index][n] << endl;
@@ -1125,7 +1131,8 @@ void cSq_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* refere
             
         }
 
-        chiSq = (1/2) * (sqrDist / sum);
+        chiSq = sqrt(sqrt(0.5 * (sqrDist / sum))) * 255; // sqrt for data manipulation and made spectral similarity image better
+
         // if (chiSq > 255) std::cout << "Over" << std::endl;
         // if (j % 10 == 0) { 
         //     cout << "chiSq >>" << chiSq << endl;
