@@ -54,11 +54,12 @@ int main (int argc, char *argv[]) {
     HyperFunctions1.DispClassifiedImage();
     cv::waitKey();
 
+    /*
     HyperFunctions1.spec_sim_alg=3;
     HyperFunctions1.semantic_segmentation();
     HyperFunctions1.DispClassifiedImage();
     cv::waitKey();
-
+    */
 
     HyperFunctions1.deallocate_memory();
 

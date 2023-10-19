@@ -10,11 +10,11 @@
 
 
 	// make sure to uncomment the image that is desired for development
-	"image": "hypertools_4_2:latest" ,
+	// "image": "hypertools_4_2:latest" ,
 	// "image": "hypertools_cubert:latest" ,
 	// "image": "hypertools_4_2_cuda:latest" ,
 	// "image": "hypertools_current_opencv:latest" ,
-	// "image": "hypertools_cubert_cuda:latest" ,
+	"image": "hypertools_cubert_cuda:latest" ,
 	
 	"mounts": [
 		// below two mounts are for visualization on windows machine if there are issues with wsl
@@ -23,14 +23,14 @@
 		
 		// below mounts hyperimages in container
 		"source=${localWorkspaceFolder}/../HyperImages,target=/workspaces/HyperImages,type=bind,consistency=cached"
-	  ]
+	  ],
 
 	// "remoteEnv": {"DISPLAY":":0"},
 	
 	// below is used when cuda image is being used
-	// "runArgs": [
-	// 	"--gpus",
-	// 	"all"
-	// ]
+	"runArgs": [
+		"--gpus",
+		"all"
+	]
 
 }
