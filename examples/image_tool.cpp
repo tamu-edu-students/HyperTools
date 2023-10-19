@@ -4,6 +4,12 @@
 #include <cmath>
 #include "../src/gtkfunctions.cpp"
 #include "../src/hyperfunctions.cpp"
+#if use_cuvis 
+#include "../src/hypercuvisfunctions.cpp"
+#include "cuvis.hpp"
+#include <cassert>
+#endif
+
 
 using namespace cv;
 using namespace std;
@@ -31,15 +37,23 @@ using namespace std;
 
 int main (int argc, char *argv[])
 {
-  string file_name2="../../HyperImages/img1.tiff";
 
-  #ifdef HYPERCUVISFUNCTIONS_H  //do hypercuvis functions, else base functions
-  HyperFunctionsCuvis HyperFunctions1;
+  #if use_cuvis
+  //do hypercuvis functions, else base functions
+    HyperFunctionsCuvis HyperFunctions1;
+    HyperFunctions1.cubert_img = "../../HyperImages/cornfields/session_002/session_002_490.cu3";
+    HyperFunctions1.dark_img = "../../HyperImages/cornfields/Calibration/dark__session_002_003_snapshot16423119279414228.cu3";
+    HyperFunctions1.white_img = "../../HyperImages/cornfields/Calibration/white__session_002_752_snapshot16423136896447489.cu3";
+    HyperFunctions1.dist_img = "../../HyperImages/cornfields/Calibration/distanceCalib__session_000_790_snapshot16423004058237746.cu3";
+    HyperFunctions1.ReprocessImage( HyperFunctions1.cubert_img);
+    cout<<"testing here"<<endl;
   #else
-  HyperFunctions HyperFunctions1; 
+    HyperFunctions HyperFunctions1; 
+    string file_name2="../../HyperImages/img1.tiff";
+    HyperFunctions1.LoadImageHyper(file_name2);
   #endif
 
-  HyperFunctions1.LoadImageHyper(file_name2);
+  
   
   GtkBuilder *builder;
   GObject *window;
