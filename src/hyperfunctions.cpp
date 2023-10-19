@@ -1473,3 +1473,30 @@ void HyperFunctions::thickEdgeContourApproximation(int idx){
     int siz = contours_approx[idx].size();
 
 }
+
+//GA-ORB turning hyperspectral into 2-D
+
+void HyperFunctions::gaSpace()
+{
+    
+    Mat output_image(mlt1[0].rows, mlt1[0].cols, CV_16S, cv::Scalar(0));
+    int sumTot = 0;
+    for (int i=0; i<mlt1[0].rows; i++)
+    {
+        for (int k=0; k<mlt1[1].cols;  k++)
+        {
+            for (int n=0; )
+            {
+            
+                int temp_val2=mlt1[n].at<uchar>(i,k);
+                sumTot += temp_val2;
+            }
+            
+            output_image.at<ushort>(i, k) = sumTot;
+            sumTot = 0;
+        }
+        
+    }
+    
+   
+}
