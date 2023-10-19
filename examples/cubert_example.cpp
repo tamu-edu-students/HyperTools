@@ -36,7 +36,8 @@ int main (int argc, char *argv[])
     HyperFunctions1.dist_img = "../../HyperImages/Calib1013/Dist.cu3s";
     HyperFunctions1.cubert_settings="../settings/ultris5";  //camera settings file 
     HyperFunctions1.factor_dir="../settings/ultris5"; // requires init.daq file
-    HyperFunctions1.ReprocessImage( HyperFunctions1.cubert_img);  
+    // HyperFunctions1.ReprocessImage( HyperFunctions1.cubert_img);  
+    
 
     // below reproceses image and save rgb of it 
      
