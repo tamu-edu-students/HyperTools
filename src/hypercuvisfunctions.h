@@ -26,6 +26,7 @@ public:
     void LoadImageHyper(string file_name, bool isImage1 );
     void TakeImageHyper1(string file_name, const int exposure_ms, const int num_images);
     void ExportTiff();
+    void ReprocessCu3s();
 
 
 };
