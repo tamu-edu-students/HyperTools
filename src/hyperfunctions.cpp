@@ -1256,6 +1256,78 @@ void EuD_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* refere
     }
 }
 
+void similarity_img_Child(int algorithmId, int columnIndex, vector<Mat>& hyperspectralImage, vector<double>* reference_spectrum_ptr, Mat* outputSimilarityImage) {
+
+    vector<double> reference_spectrum = *reference_spectrum_ptr;
+
+    //Normalizes the reference vector if that is necessary for the comparison algorithm
+    if (algorithmId == 6 || algorithmId == 7) {
+        double reference_spectrum_sum = 0;
+        for (int i = 0; i < reference_spectrum.size(); i++)
+        {
+            reference_spectrum_sum += reference_spectrum[i];
+        }
+        for (int i = 0; i < reference_spectrum.size(); i++)
+        {
+            reference_spectrum[i] /= reference_spectrum_sum;
+        }
+    }
+
+    for (int rowIndex = 0; rowIndex <hyperspectralImage[1].rows; rowIndex++)
+    {
+        //Find the pixel spectrum
+        vector<double> pixel_spectrum; 
+        double pixel_spectrum_sum = 0;
+
+        for (int layer = 0; layer < reference_spectrum.size(); layer++) //Assumes that pixel and reference spectra are the same size.
+        {
+            pixel_spectrum.push_back(hyperspectralImage[layer].at<uchar>(rowIndex,columnIndex));
+            pixel_spectrum_sum += hyperspectralImage[layer].at<uchar>(rowIndex,columnIndex);
+        }
+
+        //Normalizes the pixel vector if that is necessary for the comparison algorithm
+        if (algorithmId == 6 || algorithmId == 7) {
+            for (int layer = 0; layer < reference_spectrum.size(); layer++)
+            {
+                pixel_spectrum[layer] /= pixel_spectrum_sum;
+            }
+        }
+
+        double similarityValue = 0;
+
+        switch(algorithmId) { //Manipulation of similarity values not complete yet...
+            case 1:
+                similarityValue = CalculateSAM(reference_spectrum, pixel_spectrum);
+                similarityValue *= 255;
+                break;
+            case 2:
+                //similarityValue = CalculateSCM(reference_spectrum, pixel_spectrum);
+                break;
+            case 3:
+                //similarityValue = CalculateSID(reference_spectrum, pixel_spectrum);
+                break;
+            case 4:
+                //similarityValue = CalculateEud(reference_spectrum, pixel_spectrum);
+                break;
+            case 5:
+                //similarityValue = CalculateCos(reference_spectrum, pixel_spectrum);
+                break;
+            case 6:
+                //similarityValue = CalculateCityBlock(reference_spectrum, pixel_spectrum);
+                break;
+            case 7:
+                //similarityValue = CalculateJM(reference_spectrum, pixel_spectrum);
+                break;
+        }
+
+        outputSimilarityImage->at<uchar>(rowIndex, columnIndex)= similarityValue; 
+    }
+}
+
+double CalculateSAM(const vector<double>& referenceSpectrum, const vector<double>& pixelSpectrum) {
+    return 1;
+}
+
 void JM_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index)   
 {   
     // single thread
