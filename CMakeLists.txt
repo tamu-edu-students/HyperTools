@@ -73,8 +73,8 @@ if (use_cuvis)
     add_executable(image_tool_cuvis examples/image_tool.cpp)
     target_link_libraries(image_tool_cuvis PRIVATE cuvis::cpp)
 
-    add_executable(cubert_tiff examples/cubert_export_tiff.cpp)
-    target_link_libraries(cubert_tiff PRIVATE cuvis::cpp)
+    # add_executable(cubert_tiff examples/cubert_export_tiff.cpp)
+    # target_link_libraries(cubert_tiff PRIVATE cuvis::cpp)
 
     # if (use_CUDA)
 
