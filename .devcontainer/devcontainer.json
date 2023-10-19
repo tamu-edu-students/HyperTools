@@ -31,8 +31,10 @@
 	
 	// below is used when cuda image is being used
 	// "runArgs": [
-	// 	"--gpus",
-	// 	"all"
+	// 	"--gpus=all"
+	//       testing below for getting camera working with docker in wsl	
+	//	 "-p", "9392:9392", "--network=my_custom_network", "ip=192.168.200.20"
+	//       note: subnet needs to be 255.255.255.0, camera ip is 127.0.0.1	
 	// ]
 
 }
