@@ -211,6 +211,35 @@ __global__ void img_test_multi_thread_cos(int *out, int *img_array, int n, int n
     
 }
 
+/**
+ * JM distance algorithm 
+ * 
+*/
+__global__ void img_test_multi_thread_JM(int* out, int* img_array, int n, int num_layers, int* ref_spectrum) {
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if (tid < n) {
+        double referenceSpecIntegral = 0;
+        double pixelSpecIntegral = 0;
+
+        int offset = tid * num_layers;
+        for (int i = 0; i < num_layers; i++) {
+            referenceSpecIntegral += ref_spectrum[i];
+            pixelSpecIntegral += img_array[offset + i];
+        }
+
+        double BC = 0;
+        for (int i = 0; i < num_layers; i++) {
+            BC += sqrt((ref_spectrum[i] / referenceSpecIntegral) * (img_array[offset + i] / pixelSpecIntegral));
+        }
+
+        double Bhattacharyya = -log(BC);
+        double JM_distance = sqrt(2 * (1 - exp(-Bhattacharyya)));
+        double JM_distance_scaled = JM_distance * 180.312229203;
+        out[tid] = (int)(JM_distance_scaled);
+    }
+}
 
 /**
  * Calls the multithreaded spectral similarity algorithms, based on the variable spec_sim_alg, set in
@@ -228,6 +257,8 @@ void HyperFunctionsGPU::spec_sim_GPU() {
         img_test_multi_thread_SID<<<grid_size,block_size>>>(d_out, d_img_array, N_size, num_lay, d_ref_spectrum);
     } else if (spec_sim_alg == 3) {
         img_test_multi_thread_cos<<<grid_size,block_size>>>(d_out, d_img_array, N_size, num_lay, d_ref_spectrum);
+    } else if (spec_sim_alg == 4) {
+        img_test_multi_thread_JM<<<grid_size,block_size>>>(d_out, d_img_array, N_size, num_lay, d_ref_spectrum);
     }
 
     cudaDeviceSynchronize();

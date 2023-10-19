@@ -24,7 +24,7 @@ int main (int argc, char *argv[]) {
     HyperFunctions1.spec_sim_GPU();
     
     auto end = high_resolution_clock::now();
-     cout << "Time taken : " << (float)duration_cast<milliseconds>(end-start).count() / (float)1000 << " " << "seconds"<<endl;
+    cout << "Time taken : " << (float)duration_cast<milliseconds>(end-start).count() / (float)1000 << " " << "seconds"<<endl;
     HyperFunctions1.DispSpecSim();
     cv::waitKey();
     
@@ -54,12 +54,17 @@ int main (int argc, char *argv[]) {
     HyperFunctions1.DispClassifiedImage();
     cv::waitKey();
 
-    /*
+    
     HyperFunctions1.spec_sim_alg=3;
     HyperFunctions1.semantic_segmentation();
     HyperFunctions1.DispClassifiedImage();
     cv::waitKey();
-    */
+
+    HyperFunctions1.spec_sim_alg=4;
+    HyperFunctions1.semantic_segmentation();
+    HyperFunctions1.DispClassifiedImage();
+    cv::waitKey();
+    
 
     HyperFunctions1.deallocate_memory();
 
