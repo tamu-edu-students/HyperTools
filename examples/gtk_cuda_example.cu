@@ -29,13 +29,14 @@ HyperFunctions *HyperFunctions1;
 
 
 // not everything from image_tool is completely functional here
-// just a basic UI with gpu capabilities
+// just a basic UI with gpu capabilities for some of the functions 
+// for full capbilities of the ui, use of the image_tool is needed
 int main (int argc, char *argv[]) {
 
   string file_name2="../../HyperImages/img1.tiff";
 
   HyperFunctionsGPU HyperFunctions1;
-  HyperFunctions1.LoadImageHyper1(file_name2);
+  HyperFunctions1.LoadImageHyper(file_name2);
   HyperFunctions1.read_ref_spec_json(HyperFunctions1.spectral_database);
   HyperFunctions1.mat_to_oneD_array_parallel_parent();
   HyperFunctions1.allocate_memory();

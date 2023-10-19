@@ -15,20 +15,20 @@ using namespace std;
 using namespace cv::xfeatures2d;
 
 // Loads first hyperspectral image for analysis
-void HyperFunctions::LoadImageHyper1(string file_name)
+void HyperFunctions::LoadImageHyper(string file_name, bool isImage1=true)
 {
-    mlt1.clear();
-	imreadmulti(file_name, mlt1);
+    if (isImage1) {
+        mlt1.clear();
+	    imreadmulti(file_name, mlt1);
+    }
+    else {
+        mlt2.clear();
+	    imreadmulti(file_name, mlt2);
+    }
+
     
 }
 
-// Loads second hyperspectral image for analysis
-// mainly used for feature matching 
-void HyperFunctions::LoadImageHyper2(string file_name)
-{
-	mlt2.clear();
-	imreadmulti(file_name, mlt2);
-}
 
 // Loads a segmented or classified image
 // mainly used to reprocess classified images through filtering and polygon simplification
@@ -58,7 +58,19 @@ void  HyperFunctions::DispFeatureImgs()
    Mat matArray1[]={temp_img2,temp_img3};
    hconcat(matArray1,2,temp_img);
    cv::resize(temp_img,temp_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR); 
-   imshow("Feature Images", temp_img);
+   feature_img_combined=temp_img;
+    //    imshow("Feature Images ", feature_img_combined);
+}
+
+void HyperFunctions::CreateCustomFeatureDetector(int hessVal, vector<KeyPoint> &keypoints, Mat feature_img)
+{
+    for (int y = 0; y < feature_img.rows; y += hessVal) {
+        for (int x = 0; x < feature_img.cols; x += hessVal) {
+            keypoints.push_back(cv::KeyPoint(static_cast<float>(x), static_cast<float>(y), 1));
+        }
+    }
+
+    drawKeypoints(feature_img, keypoints, feature_img);
 }
 
 // Detects, describes, and matches keypoints between 2 feature images
@@ -74,7 +86,7 @@ void  HyperFunctions::FeatureExtraction()
     return;
   }
   
-  if(feature_detector<0 || feature_detector>3 || feature_descriptor<0 || feature_descriptor>2 || feature_matcher<0 || feature_matcher>1)
+  if(feature_detector<0 || feature_detector>4 || feature_descriptor<0 || feature_descriptor>2 || feature_matcher<0 || feature_matcher>1)
   {
     cout<<"invalid feature combination"<<endl;
   }
@@ -86,8 +98,8 @@ void  HyperFunctions::FeatureExtraction()
   Ptr<ORB> detector_ORB = ORB::create();
   Ptr<DescriptorMatcher> matcher;
   Mat descriptors1, descriptors2;
-  
-// feature_detector=0; 0 is sift, 1 is surf, 2 is orb, 3 is fast 
+
+// feature_detector=0; 0 is sift, 1 is surf, 2 is orb, 3 is fast, 4 is custom
   if(feature_detector==0)
   {
     detector_SIFT->detect( feature_img1, keypoints1 );
@@ -107,13 +119,20 @@ void  HyperFunctions::FeatureExtraction()
   {
       detector_FAST->detect( feature_img1, keypoints1 );
       detector_FAST->detect( feature_img2, keypoints2 );  
+  } 
+  else if (feature_detector==4) 
+  {
+    //custom feature detector  
+    int spacing = 100;
+    CreateCustomFeatureDetector(spacing, keypoints1, feature_img1);  //input is the spacing between keypoints
+    CreateCustomFeatureDetector(spacing, keypoints2, feature_img2);
   }
-  	
+
   	// feature_descriptor=0; 0 is sift, 1 is surf, 2 is orb
   if(feature_descriptor==0)
   {
     detector_SIFT->compute( feature_img1, keypoints1 , descriptors1);
-    detector_SIFT->compute( feature_img2, keypoints2 , descriptors2 );
+    detector_SIFT->compute( feature_img2, keypoints2 , descriptors2);
   }  
   else if(feature_descriptor==1)
   {
@@ -153,14 +172,32 @@ void  HyperFunctions::FeatureExtraction()
         matcher->match( descriptors1, descriptors2, matches );        
     }  
   }   
+   
+    filter_matches(matches);
 
   Mat temp_img;  
   drawMatches( feature_img1, keypoints1, feature_img2, keypoints2, matches, temp_img ); 
 
    cv::resize(temp_img,temp_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR); 
-   imshow("Feature Images Matched", temp_img);
+   
+   feature_img_combined= temp_img;
+//    imshow("Feature Images ", feature_img_combined);
 }
-
+void HyperFunctions::filter_matches(vector<DMatch> &matches)
+{
+    if(filter == 1)
+    {
+       // vector<Dmatch> good_matches;
+        for(size_t i = 0; i<matches.size();i++)
+        {
+            if(matches.at(i).distance < .75)
+            {
+                matches.erase(matches.begin() + i);
+                i--;
+            }
+        }
+    }
+}
 // Finds the transformation matrix between two images
 void HyperFunctions::FeatureTransformation()
 {
@@ -523,6 +560,42 @@ void HyperFunctions::DetectContours()
 void   HyperFunctions::TileImage()
 {
     Mat empty_img= mlt1[0]*0;
+    int num_chan=mlt1.size();
+    int num_tile_rows=ceil(sqrt(num_chan));
+    int cur_lay=0;
+    vector<Mat> matArrayRows;
+    Mat matArray[num_chan];
+   
+    for (int i=0; i<num_tile_rows; i++)
+    {
+        for (int j=0; j<num_tile_rows; j++)
+        {
+            if (cur_lay<num_chan)
+            {
+                matArray[j]=mlt1[cur_lay];          
+            }
+            else
+            {
+                matArray[j]=empty_img;      
+            }
+            cur_lay++;
+        }
+        
+        Mat temp_row;
+        hconcat(matArray,num_tile_rows,temp_row);
+        matArrayRows.push_back(temp_row);
+    }
+    for (int i=0; i<num_tile_rows; i++)
+    {
+        matArray[i]=matArrayRows[i];
+    }
+    
+    Mat temp_tile;
+    vconcat(matArray,num_tile_rows,temp_tile);
+   
+    tiled_img=temp_tile;
+    
+    /*Mat empty_img= mlt1[0]*0;
     Mat h1,h2,h3,h4,h5,h6,h7,h8,h9,h10,h11,h12,h13, base_image;
     
     // 13 x 13 tile image singe 164 bands
@@ -557,7 +630,7 @@ void   HyperFunctions::TileImage()
     Mat matArray14[]={h1,h2,h3,h4,h5 ,h6,h7,h8,h9,h10,h11,h12,h13 };
     vconcat(matArray14,13,base_image);
        
-    tiled_img=base_image;
+    tiled_img=base_image;*/
 }
 
 //---------------------------------------------------------
@@ -734,7 +807,78 @@ void  HyperFunctions::read_img_json(string file_name)
 // Accesses camera information (camera_database) and modifies spectral database
 void  HyperFunctions::save_ref_spec_json(string item_name)
 {
-    int img_hist[mlt1.size()-1];
+    int img_hist[mlt1.size()];
+    for (int i=0; i<mlt1.size();i++)
+    {
+        img_hist[i]=mlt1[i].at<uchar>(cur_loc);
+    }
+    string user_input=item_name;
+    
+    // modify spectral database  
+    ifstream ifs2(spectral_database);
+    Json::Reader reader2;
+    Json::Value completeJsonData2;
+    reader2.parse(ifs2,completeJsonData2);
+    
+    std::ofstream file_id;
+    file_id.open(spectral_database);
+    Json::Value value_obj;
+    value_obj = completeJsonData2;
+    // save histogram to json file 
+    
+    for (int i=0; i<mlt1.size(); i++)
+    {
+        string zero_pad_result;
+    
+        if (i<10)
+        {
+            zero_pad_result="000"+to_string(i);
+        }
+        else if(i<100)
+        {
+            zero_pad_result="00"+to_string(i);
+        }
+        else if(i<1000)
+        {
+            zero_pad_result="0"+to_string(i);
+        }
+        else if (i<10000)
+        {
+            zero_pad_result=to_string(i);
+        }
+        else
+        {
+            cout<<" error: out of limit for spectral wavelength"<<endl;
+            return ;
+        }
+
+
+        value_obj["Spectral_Information"][user_input][zero_pad_result] = img_hist[i];
+
+    }
+
+    // change to 163, 104, 64 layer value, order is bgr
+
+    if (mlt1.size()==164)
+    {
+        value_obj["Color_Information"][user_input]["red_value"]=img_hist[64];
+        value_obj["Color_Information"][user_input]["blue_value"]=img_hist[104];
+        value_obj["Color_Information"][user_input]["green_value"]=img_hist[163];
+    }
+    else 
+    {
+        value_obj["Color_Information"][user_input]["red_value"]=img_hist[1 * mlt1.size() / 3];
+        value_obj["Color_Information"][user_input]["blue_value"]=img_hist[2 * mlt1.size() / 3];
+        value_obj["Color_Information"][user_input]["green_value"]=img_hist[3 * mlt1.size() / 3-1];
+    }
+    // write out to json file 
+    Json::StyledWriter styledWriter;
+    file_id << styledWriter.write(value_obj);
+    file_id.close();
+
+    
+    
+    /*int img_hist[mlt1.size()-1];
     for (int i=0; i<=mlt1.size()-1;i++)
     {
         img_hist[i]=mlt1[i].at<uchar>(cur_loc);
@@ -775,6 +919,7 @@ void  HyperFunctions::save_ref_spec_json(string item_name)
     Json::StyledWriter styledWriter;
     file_id << styledWriter.write(value_obj);
     file_id.close();
+    */
 
 }
 
@@ -847,7 +992,7 @@ void  HyperFunctions::SemanticSegmenter()
 //classified_img
 
     vector<Mat> temp_results;
-    
+
     for (int i=0; i<reference_spectrums.size();i++)
     {
         ref_spec_index=i;
@@ -855,7 +1000,7 @@ void  HyperFunctions::SemanticSegmenter()
         temp_results.push_back(spec_simil_img);
     }
     Mat temp_class_img(mlt1[1].rows, mlt1[1].cols, CV_8UC3, Scalar(0,0,0));
-    
+
     for(int k = 0; k < mlt1[1].rows; k++)
     {
         for (int j=0; j < mlt1[1].cols; j++)
@@ -870,6 +1015,7 @@ void  HyperFunctions::SemanticSegmenter()
                     if (low_val<=classification_threshold){
                         temp_class_img.at<Vec3b>(Point(k,j)) = reference_colors[i];
                     }
+                    
                 }
                 else
                 {
@@ -883,8 +1029,11 @@ void  HyperFunctions::SemanticSegmenter()
                 }
             }
         }
+        
        
     }
+
+
     classified_img=temp_class_img;
 }
 
@@ -896,7 +1045,7 @@ void  HyperFunctions::SemanticSegmenter()
 void  HyperFunctions::SpecSimilParent()
 {
 
-//spec_sim_alg SAM=0, SCM=1, SID=2, EuD=3
+//spec_sim_alg SAM=0, SCM=1, SID=2, EuD=3, cSq=4
 // ref_spec_index
 
     Mat temp_img(mlt1[1].rows, mlt1[1].cols, CV_8UC1, Scalar(0));
@@ -917,6 +1066,82 @@ void  HyperFunctions::SpecSimilParent()
     else if (spec_sim_alg==3)
     {
         this->EuD_img();
+    }
+    else if (spec_sim_alg==4)
+    {
+        this->cSq_img();
+    }
+    else if(spec_sim_alg==5){
+        this->Cos_img();
+    }
+    else if(spec_sim_alg==6){
+        this->City_img();
+    }
+    else if (spec_sim_alg==7)
+    {
+        this->JM_img();
+    }
+}
+
+
+//---------------------------------------------------------
+// Name: cSq_img
+// PreCondition: cSq value as produced by cSq_img_child
+// PostCondition: threadpool of cSq values
+//---------------------------------------------------------
+void HyperFunctions::cSq_img()
+{
+    ctpl::thread_pool p(num_threads);
+    
+    for (int k=0; k<mlt1[1].cols; k+=1)
+    {
+        p.push(cSq_img_Child, k, &mlt1,&reference_spectrums,&spec_simil_img,&ref_spec_index);
+
+    }
+}
+
+//---------------------------------------------------------
+// Name: cSq_img_child
+// PreCondition:  
+// PostCondition: 
+//---------------------------------------------------------
+void cSq_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index)   
+{   
+ 
+    vector<Mat> mlt1=*mlt2; 
+    vector<vector<int>>  reference_spectrums= *reference_spectrums2;
+
+    double sqrDist = 0;
+    double sum = 0;
+    double chiSq = 0;
+
+    double xIntg;
+    double yIntg;
+
+
+    for (int j=0; j<mlt1[1].rows; j++) {
+        sqrDist = 0;
+        sum = 0;
+        chiSq = 0;
+
+        xIntg = 0;
+        yIntg = 0;
+
+
+        for (int n = 0; n < reference_spectrums[*ref_spec_index].size(); n++) {
+            xIntg += reference_spectrums[*ref_spec_index][n];
+            yIntg += mlt1[n].at<uchar>(j,k);
+            
+        }
+
+        for (int n = 0; n < reference_spectrums[*ref_spec_index].size(); n++) {
+            sqrDist = pow((reference_spectrums[*ref_spec_index][n]/xIntg) - (mlt1[n].at<uchar>(j,k) / yIntg), 2);
+            sum = (reference_spectrums[*ref_spec_index][n]/xIntg) + (mlt1[n].at<uchar>(j,k) / yIntg);
+            chiSq += (sqrDist / sum);            
+        }
+
+        chiSq = sqrt(sqrt(0.5 * (sqrDist / sum))) * 255; // sqrt for data manipulation and made spectral similarity image better
+        spec_simil_img->at<uchar>(j,k) = chiSq;
     }
 
 }
@@ -957,6 +1182,104 @@ void  HyperFunctions::EuD_img()
     for (int k=0; k<mlt1[1].cols; k+=1)
     {
          p.push(EuD_img_Child, k, &mlt1,&reference_spectrums,&spec_simil_img,&ref_spec_index);
+    }
+}
+
+void  HyperFunctions::JM_img()
+{
+    ctpl::thread_pool p(num_threads);
+    for (int k=0; k<mlt1[1].cols; k+=1)
+    {
+         p.push(JM_img_Child, k, &mlt1,&reference_spectrums,&spec_simil_img,&ref_spec_index);
+    }
+}
+
+void  HyperFunctions::Cos_img()
+{
+    ctpl::thread_pool p(num_threads);
+    for (int k=0; k<mlt1[1].cols; k+=1)
+    {
+         p.push(Cos_img_Child, k, &mlt1,&reference_spectrums,&spec_simil_img,&ref_spec_index);
+    }
+}
+
+//---------------------------------------------------------
+// Name: City_img
+// PreCondition: City Block value from City_Block_Child
+// PostCondition: threadpool of City Block values
+//---------------------------------------------------------
+void  HyperFunctions::City_img()
+{    
+    ctpl::thread_pool p(num_threads);
+    for (int k=0; k<mlt1[1].cols; k+=1)
+    {
+         p.push(City_Block_Child, k, &mlt1,&reference_spectrums,&spec_simil_img,&ref_spec_index);
+    }
+}
+
+//parent and child
+void City_Block_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index)   
+{
+//utilize mat1 and mat2 
+    //mlt2 is the image, reference spectrums2 is the referencing, spec_simil is where we put it, ref_spec_index is where we 
+    vector<Mat> mlt1=*mlt2; //dereferences
+    vector<vector<int>>  reference_spectrums= *reference_spectrums2;
+    int temp_val;
+    //iterate through the rows of mlt1
+    for (int j=0; j<mlt1[1].rows; j++)
+    {
+        float sum1=0;
+        int scale = 0;
+        for (int a=0; a<reference_spectrums[*ref_spec_index].size(); a++)
+        {
+            int temp_val2=mlt1[a].at<uchar>(j,k); //extracts temp of mlt at location j,k
+            sum1+=abs(temp_val2 - reference_spectrums[*ref_spec_index][a]);
+        }
+
+        if (sum1<=0)
+        {
+            temp_val=255; // set to white due to an error
+        }
+        else
+        {
+            //TODO: 255 is an arbitrary value, we will change this in testing:
+            temp_val = sum1/(reference_spectrums[*ref_spec_index].size() + 255); 
+        }
+        spec_simil_img->at<uchar>(j,k)=temp_val; 
+    }
+}
+
+//-----------------------------------
+// Name: Cos_img_img
+// PreCondition: Cosine value as produced by Cos_img_child
+// PostCondition: threadpool of Cosine values
+//---------------------------------------------------------
+void Cos_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index)   
+{   
+    // single thread
+    vector<Mat> mlt1=*mlt2; 
+    vector<vector<int>>  reference_spectrums= *reference_spectrums2;
+    int temp_val=0;
+    for (int j=0; j<mlt1[1].rows; j++)
+    {
+        float dot_product = 0.0, sq_a = 0.0, sq_b = 0.0;
+        for(int i =0 ; i < reference_spectrums[*ref_spec_index].size(); i++){
+            int temp_val2 = mlt1[i].at<uchar>(j,k);
+            dot_product += reference_spectrums[*ref_spec_index][i] * temp_val2 ;
+            sq_a += reference_spectrums[*ref_spec_index][i] * reference_spectrums[*ref_spec_index][i];
+            sq_b += temp_val2 * temp_val2;
+        }
+        if (dot_product<=0 || sq_a<=0 || sq_b<=0 )
+        {
+            temp_val=255; // set to white due to an error
+        }
+        else
+        {
+            temp_val = (acos(dot_product / (sqrt(sq_a) * sqrt(sq_b)))) * double(255);
+            //temp_val = temp_val / 3.14159;
+        }
+
+        spec_simil_img->at<uchar>(j,k)=temp_val; 
     }
 }
 
@@ -1031,6 +1354,38 @@ void EuD_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* refere
             temp_val=(int)((double)temp1*(double)255) ;
         }
         spec_simil_img->at<uchar>(j,k)=temp_val; 
+    }
+}
+
+void JM_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index)   
+{   
+    // single thread
+    vector<Mat> mlt1=*mlt2; 
+    vector<vector<int>>  reference_spectrums= *reference_spectrums2;
+
+    for (int j=0; j<mlt1[1].rows; j++)
+    {
+        //JM relies on the vectors being probability distributions (values for each wavelength must add to 1)
+        //Therefore when calculating BC we must divide the values by the integral.
+        double referenceSpecIntegral = 0;
+        double pixelSpecIntegral = 0;
+
+        for (int i=0; i<reference_spectrums[*ref_spec_index].size(); i++)
+        {
+            referenceSpecIntegral += reference_spectrums[*ref_spec_index][i];
+            pixelSpecIntegral += mlt1[i].at<uchar>(j,k);
+        }
+
+        double BC = 0;
+        for (int i=0; i<reference_spectrums[*ref_spec_index].size(); i++)
+        {
+            BC += sqrt((reference_spectrums[*ref_spec_index][i]/referenceSpecIntegral) * (mlt1[i].at<uchar>(j,k)/pixelSpecIntegral));
+        }
+
+        double Bhattacharrya = -log(BC); //Intermediate step in calculating JM_distance
+        double JM_distance = sqrt(2* (1 - pow(M_E, -Bhattacharrya)));
+        double JM_distance_scaled = JM_distance * 180.312229203; //Scaling from 0-sqrt(2) up to 0-255
+        spec_simil_img->at<uchar>(j,k)=JM_distance_scaled; 
     }
 }
 

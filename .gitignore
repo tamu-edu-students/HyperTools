@@ -38,3 +38,5 @@
 *.ui~
 
 *.json
+*.DS_Store
+*.log

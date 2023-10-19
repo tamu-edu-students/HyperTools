@@ -38,7 +38,7 @@ static void choose_image_file_gpu(GtkFileChooser *widget,  gpointer data) {
     HyperFunctionsGPU *HyperFunctions1=static_cast<HyperFunctionsGPU*>(data_new);
     
     HyperFunctions1->deallocate_memory();
-    HyperFunctions1->LoadImageHyper1(file_chosen);
+    HyperFunctions1->LoadImageHyper(file_chosen);
     HyperFunctions1->read_ref_spec_json(HyperFunctions1->spectral_database);
     HyperFunctions1->mat_to_oneD_array_parallel_parent();
     HyperFunctions1->allocate_memory();

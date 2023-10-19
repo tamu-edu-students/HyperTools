@@ -8,30 +8,38 @@
 using namespace cv;
 using namespace std;
 
-struct img_struct {
-GObject *image;
-HyperFunctions *HyperFunctions1;
-} ;
+  struct img_struct {
+  GObject *image;
+  HyperFunctions *HyperFunctions1;
+  } ;
+  
+  struct entry_struct {
+  GObject *entry;
+  HyperFunctions *HyperFunctions1;
+  } ;
 
-struct entry_struct {
-GObject *entry;
-HyperFunctions *HyperFunctions1;
-} ;
+  struct spin_struct {
+  GObject *button1;
+  GObject *button2;
+  GObject *button3;
+  GObject *button4;
+  GObject *button5;
+  HyperFunctions *HyperFunctions1;
+  } ;
 
-struct spin_struct {
-GObject *button1;
-GObject *button2;
-GObject *button3;
-HyperFunctions *HyperFunctions1;
-} ;
   
 
 int main (int argc, char *argv[])
 {
   string file_name2="../../HyperImages/img1.tiff";
 
-  HyperFunctions HyperFunctions1;
-  HyperFunctions1.LoadImageHyper1(file_name2);
+  #ifdef HYPERCUVISFUNCTIONS_H  //do hypercuvis functions, else base functions
+  HyperFunctionsCuvis HyperFunctions1;
+  #else
+  HyperFunctions HyperFunctions1; 
+  #endif
+
+  HyperFunctions1.LoadImageHyper(file_name2);
   
   GtkBuilder *builder;
   GObject *window;
@@ -48,17 +56,6 @@ int main (int argc, char *argv[])
       return 1;
     }
 
-  /* Connect signal handlers to the constructed widgets. */
-  window = gtk_builder_get_object (builder, "window");
-  g_signal_connect (window, "destroy", G_CALLBACK (gtk_main_quit), NULL);
-
-  button = gtk_builder_get_object (builder, "choose_file");
-  g_signal_connect (button, "file-set", G_CALLBACK (choose_image_file), &HyperFunctions1); 
-
-  button = gtk_builder_get_object(builder, "choose_database");
-  g_signal_connect (button, "file-set", G_CALLBACK (choose_database), &HyperFunctions1); 
-
-  button = gtk_builder_get_object (builder, "spectrum_box");
 
   img_struct *gtk_hyper_image, temp_var1;
   gtk_hyper_image=&temp_var1;
@@ -70,6 +67,41 @@ int main (int argc, char *argv[])
 
   entry_struct *gtk_hyper_entry, temp_var3;
   gtk_hyper_entry=&temp_var3;
+
+  spin_struct *gtk_spin_buttons, temp_var4;
+  gtk_spin_buttons=&temp_var4;
+  (*gtk_spin_buttons).HyperFunctions1 = &HyperFunctions1;
+
+  GObject* spin_red_button = gtk_builder_get_object (builder, "spin_red");
+  (*gtk_spin_buttons).button1 = spin_red_button;
+  g_signal_connect (spin_red_button, "value-changed", G_CALLBACK (set_false_img_r), gtk_hyper_image);
+  GtkSpinButton *spin_button = GTK_SPIN_BUTTON(spin_red_button);
+  gtk_spin_button_set_range(spin_button, 0, HyperFunctions1.mlt1.size()-1);
+ 
+  GObject* spin_green_button = gtk_builder_get_object (builder, "spin_green");
+  (*gtk_spin_buttons).button2 = spin_green_button;
+  g_signal_connect (spin_green_button, "value-changed", G_CALLBACK (set_false_img_g), gtk_hyper_image);
+  spin_button = GTK_SPIN_BUTTON(spin_green_button);
+  gtk_spin_button_set_range(spin_button, 0, HyperFunctions1.mlt1.size()-1);
+  
+  GObject* spin_blue_button = gtk_builder_get_object (builder, "spin_blue");
+  (*gtk_spin_buttons).button3 = spin_blue_button;
+  g_signal_connect (spin_blue_button, "value-changed", G_CALLBACK (set_false_img_b), gtk_hyper_image);
+  spin_button = GTK_SPIN_BUTTON(spin_blue_button);
+  gtk_spin_button_set_range(spin_button, 0, HyperFunctions1.mlt1.size()-1);
+
+  /* Connect signal handlers to the constructed widgets. */
+  window = gtk_builder_get_object (builder, "window");
+  g_signal_connect (window, "destroy", G_CALLBACK (gtk_main_quit), NULL);
+
+  button = gtk_builder_get_object (builder, "choose_file");
+  g_signal_connect (button, "file-set", G_CALLBACK (choose_image_file), &HyperFunctions1); 
+  g_signal_connect (button, "file-set", G_CALLBACK (adjust_spin_ranges), gtk_spin_buttons); 
+
+  button = gtk_builder_get_object(builder, "choose_database");
+  g_signal_connect (button, "file-set", G_CALLBACK (choose_database), &HyperFunctions1); 
+
+  button = gtk_builder_get_object (builder, "spectrum_box");
   
   button = gtk_builder_get_object (builder, "database_name");
   (*gtk_hyper_entry).entry=button;
@@ -93,8 +125,10 @@ int main (int argc, char *argv[])
   (*gtk_hyper_image2).HyperFunctions1=&HyperFunctions1;
   
   button = gtk_builder_get_object (builder, "image_box");
-  g_signal_connect (G_OBJECT (button),"button_press_event",G_CALLBACK (button_press_callback),&HyperFunctions1);
-  g_signal_connect (G_OBJECT (button),"button_press_event",G_CALLBACK (show_spectrum),gtk_hyper_image2);
+  //g_signal_connect (G_OBJECT (button),"button_press_event",G_CALLBACK (button_press_callback),&HyperFunctions1);
+  g_signal_connect (G_OBJECT (button),"button_press_event",G_CALLBACK (button_callback_and_show_spectrum), gtk_hyper_image2);
+
+
 
   button = gtk_builder_get_object (builder, "disp_false_img");
   g_signal_connect (button, "clicked", G_CALLBACK (show_false_img), gtk_hyper_image);
@@ -109,22 +143,14 @@ int main (int argc, char *argv[])
   
   button = gtk_builder_get_object (builder, "tiled_img");
   g_signal_connect (button, "clicked", G_CALLBACK (TileImage), gtk_hyper_image);
-  
-  spin_struct *gtk_spin_buttons, temp_var4;
-  gtk_spin_buttons=&temp_var4;
-  (*gtk_spin_buttons).HyperFunctions1 = &HyperFunctions1;
 
-  button = gtk_builder_get_object (builder, "spin_red");
-  (*gtk_spin_buttons).button1 = button;
-  g_signal_connect (button, "value-changed", G_CALLBACK (set_false_img_r), gtk_hyper_image);
- 
-  button = gtk_builder_get_object (builder, "spin_green");
-  (*gtk_spin_buttons).button2 = button;
-  g_signal_connect (button, "value-changed", G_CALLBACK (set_false_img_g), gtk_hyper_image);
+  button = gtk_builder_get_object (builder, "spin_height");
+  (*gtk_spin_buttons).button4 = button;
+  g_signal_connect (G_OBJECT (button), "value-changed",G_CALLBACK (set_image_height), gtk_hyper_image);
   
-  button = gtk_builder_get_object (builder, "spin_blue");
-  (*gtk_spin_buttons).button3 = button;
-  g_signal_connect (button, "value-changed", G_CALLBACK (set_false_img_b), gtk_hyper_image);  
+  button = gtk_builder_get_object (builder,"spin_width");
+  (*gtk_spin_buttons).button5 = button;
+  g_signal_connect (G_OBJECT (button), "value-changed",G_CALLBACK (set_image_width), gtk_hyper_image);
   
   button = gtk_builder_get_object (builder, "reset_false_img");
   g_signal_connect (button, "clicked", G_CALLBACK (set_false_img_reset), gtk_hyper_image);
@@ -146,6 +172,18 @@ int main (int argc, char *argv[])
   button = gtk_builder_get_object (builder, "semantic_ED");
   g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_EuD), &HyperFunctions1);
 
+  button = gtk_builder_get_object (builder, "semantic_chi_squared");
+  g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_chi_squared), &HyperFunctions1);
+
+  button = gtk_builder_get_object (builder, "semantic_cosine_similarity");
+  g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_cosine_similarity), &HyperFunctions1);
+
+  button = gtk_builder_get_object (builder, "semantic_city_block");
+  g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_city_block), &HyperFunctions1);
+
+  button = gtk_builder_get_object (builder, "semantic_jm_distance");
+  g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_jm_distance), &HyperFunctions1);
+
   button = gtk_builder_get_object (builder, "similarity_SAM");
   g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_SAM), &HyperFunctions1);
 
@@ -157,6 +195,18 @@ int main (int argc, char *argv[])
 
   button = gtk_builder_get_object (builder, "similarity_ED");
   g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_EuD), &HyperFunctions1);
+
+  button = gtk_builder_get_object (builder, "similarity_chi_squared");
+  g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_chi_squared), &HyperFunctions1);
+
+  button = gtk_builder_get_object (builder, "similarity_cosine_similarity");
+  g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_cosine_similarity), &HyperFunctions1);
+
+  button = gtk_builder_get_object (builder, "similarity_city_block");
+  g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_city_block), &HyperFunctions1);
+
+  button = gtk_builder_get_object (builder, "similarity_jm_distance");
+  g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_jm_distance), &HyperFunctions1);
 
   button = gtk_builder_get_object (builder, "similarity_items");
   g_signal_connect (button, "set-focus-child", G_CALLBACK (get_class_list), &HyperFunctions1);
