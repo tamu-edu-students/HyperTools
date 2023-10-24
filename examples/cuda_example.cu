@@ -38,31 +38,54 @@ int main (int argc, char *argv[]) {
     HyperFunctions1.DispSpecSim();
     cv::waitKey();
     
+    // SAM - Classification
+    start = high_resolution_clock::now();
     HyperFunctions1.spec_sim_alg=0;
     HyperFunctions1.semantic_segmentation();
     HyperFunctions1.DispClassifiedImage();
+    end = high_resolution_clock::now();
+    cout << "Proccess SAM Classification:" << endl;
+    cout << "Time taken : " << (float)duration_cast<milliseconds>(end-start).count() / (float)1000 << " " << "seconds"<<endl;
     cv::waitKey();
     
-    
+    // SCM - Classification
+    start = high_resolution_clock::now();
     HyperFunctions1.spec_sim_alg=1;
     HyperFunctions1.semantic_segmentation();
     HyperFunctions1.DispClassifiedImage();
+    end = high_resolution_clock::now();
+    cout << "Proccess SCM Classification:" << endl;
+    cout << "Time taken : " << (float)duration_cast<milliseconds>(end-start).count() / (float)1000 << " " << "seconds"<<endl;
     cv::waitKey();
     
+    // SID - Classification
+    start = high_resolution_clock::now();
     HyperFunctions1.spec_sim_alg=2;
     HyperFunctions1.semantic_segmentation();
     HyperFunctions1.DispClassifiedImage();
+    end = high_resolution_clock::now();
+    cout << "Proccess SID Classification:" << endl;
+    cout << "Time taken : " << (float)duration_cast<milliseconds>(end-start).count() / (float)1000 << " " << "seconds"<<endl;
     cv::waitKey();
 
-    
+    // COS - Classification
+    start = high_resolution_clock::now();
     HyperFunctions1.spec_sim_alg=3;
     HyperFunctions1.semantic_segmentation();
     HyperFunctions1.DispClassifiedImage();
+    end = high_resolution_clock::now();
+    cout << "Proccess COS Classification:" << endl;
+    cout << "Time taken : " << (float)duration_cast<milliseconds>(end-start).count() / (float)1000 << " " << "seconds"<<endl;
     cv::waitKey();
 
+    // JM -  Classification
+    start = high_resolution_clock::now();
     HyperFunctions1.spec_sim_alg=4;
     HyperFunctions1.semantic_segmentation();
     HyperFunctions1.DispClassifiedImage();
+    end = high_resolution_clock::now();
+    cout << "Proccess JM Classification:" << endl;
+    cout << "Time taken : " << (float)duration_cast<milliseconds>(end-start).count() / (float)1000 << " " << "seconds"<<endl;
     cv::waitKey();
     
 
