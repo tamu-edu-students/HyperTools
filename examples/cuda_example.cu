@@ -88,6 +88,15 @@ int main (int argc, char *argv[]) {
     cout << "Time taken : " << (float)duration_cast<milliseconds>(end-start).count() / (float)1000 << " " << "seconds"<<endl;
     cv::waitKey();
     
+    // City Block -  Classification
+    start = high_resolution_clock::now();
+    HyperFunctions1.spec_sim_alg=5;
+    HyperFunctions1.semantic_segmentation();
+    HyperFunctions1.DispClassifiedImage();
+    end = high_resolution_clock::now();
+    cout << "Proccess City Block Classification:" << endl;
+    cout << "Time taken : " << (float)duration_cast<milliseconds>(end-start).count() / (float)1000 << " " << "seconds"<<endl;
+    cv::waitKey();
 
     HyperFunctions1.deallocate_memory();
 

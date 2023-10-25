@@ -31,7 +31,7 @@ if (use_CUDA)
             endif()
             
             add_definitions(${GTK_CFLAGS_OTHER}) 
-            cmake_policy(SET CMP0146 NEW) 
+            # cmake_policy(SET CMP0146 NEW) 
 
             add_executable(cuda_example examples/cuda_example.cu)
             set_target_properties(cuda_example PROPERTIES CUDA_SEPARABLE_COMPILATION ON)

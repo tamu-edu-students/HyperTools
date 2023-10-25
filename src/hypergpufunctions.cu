@@ -242,6 +242,28 @@ __global__ void img_test_multi_thread_JM(int* out, int* img_array, int n, int nu
 }
 
 /**
+ * City block algorithm 
+ * 
+*/
+__global__ void img_test_multi_thread_cityblock(int* out, int* img_array, int n, int num_layers, int* ref_spectrum) {
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    float sum1=0;
+    
+    if (tid < n){
+        int offset = tid * num_layers;
+        for (int a=0; a<num_layers-1; a++) {
+            sum1 += abs(img_array[offset + a] - ref_spectrum[a]);
+
+        }
+        out[tid] = sum1/(num_layers - 1 + 255);
+        
+        
+    }
+
+}
+
+/**
  * Calls the multithreaded spectral similarity algorithms, based on the variable spec_sim_alg, set in
     hyperfunctions.cpp.
  * Retrieves output in "out", then calls oneD_array_to_mat(out) to convert out into the OPENCV matrix "spec_simil_img".
@@ -259,6 +281,9 @@ void HyperFunctionsGPU::spec_sim_GPU() {
         img_test_multi_thread_cos<<<grid_size,block_size>>>(d_out, d_img_array, N_size, num_lay, d_ref_spectrum);
     } else if (spec_sim_alg == 4) {
         img_test_multi_thread_JM<<<grid_size,block_size>>>(d_out, d_img_array, N_size, num_lay, d_ref_spectrum);
+    }
+    else if (spec_sim_alg == 5) {
+        img_test_multi_thread_cityblock<<<grid_size,block_size>>>(d_out, d_img_array, N_size, num_lay, d_ref_spectrum);
     }
 
     cudaDeviceSynchronize();
