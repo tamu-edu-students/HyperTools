@@ -1556,3 +1556,76 @@ void HyperFunctions::thickEdgeContourApproximation(int idx){
     int siz = contours_approx[idx].size();
 
 }
+
+// references  https://docs.opencv.org/3.4/d3/db0/samples_2cpp_2pca_8cpp-example.html
+// https://docs.opencv.org/3.4/d1/dee/tutorial_introduction_to_pca.html
+
+static  Mat formatImagesForPCA(const vector<Mat> &data)
+{
+    Mat dst(static_cast<int>(data.size()), data[0].rows*data[0].cols, CV_32F);
+    for(unsigned int i = 0; i < data.size(); i++)
+    {
+        Mat image_row = data[i].clone().reshape(1,1);
+        Mat row_i = dst.row(i);
+        image_row.convertTo(row_i,CV_32F);
+    }
+    return dst;
+}
+
+static Mat toGrayscale(InputArray _src) {
+    Mat src = _src.getMat();
+    // only allow one channel
+    if(src.channels() != 1) {
+        CV_Error(Error::StsBadArg, "Only Matrices with one channel are supported");
+    }
+    // create and return normalized image
+    Mat dst;
+    cv::normalize(_src, dst, 0, 255, NORM_MINMAX, CV_8UC1);
+    return dst;
+}
+
+void  HyperFunctions::PCA_img(bool isImage1 = true)
+{
+
+    Mat data;
+    vector<Mat> inputImage;
+    if (isImage1)
+    {
+        data = formatImagesForPCA(mlt1);
+        inputImage = mlt1;
+    }
+    else
+    {
+        data = formatImagesForPCA(mlt2);
+        inputImage = mlt2;
+
+    }
+    int reduced_image_layers = 1;
+
+    PCA pca(data, cv::Mat(), PCA::DATA_AS_ROW, reduced_image_layers); 
+
+    Mat principal_components = pca.eigenvectors;
+
+    vector<Mat> ReducedImage;
+    for (int i = 0; i < reduced_image_layers; i++) {
+        Mat layer = principal_components*data.t();
+        //Mat layer = principal_components.row(i)*data.t();
+        //layer = pca.backProject(layer);
+        //layer = layer.reshape(inputImage[0].channels(), inputImage[0].rows); // reshape from a row vector into image shape
+        layer = toGrayscale(layer);
+        ReducedImage.push_back(layer);
+    }
+
+    //imshow("PCA Results", ReducedImage);
+    //imwritemulti(reduced_file_path,ReducedImage);
+
+    
+    // Demonstration of the effect of retainedVariance on the first image
+    Mat point = pca.project(data.row(0)); // project into the eigenspace, thus the image becomes a "point"
+    Mat reconstruction = pca.backProject(point); // re-create the image from the "point"
+    reconstruction = reconstruction.reshape(inputImage[0].channels(), inputImage[0].rows); // reshape from a row vector into image shape
+    reconstruction = toGrayscale(reconstruction); // re-scale for displaying purposes
+    pca_img=reconstruction;
+    //not writing multiple layers yet because some versions of opencv do not have the function
+    //imwritemulti(reduced_file_path,reconstruction);    
+}
