@@ -21,6 +21,8 @@ void cSq_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* refere
 void Cos_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index);
 void JM_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index);
 void City_Block_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index);
+static Mat toGrayscale(InputArray _src);
+static Mat formatImagesForPCA(const vector<Mat> &data);
 
 
 class HyperFunctions 
@@ -40,6 +42,7 @@ public:
 	Mat feature_img_combined; 
 	Mat spec_simil_img;
 	Mat tiled_img;
+	Mat pca_img;
 			
 	vector<string> class_list;
 	vector<Vec3b> color_combos;
@@ -101,6 +104,7 @@ public:
 	void GenerateFalseImg();
 	void thickEdgeContourApproximation(int idx);
 	void TileImage(); // set for 164 needs to be made modular 
+	void PCA_img(bool isImage1);
 	
 	// functions involving spectral similarity algorithms
 	void EuD_img();
