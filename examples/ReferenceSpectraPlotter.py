@@ -1,12 +1,13 @@
 import json
-#import matplotlib
+import matplotlib
 import matplotlib.pyplot as plt
-#matplotlib.use('GTK3Agg') # or any other backend that you prefer
+# matplotlib.use('GTK3Agg') # or any other backend that you prefer
 # Given a JSON file with various reference spectra, this program graphs their reflectance as a function of wavelength/band
 # Assumes that the reflectance values are IN ORDER (i.e. 0001 -> 0002 -> etc.)
 
 # Opening JSON file
-f = open('../json/spectral_database_gt.json')
+#assumes running from main hypertools 
+f = open('json/spectral_database1.json')
 
 jsonAsDict = json.load(f)
 '''
@@ -31,11 +32,11 @@ for i in jsonAsDict["Spectral_Information"]:
 # Customize chart
 plt.xlabel('Band')
 plt.ylabel('Reflectance (0-255)')
-plt.title('Indian Pines Spectra')
+plt.title('Spectra')
 plt.legend()
 # Display chart
-plt.savefig("ReferenceSpectraPlot.png")
-#plt.show()
+plt.savefig("images/ReferenceSpectraPlot.png")
+plt.show()
 
 #y2 = [data['Item2'][key] for key in data['Item2'].keys()]
 

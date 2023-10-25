@@ -2,6 +2,7 @@
 #include "opencv2/opencv.hpp"
 #include <cmath>
 #include "../src/hyperfunctions.cpp"
+#include "../src/hyperfunctions.h"
 
 using namespace cv;
 using namespace std;
@@ -39,7 +40,7 @@ int main (int argc, char *argv[])
 {
     int reduced_image_layers = 5;
     string input_file_path = "../../HyperImages/img1.tiff";
-    string reduced_file_path = "../../../HyperImages/dimension_reduced.tiff";
+    string reduced_file_path = "../../HyperImages/dimension_reduced.tiff";
      
     // userinput during startup
     if (argc > 1) {
@@ -55,9 +56,9 @@ int main (int argc, char *argv[])
     HyperFunctions HyperFunctions1;
     // load hyperspectral image 
     HyperFunctions1.LoadImageHyper(input_file_path);
+    // imshow("test",HyperFunctions1.mlt1[20]);
 
     vector<Mat> inputImage = HyperFunctions1.mlt1;
-    
     //imwritemulti("testing_imwritemulti.tiff", inputImage, {259, 1});
     // below is anthony test code 
     
@@ -65,7 +66,6 @@ int main (int argc, char *argv[])
     Mat data = formatImagesForPCA(inputImage);
     // perform PCA
     PCA pca(data, cv::Mat(), PCA::DATA_AS_ROW, reduced_image_layers); 
-
 
     Mat principal_components = pca.eigenvectors;
 
@@ -90,8 +90,8 @@ int main (int argc, char *argv[])
     reconstruction = toGrayscale(reconstruction); // re-scale for displaying purposes
     
     imshow("PCA Results", reconstruction);
-    //not writing multiple layers yet
-    imwritemulti(reduced_file_path,reconstruction);
+    //not writing multiple layers yet because some versions of opencv do not have the function
+    //imwritemulti(reduced_file_path,reconstruction);
     cv::waitKey();
     
     

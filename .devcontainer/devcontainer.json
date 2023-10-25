@@ -23,7 +23,7 @@
 		// "source=/run/desktop/mnt/host/wslg,target=/mnt/wslg,type=bind,consistency=cached",
 
 		// below is used for visualization on ubuntu machine if there are issues with visualization
-		// "source=/tmp/.X11-unix,target=/tmp/.X11-unix,type=bind,consistency=cached",
+		"source=/tmp/.X11-unix,target=/tmp/.X11-unix,type=bind,consistency=cached",
 		
 		// below mounts hyperimages in container
 		"source=${localWorkspaceFolder}/../HyperImages,target=/workspaces/HyperImages,type=bind,consistency=cached"
@@ -35,7 +35,7 @@
 	// below is used when cuda image is being used
 	"runArgs": [
 		"--gpus=all", // used for cuda images
-	// "--network=host", //used to connect to camera on ubunutu, assumes host has ethernet interface ip of 192.168.20.x, subnet of 255.255.255.0
+	"--network=host", //used to connect to camera on ubunutu, assumes host has ethernet interface ip of 192.168.20.x, subnet of 255.255.255.0
 	//       testing below for getting camera working with docker in wsl	
 	//	 "-p", "9392:9392", "--network=my_custom_network", "ip=192.168.200.20"
 	//       note: subnet needs to be 255.255.255.0, camera ip is 127.0.0.1	
