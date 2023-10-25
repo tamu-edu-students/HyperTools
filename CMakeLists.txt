@@ -51,7 +51,7 @@ else(use_CUDA)
     # add_executable(semantic_interface examples/semantic_segmentation.cpp)
     add_executable(feature_tool examples/feature_tool.cpp)
     # add_executable(ground_truth_example examples/ground_truth_example.cpp)
-    add_executable(dimension_reduction examples/dimension_reduction.cpp)
+    # add_executable(dimension_reduction examples/dimension_reduction.cpp)
 
     add_definitions(${GTK3_CFLAGS} ${GTK3_CFLAGS_OTHER})
 
