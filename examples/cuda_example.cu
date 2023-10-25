@@ -41,7 +41,7 @@ int main (int argc, char *argv[]) {
     // SAM - Classification
     start = high_resolution_clock::now();
     HyperFunctions1.spec_sim_alg=0;
-    HyperFunctions1.semantic_segmentation();
+    HyperFunctions1.spec_sim_GPU();
     HyperFunctions1.DispClassifiedImage();
     end = high_resolution_clock::now();
     cout << "Proccess SAM Classification:" << endl;
@@ -51,7 +51,7 @@ int main (int argc, char *argv[]) {
     // SCM - Classification
     start = high_resolution_clock::now();
     HyperFunctions1.spec_sim_alg=1;
-    HyperFunctions1.semantic_segmentation();
+    HyperFunctions1.spec_sim_GPU();
     HyperFunctions1.DispClassifiedImage();
     end = high_resolution_clock::now();
     cout << "Proccess SCM Classification:" << endl;
@@ -61,7 +61,7 @@ int main (int argc, char *argv[]) {
     // SID - Classification
     start = high_resolution_clock::now();
     HyperFunctions1.spec_sim_alg=2;
-    HyperFunctions1.semantic_segmentation();
+    HyperFunctions1.spec_sim_GPU();
     HyperFunctions1.DispClassifiedImage();
     end = high_resolution_clock::now();
     cout << "Proccess SID Classification:" << endl;
@@ -71,7 +71,7 @@ int main (int argc, char *argv[]) {
     // COS - Classification
     start = high_resolution_clock::now();
     HyperFunctions1.spec_sim_alg=3;
-    HyperFunctions1.semantic_segmentation();
+    HyperFunctions1.spec_sim_GPU();
     HyperFunctions1.DispClassifiedImage();
     end = high_resolution_clock::now();
     cout << "Proccess COS Classification:" << endl;
@@ -81,7 +81,7 @@ int main (int argc, char *argv[]) {
     // JM -  Classification
     start = high_resolution_clock::now();
     HyperFunctions1.spec_sim_alg=4;
-    HyperFunctions1.semantic_segmentation();
+    HyperFunctions1.spec_sim_GPU();
     HyperFunctions1.DispClassifiedImage();
     end = high_resolution_clock::now();
     cout << "Proccess JM Classification:" << endl;
@@ -98,6 +98,7 @@ int main (int argc, char *argv[]) {
     cout << "Time taken : " << (float)duration_cast<milliseconds>(end-start).count() / (float)1000 << " " << "seconds"<<endl;
     cv::waitKey();
 
+<<<<<<< HEAD
     // EuD -  Classification
     start = high_resolution_clock::now();
     HyperFunctions1.spec_sim_alg=6;
@@ -107,6 +108,10 @@ int main (int argc, char *argv[]) {
     cout << "Proccess Euclidian Distance Classification:" << endl;
     cout << "Time taken : " << (float)duration_cast<milliseconds>(end-start).count() / (float)1000 << " " << "seconds"<<endl;
     cv::waitKey();
+=======
+    // 
+
+>>>>>>> f7fce0d31f9a2d672e976ccc3ff1f9ea0594d3b2
 
     HyperFunctions1.deallocate_memory();
 
