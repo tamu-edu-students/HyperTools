@@ -47,6 +47,5 @@ double calculateCOS(const std::vector<double>& spectrum1, const std::vector<doub
 //JM algorithm
 double calculateJM(const std::vector<double>& spectrum1, const std::vector<double>& spectrum2);
 
-
 //cityblock Algorithm
 double calculateCB(const std::vector<double>& spectrum1, const std::vector<double>& spectrum2);
