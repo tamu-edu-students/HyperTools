@@ -256,7 +256,7 @@ __global__ void img_test_multi_thread_cityblock(int* out, int* img_array, int n,
             sum1 += abs(img_array[offset + a] - ref_spectrum[a]);
 
         }
-        out[tid] = sum1/(num_layers - 1 + 255);
+        out[tid] = sum1/(num_layers + 255);
         
         
     }

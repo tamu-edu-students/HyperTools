@@ -91,8 +91,8 @@ int main (int argc, char *argv[]) {
     // City Block -  Classification
     start = high_resolution_clock::now();
     HyperFunctions1.spec_sim_alg=5;
-    HyperFunctions1.semantic_segmentation();
-    HyperFunctions1.DispClassifiedImage();
+    HyperFunctions1.spec_sim_GPU();
+    HyperFunctions1.DispSpecSim();
     end = high_resolution_clock::now();
     cout << "Proccess City Block Classification:" << endl;
     cout << "Time taken : " << (float)duration_cast<milliseconds>(end-start).count() / (float)1000 << " " << "seconds"<<endl;
