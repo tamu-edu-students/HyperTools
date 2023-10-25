@@ -98,6 +98,16 @@ int main (int argc, char *argv[]) {
     cout << "Time taken : " << (float)duration_cast<milliseconds>(end-start).count() / (float)1000 << " " << "seconds"<<endl;
     cv::waitKey();
 
+    // EuD -  Classification
+    start = high_resolution_clock::now();
+    HyperFunctions1.spec_sim_alg=6;
+    HyperFunctions1.spec_sim_GPU();
+    HyperFunctions1.DispSpecSim();
+    end = high_resolution_clock::now();
+    cout << "Proccess Euclidian Distance Classification:" << endl;
+    cout << "Time taken : " << (float)duration_cast<milliseconds>(end-start).count() / (float)1000 << " " << "seconds"<<endl;
+    cv::waitKey();
+
     HyperFunctions1.deallocate_memory();
 
   return 0;

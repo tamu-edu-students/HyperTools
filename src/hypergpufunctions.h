@@ -20,7 +20,7 @@ __global__ void img_test_multi_thread_cos(int *out, int *img_array, int n, int n
 __global__ void img_test_multi_thread_JM(int *out, int *img_array, int n, int num_layers, int* ref_spectrum) ;
 __global__ void mat_to_oneD_array_child(uchar* mat_array, int* img_array, int n, int start, int inc) ;
 __global__ void img_test_multi_thread_cityblock(int *out, int *img_array, int n, int num_layers, int* ref_spectrum) ;
-
+__global__ void img_test_multi_thread_EuD(int *out, int *img_array, int n, int num_layers, int* ref_spectrum) ;
 
 
 class HyperFunctionsGPU : public HyperFunctions {
