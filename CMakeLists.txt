@@ -50,6 +50,8 @@ else(use_CUDA)
     # Declare the executable target built from your sources
     # add_executable(semantic_interface examples/semantic_segmentation.cpp)
     add_executable(feature_tool examples/feature_tool.cpp)
+    add_executable(pca_features examples/feature_testing.cpp)
+
     # add_executable(ground_truth_example examples/ground_truth_example.cpp)
 
     add_definitions(${GTK3_CFLAGS} ${GTK3_CFLAGS_OTHER})
