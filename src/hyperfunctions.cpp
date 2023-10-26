@@ -62,6 +62,17 @@ void  HyperFunctions::DispFeatureImgs()
     //    imshow("Feature Images ", feature_img_combined);
 }
 
+void HyperFunctions::CreateCustomFeatureDetector(int hessVal, vector<KeyPoint> &keypoints, Mat feature_img)
+{
+    for (int y = 0; y < feature_img.rows; y += hessVal) {
+        for (int x = 0; x < feature_img.cols; x += hessVal) {
+            keypoints.push_back(cv::KeyPoint(static_cast<float>(x), static_cast<float>(y), 1));
+        }
+    }
+
+    drawKeypoints(feature_img, keypoints, feature_img);
+}
+
 // Detects, describes, and matches keypoints between 2 feature images
 void  HyperFunctions::FeatureExtraction()
 {
@@ -112,8 +123,9 @@ void  HyperFunctions::FeatureExtraction()
   else if (feature_detector==4) 
   {
     //custom feature detector  
-    CustomFeatureDetector(50);  //input is the spacing between keypoints
-
+    int spacing = 100;
+    CreateCustomFeatureDetector(spacing, keypoints1, feature_img1);  //input is the spacing between keypoints
+    CreateCustomFeatureDetector(spacing, keypoints2, feature_img2);
   }
 
   	// feature_descriptor=0; 0 is sift, 1 is surf, 2 is orb
@@ -1460,4 +1472,31 @@ void HyperFunctions::thickEdgeContourApproximation(int idx){
 
     int siz = contours_approx[idx].size();
 
+}
+
+//GA-ORB turning hyperspectral into 2-D
+
+void HyperFunctions::gaSpace()
+{
+    
+    Mat output_image(mlt1[0].rows, mlt1[0].cols, CV_16S, cv::Scalar(0));
+    int sumTot = 0;
+    for (int i=0; i<mlt1[0].rows; i++)
+    {
+        for (int k=0; k<mlt1[1].cols;  k++)
+        {
+            for (int n=0; )
+            {
+            
+                int temp_val2=mlt1[n].at<uchar>(i,k);
+                sumTot += temp_val2;
+            }
+            
+            output_image.at<ushort>(i, k) = sumTot;
+            sumTot = 0;
+        }
+        
+    }
+    
+   
 }

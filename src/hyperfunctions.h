@@ -120,17 +120,7 @@ public:
 	void writeJSON_full(vector<vector<Point> > contours, vector <Vec3b> contour_class,vector<Vec4i> hierarchy);
 
 	//Custom Feature Detector
-	void CustomFeatureDetector(int hessVal){
-		std::vector<cv::KeyPoint> keypoints;
-		for (int y = 0; y < feature_img1.rows; y += hessVal) {
-    		for (int x = 0; x < feature_img1.cols; x += hessVal) {
-        		keypoints.push_back(cv::KeyPoint(static_cast<float>(x), static_cast<float>(y), 1));
-    		}
-		}
-
-		drawKeypoints(feature_img1, keypoints, feature_img1);
-    	drawKeypoints(feature_img2, keypoints, feature_img2);
-	}
+	void CreateCustomFeatureDetector(int hessVal, vector<KeyPoint> &keypoints, Mat feature_img);
 
 };
 
