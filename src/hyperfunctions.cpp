@@ -178,7 +178,7 @@ void  HyperFunctions::FeatureExtraction()
   Mat temp_img;  
   drawMatches( feature_img1, keypoints1, feature_img2, keypoints2, matches, temp_img ); 
 
-   cv::resize(temp_img,temp_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR); 
+   cv::resize(temp_img,temp_img,Size(WINDOW_WIDTH*2, WINDOW_HEIGHT),INTER_LINEAR); 
    
    feature_img_combined= temp_img;
    imshow("Feature Images ", feature_img_combined);
