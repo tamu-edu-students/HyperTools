@@ -251,7 +251,7 @@ void HyperFunctionsCuvis::TakeImageHyper1(string file_name, const int exposure_m
 void HyperFunctionsCuvis::ExportTiff()
 {
 
-    string cubert_settings="../../HyperImages/settings/";  //ultris20.settings file
+ 
     char* const sessionLoc  =  const_cast<char*>(cubert_img.c_str());
     char* const userSettingsDir =  const_cast<char*>(cubert_settings.c_str());
     char* const exportDir =  const_cast<char*>(output_dir.c_str());
