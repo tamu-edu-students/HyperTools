@@ -36,6 +36,7 @@ static void choose_image_file(GtkFileChooser *widget,  gpointer data) {
 
     gchar* file_chosen;
     file_chosen = gtk_file_chooser_get_filename(widget);
+
     void * data_new=data;
     HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
     HyperFunctions1->LoadImageHyper(file_chosen);
@@ -324,10 +325,26 @@ static void set_false_img_standard_rgb(GtkWidget *widget,  gpointer data)
     img_struct_gtk *img_struct1=static_cast<img_struct_gtk*>(data_new);
     void * data_new2=img_struct1->HyperFunctions1;
     HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new2);  
-  
-    HyperFunctions1->false_img_r=163;
-    HyperFunctions1->false_img_g=104;
-    HyperFunctions1->false_img_b=65;
+    
+    //query size of mlt1, find out how many layers in the standard image
+    // std::cout << HyperFunctions1->mlt1.size() << std::endl;
+
+    if(HyperFunctions1->mlt1.size() == 51){ //ultris5
+        HyperFunctions1->false_img_r=31; //Hard-coded for the ultris5 camera
+        HyperFunctions1->false_img_g=13;
+        HyperFunctions1->false_img_b=2;
+    }
+    else if(HyperFunctions1->mlt1.size() == 164){
+        HyperFunctions1->false_img_r=163;
+        HyperFunctions1->false_img_g=104;
+        HyperFunctions1->false_img_b=65;
+    }
+    else{
+        int size = HyperFunctions1->mlt1.size();
+        HyperFunctions1->false_img_r=size-1;
+        HyperFunctions1->false_img_g=size*2/3;
+        HyperFunctions1->false_img_b=size/3;
+    }
     HyperFunctions1->GenerateFalseImg();
  
     cv::Mat output=HyperFunctions1->false_img;
@@ -347,6 +364,18 @@ static void set_spin_buttons_reset(GtkWidget *widget,  gpointer data)
     gtk_spin_button_set_value((*spin_struct1).button1,0);
     gtk_spin_button_set_value((*spin_struct1).button2,0);
     gtk_spin_button_set_value((*spin_struct1).button3,0);
+}
+
+static void adjust_spin_ranges(GtkWidget *widget,  gpointer data) {
+    void * data_new=data;
+    spin_struct_gtk *spin_struct1=static_cast<spin_struct_gtk*>(data_new);
+    void * data_new2=spin_struct1->HyperFunctions1;
+    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new2);
+
+    std::cout << HyperFunctions1->mlt1.size()-1 << std::endl;
+    gtk_spin_button_set_range((*spin_struct1).button1, 0, HyperFunctions1->mlt1.size());
+    gtk_spin_button_set_range((*spin_struct1).button2, 0, HyperFunctions1->mlt1.size());
+    gtk_spin_button_set_range((*spin_struct1).button3, 0, HyperFunctions1->mlt1.size());
 }
 
 static void set_spin_buttons_standard_rgb(GtkWidget *widget,  gpointer data) {
@@ -550,6 +579,23 @@ static void set_feature_detector_SURF(GtkWidget *widget,  gpointer data)
     if (T==1) {HyperFunctions1->feature_detector=1;}
 
 }
+static void set_filter_1(GtkWidget *widget,  gpointer data)
+{
+    void * data_new=data;
+    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
+    gboolean T = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+    if (T==1) {HyperFunctions1->filter=1;}
+
+}
+static void set_filter_na(GtkWidget *widget,  gpointer data)
+{
+    void * data_new=data;
+    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
+    gboolean T = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+    if (T==1) {HyperFunctions1->filter=0;}
+
+}
+
 static void set_feature_detector_ORB(GtkWidget *widget,  gpointer data)
 {
     void * data_new=data;

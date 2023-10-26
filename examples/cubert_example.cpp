@@ -19,19 +19,46 @@ int main (int argc, char *argv[])
     HyperFunctions1.white_img = "../../HyperImages/cornfields/Calibration/white__session_002_752_snapshot16423136896447489.cu3";
     HyperFunctions1.dist_img = "../../HyperImages/cornfields/Calibration/distanceCalib__session_000_790_snapshot16423004058237746.cu3";
 
-    // HyperFunctions1.cubert_img = "/workspaces/HyperImages/test_imgs/Auto_001.cu3s";
+    // below are needed if the ultris5 is used instead of the ultris 20
     // HyperFunctions1.cubert_settings="../settings/ultris5";  //camera settings file 
     // HyperFunctions1.factor_dir="/workspaces/HyperTools/settings/ultris5"; // requires init.daq file
 
-    HyperFunctions1.LoadImageHyper(HyperFunctions1.cubert_img);
+    // string file_name, const int exposure_ms, const int num_image
+    // string is not used right now
+    // below takes an image
+    // HyperFunctions1.TakeImageHyper1("placeholder",100, 1);
+    // below loads the image
+    // HyperFunctions1.cubert_img = "../../HyperImages/vegetation_000_000_snapshot.cu3";
+    // HyperFunctions1.LoadImageHyper(HyperFunctions1.cubert_img);
+    HyperFunctions1.cubert_img = "../../HyperImages/export/Auto_001.cu3s";
+    HyperFunctions1.dark_img = "../../HyperImages/Calib1013/Dark.cu3s";
+    HyperFunctions1.white_img = "../../HyperImages/Calib1013/White.cu3s";
+    HyperFunctions1.dist_img = "../../HyperImages/Calib1013/Dist.cu3s";
+    HyperFunctions1.cubert_settings="../settings/ultris5";  //camera settings file 
+    HyperFunctions1.factor_dir="../settings/ultris5"; // requires init.daq file
+    // HyperFunctions1.ReprocessImage( HyperFunctions1.cubert_img);  
+    
 
-    //below only works for  ultris20 images due to different number of layers in default spectral database
-    HyperFunctions1.read_ref_spec_json(HyperFunctions1.spectral_database);
-    HyperFunctions1.SemanticSegmenter();
-    HyperFunctions1.DispClassifiedImage();
+    // below reproceses image and save rgb of it 
+     
+    HyperFunctions1.false_img_b=2;
+    HyperFunctions1.false_img_g=13;
+    HyperFunctions1.false_img_r=31;
+    HyperFunctions1.GenerateFalseImg();
+    // cv::imwrite(HyperFunctions1.output_dir+"test_img.png", HyperFunctions1.false_img);
+    imshow("test",  HyperFunctions1.false_img);
     cv::waitKey();
 
+    // below only works for  ultris20 images due to different number of layers in default spectral database
+    // below loads spectral database and performs classification
+    // HyperFunctions1.read_ref_spec_json(HyperFunctions1.spectral_database);
+    // HyperFunctions1.SemanticSegmenter();
+    // HyperFunctions1.DispClassifiedImage();
+    // cv::waitKey();
 
-    
+    // below is to export tiff image
+    // HyperFunctions1.ExportTiff();
+
+
   return 0;
 }
