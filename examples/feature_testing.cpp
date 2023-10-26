@@ -18,8 +18,8 @@ int main (int argc, char *argv[])
 
 
   // use a single image layer
-  HyperFunctions1.feature_img1=HyperFunctions1.mlt1[60];
-	HyperFunctions1.feature_img2=HyperFunctions1.mlt2[70];
+  // HyperFunctions1.feature_img1=HyperFunctions1.mlt1[60];
+	// HyperFunctions1.feature_img2=HyperFunctions1.mlt2[70];
 
   //use pca
   // HyperFunctions1.PCA_img();
@@ -37,10 +37,11 @@ int main (int argc, char *argv[])
   // HyperFunctions1.SpecSimilParent();
   // HyperFunctions1.feature_img2=HyperFunctions1.spec_simil_img;
 
+  //   Mat output_image1(HyperFunctions1.mlt1[0].rows, HyperFunctions1.mlt1[0].cols, CV_16S, cv::Scalar(1000));
+  // imshow("test",output_image1);
 
 
-
-  HyperFunctions1.feature_detector=2;
+  HyperFunctions1.feature_detector=4;
 	HyperFunctions1.feature_descriptor=2;
 	HyperFunctions1.feature_matcher=0;
 

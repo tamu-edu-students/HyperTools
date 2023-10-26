@@ -62,6 +62,64 @@ void  HyperFunctions::DispFeatureImgs()
     //    imshow("Feature Images ", feature_img_combined);
 }
 
+
+//GA-ORB turning hyperspectral into 2-D
+
+void HyperFunctions::gaSpace(bool isImage1)
+{
+    int numChannels ;
+Mat output_image;
+
+    if (isImage1)
+    {
+    Mat output_image1(mlt1[0].rows, mlt1[0].cols, CV_16S, cv::Scalar(0));
+     output_image=output_image1;
+     numChannels = mlt1.size();
+
+
+    }
+    else
+    {
+    Mat output_image2(mlt1[0].rows, mlt1[0].cols, CV_16S, cv::Scalar(0));
+     output_image=output_image2;
+
+    numChannels = mlt1.size();
+    }
+    
+    int sumTot = 0;
+    //assumes mlt1 and mlt2 are of the same size
+    for (int i=0; i<mlt1[0].rows; i++)
+    {
+        for (int k=0; k<mlt1[1].cols;  k++)
+        {
+            for (int n=0; n < numChannels; n++)
+            {
+            
+                int temp_val2=mlt1[n].at<uchar>(i,k);
+                sumTot += temp_val2;
+            }
+            
+            output_image.at<ushort>(i, k) = sumTot;
+            sumTot = 0;
+        }
+        
+    }
+
+    if (isImage1)
+    {
+        feature_img1=output_image;
+    }
+    else
+    {
+        feature_img2=output_image;
+    }
+    // imshow("Output Image", output_image);
+    // cv::waitKey();
+    //return output_image;
+    
+   
+}
+
 void HyperFunctions::CreateCustomFeatureDetector(int hessVal, vector<KeyPoint> &keypoints, Mat feature_img)
 {
     for (int y = 0; y < feature_img.rows; y += hessVal) {
@@ -99,7 +157,7 @@ void  HyperFunctions::FeatureExtraction()
   Ptr<DescriptorMatcher> matcher;
   Mat descriptors1, descriptors2;
 
-// feature_detector=0; 0 is sift, 1 is surf, 2 is orb, 3 is fast, 4 is custom
+// feature_detector=0; 0 is sift, 1 is surf, 2 is orb, 3 is fast, 9 is custom
   if(feature_detector==0)
   {
     detector_SIFT->detect( feature_img1, keypoints1 );
@@ -120,12 +178,29 @@ void  HyperFunctions::FeatureExtraction()
       detector_FAST->detect( feature_img1, keypoints1 );
       detector_FAST->detect( feature_img2, keypoints2 );  
   } 
-  else if (feature_detector==4) 
+  else if (feature_detector==5) 
   {
     //custom feature detector  
     int spacing = 100;
     CreateCustomFeatureDetector(spacing, keypoints1, feature_img1);  //input is the spacing between keypoints
     CreateCustomFeatureDetector(spacing, keypoints2, feature_img2);
+  }
+  else if (feature_detector == 4)
+  {
+    gaSpace(true);
+    gaSpace(false);
+    // Mat output_image_visual;
+    // normalize(output_image, output_image_visual, 0, 255, NORM_MINMAX, CV_8U);
+    // //Mat output_image = gaSpace();
+
+// convert to Mat data type that is compatible with Fast
+
+    detector_FAST->detect( feature_img1, keypoints1 );
+    detector_FAST->detect( feature_img2, keypoints2 );
+    // drawKeypoints(output_image_visual, keypoint1, output_image_visual, Scalar(0, 0, 255));
+    // drawKeypoints(output_image_visual2, keypoint2, output_image_visual2, Scalar(0, 0, 255));
+
+   
   }
 
   	// feature_descriptor=0; 0 is sift, 1 is surf, 2 is orb
@@ -181,7 +256,7 @@ void  HyperFunctions::FeatureExtraction()
    cv::resize(temp_img,temp_img,Size(WINDOW_WIDTH*2, WINDOW_HEIGHT),INTER_LINEAR); 
    
    feature_img_combined= temp_img;
-   imshow("Feature Images ", feature_img_combined);
+//    imshow("Feature Images ", feature_img_combined);
 }
 void HyperFunctions::filter_matches(vector<DMatch> &matches)
 {
