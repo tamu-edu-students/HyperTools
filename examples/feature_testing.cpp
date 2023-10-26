@@ -31,8 +31,11 @@ int main (int argc, char *argv[])
   // HyperFunctions1.read_ref_spec_json(HyperFunctions1.spectral_database);
   // HyperFunctions1.spec_sim_alg=0;
   // HyperFunctions1.SpecSimilParent();
-  // HyperFunctions1.DispSpecSim();
+  // // HyperFunctions1.DispSpecSim();
   // HyperFunctions1.feature_img1=HyperFunctions1.spec_simil_img;
+  // HyperFunctions1.spec_sim_alg=1;
+  // HyperFunctions1.SpecSimilParent();
+  // HyperFunctions1.feature_img2=HyperFunctions1.spec_simil_img;
 
 
 
