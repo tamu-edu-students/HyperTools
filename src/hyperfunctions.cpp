@@ -68,11 +68,11 @@ void  HyperFunctions::DispFeatureImgs()
 void HyperFunctions::gaSpace(bool isImage1)
 {
     int numChannels ;
-Mat output_image;
+    Mat output_image;
 
     if (isImage1)
     {
-    Mat output_image1(mlt1[0].rows, mlt1[0].cols, CV_16S, cv::Scalar(0));
+    Mat output_image1(mlt1[0].rows, mlt1[0].cols, CV_16U, cv::Scalar(0));
      output_image=output_image1;
      numChannels = mlt1.size();
 
@@ -80,7 +80,7 @@ Mat output_image;
     }
     else
     {
-    Mat output_image2(mlt1[0].rows, mlt1[0].cols, CV_16S, cv::Scalar(0));
+    Mat output_image2(mlt1[0].rows, mlt1[0].cols, CV_16U, cv::Scalar(0));
      output_image=output_image2;
 
     numChannels = mlt1.size();
@@ -190,7 +190,8 @@ void  HyperFunctions::FeatureExtraction()
     gaSpace(true);
     gaSpace(false);
     // Mat output_image_visual;
-    // normalize(output_image, output_image_visual, 0, 255, NORM_MINMAX, CV_8U);
+    normalize(feature_img1, feature_img1, 0, 255, NORM_MINMAX, CV_8U);
+    normalize(feature_img2, feature_img2, 0, 255, NORM_MINMAX, CV_8U);
     // //Mat output_image = gaSpace();
 
 // convert to Mat data type that is compatible with Fast
@@ -1705,28 +1706,3 @@ void  HyperFunctions::PCA_img(bool isImage1 = true)
     //imwritemulti(reduced_file_path,reconstruction);    
 }
 //GA-ORB turning hyperspectral into 2-D
-
-void HyperFunctions::gaSpace()
-{
-    
-    Mat output_image(mlt1[0].rows, mlt1[0].cols, CV_16S, cv::Scalar(0));
-    int sumTot = 0;
-    for (int i=0; i<mlt1[0].rows; i++)
-    {
-        for (int k=0; k<mlt1[1].cols;  k++)
-        {
-            for (int n=0; )
-            {
-            
-                int temp_val2=mlt1[n].at<uchar>(i,k);
-                sumTot += temp_val2;
-            }
-            
-            output_image.at<ushort>(i, k) = sumTot;
-            sumTot = 0;
-        }
-        
-    }
-    
-   
-}
