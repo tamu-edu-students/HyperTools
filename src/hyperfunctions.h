@@ -121,6 +121,7 @@ public:
 
 	//Custom Feature Detector
 	void CreateCustomFeatureDetector(int hessVal, vector<KeyPoint> &keypoints, Mat feature_img);
+	void gaSpace();
 
 };
 
