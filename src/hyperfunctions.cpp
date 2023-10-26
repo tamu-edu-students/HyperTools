@@ -119,7 +119,7 @@ void  HyperFunctions::FeatureExtraction()
     return;
   }
   
-  if(feature_detector<0 || feature_detector>5 || feature_descriptor<0 || feature_descriptor>2 || feature_matcher<0 || feature_matcher>1)
+  if(feature_detector<0 || feature_detector>4 || feature_descriptor<0 || feature_descriptor>2 || feature_matcher<0 || feature_matcher>1)
   {
     cout<<"invalid feature combination"<<endl;
   }
@@ -132,7 +132,7 @@ void  HyperFunctions::FeatureExtraction()
   Ptr<DescriptorMatcher> matcher;
   Mat descriptors1, descriptors2;
 
-// feature_detector=0; 0 is sift, 1 is surf, 2 is orb, 3 is fast, 4 is custom, 5 is custom 2.0
+// feature_detector=0; 0 is sift, 1 is surf, 2 is orb, 3 is fast, 9 is custom
   if(feature_detector==0)
   {
     detector_SIFT->detect( feature_img1, keypoints1 );
@@ -219,16 +219,32 @@ void  HyperFunctions::FeatureExtraction()
         matcher->match( descriptors1, descriptors2, matches );        
     }  
   }   
+   
+    // filter_matches(matches);
 
   Mat temp_img;  
   drawMatches( feature_img1, keypoints1, feature_img2, keypoints2, matches, temp_img ); 
 
-   cv::resize(temp_img,temp_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR); 
+   cv::resize(temp_img,temp_img,Size(WINDOW_WIDTH*2, WINDOW_HEIGHT),INTER_LINEAR); 
    
    feature_img_combined= temp_img;
-    imshow("Feature Images ", feature_img_combined);
+//    imshow("Feature Images ", feature_img_combined);
 }
-
+void HyperFunctions::filter_matches(vector<DMatch> &matches)
+{
+    if(filter == 1)
+    {
+       // vector<Dmatch> good_matches;
+        for(size_t i = 0; i<matches.size();i++)
+        {
+            if(matches.at(i).distance < .75)
+            {
+                matches.erase(matches.begin() + i);
+                i--;
+            }
+        }
+    }
+}
 // Finds the transformation matrix between two images
 void HyperFunctions::FeatureTransformation()
 {
@@ -1076,7 +1092,7 @@ void  HyperFunctions::SemanticSegmenter()
 void  HyperFunctions::SpecSimilParent()
 {
 
-//spec_sim_alg SAM=0, SCM=1, SID=2, EuD=3
+//spec_sim_alg SAM=0, SCM=1, SID=2, EuD=3, cSq=4
 // ref_spec_index
 
     Mat temp_img(mlt1[1].rows, mlt1[1].cols, CV_8UC1, Scalar(0));
@@ -1098,6 +1114,10 @@ void  HyperFunctions::SpecSimilParent()
     {
         this->EuD_img();
     }
+    else if (spec_sim_alg==4)
+    {
+        this->cSq_img();
+    }
     else if(spec_sim_alg==5){
         this->Cos_img();
     }
@@ -1108,6 +1128,69 @@ void  HyperFunctions::SpecSimilParent()
     {
         this->JM_img();
     }
+}
+
+
+//---------------------------------------------------------
+// Name: cSq_img
+// PreCondition: cSq value as produced by cSq_img_child
+// PostCondition: threadpool of cSq values
+//---------------------------------------------------------
+void HyperFunctions::cSq_img()
+{
+    ctpl::thread_pool p(num_threads);
+    
+    for (int k=0; k<mlt1[1].cols; k+=1)
+    {
+        p.push(cSq_img_Child, k, &mlt1,&reference_spectrums,&spec_simil_img,&ref_spec_index);
+
+    }
+}
+
+//---------------------------------------------------------
+// Name: cSq_img_child
+// PreCondition:  
+// PostCondition: 
+//---------------------------------------------------------
+void cSq_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index)   
+{   
+ 
+    vector<Mat> mlt1=*mlt2; 
+    vector<vector<int>>  reference_spectrums= *reference_spectrums2;
+
+    double sqrDist = 0;
+    double sum = 0;
+    double chiSq = 0;
+
+    double xIntg;
+    double yIntg;
+
+
+    for (int j=0; j<mlt1[1].rows; j++) {
+        sqrDist = 0;
+        sum = 0;
+        chiSq = 0;
+
+        xIntg = 0;
+        yIntg = 0;
+
+
+        for (int n = 0; n < reference_spectrums[*ref_spec_index].size(); n++) {
+            xIntg += reference_spectrums[*ref_spec_index][n];
+            yIntg += mlt1[n].at<uchar>(j,k);
+            
+        }
+
+        for (int n = 0; n < reference_spectrums[*ref_spec_index].size(); n++) {
+            sqrDist = pow((reference_spectrums[*ref_spec_index][n]/xIntg) - (mlt1[n].at<uchar>(j,k) / yIntg), 2);
+            sum = (reference_spectrums[*ref_spec_index][n]/xIntg) + (mlt1[n].at<uchar>(j,k) / yIntg);
+            chiSq += (sqrDist / sum);            
+        }
+
+        chiSq = sqrt(sqrt(0.5 * (sqrDist / sum))) * 255; // sqrt for data manipulation and made spectral similarity image better
+        spec_simil_img->at<uchar>(j,k) = chiSq;
+    }
+
 }
 
 //---------------------------------------------------------
@@ -1520,13 +1603,3 @@ void HyperFunctions::thickEdgeContourApproximation(int idx){
     int siz = contours_approx[idx].size();
 
 }
-
-
-
-// void HyperFunctions::pyramidScale()
-// {
-
-
-
-
-// }
