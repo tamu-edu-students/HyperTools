@@ -56,7 +56,9 @@ int main (int argc, char *argv[])
     // HyperFunctions1.DispClassifiedImage();
     // cv::waitKey();
 
+    // below is to export tiff image
+    // HyperFunctions1.ExportTiff();
 
-    
+
   return 0;
 }
