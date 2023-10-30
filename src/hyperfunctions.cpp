@@ -1046,16 +1046,16 @@ void SpecSimilChild(int threadId, int algorithmId, int columnIndex, vector<Mat>*
         double similarityValue = 0;
 
         switch(algorithmId) { //Manipulation of similarity values not complete yet...
-            case 1:
+            case 0:
                 similarityValue = calculateSAM(reference_spectrum, pixel_spectrum) * 255;
                 break;
-            case 2:
+            case 1:
                 similarityValue = calculateSCM(reference_spectrum, pixel_spectrum) * 255;
                 break;
-            case 3:
+            case 2:
                 similarityValue = calculateSID(reference_spectrum, pixel_spectrum) * 60;
                 break;
-            case 4:
+            case 3:
                 similarityValue = calculateEUD(reference_spectrum, pixel_spectrum) / (reference_spectrum.size() + 255) * 255;
                 break;
             case 5:
