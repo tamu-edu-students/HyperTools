@@ -1048,6 +1048,8 @@ void SpecSimilChild(int threadId, int algorithmId, int columnIndex, vector<Mat>*
         switch(algorithmId) { //Manipulation of similarity values not complete yet...
             case 0:
                 similarityValue = calculateSAM(reference_spectrum, pixel_spectrum) * 255;
+                //Below is equivalent using the calculateCOS function
+                //similarityValue = acos(calculateCOS(reference_spectrum, pixel_spectrum)) / 3.141592 * 255;
                 break;
             case 1:
                 similarityValue = calculateSCM(reference_spectrum, pixel_spectrum) * 255;
@@ -1056,17 +1058,25 @@ void SpecSimilChild(int threadId, int algorithmId, int columnIndex, vector<Mat>*
                 similarityValue = calculateSID(reference_spectrum, pixel_spectrum) * 60;
                 break;
             case 3:
-                similarityValue = calculateEUD(reference_spectrum, pixel_spectrum) / (reference_spectrum.size() + 255) * 255;
+                //similarityValue = calculateEUD(reference_spectrum, pixel_spectrum) / (reference_spectrum.size() + 255) * 255;
+                similarityValue = calculateEUD(reference_spectrum, pixel_spectrum) / (reference_spectrum.size()) * 10;
                 break;
             case 5:
-                similarityValue = calculateCOS(reference_spectrum, pixel_spectrum) * 255;
+                //calculateCOS gives high values for things that are similar, so this flips that relationship
+                similarityValue = (1-calculateCOS(reference_spectrum, pixel_spectrum)) * 255;
                 break;
             case 6:
-                similarityValue = (calculateCB(reference_spectrum, pixel_spectrum) / (reference_spectrum.size() + 255)) * 255;
+                //similarityValue = (calculateCB(reference_spectrum, pixel_spectrum) / (reference_spectrum.size() + 255)) * 255;
+                similarityValue = calculateCB(reference_spectrum, pixel_spectrum) / (reference_spectrum.size()) * 1000;
                 break;
             case 7:
                 similarityValue = calculateJM(reference_spectrum, pixel_spectrum) * 255;
                 break;
+            case 8: //Testing NS3
+                similarityValue = sqrt(calculateEUD(reference_spectrum, pixel_spectrum)
+                                      *calculateEUD(reference_spectrum, pixel_spectrum)
+                                      +(1-calculateCOS(reference_spectrum, pixel_spectrum)
+                                      *(1-calculateCOS(reference_spectrum, pixel_spectrum))));
         }
 
         outputSimilarityImage->at<uchar>(rowIndex, columnIndex) = similarityValue; 

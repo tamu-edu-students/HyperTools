@@ -25,6 +25,11 @@ double calculateSAM(const std::vector<double>& refSpectrum, const std::vector<do
     double cosineSimilarity = dotProduct / (magnitude1 * magnitude2);
     double angle = std::acos(cosineSimilarity) / 3.141592;  // Angle in radians
 
+    if (dotProduct<=0 || magnitude1<=0 || magnitude2<=0 ) //Investigate if we want this behavior
+    {
+        angle=1; // set to white due to an error
+    }
+
     return angle;
 }
 //Calculate the Spectral Divergance algorithm
