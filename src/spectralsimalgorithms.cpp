@@ -32,7 +32,8 @@ double calculateSAM(const std::vector<double>& refSpectrum, const std::vector<do
 
     return angle;
 }
-//Calculate the Spectral Divergance algorithm
+
+//Calculate the Spectral Divergence algorithm
 double calculateSID(std::vector<double>& refSpectrum, std::vector<double>& pixelSpectrum) {
 
     float sum1=0, sum2=0;
@@ -61,26 +62,6 @@ double calculateSID(std::vector<double>& refSpectrum, std::vector<double>& pixel
     }   
     
     return sum1+sum2;
-    //temp_val=(sum1+sum2);
-    //if (temp_val>255){temp_val=255;}
-
-
-/*
-    double sid_value = 0.0;
-    double js_div = 0.0;
-
-    for (size_t i = 1; i < spectrum1.size(); i++) {
-        if (spectrum1[i] > 0.0 && spectrum2[i] > 0.0) {
-            double m = 0.5 * (spectrum1[i] + spectrum2[i]);
-            js_div += spectrum1[i] * std::log(spectrum1[i] / m);  // Use std::log
-            js_div += spectrum2[i] * std::log(spectrum2[i] / m);  // Use std::log
-        }
-    }
-
-    js_div *= 0.5;
-    sid_value = std::sqrt(js_div);
-
-    return sid_value;*/
 }
 
 
@@ -97,34 +78,9 @@ double calculateEUD(const std::vector<double>& refSpectrum, const std::vector<do
 }
 
 //Calculate the Spectral Correlation Mapper algorithm
+//May be possible to optimize by performing mean calculation on refSpectrum ahead of time
 double calculateSCM(const std::vector<double>& refSpectrum, const std::vector<double>& pixelSpectrum) {
-    /*std::vector<double> scmMap(hyperspectralData.size(), 0.0);
-
-    if (targetSignature.size() != hyperspectralData[0].size()) {
-        throw std::invalid_argument("Target signature dimension does not match hyperspectral data dimension.");
-    }
-
-    // Calculate the SCM for each pixel in the hyperspectral data
-    for (size_t i = 1; i < hyperspectralData.size(); ++i) {
-        double numerator = 0.0;
-        double denominatorA = 0.0;
-        double denominatorB = 0.0;
-
-        for (size_t j = 0; j < hyperspectralData[i].size(); ++j) {
-            double x = hyperspectralData[i][j];
-            double y = targetSignature[j];
-
-            numerator += x * y;
-            denominatorA += x * x;
-            denominatorB += y * y;
-        }
-
-        scmMap[i] = numerator / (sqrt(denominatorA) * sqrt(denominatorB));
-    }
-
-    return scmMap;*/
-
-
+    
     double sum1=0, sum2=0, sum3=0, mean1=0, mean2=0;
     double num_layers = refSpectrum.size();
     for (int i=0; i<num_layers; i++)
@@ -168,8 +124,6 @@ double calculateCOS(const std::vector<double>& refSpectrum, const std::vector<do
 //JM algorithm
 double calculateJM(const std::vector<double>& refSpectrum, const std::vector<double>& pixelSpectrum) {
 
-    //JM relies on the vectors being probability distributions (values for each wavelength must add to 1)
-    //Therefore when calculating BC we must divide the values by the integral.
     double referenceSpecSum = 0;
     double pixelSpecSum = 0;
 
