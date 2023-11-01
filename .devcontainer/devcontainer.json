@@ -17,13 +17,18 @@
 	"image": "hypertools_cubert_cuda:latest" ,
 	
 	"mounts": [
+
 		// below two mounts are for visualization on windows machine if there are issues with wsl
 		// "source=/run/desktop/mnt/host/wslg/.X11-unix,target=/tmp/.X11-unix,type=bind,consistency=cached",
 		// "source=/run/desktop/mnt/host/wslg,target=/mnt/wslg,type=bind,consistency=cached",
+
+		// below is used for visualization on ubuntu machine if there are issues with visualization
+		// "source=/tmp/.X11-unix,target=/tmp/.X11-unix,type=bind,consistency=cached",
 		
 		// below mounts hyperimages in container
 		"source=${localWorkspaceFolder}/../HyperImages,target=/workspaces/HyperImages,type=bind,consistency=cached"
 	  ],
+
 
 	// "remoteEnv": {"DISPLAY":":0"},
 	
