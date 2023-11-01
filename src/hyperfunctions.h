@@ -18,9 +18,26 @@ void EuD_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* refere
 void SAM_img_Child(int id, int k, vector<Mat>* mlt1, vector<vector<int>>* reference_spectrums,Mat* spec_simil_img,int* ref_spec_index);   
 void SCM_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index);
 void SID_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index);
+void cSq_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index);
 void Cos_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index);
 void JM_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index);
 void City_Block_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index);
+static Mat toGrayscale(InputArray _src);
+static Mat formatImagesForPCA(const vector<Mat> &data);
+
+
+
+void similarity_img_Child(int id, int algorithmId, int columnIndex, vector<Mat>& hyperspectralImage, vector<double>* reference_spectrum_ptr, Mat* outputSimilarityImage);
+
+/*
+double CalculateSAM(const vector<double>& referenceSpectrum, const vector<double>& pixelSpectrum);
+double CalculateSID(const vector<double>& referenceSpectrum, const vector<double>& pixelSpectrum);
+double CalculateEuD(const vector<double>& referenceSpectrum, const vector<double>& pixelSpectrum);
+double CalculatedSID(const vector<double>& referenceSpectrum, const vector<double>& pixelSpectrum);
+double CalculatedCos(const vector<double>& referenceSpectrum, const vector<double>& pixelSpectrum);
+double CalculatedJM(const vector<double>& referenceSpectrum, const vector<double>& pixelSpectrum);
+double CalculateCityBlock(const vector<double>& referenceSpectrum, const vector<double>& pixelSpectrum);
+*/
 
 
 void similarity_img_Child(int id, int algorithmId, int columnIndex, vector<Mat>& hyperspectralImage, vector<double>* reference_spectrum_ptr, Mat* outputSimilarityImage);
@@ -52,6 +69,7 @@ public:
 	Mat feature_img_combined; 
 	Mat spec_simil_img;
 	Mat tiled_img;
+	Mat pca_img;
 			
 	vector<string> class_list;
 	vector<Vec3b> color_combos;
@@ -82,6 +100,7 @@ public:
     int WINDOW_WIDTH = 800; // width of displayed image
 	int WINDOW_HEIGHT= 800; // height of displayed image
     
+	int filter = 0;
 
 	string camera_database="../json/camera_database.json"; // holds camera properties
 	string output_polygons="../json/file.json";  // output contour results
@@ -91,8 +110,7 @@ public:
 	void LoadFeatureImage1(string file_name);
 	void LoadFeatureImage2(string file_name);
 	void LoadImageClassified(string file_name);
-	virtual void LoadImageHyper1(string file_name);
-	virtual void LoadImageHyper2(string file_name);
+	virtual void LoadImageHyper(string file_name, bool isImage1);
 
 	//functions to display different types of images
 	void DispClassifiedImage();
@@ -113,6 +131,7 @@ public:
 	void GenerateFalseImg();
 	void thickEdgeContourApproximation(int idx);
 	void TileImage(); // set for 164 needs to be made modular 
+	void PCA_img(bool isImage1);
 	
 	// functions involving spectral similarity algorithms
 	void EuD_img();
@@ -124,6 +143,7 @@ public:
 	void JM_img();
 	void City_img();
 	void SpecSimilParent();
+	void cSq_img();
 
 	//functions involving json files
 	void read_img_json(string file_name);
@@ -133,6 +153,14 @@ public:
 	void save_ref_spec_json(string item_name); 
 	void writeJSON(Json::Value &event, vector<vector<Point> > &contours, int idx, string classification, int count);
 	void writeJSON_full(vector<vector<Point> > contours, vector <Vec3b> contour_class,vector<Vec4i> hierarchy);
+
+
+	//Custom Feature Detector
+	void CreateCustomFeatureDetector(int hessVal, vector<KeyPoint> &keypoints, Mat feature_img);
+
+
+	//function about match-filtering
+	void filter_matches(vector<DMatch> &matches);
 
 };
 

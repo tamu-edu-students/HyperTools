@@ -16,20 +16,20 @@ using namespace std;
 using namespace cv::xfeatures2d;
 
 // Loads first hyperspectral image for analysis
-void HyperFunctions::LoadImageHyper1(string file_name)
+void HyperFunctions::LoadImageHyper(string file_name, bool isImage1=true)
 {
-    mlt1.clear();
-	imreadmulti(file_name, mlt1);
+    if (isImage1) {
+        mlt1.clear();
+	    imreadmulti(file_name, mlt1);
+    }
+    else {
+        mlt2.clear();
+	    imreadmulti(file_name, mlt2);
+    }
+
     
 }
 
-// Loads second hyperspectral image for analysis
-// mainly used for feature matching 
-void HyperFunctions::LoadImageHyper2(string file_name)
-{
-	mlt2.clear();
-	imreadmulti(file_name, mlt2);
-}
 
 // Loads a segmented or classified image
 // mainly used to reprocess classified images through filtering and polygon simplification
@@ -63,6 +63,17 @@ void  HyperFunctions::DispFeatureImgs()
     //    imshow("Feature Images ", feature_img_combined);
 }
 
+void HyperFunctions::CreateCustomFeatureDetector(int hessVal, vector<KeyPoint> &keypoints, Mat feature_img)
+{
+    for (int y = 0; y < feature_img.rows; y += hessVal) {
+        for (int x = 0; x < feature_img.cols; x += hessVal) {
+            keypoints.push_back(cv::KeyPoint(static_cast<float>(x), static_cast<float>(y), 1));
+        }
+    }
+
+    drawKeypoints(feature_img, keypoints, feature_img);
+}
+
 // Detects, describes, and matches keypoints between 2 feature images
 void  HyperFunctions::FeatureExtraction()
 {
@@ -76,7 +87,7 @@ void  HyperFunctions::FeatureExtraction()
     return;
   }
   
-  if(feature_detector<0 || feature_detector>3 || feature_descriptor<0 || feature_descriptor>2 || feature_matcher<0 || feature_matcher>1)
+  if(feature_detector<0 || feature_detector>4 || feature_descriptor<0 || feature_descriptor>2 || feature_matcher<0 || feature_matcher>1)
   {
     cout<<"invalid feature combination"<<endl;
   }
@@ -88,8 +99,8 @@ void  HyperFunctions::FeatureExtraction()
   Ptr<ORB> detector_ORB = ORB::create();
   Ptr<DescriptorMatcher> matcher;
   Mat descriptors1, descriptors2;
-  
-// feature_detector=0; 0 is sift, 1 is surf, 2 is orb, 3 is fast 
+
+// feature_detector=0; 0 is sift, 1 is surf, 2 is orb, 3 is fast, 4 is custom
   if(feature_detector==0)
   {
     detector_SIFT->detect( feature_img1, keypoints1 );
@@ -109,13 +120,20 @@ void  HyperFunctions::FeatureExtraction()
   {
       detector_FAST->detect( feature_img1, keypoints1 );
       detector_FAST->detect( feature_img2, keypoints2 );  
+  } 
+  else if (feature_detector==4) 
+  {
+    //custom feature detector  
+    int spacing = 100;
+    CreateCustomFeatureDetector(spacing, keypoints1, feature_img1);  //input is the spacing between keypoints
+    CreateCustomFeatureDetector(spacing, keypoints2, feature_img2);
   }
-  	
+
   	// feature_descriptor=0; 0 is sift, 1 is surf, 2 is orb
   if(feature_descriptor==0)
   {
     detector_SIFT->compute( feature_img1, keypoints1 , descriptors1);
-    detector_SIFT->compute( feature_img2, keypoints2 , descriptors2 );
+    detector_SIFT->compute( feature_img2, keypoints2 , descriptors2);
   }  
   else if(feature_descriptor==1)
   {
@@ -155,16 +173,32 @@ void  HyperFunctions::FeatureExtraction()
         matcher->match( descriptors1, descriptors2, matches );        
     }  
   }   
+   
+    // filter_matches(matches);
 
   Mat temp_img;  
   drawMatches( feature_img1, keypoints1, feature_img2, keypoints2, matches, temp_img ); 
 
-   cv::resize(temp_img,temp_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR); 
+   cv::resize(temp_img,temp_img,Size(WINDOW_WIDTH*2, WINDOW_HEIGHT),INTER_LINEAR); 
    
    feature_img_combined= temp_img;
-//    imshow("Feature Images ", feature_img_combined);
+   imshow("Feature Images ", feature_img_combined);
 }
-
+void HyperFunctions::filter_matches(vector<DMatch> &matches)
+{
+    if(filter == 1)
+    {
+       // vector<Dmatch> good_matches;
+        for(size_t i = 0; i<matches.size();i++)
+        {
+            if(matches.at(i).distance < .75)
+            {
+                matches.erase(matches.begin() + i);
+                i--;
+            }
+        }
+    }
+}
 // Finds the transformation matrix between two images
 void HyperFunctions::FeatureTransformation()
 {
@@ -1004,86 +1038,102 @@ void  HyperFunctions::SemanticSegmenter()
     classified_img=temp_class_img;
 }
 
-void SpecSimilChild(int threadId, int algorithmId, int columnIndex, vector<Mat>* mlt, vector<int>* reference_spectrum_ptr, Mat* outputSimilarityImage) {
+//---------------------------------------------------------
+// Name: SpecSimilParent
+// Description: to determine the similarity between sets
+// of data (spectral curves) within threadpool based on their spectral properties
+//---------------------------------------------------------
+void  HyperFunctions::SpecSimilParent()
+{
 
-    vector<Mat> hyperspectralImage=*mlt; //dereferences
-    vector<int> reference_spectrumAsInt = *reference_spectrum_ptr;
-    vector<double> reference_spectrum(reference_spectrumAsInt.begin(), reference_spectrumAsInt.end());
+//spec_sim_alg SAM=0, SCM=1, SID=2, EuD=3, cSq=4
+// ref_spec_index
 
-    //Normalizes the reference vector if that is necessary for the comparison algorithm
-    //Those algorithms assume that the stuff has already been normalized
-    if (algorithmId == 4 || algorithmId == 6 || algorithmId == 7) {
-        double reference_spectrum_sum = 0;
-        for (int i = 0; i < reference_spectrum.size(); i++)
-        {
-            reference_spectrum_sum += reference_spectrum[i];
-        }
-        for (int i = 0; i < reference_spectrum.size(); i++)
-        {
-            reference_spectrum[i] /= reference_spectrum_sum;
-        }
-    }
+    Mat temp_img(mlt1[1].rows, mlt1[1].cols, CV_8UC1, Scalar(0));
+    spec_simil_img=temp_img;
 
-    for (int rowIndex = 0; rowIndex <hyperspectralImage[1].rows; rowIndex++)
+    if (spec_sim_alg==0)
     {
-        //Find the pixel spectrum
-        vector<double> pixel_spectrum; 
-        double pixel_spectrum_sum = 0;
+        this->SAM_img();
+    }
+    else if (spec_sim_alg==1)
+    {
+        this->SCM_img();
+    }
+    else if (spec_sim_alg==2)
+    {
+        this->SID_img();
+    }
+    else if (spec_sim_alg==3)
+    {
+        this->EuD_img();
+    }
+    else if(spec_sim_alg==5){
+        this->Cos_img();
+    }
+    else if(spec_sim_alg==6){
+        this->City_img();
+    }
+    else if (spec_sim_alg==7)
+    {
+        this->JM_img();
+    }
+}
 
-        for (int layer = 0; layer < reference_spectrum.size(); layer++) //Assumes that pixel and reference spectra are the same size.
-        {
-            pixel_spectrum.push_back(hyperspectralImage[layer].at<uchar>(rowIndex,columnIndex));
-            pixel_spectrum_sum += hyperspectralImage[layer].at<uchar>(rowIndex,columnIndex);
-        }
+//---------------------------------------------------------
+// Name: SAM_img
+// PreCondition: SAM score output from SAM_img_child 
+// PostCondition: threadpool of SAM values
+//---------------------------------------------------------
+void HyperFunctions::SAM_img()
+{
+    ctpl::thread_pool p(num_threads);
+    
+    for (int k=0; k<mlt1[1].cols; k+=1)
+    {
+        p.push(SAM_img_Child, k, &mlt1,&reference_spectrums,&spec_simil_img,&ref_spec_index);
 
-        //Normalizes the pixel vector if that is necessary for the comparison algorithm
-        if (algorithmId == 4 || algorithmId == 6 || algorithmId == 7) {
-            for (int layer = 0; layer < reference_spectrum.size(); layer++)
-            {
-                pixel_spectrum[layer] /= pixel_spectrum_sum;
-            }
-        }
+    }
+}
 
-        double similarityValue = 0;
+//---------------------------------------------------------
+// Name: SID_img
+// PreCondition: SID value as produced by SID_img_child
+// PostCondition: threadpool of SID values
+//---------------------------------------------------------
+void  HyperFunctions::SID_img()
+{
+    ctpl::thread_pool p(num_threads);
+    for (int k=0; k<mlt1[1].cols; k+=1)
+    {
+         p.push(SID_img_Child, k, &mlt1,&reference_spectrums,&spec_simil_img,&ref_spec_index);
+    }
+}
 
-        switch(algorithmId) { //Manipulation of similarity values not complete yet...
-            case 0:
-                similarityValue = calculateSAM(reference_spectrum, pixel_spectrum) * 255;
-                //Below is equivalent using the calculateCOS function
-                //similarityValue = acos(calculateCOS(reference_spectrum, pixel_spectrum)) / 3.141592 * 255;
-                break;
-            case 1:
-                similarityValue = calculateSCM(reference_spectrum, pixel_spectrum) * 255;
-                break;
-            case 2:
-                similarityValue = calculateSID(reference_spectrum, pixel_spectrum) * 60;
-                break;
-            case 3:
-                //similarityValue = calculateEUD(reference_spectrum, pixel_spectrum) / (reference_spectrum.size() + 255) * 255;
-                similarityValue = calculateEUD(reference_spectrum, pixel_spectrum) / (reference_spectrum.size()) * 10;
-                break;
-            case 4:
-                similarityValue = calculateCsq(reference_spectrum, pixel_spectrum) * 255;
-                break;
-            case 5:
-                //calculateCOS gives high values for things that are similar, so this flips that relationship
-                similarityValue = (1-calculateCOS(reference_spectrum, pixel_spectrum)) * 255;
-                break;
-            case 6:
-                //similarityValue = (calculateCB(reference_spectrum, pixel_spectrum) / (reference_spectrum.size() + 255)) * 255;
-                similarityValue = calculateCB(reference_spectrum, pixel_spectrum) / (reference_spectrum.size()) * 1000;
-                break;
-            case 7:
-                similarityValue = calculateJM(reference_spectrum, pixel_spectrum) * 255;
-                break;
-            case 8: //Testing NS3
-                similarityValue = sqrt(calculateEUD(reference_spectrum, pixel_spectrum)
-                                      *calculateEUD(reference_spectrum, pixel_spectrum)
-                                      +(1-calculateCOS(reference_spectrum, pixel_spectrum)
-                                      *(1-calculateCOS(reference_spectrum, pixel_spectrum))));
-        }
+void  HyperFunctions::EuD_img()
+{
+    ctpl::thread_pool p(num_threads);
+    for (int k=0; k<mlt1[1].cols; k+=1)
+    {
+         p.push(EuD_img_Child, k, &mlt1,&reference_spectrums,&spec_simil_img,&ref_spec_index);
+    }
+}
 
-        outputSimilarityImage->at<uchar>(rowIndex, columnIndex) = similarityValue; 
+void  HyperFunctions::JM_img()
+{
+    ctpl::thread_pool p(num_threads);
+    for (int k=0; k<mlt1[1].cols; k+=1)
+    {
+         p.push(JM_img_Child, k, &mlt1,&reference_spectrums,&spec_simil_img,&ref_spec_index);
+    }
+}
+
+void  HyperFunctions::Cos_img()
+{
+    ctpl::thread_pool p(num_threads);
+    for (int k=0; k<mlt1[1].cols; k+=1)
+    {
+         p.push(Cos_img_Child, k, &mlt1,&reference_spectrums,&spec_simil_img,&ref_spec_index);
     }
 }
 
@@ -1167,4 +1217,77 @@ void HyperFunctions::thickEdgeContourApproximation(int idx){
 
     int siz = contours_approx[idx].size();
 
+}
+
+// references  https://docs.opencv.org/3.4/d3/db0/samples_2cpp_2pca_8cpp-example.html
+// https://docs.opencv.org/3.4/d1/dee/tutorial_introduction_to_pca.html
+
+static  Mat formatImagesForPCA(const vector<Mat> &data)
+{
+    Mat dst(static_cast<int>(data.size()), data[0].rows*data[0].cols, CV_32F);
+    for(unsigned int i = 0; i < data.size(); i++)
+    {
+        Mat image_row = data[i].clone().reshape(1,1);
+        Mat row_i = dst.row(i);
+        image_row.convertTo(row_i,CV_32F);
+    }
+    return dst;
+}
+
+static Mat toGrayscale(InputArray _src) {
+    Mat src = _src.getMat();
+    // only allow one channel
+    if(src.channels() != 1) {
+        CV_Error(Error::StsBadArg, "Only Matrices with one channel are supported");
+    }
+    // create and return normalized image
+    Mat dst;
+    cv::normalize(_src, dst, 0, 255, NORM_MINMAX, CV_8UC1);
+    return dst;
+}
+
+void  HyperFunctions::PCA_img(bool isImage1 = true)
+{
+
+    Mat data;
+    vector<Mat> inputImage;
+    if (isImage1)
+    {
+        data = formatImagesForPCA(mlt1);
+        inputImage = mlt1;
+    }
+    else
+    {
+        data = formatImagesForPCA(mlt2);
+        inputImage = mlt2;
+
+    }
+    int reduced_image_layers = 3;
+
+    PCA pca(data, cv::Mat(), PCA::DATA_AS_ROW, reduced_image_layers); 
+
+    Mat principal_components = pca.eigenvectors;
+
+    vector<Mat> ReducedImage;
+    for (int i = 0; i < reduced_image_layers; i++) {
+        Mat layer = principal_components*data.t();
+        //Mat layer = principal_components.row(i)*data.t();
+        //layer = pca.backProject(layer);
+        //layer = layer.reshape(inputImage[0].channels(), inputImage[0].rows); // reshape from a row vector into image shape
+        layer = toGrayscale(layer);
+        ReducedImage.push_back(layer);
+    }
+
+    //imshow("PCA Results", ReducedImage);
+    //imwritemulti(reduced_file_path,ReducedImage);
+
+    
+    // Demonstration of the effect of retainedVariance on the first image
+    Mat point = pca.project(data.row(0)); // project into the eigenspace, thus the image becomes a "point"
+    Mat reconstruction = pca.backProject(point); // re-create the image from the "point"
+    reconstruction = reconstruction.reshape(inputImage[0].channels(), inputImage[0].rows); // reshape from a row vector into image shape
+    reconstruction = toGrayscale(reconstruction); // re-scale for displaying purposes
+    pca_img=reconstruction;
+    //not writing multiple layers yet because some versions of opencv do not have the function
+    //imwritemulti(reduced_file_path,reconstruction);    
 }
