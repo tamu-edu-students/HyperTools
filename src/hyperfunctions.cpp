@@ -1011,7 +1011,7 @@ void SpecSimilChild(int threadId, int algorithmId, int columnIndex, vector<Mat>*
     vector<double> reference_spectrum(reference_spectrumAsInt.begin(), reference_spectrumAsInt.end());
 
     //Normalizes the reference vector if that is necessary for the comparison algorithm
-    //Those algorithms assume that the stuff has already been normalized
+    //Some algorithms re-normalize anyway which is a source of future optimizations (get rid of redundant code)
     if (algorithmId == 4 || algorithmId == 6 || algorithmId == 7) {
         double reference_spectrum_sum = 0;
         for (int i = 0; i < reference_spectrum.size(); i++)
@@ -1047,7 +1047,7 @@ void SpecSimilChild(int threadId, int algorithmId, int columnIndex, vector<Mat>*
         double similarityValue = 0;
 
         switch(algorithmId) { //Manipulation of similarity values not complete yet...
-            case 0:
+            case 99:
                 similarityValue = calculateSAM(reference_spectrum, pixel_spectrum) * 255;
                 //Below is equivalent using the calculateCOS function
                 //similarityValue = acos(calculateCOS(reference_spectrum, pixel_spectrum)) / 3.141592 * 255;
@@ -1077,10 +1077,15 @@ void SpecSimilChild(int threadId, int algorithmId, int columnIndex, vector<Mat>*
                 similarityValue = calculateJM(reference_spectrum, pixel_spectrum) * 255;
                 break;
             case 8: //Testing NS3
-                similarityValue = sqrt(calculateEUD(reference_spectrum, pixel_spectrum)
-                                      *calculateEUD(reference_spectrum, pixel_spectrum)
-                                      +(1-calculateCOS(reference_spectrum, pixel_spectrum)
-                                      *(1-calculateCOS(reference_spectrum, pixel_spectrum))));
+                similarityValue = 255* sqrt(pow(sqrt(1/reference_spectrum.size()) * calculateEUD(reference_spectrum, pixel_spectrum), 2)
+                                      +pow(1-cos(calculateSAM(reference_spectrum, pixel_spectrum)), 2));
+                break;
+            case 9: //Testing JM-SAM
+                similarityValue = 255 * (calculateJM(reference_spectrum, pixel_spectrum) * tan(calculateSAM(reference_spectrum, pixel_spectrum)));
+                break;
+            case 0: //SCA
+                similarityValue = 255 * (1 - (1/M_PI) * acos((calculateSCM(reference_spectrum, pixel_spectrum)+1)/2));
+                break;
         }
 
         outputSimilarityImage->at<uchar>(rowIndex, columnIndex) = similarityValue; 
