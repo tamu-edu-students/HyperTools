@@ -157,3 +157,31 @@ double calculateCB(const std::vector<double>& refSpectrum, const std::vector<dou
 
     return distance;
 }
+
+//Chi-squared Algorithm
+double calculateCsq(const std::vector<double>& refSpectrum, const std::vector<double>& pixelSpectrum)   
+{   
+    double referenceSpecSum = 0;
+    double pixelSpecSum = 0;
+
+    for (int i=0; i<refSpectrum.size(); i++)
+    {
+        referenceSpecSum += refSpectrum[i];
+        pixelSpecSum += pixelSpectrum[i];
+    }
+
+    double sqrDist = 0;
+    double sum = 0;
+    double chiSq = 0;
+
+    for (int i=0; i<refSpectrum.size(); i++)
+    {
+        sqrDist = pow((refSpectrum[i]/referenceSpecSum) - (pixelSpectrum[i] / pixelSpecSum), 2);
+        sum = (refSpectrum[i]/referenceSpecSum) + (pixelSpectrum[i] / pixelSpecSum);
+        chiSq += (sqrDist / sum);   
+    }
+        
+
+    chiSq = sqrt(sqrt(0.5 * (sqrDist / sum))); // sqrt for data manipulation and made spectral similarity image better
+    return chiSq;
+}

@@ -1011,7 +1011,8 @@ void SpecSimilChild(int threadId, int algorithmId, int columnIndex, vector<Mat>*
     vector<double> reference_spectrum(reference_spectrumAsInt.begin(), reference_spectrumAsInt.end());
 
     //Normalizes the reference vector if that is necessary for the comparison algorithm
-    if (algorithmId == 6 || algorithmId == 7) {
+    //Those algorithms assume that the stuff has already been normalized
+    if (algorithmId == 4 || algorithmId == 6 || algorithmId == 7) {
         double reference_spectrum_sum = 0;
         for (int i = 0; i < reference_spectrum.size(); i++)
         {
@@ -1036,7 +1037,7 @@ void SpecSimilChild(int threadId, int algorithmId, int columnIndex, vector<Mat>*
         }
 
         //Normalizes the pixel vector if that is necessary for the comparison algorithm
-        if (algorithmId == 6 || algorithmId == 7) {
+        if (algorithmId == 4 || algorithmId == 6 || algorithmId == 7) {
             for (int layer = 0; layer < reference_spectrum.size(); layer++)
             {
                 pixel_spectrum[layer] /= pixel_spectrum_sum;
@@ -1060,6 +1061,9 @@ void SpecSimilChild(int threadId, int algorithmId, int columnIndex, vector<Mat>*
             case 3:
                 //similarityValue = calculateEUD(reference_spectrum, pixel_spectrum) / (reference_spectrum.size() + 255) * 255;
                 similarityValue = calculateEUD(reference_spectrum, pixel_spectrum) / (reference_spectrum.size()) * 10;
+                break;
+            case 4:
+                similarityValue = calculateCsq(reference_spectrum, pixel_spectrum) * 255;
                 break;
             case 5:
                 //calculateCOS gives high values for things that are similar, so this flips that relationship

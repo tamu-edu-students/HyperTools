@@ -24,3 +24,6 @@ double calculateJM(const std::vector<double>& refSpectrum, const std::vector<dou
 
 //cityblock Algorithm
 double calculateCB(const std::vector<double>& refSpectrum, const std::vector<double>& pixelSpectrum);
+
+//Chi-squared Algorithm
+double calculateCsq(const std::vector<double>& refSpectrum, const std::vector<double>& pixelSpectrum);
