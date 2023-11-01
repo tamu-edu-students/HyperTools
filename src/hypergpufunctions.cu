@@ -327,12 +327,49 @@ void HyperFunctionsGPU::spec_sim_GPU() {
     else if (spec_sim_alg == 6) {
         img_test_multi_thread_EuD<<<grid_size,block_size>>>(d_out, d_img_array, N_size, num_lay, d_ref_spectrum);
     }
+    else if (spec_sim_alg == 7) {
+        parent_SAM<<<grid_size,block_size>>>(d_out, d_img_array, N_size, num_lay, d_ref_spectrum);
+    }
+
+
 
     cudaDeviceSynchronize();
     cudaMemcpyAsync(out, d_out, sizeof(int) * N_size, cudaMemcpyDeviceToHost); 
     cudaDeviceSynchronize();
 
     this->oneD_array_to_mat(out);   
+}
+
+__global__ void parent_SAM(int *out, int *img_array, int n, int num_layers, int* ref_spectrum, int sum){
+    child_SAM<<<grid_size,block_size>>>(d_out, d_img_array, N_size, num_lay, d_ref_spectrum);
+}
+__device__ void child_SAM(int *out, int *img_array, int n, int num_layers, int* ref_spectrum, int sum){
+    
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    float sum1=0, sum2=0;
+    float sum3 = 0;
+    for (int a=0; a<num_layers-1; a++) {
+        sum3+=ref_spectrum[a] *ref_spectrum[a]; //sum of squared reference spectra values
+    }
+    if (tid < n){
+        int offset=tid*num_layers; //calculating which index in the image array the values for threadID pixel start at
+        for (int a=0; a<num_layers-1; a++) //iterating through spectra layers for that pixel
+        {
+            sum1+=img_array[offset+a]*ref_spectrum[a]; //image spectra values * corresponding referencec spectrum values
+            sum2+=img_array[offset+a]*img_array[offset+a]; //Squared image spectra values
+        }
+        
+        if (sum1<=0 || sum2<=0 || sum3<=0 )
+        {
+            out[tid] =255; // set to white due to an error
+        }
+        else
+        {
+            float temp1= sum1/(sqrt(sum2)*sqrt(sum3));
+            double alpha_rad=acos(temp1);
+            out[tid] =(int)((double)alpha_rad*(double)255/(double)3.14159) ;
+        }
+    }
 }
 
 void HyperFunctionsGPU::deallocate_memory() 
@@ -576,5 +613,4 @@ void HyperFunctionsGPU::semantic_segmentation() {
     delete[] ref_spectrum;
 
 }
-
 
