@@ -108,6 +108,17 @@ int main (int argc, char *argv[]) {
     cout << "Time taken : " << (float)duration_cast<milliseconds>(end-start).count() / (float)1000 << " " << "seconds"<<endl;
     cv::waitKey();
 
+    // SAM -  Classification
+    start = high_resolution_clock::now();
+    HyperFunctions1.spec_sim_alg=7;
+    HyperFunctions1.spec_sim_GPU();
+    HyperFunctions1.DispSpecSim();
+    end = high_resolution_clock::now();
+    cout << "Proccess SAM Classification:" << endl;
+    cout << "Time taken : " << (float)duration_cast<milliseconds>(end-start).count() / (float)1000 << " " << "seconds"<<endl;
+    cv::waitKey();
+
+
     HyperFunctions1.deallocate_memory();
 
   return 0;

@@ -340,10 +340,11 @@ void HyperFunctionsGPU::spec_sim_GPU() {
     this->oneD_array_to_mat(out);   
 }
 
-__global__ void parent_SAM(int *out, int *img_array, int n, int num_layers, int* ref_spectrum, int sum){
-    child_SAM<<<grid_size,block_size>>>(d_out, d_img_array, N_size, num_lay, d_ref_spectrum);
+__global__ void parent_SAM(int *out, int *img_array, int n, int num_layers, int* ref_spectrum){
+    // child_SAM<<<grid_size,block_size>>>(out, img_array, n, num_layers, ref_spectrum);
+    child_SAM(out, img_array, n, num_layers, ref_spectrum);
 }
-__device__ void child_SAM(int *out, int *img_array, int n, int num_layers, int* ref_spectrum, int sum){
+__device__ void child_SAM(int *out, int *img_array, int n, int num_layers, int* ref_spectrum){
     
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     float sum1=0, sum2=0;
