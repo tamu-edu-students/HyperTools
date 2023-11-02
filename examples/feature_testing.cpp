@@ -41,7 +41,7 @@ int main (int argc, char *argv[])
   // imshow("test",output_image1);
 
   HyperFunctions1.dimensionality_reduction = 1;
-  HyperFunctions1.feature_detector=3;
+  HyperFunctions1.feature_detector=2;
 	HyperFunctions1.feature_descriptor=2;
 	HyperFunctions1.feature_matcher=0;
 
