@@ -43,6 +43,7 @@ public:
 	Mat spec_simil_img;
 	Mat tiled_img;
 	Mat pca_img;
+	Mat ga_img;
 			
 	vector<string> class_list;
 	vector<Vec3b> color_combos;
@@ -64,6 +65,7 @@ public:
 	int false_img_r=0; // layer value used for red channel in false image
 	int false_img_g=0;  // layer value used for green channel in false image
 	int false_img_b=0;  // layer value used for blue channel in false image
+	int dimensionality_reduction=0;
 	int feature_detector=0;
 	int feature_descriptor=0;
 	int feature_matcher=0;
@@ -99,6 +101,7 @@ public:
 	void DetectContours();
 	void DifferenceOfImages();
 	void EdgeDetection();
+	void DimensionalityReduction();
 	void FeatureExtraction();  
 	void FeatureTransformation(); 
 	void GenerateFalseImg();

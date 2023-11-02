@@ -105,18 +105,10 @@ void HyperFunctions::gaSpace(bool isImage1)
         
     }
 
-    if (isImage1)
-    {
-        feature_img1=output_image;
-        // convert to Mat data type that is compatible with Fast
-        normalize(feature_img1, feature_img1, 0, 255, NORM_MINMAX, CV_8U);
-    }
-    else
-    {
-        feature_img2=output_image;
-        normalize(feature_img2, feature_img2, 0, 255, NORM_MINMAX, CV_8U);
 
-    }
+    ga_img=output_image;
+    // convert to Mat data type that is compatible with Fast
+    normalize(ga_img, ga_img, 0, 255, NORM_MINMAX, CV_8U);
     // imshow("Output Image", output_image);
     // cv::waitKey();
     //return output_image;
@@ -133,6 +125,25 @@ void HyperFunctions::CreateCustomFeatureDetector(int hessVal, vector<KeyPoint> &
     }
 
     drawKeypoints(feature_img, keypoints, feature_img);
+}
+
+void  HyperFunctions::DimensionalityReduction()
+{
+    if(dimensionality_reduction == 0){
+        cout<<"dimensionality reduction not needed"<<endl;
+    }
+    else if(dimensionality_reduction == 1){
+        gaSpace(true);
+        feature_img1 = ga_img;
+        gaSpace(false);
+        feature_img2 = ga_img;
+    }
+    else if(dimensionality_reduction == 2){
+        PCA_img(true);
+        feature_img1 = pca_img;
+        PCA_img(false);
+        feature_img2 = pca_img;
+    }
 }
 
 // Detects, describes, and matches keypoints between 2 feature images
@@ -182,28 +193,12 @@ void  HyperFunctions::FeatureExtraction()
       detector_FAST->detect( feature_img1, keypoints1 );
       detector_FAST->detect( feature_img2, keypoints2 );  
   } 
-  else if (feature_detector==5) 
+  else if (feature_detector==4) 
   {
     //custom feature detector  
     int spacing = 100;
     CreateCustomFeatureDetector(spacing, keypoints1, feature_img1);  //input is the spacing between keypoints
     CreateCustomFeatureDetector(spacing, keypoints2, feature_img2);
-  }
-  else if (feature_detector == 4)
-  {
-    gaSpace(true);
-    gaSpace(false);
-    // Mat output_image_visual;
-    // //Mat output_image = gaSpace();
-
-
-
-    detector_FAST->detect( feature_img1, keypoints1 );
-    detector_FAST->detect( feature_img2, keypoints2 );
-    // drawKeypoints(output_image_visual, keypoint1, output_image_visual, Scalar(0, 0, 255));
-    // drawKeypoints(output_image_visual2, keypoint2, output_image_visual2, Scalar(0, 0, 255));
-
-   
   }
 
   	// feature_descriptor=0; 0 is sift, 1 is surf, 2 is orb
