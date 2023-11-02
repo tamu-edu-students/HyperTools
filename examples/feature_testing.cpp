@@ -40,7 +40,7 @@ int main (int argc, char *argv[])
   //   Mat output_image1(HyperFunctions1.mlt1[0].rows, HyperFunctions1.mlt1[0].cols, CV_16S, cv::Scalar(1000));
   // imshow("test",output_image1);
 
-
+  HyperFunctions1.
   HyperFunctions1.feature_detector=4;
 	HyperFunctions1.feature_descriptor=2;
 	HyperFunctions1.feature_matcher=0;
