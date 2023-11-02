@@ -1676,7 +1676,7 @@ void  HyperFunctions::PCA_img(bool isImage1 = true)
         inputImage = mlt2;
 
     }
-    int reduced_image_layers = 1;
+    int reduced_image_layers = 3;
 
     PCA pca(data, cv::Mat(), PCA::DATA_AS_ROW, reduced_image_layers); 
 
@@ -1706,3 +1706,4 @@ void  HyperFunctions::PCA_img(bool isImage1 = true)
     //imwritemulti(reduced_file_path,reconstruction);    
 }
 //GA-ORB turning hyperspectral into 2-D
+
