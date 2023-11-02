@@ -13,8 +13,8 @@ int main (int argc, char *argv[])
   HyperFunctions HyperFunctions1; 
   string file_name1="../../HyperImages/img1.tiff";
   HyperFunctions1.LoadImageHyper(file_name1);
-  string file_name2="../../HyperImages/img2.tiff";
-  HyperFunctions1.LoadImageHyper(file_name2, false);
+  string file_name2="../../HyperImages/img1.tiff";
+  HyperFunctions1.LoadImageHyper(file_name1, false);
 
 
   // use a single image layer
@@ -40,8 +40,8 @@ int main (int argc, char *argv[])
   //   Mat output_image1(HyperFunctions1.mlt1[0].rows, HyperFunctions1.mlt1[0].cols, CV_16S, cv::Scalar(1000));
   // imshow("test",output_image1);
 
-  HyperFunctions1.
-  HyperFunctions1.feature_detector=4;
+  HyperFunctions1.dimensionality_reduction = 1;
+  HyperFunctions1.feature_detector=3;
 	HyperFunctions1.feature_descriptor=2;
 	HyperFunctions1.feature_matcher=0;
 

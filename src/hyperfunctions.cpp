@@ -153,6 +153,7 @@ void  HyperFunctions::FeatureExtraction()
 	// feature_descriptor=0; 0 is sift, 1 is surf, 2 is orb
 	// feature_matcher=0; 0 is flann, 1 is bf
   //cout<<feature_detector<<" "<<feature_descriptor<<" "<<feature_matcher<<endl;
+
   if (feature_detector==0 && feature_descriptor==2)
   {
     cout<<"invalid detector/descriptor combination"<<endl;
@@ -171,6 +172,8 @@ void  HyperFunctions::FeatureExtraction()
   Ptr<ORB> detector_ORB = ORB::create();
   Ptr<DescriptorMatcher> matcher;
   Mat descriptors1, descriptors2;
+
+  DimensionalityReduction();
 
 // feature_detector=0; 0 is sift, 1 is surf, 2 is orb, 3 is fast, 9 is custom
   if(feature_detector==0)
