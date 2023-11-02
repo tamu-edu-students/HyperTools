@@ -108,10 +108,14 @@ void HyperFunctions::gaSpace(bool isImage1)
     if (isImage1)
     {
         feature_img1=output_image;
+        // convert to Mat data type that is compatible with Fast
+        normalize(feature_img1, feature_img1, 0, 255, NORM_MINMAX, CV_8U);
     }
     else
     {
         feature_img2=output_image;
+        normalize(feature_img2, feature_img2, 0, 255, NORM_MINMAX, CV_8U);
+
     }
     // imshow("Output Image", output_image);
     // cv::waitKey();
@@ -190,11 +194,9 @@ void  HyperFunctions::FeatureExtraction()
     gaSpace(true);
     gaSpace(false);
     // Mat output_image_visual;
-    normalize(feature_img1, feature_img1, 0, 255, NORM_MINMAX, CV_8U);
-    normalize(feature_img2, feature_img2, 0, 255, NORM_MINMAX, CV_8U);
     // //Mat output_image = gaSpace();
 
-// convert to Mat data type that is compatible with Fast
+
 
     detector_FAST->detect( feature_img1, keypoints1 );
     detector_FAST->detect( feature_img2, keypoints2 );
@@ -257,7 +259,7 @@ void  HyperFunctions::FeatureExtraction()
    cv::resize(temp_img,temp_img,Size(WINDOW_WIDTH*2, WINDOW_HEIGHT),INTER_LINEAR); 
    
    feature_img_combined= temp_img;
-//    imshow("Feature Images ", feature_img_combined);
+   imshow("Feature Images ", feature_img_combined);
 }
 void HyperFunctions::filter_matches(vector<DMatch> &matches)
 {
