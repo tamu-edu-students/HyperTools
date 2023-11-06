@@ -99,9 +99,10 @@ double calculateSCM(const std::vector<double>& refSpectrum, const std::vector<do
         return 1; // set to white due to an error
     }
     
-    float temp1= sum1/(sqrt(sum2)*sqrt(sum3));
-    double alpha_rad=acos(temp1);
-    return (alpha_rad/3.14159);
+    float temp1= sum1/sqrt((sum2)*(sum3));
+    //double alpha_rad=acos(temp1);
+    //return (alpha_rad/3.14159);
+    return temp1;
 }
 
 //cosine similar to SAM
