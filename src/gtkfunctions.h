@@ -15,6 +15,7 @@ static void set_feature_detector_SIFT(GtkWidget *widget,  gpointer data);
 static void set_feature_detector_SURF(GtkWidget *widget,  gpointer data);
 static void set_feature_detector_ORB(GtkWidget *widget,  gpointer data);
 static void set_feature_detector_FAST(GtkWidget *widget,  gpointer data);
+static void set_feature_detector_custom_detector(GtkWidget *widget,  gpointer data);
 static void set_feature_descriptor_SIFT(GtkWidget *widget,  gpointer data);
 static void set_feature_descriptor_SURF(GtkWidget *widget,  gpointer data);
 static void set_feature_descriptor_ORB(GtkWidget *widget,  gpointer data);
@@ -24,6 +25,10 @@ static void set_spec_sim_alg_SAM(GtkWidget *widget,  gpointer data);
 static void set_spec_sim_alg_SCM(GtkWidget *widget,  gpointer data);
 static void set_spec_sim_alg_SID(GtkWidget *widget,  gpointer data);
 static void set_spec_sim_alg_EuD(GtkWidget *widget,  gpointer data);
+
+static void set_filter_1(GtkWidget *widget,  gpointer data);
+
+static void set_filter_na(GtkWidget *widget,  gpointer data);
 
 
     static void set_pix_buf_from_cv(cv::Mat output, GtkImage *image);
