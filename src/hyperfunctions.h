@@ -29,7 +29,7 @@ static Mat formatImagesForPCA(const vector<Mat> &data);
 
 void similarity_img_Child(int id, int algorithmId, int columnIndex, vector<Mat>& hyperspectralImage, vector<double>* reference_spectrum_ptr, Mat* outputSimilarityImage);
 
-/*
+/* /// being updated with spectralsimalgorithms.h, include file is in hyperfunctions.cpp
 double CalculateSAM(const vector<double>& referenceSpectrum, const vector<double>& pixelSpectrum);
 double CalculateSID(const vector<double>& referenceSpectrum, const vector<double>& pixelSpectrum);
 double CalculateEuD(const vector<double>& referenceSpectrum, const vector<double>& pixelSpectrum);
