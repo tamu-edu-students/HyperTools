@@ -67,27 +67,14 @@ void  HyperFunctions::DispFeatureImgs()
 
 void HyperFunctions::gaSpace(bool isImage1)
 {
-    int numChannels ;
-    Mat output_image;
-
-    if (isImage1)
-    {
-    Mat output_image1(mlt1[0].rows, mlt1[0].cols, CV_16U, cv::Scalar(0));
-     output_image=output_image1;
-     numChannels = mlt1.size();
+    // assumes mlt1 and mlt2 have same spatial and spectral resolution
+    Mat output_image(mlt1[0].rows, mlt1[0].cols, CV_16U, cv::Scalar(0));
+    int numChannels = mlt1.size();
 
 
-    }
-    else
-    {
-    Mat output_image2(mlt1[0].rows, mlt1[0].cols, CV_16U, cv::Scalar(0));
-     output_image=output_image2;
-
-    numChannels = mlt1.size();
-    }
+    
     
     int sumTot = 0;
-    //assumes mlt1 and mlt2 are of the same size
     for (int i=0; i<mlt1[0].rows; i++)
     {
         for (int k=0; k<mlt1[1].cols;  k++)
@@ -95,8 +82,17 @@ void HyperFunctions::gaSpace(bool isImage1)
             for (int n=0; n < numChannels; n++)
             {
             
-                int temp_val2=mlt1[n].at<uchar>(i,k);
+                if(isImage1)
+                {
+                    int temp_val2=mlt1[n].at<uchar>(i,k);
+                }
+                else
+                {
+                    int temp_val2=mlt2[n].at<uchar>(i,k);
+                }
                 sumTot += temp_val2;
+
+
             }
             
             output_image.at<ushort>(i, k) = sumTot;
@@ -129,8 +125,11 @@ void HyperFunctions::CreateCustomFeatureDetector(int hessVal, vector<KeyPoint> &
 
 void  HyperFunctions::DimensionalityReduction()
 {
+    // this is a precursor for feature extraction
+    // reduces the dimensionality of the data to a single greyscale image
+
     if(dimensionality_reduction == 0){
-        cout<<"dimensionality reduction not needed"<<endl;
+        //cout<<"dimensionality reduction not needed"<<endl;
     }
     else if(dimensionality_reduction == 1){
         gaSpace(true);
@@ -173,6 +172,10 @@ void  HyperFunctions::FeatureExtraction()
   Ptr<DescriptorMatcher> matcher;
   Mat descriptors1, descriptors2;
 
+  
+  // perform dimensionality reduction on the data to reduce hyperspectral image to a single layer
+  // dimensionality_reduction=0; this is the variable that needs to be set
+  // if set to 0, nothing is done, 1 is ga space, 2 is pca
   DimensionalityReduction();
 
 // feature_detector=0; 0 is sift, 1 is surf, 2 is orb, 3 is fast, 9 is custom
@@ -1705,5 +1708,4 @@ void  HyperFunctions::PCA_img(bool isImage1 = true)
     //not writing multiple layers yet because some versions of opencv do not have the function
     //imwritemulti(reduced_file_path,reconstruction);    
 }
-//GA-ORB turning hyperspectral into 2-D
 
