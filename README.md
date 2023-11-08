@@ -1,95 +1,101 @@
 # HyperTools
 ## Overview
-This package can be used to quickly analyze a hyperspectral image. The package was developed in a way to be agnostic of the camera manufacturer. The data structure that is at the foundation of the code for the hyperspectral image analysis is a vector<Mat>. There is some limited support for using a .cu3 with this code. A user interface was developed to support the usage of some of the functions that were developed, but it is a work in progress. Some of the capabilities of this package include: semantic segmentation, feature matching between single layers of two hyperspectral images, generating spectral similarity images, and extracting objects from a semantic classification image. The code was developed for data from the Ultris X20 Plus, but other Cubert images should work for the majority of the capabilities. 
+This package can be used to quickly analyze a hyperspectral image. The package was developed in a way to be agnostic of the camera manufacturer. The data structure that is at the foundation of the code for the hyperspectral image analysis is a vector<Mat>. There is some limited support for using a .cu3 with this code. The associated Github repo can be found [here](https://github.com/cubert-hyperspectral/cuvis.sdk). A user interface was developed to support the usage of some of the functions that were developed, but it is a work in progress. Some of the capabilities of this package include: semantic segmentation, feature matching between single layers of two hyperspectral images, generating spectral similarity images, and extracting objects from a semantic classification image.
 
 ## Installation Instructions
-This code was developed with Ubuntu 20.04 with a x86_64 architecture, but may work with other versions of Ubuntu.
-Below are the installation instructions to install the dependencies for this package. 
+This code has associated Dockerfiles, depending on the usage. The Dockerfiles can be found in the docker directory. The Dockerfiles are not required to run this code, but are provided for convenience. Information about installing Docker can be found [here](https://docs.docker.com/get-docker/). The reason for the multiple Dockerfiles is to ensure that only the needed code is installed to reduce the amount of space used. Some of the Docker images can get rather large with the addition of CUDA. 
 
-`sudo apt update`
+Make sure the Docker Daemon is running. Then in the terminal, navigate to the docker directory. There are five different Dockerfiles. The Dockerfiles are named based on the intended usage. The Dockerfiles are named as follows:
+- Dockerfile_4_2_OpenCV : This is the basis for the cubert images. This uses OpenCV 4.2.0. This is recommended if you are not using CUDA code or cuvis.
+- Dockerfile_4_2_OpenCV_cuda : This is the basis for the cubert images. This uses OpenCV 4.2.0. This is recommended if you are using CUDA code but not cuvis. 
+- Dockerfile_cubert : This uses OpenCV 4.2.0. This is recommended if you are not using CUDA code, but using cuvis.
+- Dockerfile_cubert_cuda : This uses OpenCV 4.2.0. This is recommended if you are using CUDA code and cuvis.
+- Dockerfile_current_OpenCV : This uses the most recent version of OpenCV. This is recommended if you are not using CUDA code or cuvis.
 
-`sudo apt upgrade`
+The Dockerfiles can be built with the following command (Note: They only need to built once or after changes are made to the Dockerfile):
 
-`sudo apt  install cmake build-essential  g++ wget unzip libgtk2.0-dev pkg-config  libjsoncpp-dev libcanberra-gtk-module libgtk2.0-dev libgtk-3-dev libboost-all-dev glade -y`
+`docker build -t <image_name> -f <Dockerfile_name> .`
 
-### To install Nvidia packages:
- This package has some dependencies on NVIDIA, however is not required. This package speeds up some optional functions through the use of a NVIDIA GPU. The required packages can be installed with the below commands. 
+The recommended image_names file name paris are as follows to be replaced in the above command: 
+- hypertools_4_2, Dockerfile_4_2_OpenCV
+- hypertools_4_2_cuda, Dockerfile_4_2_OpenCV_cuda
+- hypertools_cubert, Dockerfile_cubert
+- hypertools_cubert_cuda, Dockerfile_cubert_cuda
+- hypertools_current_opencv, Dockerfile_current_OpenCV
 
-`sudo apt install nvidia-driver-515 nvidia-dkms-515 -y `
+For example: 
 
-`reboot`
-
-`sudo apt install nvidia-cuda-toolkit -y`
-
-### To install OpenCV:
-The most recent version of OpenCV can be installed with the below commands. However, Cuvis requires version 4.2 to operate properly. The required version can be downloaded from the OpenCV Github. 
-
-#### To install the most recent version of OpenCV:
-
-`cd ~`
-
-`mkdir opencv_build`
-
-`cd opencv_build`
-
-
-`wget -O opencv.zip https://github.com/opencv/opencv/archive/4.x.zip`
-
-`wget -O opencv_contrib.zip https://github.com/opencv/opencv_contrib/archive/4.x.zip`
-
-`unzip opencv.zip`
-
-`unzip opencv_contrib.zip`
-
-`mkdir -p build && cd build`
-
-`cmake -DOPENCV_ENABLE_NONFREE:BOOL=ON  -DOPENCV_EXTRA_MODULES_PATH=/home/$USER/opencv_build/opencv_contrib-4.x/modules /home/$USER/opencv_build/opencv-4.x/     -D OPENCV_GENERATE_PKGCONFIG=ON `
-
-`make -j$(nproc)`
-
-`sudo make install`
-
-#### To install the 4.2 version of OpenCV:
-
-`cd ~`
-
-`mkdir opencv_build`
-
-`cd opencv_build`
-
-
-`wget -O opencv.zip https://github.com/opencv/opencv/archive/4.2.0.zip`
-
-`wget -O opencv_contrib.zip https://github.com/opencv/opencv_contrib/archive/4.2.0.zip`
-
-`unzip opencv.zip`
-
-`unzip opencv_contrib.zip`
-
-`mkdir -p build && cd build`
-
-`cmake -DOPENCV_ENABLE_NONFREE:BOOL=ON  -DOPENCV_EXTRA_MODULES_PATH=/home/$USER/opencv_build/opencv_contrib-4.2.0/modules /home/$USER/opencv_build/opencv-4.2.0/     -D OPENCV_GENERATE_PKGCONFIG=ON `
-
-`make -j$(nproc)`
-
-`sudo make install`
-
-
+`docker build -t hypertools_4_2 -f Dockerfile_4_2_OpenCV .`
 
 
 ## Usage
-There are a couple of example files that were created to display some of the capabilities of this package. In order to build the files to run, a build directory can be created. Below are the commands to create a build directory and the example files. There are two variables in the CMakeLists.txt file that need to be set if CUDA and Cuvis are to be used. They are "use_CUDA" and "use_cuvis". Set the variable to true to include those capabilities or false to not include the relate capabilities. 
+There are many example files in the corresponding directory. The CPP and CUDA files are built with CMakeLists.txt. Make sure to set the use_CUDA and use_cuvis variables to true if CUDA and Cuvis are to be used. Some of the executables are commented out to improve build time. Make sure to uncomment the desired executable and related lines to build the desired executable. The below commands assume that an associated Dockerfile was used. The code was also integrated with VS Code for development. The below commands assume that VS Code is being used. More information about the integration can be found [here](https://code.visualstudio.com/docs/devcontainers/create-dev-container). 
+
+Make sure the .devcontainer/devcontainer.json file is set to the desired Dockerfile. Just uncomment the associated Dockerfile and comment out the other Dockerfiles. An example line from the file is:
+
+`"image": "hypertools_4_2:latest"`
+
+Mounts are used to be able to access a directory on the host. This is used for analyzing the hyperspectral images. The assumed directory format is: 
+ 
+    .
+    ├── HyperWorkspace                   
+    │   ├── HyperTools          
+    │   └── HyperImages                
+    └── ...
+In order to make sure HyperImages is mounted into the docker container make sure the following line is uncommented from the .devcontainer/devcontainer.json file:
+
+    "mounts": [
+    
+    "source=${localWorkspaceFolder}/HyperImages,target=/HyperImages,type=bind,consistency=cached"
+    
+    ]
+
+If you are using CUDA, make sure to uncomment the following line from the .devcontainer/devcontainer.json file to make the GPU accessible by the Docker container:
+
+    "runArgs": [
+    
+    "--gpus=all"
+    
+    ]
+
+Additional information about this file can be found [here](https://containers.dev/implementors/json_reference/). 
+
+
+Next make sure to open the HyperTools folder in VS Code. It is important to make sure that this folder is opened in VS Code and not HyperWorkspace. This is because the .devcontainer/devcontainer.json file has to be at the top level of the workspace. In the terminal, you can navigate to the Hypertools folder, then use the following command to accomplish this:
+
+`code .`
+
+Once the folder is opened in VS Code, the Docker container can be built and run. This can be done by clicking the green button in the bottom left corner of VS Code and selecting "reopen in container". Sometimes there will be a pop up that asks if you want to reopen in container. If this is the case, click reopen in container. 
+
+If changes are made to the devcontainer/devcontainer.json file, the container will need to be rebuilt. This can be done by clicking the green button in the bottom left corner of VS Code and selecting "Rebuild Container".
+
+The terminal in the new window will be in the HyperTools directory. The code can be built with the following commands:
+
+The followind commands need to be only done one time at the start.
 
 `mkdir build`
 
 `cd build`
 
+**(Make sure you are in the HyperTools/build directory for the following commands)**
+
+If changes are made to the CMakeLists.txt file, the code will need to be rebuilt. This can be done with the following command. This will also need to be done at the start:
+
 `cmake ..`
+
+The code can than be built with the following command. This will need to be redone if changes are made to any of the files:
 
 `make -j$(nproc)`
 
+After the executables are built they can be run with the following commands:
 
-### Semantic Interface
+`./<executable_name>`
+
+For example:
+
+`./image_tool`
+
+<!-- ### Semantic Interface
 This example assumes a classified image as input. The capability to generate the classified image with the Image Tool is a work in progress. 
 
 The sample file can be run with the following command:
@@ -120,7 +126,7 @@ The sample files can be run with the following commands:
 
 
 ## Video
-Link to video demoing some of the code: https://youtu.be/dIzrb7cCqlA
+Link to video demoing some of the code: https://youtu.be/dIzrb7cCqlA -->
 
 ## Credits
-This package was developed by Anthony Medellin with help from Jacqueline Aleman, Anant Bhamri, Leo Feng, Adam Garsha, Sarah Lee, Albert Ma, Sudiksha Pradhan, Rijul Ranjan, and Alex Tran. 
+This package was developed by Anthony Medellin with help from Anant Bhamri and undergraduate students at Texas A&M University through the Aggie Research Program. 
