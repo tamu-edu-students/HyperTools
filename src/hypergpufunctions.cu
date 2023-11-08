@@ -310,47 +310,7 @@ __global__ void img_test_multi_thread_EuD(int *out, int *img_array, int n, int n
 
 void HyperFunctionsGPU::spec_sim_GPU() {
 
-    if (spec_sim_alg == 0) { //running the multithreaded algorithms
-        img_test_multi_thread_SAM<<<grid_size,block_size>>>(d_out, d_img_array, N_size, num_lay, d_ref_spectrum);
-    } else if (spec_sim_alg == 1) {
-        img_test_multi_thread_SCM<<<grid_size,block_size>>>(d_out, d_img_array, N_size, num_lay, d_ref_spectrum);
-    } else if (spec_sim_alg == 2) {
-        img_test_multi_thread_SID<<<grid_size,block_size>>>(d_out, d_img_array, N_size, num_lay, d_ref_spectrum);
-    } else if (spec_sim_alg == 3) {
-        img_test_multi_thread_cos<<<grid_size,block_size>>>(d_out, d_img_array, N_size, num_lay, d_ref_spectrum);
-    } else if (spec_sim_alg == 4) {
-        img_test_multi_thread_JM<<<grid_size,block_size>>>(d_out, d_img_array, N_size, num_lay, d_ref_spectrum);
-    }
-    else if (spec_sim_alg == 5) {
-        img_test_multi_thread_cityblock<<<grid_size,block_size>>>(d_out, d_img_array, N_size, num_lay, d_ref_spectrum);
-    }
-    else if (spec_sim_alg == 6) {
-        img_test_multi_thread_EuD<<<grid_size,block_size>>>(d_out, d_img_array, N_size, num_lay, d_ref_spectrum);
-    }
-    else if (spec_sim_alg == 7) {
-        parent_SAM<<<grid_size,block_size>>>(d_out, d_img_array, N_size, num_lay, d_ref_spectrum);
-    }
-    else if (spec_sim_alg == 8) {
-        parent_SCM<<<grid_size,block_size>>>(d_out, d_img_array, N_size, num_lay, d_ref_spectrum);
-    }
-    else if (spec_sim_alg == 9) {
-        parent_SID<<<grid_size,block_size>>>(d_out, d_img_array, N_size, num_lay, d_ref_spectrum);
-    }
-    else if (spec_sim_alg == 10) {
-        parent_cos<<<grid_size,block_size>>>(d_out, d_img_array, N_size, num_lay, d_ref_spectrum);
-    }
-    else if (spec_sim_alg == 11) {
-        parent_JM<<<grid_size,block_size>>>(d_out, d_img_array, N_size, num_lay, d_ref_spectrum);
-    }
-    else if (spec_sim_alg == 12) {
-        parent_cityblock<<<grid_size,block_size>>>(d_out, d_img_array, N_size, num_lay, d_ref_spectrum);
-    }
-    else if (spec_sim_alg == 13) {
-        parent_EuD<<<grid_size,block_size>>>(d_out, d_img_array, N_size, num_lay, d_ref_spectrum);
-    }
-
-
-
+    parent_control<<<grid_size, block_size>>>(d_out, d_img_array, N_size, num_lay, d_ref_spectrum, spec_sim_alg);
 
     cudaDeviceSynchronize();
     cudaMemcpyAsync(out, d_out, sizeof(int) * N_size, cudaMemcpyDeviceToHost); 
@@ -359,10 +319,57 @@ void HyperFunctionsGPU::spec_sim_GPU() {
     this->oneD_array_to_mat(out);   
 }
 
-__global__ void parent_SAM(int *out, int *img_array, int n, int num_layers, int* ref_spectrum){
-    // child_SAM<<<grid_size,block_size>>>(out, img_array, n, num_layers, ref_spectrum);
-    child_SAM(out, img_array, n, num_layers, ref_spectrum);
+/**
+ * Parent Controller for Cuda
+*/
+__global__ void parent_control(int *out, int *img_array, int n, int num_layers, int* ref_spectrum, int sim_alg){
+    // func_ptr functions[] = {
+    // child_SAM,
+    // child_SCM,
+    // child_SID,
+    // child_cos,
+    // child_JM,
+    // child_cityblock,
+    // child_EuD
+    // };
+    // printf("Sim_algorithm %d\n", sim_alg);
+    // functions[sim_alg](out, img_array, n, num_layers, ref_spectrum);
+    // if(sim_alg >= 0 && sim_alg <= 7){
+    //     functions[sim_alg](out, img_array, n, num_layers, ref_spectrum);
+    // }
+    // else{
+    //     printf("It Broke !!\n");
+    // }
+    switch(sim_alg) {
+    case 0:
+        child_SAM(out, img_array, n, num_layers, ref_spectrum);
+        break;
+    case 1:
+        child_SCM(out, img_array, n, num_layers, ref_spectrum);
+        break;
+    case 2:
+        child_SID(out, img_array, n, num_layers, ref_spectrum);
+        break;
+    case 3:
+        child_cos(out, img_array, n, num_layers, ref_spectrum);
+        break;
+    case 4:
+        child_JM(out, img_array, n, num_layers, ref_spectrum);
+        break;
+    case 5:
+        child_cityblock(out, img_array, n, num_layers, ref_spectrum);
+        break;
+    case 6:
+        child_EuD(out, img_array, n, num_layers, ref_spectrum);
+        break;
+    default:
+        printf("It Broke !!\n");
+        break;
+
+    }
 }
+
+
 __device__ void child_SAM(int *out, int *img_array, int n, int num_layers, int* ref_spectrum){
     
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
@@ -393,11 +400,7 @@ __device__ void child_SAM(int *out, int *img_array, int n, int num_layers, int* 
 }
 
 
-// SCM Parent and Child 
-__global__ void parent_SCM(int *out, int *img_array, int n, int num_layers, int* ref_spectrum){
-    // child_SAM<<<grid_size,block_size>>>(out, img_array, n, num_layers, ref_spectrum);
-    child_SCM(out, img_array, n, num_layers, ref_spectrum);
-}
+
 /**
  * 
  * Spectral Corellation Mapper function for spectral similarity analysis
@@ -444,13 +447,6 @@ __device__ void child_SCM(int *out, int *img_array, int n, int num_layers, int* 
     }
 }
 
-/**
- * Cosine Parent and Child 
-*/
-__global__ void parent_cos(int *out, int *img_array, int n, int num_layers, int* ref_spectrum){
-    // child_SAM<<<grid_size,block_size>>>(out, img_array, n, num_layers, ref_spectrum);
-    child_cos(out, img_array, n, num_layers, ref_spectrum);
-}
 
 __device__ void child_cos(int *out, int *img_array, int n, int num_layers, int* ref_spectrum){
 
@@ -480,10 +476,10 @@ __device__ void child_cos(int *out, int *img_array, int n, int num_layers, int* 
         }
     }
 }
-/**SID */
-__global__ void parent_SID(int *out, int *img_array, int n, int num_layers, int* ref_spectrum){
-    child_SID(out, img_array, n, num_layers, ref_spectrum);
-}
+/**
+ * SID 
+ * */
+
 __device__ void child_SID(int *out, int *img_array, int n, int num_layers, int* ref_spectrum){
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     float sum1=0, sum2=0, ref_sum=0, pix_sum=0;
@@ -525,9 +521,6 @@ __device__ void child_SID(int *out, int *img_array, int n, int num_layers, int* 
 }
 
 /*JM*/
-__global__ void parent_JM(int *out, int *img_array, int n, int num_layers, int* ref_spectrum){
-    child_JM(out, img_array, n, num_layers, ref_spectrum);
-}
 __device__ void child_JM(int *out, int *img_array, int n, int num_layers, int* ref_spectrum){
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
@@ -556,9 +549,6 @@ __device__ void child_JM(int *out, int *img_array, int n, int num_layers, int* r
 }
 
 /*EuD*/
-__global__ void parent_EuD(int *out, int *img_array, int n, int num_layers, int* ref_spectrum){
-    child_EuD(out, img_array, n, num_layers, ref_spectrum);
-}
 __device__ void child_EuD(int *out, int *img_array, int n, int num_layers, int* ref_spectrum){
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
@@ -591,10 +581,6 @@ __device__ void child_EuD(int *out, int *img_array, int n, int num_layers, int* 
 /**
  * City Block
 */
-__global__ void parent_cityblock(int *out, int *img_array, int n, int num_layers, int* ref_spectrum){
-    // child_SAM<<<grid_size,block_size>>>(out, img_array, n, num_layers, ref_spectrum);
-    child_cityblock(out, img_array, n, num_layers, ref_spectrum);
-}
 __device__ void child_cityblock(int *out, int *img_array, int n, int num_layers, int* ref_spectrum){
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
