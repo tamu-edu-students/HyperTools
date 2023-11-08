@@ -608,14 +608,11 @@ __device__ void child_cityblock(int *out, int *img_array, int n, int num_layers,
         }
         out[tid] = sum1/(num_layers + 255);
         
+        
     }
+
 }
 
-            temp1 = sin(alpha_rad/2);
-            out[tid] =(int)((double)alpha_rad*(double)255) ;
-        }
-}
-}
 void HyperFunctionsGPU::deallocate_memory() 
 {
     cudaFree(d_ref_spectrum); cudaFree(d_out); cudaFreeHost(out);
