@@ -14,47 +14,56 @@ int main (int argc, char *argv[])
 
     HyperFunctionsCuvis HyperFunctions1;
 
-    HyperFunctions1.cubert_img = "../../HyperImages/cornfields/session_002/session_002_490.cu3";
-    HyperFunctions1.dark_img = "../../HyperImages/cornfields/Calibration/dark__session_002_003_snapshot16423119279414228.cu3";
-    HyperFunctions1.white_img = "../../HyperImages/cornfields/Calibration/white__session_002_752_snapshot16423136896447489.cu3";
-    HyperFunctions1.dist_img = "../../HyperImages/cornfields/Calibration/distanceCalib__session_000_790_snapshot16423004058237746.cu3";
+    HyperFunctions1.cubert_img = "../../HyperImages/ultris5/session_000/session_000_013_snapshot.cu3";
+    HyperFunctions1.dark_img = "../../HyperImages/ultris5/Calibration/dark__session_001_003_snapshot16813826516209154.cu3";
+    HyperFunctions1.white_img = "../../HyperImages/ultris5/Calibration/white__session_001_005_snapshot16813826606404753.cu3";
+    HyperFunctions1.dist_img = "../../HyperImages/ultris5/Calibration/distanceCalib__ultris5ohnerelay_000_002_snapshot16813826930775916.cu3";
+    HyperFunctions1.factor_dir="../../HyperImages/ultris5/Calibration"; // requires init.daq file
+    HyperFunctions1.cubert_settings="../settings/ultris5";  //camera settings file 
+
+    // HyperFunctions1.cubert_img = "../../HyperImages/cornfields/session_002/session_002_490.cu3";
+    // HyperFunctions1.dark_img = "../../HyperImages/cornfields/Calibration/dark__session_002_003_snapshot16423119279414228.cu3";
+    // HyperFunctions1.white_img = "../../HyperImages/cornfields/Calibration/white__session_002_752_snapshot16423136896447489.cu3";
+    // HyperFunctions1.dist_img = "../../HyperImages/cornfields/Calibration/distanceCalib__session_000_790_snapshot16423004058237746.cu3";
+
 
     // below are needed if the ultris5 is used instead of the ultris 20
-    // HyperFunctions1.cubert_settings="../settings/ultris5";  //camera settings file 
-    // HyperFunctions1.factor_dir="/workspaces/HyperTools/settings/ultris5"; // requires init.daq file
+    HyperFunctions1.cubert_settings="../settings/ultris5";  //camera settings file 
+    // HyperFunctions1.factor_dir="../settings/ultris5"; // requires init.daq file
 
     // string file_name, const int exposure_ms, const int num_image
     // string is not used right now
     // below takes an image
     // HyperFunctions1.TakeImageHyper1("placeholder",100, 1);
-    // below loads the image
+   
+    // below loads the hyperspectral image
     // HyperFunctions1.cubert_img = "../../HyperImages/vegetation_000_000_snapshot.cu3";
     // HyperFunctions1.LoadImageHyper(HyperFunctions1.cubert_img);
-    HyperFunctions1.cubert_img = "../../HyperImages/export/Auto_001.cu3s";
-    HyperFunctions1.dark_img = "../../HyperImages/Calib1013/Dark.cu3s";
-    HyperFunctions1.white_img = "../../HyperImages/Calib1013/White.cu3s";
-    HyperFunctions1.dist_img = "../../HyperImages/Calib1013/Dist.cu3s";
-    HyperFunctions1.cubert_settings="../settings/ultris5";  //camera settings file 
-    HyperFunctions1.factor_dir="../settings/ultris5"; // requires init.daq file
-    // HyperFunctions1.ReprocessImage( HyperFunctions1.cubert_img);  
+   
+    
+    // below is for reprocessing the image in the case when raw mode is required
+    HyperFunctions1.ReprocessImage( HyperFunctions1.cubert_img);  
     
 
     // below reproceses image and save rgb of it 
      
-    HyperFunctions1.false_img_b=2;
-    HyperFunctions1.false_img_g=13;
-    HyperFunctions1.false_img_r=31;
-    HyperFunctions1.GenerateFalseImg();
-    // cv::imwrite(HyperFunctions1.output_dir+"test_img.png", HyperFunctions1.false_img);
-    imshow("test",  HyperFunctions1.false_img);
-    cv::waitKey();
+    // HyperFunctions1.false_img_b=2;
+    // HyperFunctions1.false_img_g=13;
+    // HyperFunctions1.false_img_r=31;
+    // HyperFunctions1.GenerateFalseImg();
+    // // cv::imwrite(HyperFunctions1.output_dir+"test_img.png", HyperFunctions1.false_img);
+    // imshow("test",  HyperFunctions1.false_img);
+    // cv::waitKey();
 
     // below only works for  ultris20 images due to different number of layers in default spectral database
     // below loads spectral database and performs classification
-    // HyperFunctions1.read_ref_spec_json(HyperFunctions1.spectral_database);
+    HyperFunctions1.read_ref_spec_json(HyperFunctions1.spectral_database);
+   	HyperFunctions1.SpecSimilParent();
+    HyperFunctions1.DispSpecSim();
+
     // HyperFunctions1.SemanticSegmenter();
     // HyperFunctions1.DispClassifiedImage();
-    // cv::waitKey();
+    cv::waitKey();
 
     // below is to export tiff image
     // HyperFunctions1.ExportTiff();
