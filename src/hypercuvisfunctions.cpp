@@ -211,6 +211,7 @@ void HyperFunctionsCuvis::TakeImageHyper1(string file_name, const int exposure_m
         {
         auto& mesu = mesu_res.second.value();
 
+        // exporter.set_name("test"); //does not work
         proc.apply(mesu);
         exporter.apply(mesu);
 
