@@ -95,6 +95,10 @@ For example:
 
 `./image_tool`
 
+
+
+
+
 <!-- ### Semantic Interface
 This example assumes a classified image as input. The capability to generate the classified image with the Image Tool is a work in progress. 
 

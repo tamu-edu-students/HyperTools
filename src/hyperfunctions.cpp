@@ -1081,14 +1081,13 @@ void  HyperFunctions::SemanticSegmenter()
     }
     Mat temp_class_img(mlt1[1].rows, mlt1[1].cols, CV_8UC3, Scalar(0,0,0));
 
-    for(int k = 0; k < mlt1[1].rows; k++)
+    for(int k = 0; k < mlt1[1].cols; k++)
     {
-        for (int j=0; j < mlt1[1].cols; j++)
+        for (int j=0; j < mlt1[1].rows; j++)
         {    
             double low_val;
             for (int i=0; i<temp_results.size(); i++)
             {
-
                 if (i==0)
                 {
                     low_val=temp_results[i].at<uchar>(j,k);
