@@ -39,6 +39,19 @@ double CalculatedJM(const vector<double>& referenceSpectrum, const vector<double
 double CalculateCityBlock(const vector<double>& referenceSpectrum, const vector<double>& pixelSpectrum);
 */
 
+
+void similarity_img_Child(int id, int algorithmId, int columnIndex, vector<Mat>& hyperspectralImage, vector<double>* reference_spectrum_ptr, Mat* outputSimilarityImage);
+
+/*
+double CalculateSAM(const vector<double>& referenceSpectrum, const vector<double>& pixelSpectrum);
+double CalculateSID(const vector<double>& referenceSpectrum, const vector<double>& pixelSpectrum);
+double CalculateEuD(const vector<double>& referenceSpectrum, const vector<double>& pixelSpectrum);
+double CalculatedSID(const vector<double>& referenceSpectrum, const vector<double>& pixelSpectrum);
+double CalculatedCos(const vector<double>& referenceSpectrum, const vector<double>& pixelSpectrum);
+double CalculatedJM(const vector<double>& referenceSpectrum, const vector<double>& pixelSpectrum);
+double CalculateCityBlock(const vector<double>& referenceSpectrum, const vector<double>& pixelSpectrum);
+*/
+
 class HyperFunctions 
 {
 
