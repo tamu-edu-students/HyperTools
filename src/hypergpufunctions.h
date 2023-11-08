@@ -38,6 +38,11 @@ __device__ void child_cityblock(int *out, int *img_array, int n, int num_layers,
 __global__ void parent_EuD(int *out, int *img_array, int n, int num_layers, int* ref_spectrum) ;
 __device__ void child_EuD(int *out, int *img_array, int n, int num_layers, int* ref_spectrum) ;
 
+__global__ void parent_control(int *out, int *img_array, int n, int num_layers, int* ref_spectrum, int sim_alg);
+typedef void (*func_ptr)(int*, int*, int, int, int*);
+
+
+
 class HyperFunctionsGPU : public HyperFunctions {
 public:
 
