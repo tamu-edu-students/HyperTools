@@ -1205,6 +1205,12 @@ void SpecSimilChild(int threadId, int algorithmId, int columnIndex, vector<Mat>*
             case 12: //SID-SCA
                 similarityValue = 255 * calculateSID(reference_spectrum, pixel_spectrum) * tan(( acos((calculateSCM(reference_spectrum, pixel_spectrum)+1)*0.5)));
                 break;
+            case 13: //Hellinger Distance
+                similarityValue = calculateHDist(reference_spectrum, pixel_spectrum) * 60;
+                break;
+            case 14: //Canberra distance
+                similarityValue = 255 * calculateCanb(reference_spectrum, pixel_spectrum);
+                break;
         }
 
         outputSimilarityImage->at<uchar>(rowIndex, columnIndex) = similarityValue; 
