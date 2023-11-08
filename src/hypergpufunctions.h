@@ -22,8 +22,21 @@ __global__ void mat_to_oneD_array_child(uchar* mat_array, int* img_array, int n,
 __global__ void img_test_multi_thread_cityblock(int *out, int *img_array, int n, int num_layers, int* ref_spectrum) ;
 __global__ void img_test_multi_thread_EuD(int *out, int *img_array, int n, int num_layers, int* ref_spectrum) ;
 
+/*start of hybrid functions*/
 __global__ void parent_SAM(int *out, int *img_array, int n, int num_layers, int* ref_spectrum) ;
 __device__ void child_SAM(int *out, int *img_array, int n, int num_layers, int* ref_spectrum) ;
+__global__ void parent_SCM(int *out, int *img_array, int n, int num_layers, int* ref_spectrum) ;
+__device__ void child_SCM(int *out, int *img_array, int n, int num_layers, int* ref_spectrum) ;
+__global__ void parent_SID(int *out, int *img_array, int n, int num_layers, int* ref_spectrum) ;
+__device__ void child_SID(int *out, int *img_array, int n, int num_layers, int* ref_spectrum) ;
+__global__ void parent_cos(int *out, int *img_array, int n, int num_layers, int* ref_spectrum) ;
+__device__ void child_cos(int *out, int *img_array, int n, int num_layers, int* ref_spectrum) ;
+__global__ void parent_JM(int *out, int *img_array, int n, int num_layers, int* ref_spectrum) ;
+__device__ void child_JM(int *out, int *img_array, int n, int num_layers, int* ref_spectrum) ;
+__global__ void parent_cityblock(int *out, int *img_array, int n, int num_layers, int* ref_spectrum) ;
+__device__ void child_cityblock(int *out, int *img_array, int n, int num_layers, int* ref_spectrum) ;
+__global__ void parent_EuD(int *out, int *img_array, int n, int num_layers, int* ref_spectrum) ;
+__device__ void child_EuD(int *out, int *img_array, int n, int num_layers, int* ref_spectrum) ;
 
 class HyperFunctionsGPU : public HyperFunctions {
 public:
