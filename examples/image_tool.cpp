@@ -41,16 +41,16 @@ int main (int argc, char *argv[])
   #if use_cuvis
   //do hypercuvis functions, else base functions
     HyperFunctionsCuvis HyperFunctions1;
-    // HyperFunctions1.cubert_img = "../../HyperImages/cornfields/session_002/session_002_490.cu3";
-    // HyperFunctions1.dark_img = "../../HyperImages/cornfields/Calibration/dark__session_002_003_snapshot16423119279414228.cu3";
-    // HyperFunctions1.white_img = "../../HyperImages/cornfields/Calibration/white__session_002_752_snapshot16423136896447489.cu3";
-    // HyperFunctions1.dist_img = "../../HyperImages/cornfields/Calibration/distanceCalib__session_000_790_snapshot16423004058237746.cu3";
-    HyperFunctions1.cubert_img = "../../HyperImages/ultris5/session_000/session_000_013_snapshot.cu3";
-    HyperFunctions1.dark_img = "../../HyperImages/ultris5/Calibration/dark__session_001_003_snapshot16813826516209154.cu3";
-    HyperFunctions1.white_img = "../../HyperImages/ultris5/Calibration/white__session_001_005_snapshot16813826606404753.cu3";
-    HyperFunctions1.dist_img = "../../HyperImages/ultris5/Calibration/distanceCalib__ultris5ohnerelay_000_002_snapshot16813826930775916.cu3";
-    HyperFunctions1.factor_dir="../../HyperImages/ultris5/Calibration"; // requires init.daq file
-    HyperFunctions1.cubert_settings="../settings/ultris5";  //camera settings file 
+    HyperFunctions1.cubert_img = "../../HyperImages/cornfields/session_002/session_002_490.cu3";
+    HyperFunctions1.dark_img = "../../HyperImages/cornfields/Calibration/dark__session_002_003_snapshot16423119279414228.cu3";
+    HyperFunctions1.white_img = "../../HyperImages/cornfields/Calibration/white__session_002_752_snapshot16423136896447489.cu3";
+    HyperFunctions1.dist_img = "../../HyperImages/cornfields/Calibration/distanceCalib__session_000_790_snapshot16423004058237746.cu3";
+    // HyperFunctions1.cubert_img = "../../HyperImages/ultris5/session_000/session_000_013_snapshot.cu3";
+    // HyperFunctions1.dark_img = "../../HyperImages/ultris5/Calibration/dark__session_001_003_snapshot16813826516209154.cu3";
+    // HyperFunctions1.white_img = "../../HyperImages/ultris5/Calibration/white__session_001_005_snapshot16813826606404753.cu3";
+    // HyperFunctions1.dist_img = "../../HyperImages/ultris5/Calibration/distanceCalib__ultris5ohnerelay_000_002_snapshot16813826930775916.cu3";
+    // HyperFunctions1.factor_dir="../../HyperImages/ultris5/Calibration"; // requires init.daq file
+    // HyperFunctions1.cubert_settings="../settings/ultris5";  //camera settings file 
     HyperFunctions1.ReprocessImage( HyperFunctions1.cubert_img);
     cout<<"testing here"<<endl;
   #else

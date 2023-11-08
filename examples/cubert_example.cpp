@@ -37,12 +37,14 @@ int main (int argc, char *argv[])
     // HyperFunctions1.TakeImageHyper1("placeholder",100, 1);
    
     // below loads the hyperspectral image
-    // HyperFunctions1.cubert_img = "../../HyperImages/vegetation_000_000_snapshot.cu3";
-    // HyperFunctions1.LoadImageHyper(HyperFunctions1.cubert_img);
+    HyperFunctions1.cubert_img = "../../HyperImages/vegetation_000_000_snapshot.cu3";
+    HyperFunctions1.cubert_img = "../../HyperImages/export/multi/0000_copy_raw.tiff";
+
+    HyperFunctions1.LoadImageHyper(HyperFunctions1.cubert_img);
    
     
     // below is for reprocessing the image in the case when raw mode is required
-    HyperFunctions1.ReprocessImage( HyperFunctions1.cubert_img);  
+    // HyperFunctions1.ReprocessImage( HyperFunctions1.cubert_img);  
     
 
     // below reproceses image and save rgb of it 
@@ -51,23 +53,23 @@ int main (int argc, char *argv[])
     // HyperFunctions1.false_img_g=13;
     // HyperFunctions1.false_img_r=31;
     // HyperFunctions1.GenerateFalseImg();
-    // // cv::imwrite(HyperFunctions1.output_dir+"test_img.png", HyperFunctions1.false_img);
+    // cv::imwrite(HyperFunctions1.output_dir+"test_img.png", HyperFunctions1.false_img);
     // imshow("test",  HyperFunctions1.false_img);
     // cv::waitKey();
 
     // below only works for  ultris20 images due to different number of layers in default spectral database
     // below loads spectral database and performs classification
     HyperFunctions1.read_ref_spec_json(HyperFunctions1.spectral_database);
-   	HyperFunctions1.SpecSimilParent();
-    HyperFunctions1.DispSpecSim();
+   	// HyperFunctions1.SpecSimilParent();
+    // HyperFunctions1.DispSpecSim();
 
-    // HyperFunctions1.SemanticSegmenter();
-    // HyperFunctions1.DispClassifiedImage();
+    HyperFunctions1.SemanticSegmenter();
+    HyperFunctions1.DispClassifiedImage();
     cv::waitKey();
 
     // below is to export tiff image
     // HyperFunctions1.ExportTiff();
 
-
+cout<<"finished"<<endl;
   return 0;
 }
