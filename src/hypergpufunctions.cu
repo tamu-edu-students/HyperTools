@@ -444,6 +444,90 @@ __device__ void child_cos(int *out, int *img_array, int n, int num_layers, int* 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     float sum1=0, sum2=0;
     float sum3 = 0;
+/**SID */
+__global__ void parent_SID(int *out, int *img_array, int n, int num_layers, int* ref_spectrum){
+    child_SID(out, img_array, n, num_layers, ref_spectrum);
+}
+__device__ void child_SID(int *out, int *img_array, int n, int num_layers, int* ref_spectrum){
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    float sum1=0, sum2=0, ref_sum=0, pix_sum=0;
+
+    if (tid < n){
+        int offset=tid*num_layers;
+        for (int a=0; a<num_layers-1; a++)
+        {
+            if (ref_spectrum[a]<1){ref_spectrum[a]+=1;}
+            if (img_array[offset+a]<1){img_array[offset+a]+=1;}              
+            ref_sum+= ref_spectrum[a] ;
+            pix_sum+= img_array[offset+a];
+        }
+        
+        // error handling to avoid division by zero
+        if (ref_sum<1){ref_sum+=1;}
+        if (pix_sum<1){pix_sum+=1;}
+        
+        float ref_new[300], pix_new[300];
+        
+        for (int a=0; a<num_layers-1; a++)
+        {
+            ref_new[a]=ref_spectrum[a] / ref_sum ; //probability distribution for reference spectrum
+            pix_new[a]=img_array[offset+a]/pix_sum; //probabiltiy distribution for our image
+            // error handling to avoid division by zero
+        }
+        
+        for (int a=0; a<num_layers-1; a++)
+        {
+            sum1+= ref_new[a]*log(ref_new[a]/pix_new[a]);
+            sum2+= pix_new[a]*log(pix_new[a]/ref_new[a]);
+        }        
+
+        // need to normalize the results better here
+        out[tid] =(sum1+sum2) *60;
+        if (out[tid]>255){out[tid]=255;}
+
+    }
+}
+
+/*JM*/
+__global__ void parent_JM(int *out, int *img_array, int n, int num_layers, int* ref_spectrum){
+    child_JM(out, img_array, n, num_layers, ref_spectrum);
+}
+__device__ void child_JM(int *out, int *img_array, int n, int num_layers, int* ref_spectrum){
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if (tid < n) {
+        double referenceSpecIntegral = 0;
+        double pixelSpecIntegral = 0;
+
+        int offset = tid * num_layers;
+        for (int i = 0; i < num_layers; i++) {
+            referenceSpecIntegral += ref_spectrum[i];
+            pixelSpecIntegral += img_array[offset + i];
+        }
+
+        double BC = 0;
+        for (int i = 0; i < num_layers; i++) {
+            BC += sqrt((ref_spectrum[i] / referenceSpecIntegral) * (img_array[offset + i] / pixelSpecIntegral));
+        }
+
+        double Bhattacharyya = -log(BC);
+        double JM_distance = sqrt(2 * (1 - exp(-Bhattacharyya)));
+        double JM_distance_scaled = JM_distance * 180.312229203;
+        out[tid] = (int)(JM_distance_scaled);
+    }
+
+}
+
+/*EuD*/
+__global__ void parent_EuD(int *out, int *img_array, int n, int num_layers, int* ref_spectrum){
+    child_EuD(out, img_array, n, num_layers, ref_spectrum);
+}
+__device__ void child_EuD(int *out, int *img_array, int n, int num_layers, int* ref_spectrum){
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    float sum1=0, sum2=0, sum3 = 0;
+
     for (int a=0; a<num_layers-1; a++) {
         sum3+=ref_spectrum[a] *ref_spectrum[a]; //sum of squared reference spectra values
     }
@@ -491,6 +575,11 @@ __device__ void child_cityblock(int *out, int *img_array, int n, int num_layers,
     }
 }
 
+            temp1 = sin(alpha_rad/2);
+            out[tid] =(int)((double)alpha_rad*(double)255) ;
+        }
+}
+}
 void HyperFunctionsGPU::deallocate_memory() 
 {
     cudaFree(d_ref_spectrum); cudaFree(d_out); cudaFreeHost(out);
