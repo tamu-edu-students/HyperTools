@@ -382,9 +382,9 @@ void HyperFunctionsCuvis::ReprocessImage(string file_name, bool isImage1 = true 
             }
             // cv::imshow(" Individual channel ", singleChannel);
             // cv::waitKey(50);
+
         } 
     }
-
     else if (file_ext=="cu3s")
     {
 
