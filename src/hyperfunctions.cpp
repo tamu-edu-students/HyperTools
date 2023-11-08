@@ -1047,7 +1047,7 @@ void SpecSimilChild(int threadId, int algorithmId, int columnIndex, vector<Mat>*
         double similarityValue = 0;
 
         switch(algorithmId) { //Manipulation of similarity values not complete yet...
-            case 99:
+            case 0:
                 similarityValue = calculateSAM(reference_spectrum, pixel_spectrum) * 255;
                 //Below is equivalent using the calculateCOS function
                 //similarityValue = acos(calculateCOS(reference_spectrum, pixel_spectrum)) / 3.141592 * 255;
@@ -1085,6 +1085,12 @@ void SpecSimilChild(int threadId, int algorithmId, int columnIndex, vector<Mat>*
                 break;
             case 10: //SCA
                 similarityValue = 255 * ( (1/M_PI) * acos((calculateSCM(reference_spectrum, pixel_spectrum)-1)*0.5));
+                break;
+            case 11: //SID-SAM
+                similarityValue = 255 * calculateSID(reference_spectrum, pixel_spectrum) * tan(calculateSAM(reference_spectrum, pixel_spectrum));
+                break;
+            case 12: //SID-SCA
+                similarityValue = 255 * calculateSID(reference_spectrum, pixel_spectrum) * tan(( acos((calculateSCM(reference_spectrum, pixel_spectrum)+1)*0.5)));
                 break;
         }
 
