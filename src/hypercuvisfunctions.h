@@ -23,9 +23,10 @@ public:
     string white_img;
     string dist_img;
 
-    void LoadImageHyper1(string file_name);
-    void LoadImageHyper2(string file_name);
+    void LoadImageHyper(string file_name, bool isImage1 );
+    void TakeImageHyper1(string file_name, const int exposure_ms, const int num_images);
     void ExportTiff();
+    void ReprocessImage(string file_name, bool isImage1 ); 
 
 
 };

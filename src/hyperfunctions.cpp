@@ -16,20 +16,20 @@ using namespace std;
 using namespace cv::xfeatures2d;
 
 // Loads first hyperspectral image for analysis
-void HyperFunctions::LoadImageHyper1(string file_name)
+void HyperFunctions::LoadImageHyper(string file_name, bool isImage1=true)
 {
-    mlt1.clear();
-	imreadmulti(file_name, mlt1);
+    if (isImage1) {
+        mlt1.clear();
+	    imreadmulti(file_name, mlt1);
+    }
+    else {
+        mlt2.clear();
+	    imreadmulti(file_name, mlt2);
+    }
+
     
 }
 
-// Loads second hyperspectral image for analysis
-// mainly used for feature matching 
-void HyperFunctions::LoadImageHyper2(string file_name)
-{
-	mlt2.clear();
-	imreadmulti(file_name, mlt2);
-}
 
 // Loads a segmented or classified image
 // mainly used to reprocess classified images through filtering and polygon simplification
@@ -63,6 +63,89 @@ void  HyperFunctions::DispFeatureImgs()
     //    imshow("Feature Images ", feature_img_combined);
 }
 
+
+//GA-ORB turning hyperspectral into 2-D
+
+void HyperFunctions::gaSpace(bool isImage1)
+{
+    // assumes mlt1 and mlt2 have same spatial and spectral resolution
+    Mat output_image(mlt1[0].rows, mlt1[0].cols, CV_16U, cv::Scalar(0));
+    int numChannels = mlt1.size();
+
+
+    
+    
+    int sumTot = 0;
+    for (int i=0; i<mlt1[0].rows; i++)
+    {
+        for (int k=0; k<mlt1[1].cols;  k++)
+        {
+            for (int n=0; n < numChannels; n++)
+            {
+            
+                if(isImage1)
+                {
+                    int temp_val2=mlt1[n].at<uchar>(i,k);
+                }
+                else
+                {
+                    int temp_val2=mlt2[n].at<uchar>(i,k);
+                }
+                sumTot += temp_val2;
+
+
+            }
+            
+            output_image.at<ushort>(i, k) = sumTot;
+            sumTot = 0;
+        }
+        
+    }
+
+
+    ga_img=output_image;
+    // convert to Mat data type that is compatible with Fast
+    normalize(ga_img, ga_img, 0, 255, NORM_MINMAX, CV_8U);
+    // imshow("Output Image", output_image);
+    // cv::waitKey();
+    //return output_image;
+    
+   
+}
+
+void HyperFunctions::CreateCustomFeatureDetector(int hessVal, vector<KeyPoint> &keypoints, Mat feature_img)
+{
+    for (int y = 0; y < feature_img.rows; y += hessVal) {
+        for (int x = 0; x < feature_img.cols; x += hessVal) {
+            keypoints.push_back(cv::KeyPoint(static_cast<float>(x), static_cast<float>(y), 1));
+        }
+    }
+
+    drawKeypoints(feature_img, keypoints, feature_img);
+}
+
+void  HyperFunctions::DimensionalityReduction()
+{
+    // this is a precursor for feature extraction
+    // reduces the dimensionality of the data to a single greyscale image
+
+    if(dimensionality_reduction == 0){
+        //cout<<"dimensionality reduction not needed"<<endl;
+    }
+    else if(dimensionality_reduction == 1){
+        gaSpace(true);
+        feature_img1 = ga_img;
+        gaSpace(false);
+        feature_img2 = ga_img;
+    }
+    else if(dimensionality_reduction == 2){
+        PCA_img(true);
+        feature_img1 = pca_img;
+        PCA_img(false);
+        feature_img2 = pca_img;
+    }
+}
+
 // Detects, describes, and matches keypoints between 2 feature images
 void  HyperFunctions::FeatureExtraction()
 {
@@ -70,13 +153,14 @@ void  HyperFunctions::FeatureExtraction()
 	// feature_descriptor=0; 0 is sift, 1 is surf, 2 is orb
 	// feature_matcher=0; 0 is flann, 1 is bf
   //cout<<feature_detector<<" "<<feature_descriptor<<" "<<feature_matcher<<endl;
+
   if (feature_detector==0 && feature_descriptor==2)
   {
     cout<<"invalid detector/descriptor combination"<<endl;
     return;
   }
   
-  if(feature_detector<0 || feature_detector>3 || feature_descriptor<0 || feature_descriptor>2 || feature_matcher<0 || feature_matcher>1)
+  if(feature_detector<0 || feature_detector>4 || feature_descriptor<0 || feature_descriptor>2 || feature_matcher<0 || feature_matcher>1)
   {
     cout<<"invalid feature combination"<<endl;
   }
@@ -88,8 +172,14 @@ void  HyperFunctions::FeatureExtraction()
   Ptr<ORB> detector_ORB = ORB::create();
   Ptr<DescriptorMatcher> matcher;
   Mat descriptors1, descriptors2;
+
   
-// feature_detector=0; 0 is sift, 1 is surf, 2 is orb, 3 is fast 
+  // perform dimensionality reduction on the data to reduce hyperspectral image to a single layer
+  // dimensionality_reduction=0; this is the variable that needs to be set
+  // if set to 0, nothing is done, 1 is ga space, 2 is pca
+  DimensionalityReduction();
+
+// feature_detector=0; 0 is sift, 1 is surf, 2 is orb, 3 is fast, 9 is custom
   if(feature_detector==0)
   {
     detector_SIFT->detect( feature_img1, keypoints1 );
@@ -109,13 +199,20 @@ void  HyperFunctions::FeatureExtraction()
   {
       detector_FAST->detect( feature_img1, keypoints1 );
       detector_FAST->detect( feature_img2, keypoints2 );  
+  } 
+  else if (feature_detector==4) 
+  {
+    //custom feature detector  
+    int spacing = 100;
+    CreateCustomFeatureDetector(spacing, keypoints1, feature_img1);  //input is the spacing between keypoints
+    CreateCustomFeatureDetector(spacing, keypoints2, feature_img2);
   }
-  	
+
   	// feature_descriptor=0; 0 is sift, 1 is surf, 2 is orb
   if(feature_descriptor==0)
   {
     detector_SIFT->compute( feature_img1, keypoints1 , descriptors1);
-    detector_SIFT->compute( feature_img2, keypoints2 , descriptors2 );
+    detector_SIFT->compute( feature_img2, keypoints2 , descriptors2);
   }  
   else if(feature_descriptor==1)
   {
@@ -155,16 +252,32 @@ void  HyperFunctions::FeatureExtraction()
         matcher->match( descriptors1, descriptors2, matches );        
     }  
   }   
+   
+    // filter_matches(matches);
 
   Mat temp_img;  
   drawMatches( feature_img1, keypoints1, feature_img2, keypoints2, matches, temp_img ); 
 
-   cv::resize(temp_img,temp_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR); 
+   cv::resize(temp_img,temp_img,Size(WINDOW_WIDTH*2, WINDOW_HEIGHT),INTER_LINEAR); 
    
    feature_img_combined= temp_img;
-//    imshow("Feature Images ", feature_img_combined);
+   imshow("Feature Images ", feature_img_combined);
 }
-
+void HyperFunctions::filter_matches(vector<DMatch> &matches)
+{
+    if(filter == 1)
+    {
+       // vector<Dmatch> good_matches;
+        for(size_t i = 0; i<matches.size();i++)
+        {
+            if(matches.at(i).distance < .75)
+            {
+                matches.erase(matches.begin() + i);
+                i--;
+            }
+        }
+    }
+}
 // Finds the transformation matrix between two images
 void HyperFunctions::FeatureTransformation()
 {
@@ -1179,3 +1292,77 @@ void HyperFunctions::thickEdgeContourApproximation(int idx){
     int siz = contours_approx[idx].size();
 
 }
+
+// references  https://docs.opencv.org/3.4/d3/db0/samples_2cpp_2pca_8cpp-example.html
+// https://docs.opencv.org/3.4/d1/dee/tutorial_introduction_to_pca.html
+
+static  Mat formatImagesForPCA(const vector<Mat> &data)
+{
+    Mat dst(static_cast<int>(data.size()), data[0].rows*data[0].cols, CV_32F);
+    for(unsigned int i = 0; i < data.size(); i++)
+    {
+        Mat image_row = data[i].clone().reshape(1,1);
+        Mat row_i = dst.row(i);
+        image_row.convertTo(row_i,CV_32F);
+    }
+    return dst;
+}
+
+static Mat toGrayscale(InputArray _src) {
+    Mat src = _src.getMat();
+    // only allow one channel
+    if(src.channels() != 1) {
+        CV_Error(Error::StsBadArg, "Only Matrices with one channel are supported");
+    }
+    // create and return normalized image
+    Mat dst;
+    cv::normalize(_src, dst, 0, 255, NORM_MINMAX, CV_8UC1);
+    return dst;
+}
+
+void  HyperFunctions::PCA_img(bool isImage1 = true)
+{
+
+    Mat data;
+    vector<Mat> inputImage;
+    if (isImage1)
+    {
+        data = formatImagesForPCA(mlt1);
+        inputImage = mlt1;
+    }
+    else
+    {
+        data = formatImagesForPCA(mlt2);
+        inputImage = mlt2;
+
+    }
+    int reduced_image_layers = 3;
+
+    PCA pca(data, cv::Mat(), PCA::DATA_AS_ROW, reduced_image_layers); 
+
+    Mat principal_components = pca.eigenvectors;
+
+    vector<Mat> ReducedImage;
+    for (int i = 0; i < reduced_image_layers; i++) {
+        Mat layer = principal_components*data.t();
+        //Mat layer = principal_components.row(i)*data.t();
+        //layer = pca.backProject(layer);
+        //layer = layer.reshape(inputImage[0].channels(), inputImage[0].rows); // reshape from a row vector into image shape
+        layer = toGrayscale(layer);
+        ReducedImage.push_back(layer);
+    }
+
+    //imshow("PCA Results", ReducedImage);
+    //imwritemulti(reduced_file_path,ReducedImage);
+
+    
+    // Demonstration of the effect of retainedVariance on the first image
+    Mat point = pca.project(data.row(0)); // project into the eigenspace, thus the image becomes a "point"
+    Mat reconstruction = pca.backProject(point); // re-create the image from the "point"
+    reconstruction = reconstruction.reshape(inputImage[0].channels(), inputImage[0].rows); // reshape from a row vector into image shape
+    reconstruction = toGrayscale(reconstruction); // re-scale for displaying purposes
+    pca_img=reconstruction;
+    //not writing multiple layers yet because some versions of opencv do not have the function
+    //imwritemulti(reduced_file_path,reconstruction);    
+}
+

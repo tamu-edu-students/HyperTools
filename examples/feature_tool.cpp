@@ -17,12 +17,12 @@ HyperFunctions *HyperFunctions1;
 int main (int argc, char *argv[])
 {
   string file_name3="../../HyperImages/img1.tiff";
-  string file_name4="../../HyperImages/img2.tiff";
+  string file_name4="../../HyperImages/img1.tiff"; //CHANGED TO TEST
   
   HyperFunctions HyperFunctions1;
-  HyperFunctions1.LoadImageHyper1(file_name3);
+  HyperFunctions1.LoadImageHyper(file_name3);
   HyperFunctions1.feature_img1=HyperFunctions1.mlt1[0];
-  HyperFunctions1.LoadImageHyper2(file_name4);
+  HyperFunctions1.LoadImageHyper(file_name4, false);
   HyperFunctions1.feature_img2=HyperFunctions1.mlt2[0];
   
   GtkBuilder *builder;
@@ -68,6 +68,9 @@ int main (int argc, char *argv[])
   
   button = gtk_builder_get_object (builder, "detect_ORB");
   g_signal_connect (button, "toggled", G_CALLBACK (set_feature_detector_ORB), &HyperFunctions1);
+
+  button = gtk_builder_get_object (builder, "custom_detector");
+  g_signal_connect (button, "toggled", G_CALLBACK (set_feature_detector_custom_detector), &HyperFunctions1);
   
   button = gtk_builder_get_object (builder, "descript_SIFT");
   g_signal_connect (button, "toggled", G_CALLBACK (set_feature_descriptor_SIFT), &HyperFunctions1);
@@ -80,6 +83,12 @@ int main (int argc, char *argv[])
   
   button = gtk_builder_get_object (builder, "match_bf");
   g_signal_connect (button, "toggled", G_CALLBACK (set_feature_matcher_BF), &HyperFunctions1);
+
+   button = gtk_builder_get_object (builder, "filter_1");
+  g_signal_connect (button, "toggled", G_CALLBACK (set_filter_1), &HyperFunctions1);
+
+   button = gtk_builder_get_object (builder, "filter_na");
+  g_signal_connect (button, "toggled", G_CALLBACK (set_filter_na), &HyperFunctions1);
   
   button = gtk_builder_get_object (builder, "match_flann");
   g_signal_connect (button, "toggled", G_CALLBACK (set_feature_matcher_FLANN), &HyperFunctions1);
