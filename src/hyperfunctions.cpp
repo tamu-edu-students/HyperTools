@@ -62,6 +62,57 @@ void  HyperFunctions::DispFeatureImgs()
     //    imshow("Feature Images ", feature_img_combined);
 }
 
+
+//GA-ORB turning hyperspectral into 2-D
+
+void HyperFunctions::gaSpace(bool isImage1)
+{
+    // assumes mlt1 and mlt2 have same spatial and spectral resolution
+    Mat output_image(mlt1[0].rows, mlt1[0].cols, CV_16U, cv::Scalar(0));
+    int numChannels = mlt1.size();
+
+
+    
+    
+    int sumTot = 0;
+    int temp_val2;
+    for (int i=0; i<mlt1[0].rows; i++)
+    {
+        for (int k=0; k<mlt1[1].cols;  k++)
+        {
+            for (int n=0; n < numChannels; n++)
+            {
+            
+                if(isImage1)
+                {
+                    temp_val2=mlt1[n].at<uchar>(i,k);
+                }
+                else
+                {
+                    temp_val2=mlt2[n].at<uchar>(i,k);
+                }
+                sumTot += temp_val2;
+
+
+            }
+            
+            output_image.at<ushort>(i, k) = sumTot;
+            sumTot = 0;
+        }
+        
+    }
+
+
+    ga_img=output_image;
+    // convert to Mat data type that is compatible with Fast
+    normalize(ga_img, ga_img, 0, 255, NORM_MINMAX, CV_8U);
+    // imshow("Output Image", output_image);
+    // cv::waitKey();
+    //return output_image;
+    
+   
+}
+
 void HyperFunctions::CreateCustomFeatureDetector(int hessVal, vector<KeyPoint> &keypoints, Mat feature_img)
 {
     for (int y = 0; y < feature_img.rows; y += hessVal) {
@@ -73,6 +124,28 @@ void HyperFunctions::CreateCustomFeatureDetector(int hessVal, vector<KeyPoint> &
     drawKeypoints(feature_img, keypoints, feature_img);
 }
 
+void  HyperFunctions::DimensionalityReduction()
+{
+    // this is a precursor for feature extraction
+    // reduces the dimensionality of the data to a single greyscale image
+
+    if(dimensionality_reduction == 0){
+        //cout<<"dimensionality reduction not needed"<<endl;
+    }
+    else if(dimensionality_reduction == 1){
+        gaSpace(true);
+        feature_img1 = ga_img;
+        gaSpace(false);
+        feature_img2 = ga_img;
+    }
+    else if(dimensionality_reduction == 2){
+        PCA_img(true);
+        feature_img1 = pca_img;
+        PCA_img(false);
+        feature_img2 = pca_img;
+    }
+}
+
 // Detects, describes, and matches keypoints between 2 feature images
 void  HyperFunctions::FeatureExtraction()
 {
@@ -80,6 +153,7 @@ void  HyperFunctions::FeatureExtraction()
 	// feature_descriptor=0; 0 is sift, 1 is surf, 2 is orb
 	// feature_matcher=0; 0 is flann, 1 is bf
   //cout<<feature_detector<<" "<<feature_descriptor<<" "<<feature_matcher<<endl;
+
   if (feature_detector==0 && feature_descriptor==2)
   {
     cout<<"invalid detector/descriptor combination"<<endl;
@@ -99,7 +173,13 @@ void  HyperFunctions::FeatureExtraction()
   Ptr<DescriptorMatcher> matcher;
   Mat descriptors1, descriptors2;
 
-// feature_detector=0; 0 is sift, 1 is surf, 2 is orb, 3 is fast, 4 is custom
+  
+  // perform dimensionality reduction on the data to reduce hyperspectral image to a single layer
+  // dimensionality_reduction=0; this is the variable that needs to be set
+  // if set to 0, nothing is done, 1 is ga space, 2 is pca
+  DimensionalityReduction();
+
+// feature_detector=0; 0 is sift, 1 is surf, 2 is orb, 3 is fast, 9 is custom
   if(feature_detector==0)
   {
     detector_SIFT->detect( feature_img1, keypoints1 );
@@ -1001,14 +1081,13 @@ void  HyperFunctions::SemanticSegmenter()
     }
     Mat temp_class_img(mlt1[1].rows, mlt1[1].cols, CV_8UC3, Scalar(0,0,0));
 
-    for(int k = 0; k < mlt1[1].rows; k++)
+    for(int k = 0; k < mlt1[1].cols; k++)
     {
-        for (int j=0; j < mlt1[1].cols; j++)
+        for (int j=0; j < mlt1[1].rows; j++)
         {    
             double low_val;
             for (int i=0; i<temp_results.size(); i++)
             {
-
                 if (i==0)
                 {
                     low_val=temp_results[i].at<uchar>(j,k);
@@ -1629,3 +1708,4 @@ void  HyperFunctions::PCA_img(bool isImage1 = true)
     //not writing multiple layers yet because some versions of opencv do not have the function
     //imwritemulti(reduced_file_path,reconstruction);    
 }
+
