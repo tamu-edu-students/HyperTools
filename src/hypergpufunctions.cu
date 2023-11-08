@@ -330,6 +330,25 @@ void HyperFunctionsGPU::spec_sim_GPU() {
     else if (spec_sim_alg == 7) {
         parent_SAM<<<grid_size,block_size>>>(d_out, d_img_array, N_size, num_lay, d_ref_spectrum);
     }
+    else if (spec_sim_alg == 8) {
+        parent_SCM<<<grid_size,block_size>>>(d_out, d_img_array, N_size, num_lay, d_ref_spectrum);
+    }
+    else if (spec_sim_alg == 9) {
+        parent_SID<<<grid_size,block_size>>>(d_out, d_img_array, N_size, num_lay, d_ref_spectrum);
+    }
+    else if (spec_sim_alg == 10) {
+        parent_cos<<<grid_size,block_size>>>(d_out, d_img_array, N_size, num_lay, d_ref_spectrum);
+    }
+    else if (spec_sim_alg == 11) {
+        parent_JM<<<grid_size,block_size>>>(d_out, d_img_array, N_size, num_lay, d_ref_spectrum);
+    }
+    else if (spec_sim_alg == 12) {
+        parent_cityblock<<<grid_size,block_size>>>(d_out, d_img_array, N_size, num_lay, d_ref_spectrum);
+    }
+    else if (spec_sim_alg == 13) {
+        parent_EuD<<<grid_size,block_size>>>(d_out, d_img_array, N_size, num_lay, d_ref_spectrum);
+    }
+
 
 
 
