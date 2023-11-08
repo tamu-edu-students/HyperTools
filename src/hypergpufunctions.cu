@@ -453,16 +453,33 @@ __global__ void parent_cos(int *out, int *img_array, int n, int num_layers, int*
 }
 
 __device__ void child_cos(int *out, int *img_array, int n, int num_layers, int* ref_spectrum){
-    // parallelize tasks
-    // pixels are stored with all pixel values next to each other for the layers    
-    // n is number of pixels 
-    // blockID : block index within the grid
-    // blockDim : how many threads per block
-    // threadIdx : thread index within the block 
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     float sum1=0, sum2=0;
     float sum3 = 0;
+    for (int a=0; a<num_layers-1; a++) {
+        sum3+=ref_spectrum[a] *ref_spectrum[a]; //sum of squared reference spectra values
+    }
+    if (tid < n){
+        int offset=tid*num_layers; //calculating which index in the image array the values for threadID pixel start at
+        for (int a=0; a<num_layers-1; a++) //iterating through spectra layers for that pixel
+        {
+            sum1+=img_array[offset+a]*ref_spectrum[a]; //image spectra values * corresponding referencec spectrum values
+            sum2+=img_array[offset+a]*img_array[offset+a]; //Squared image spectra values
+        }
+        
+        if (sum1<=0 || sum2<=0 || sum3<=0 )
+        {
+            out[tid] =255; // set to white due to an error
+        }
+        else
+        {
+            float temp1= sum1/(sqrt(sum2)*sqrt(sum3));
+            double alpha_rad=acos(temp1);
+            out[tid] =(int)((double)alpha_rad*(double)255) ;
+        }
+    }
+}
 /**SID */
 __global__ void parent_SID(int *out, int *img_array, int n, int num_layers, int* ref_spectrum){
     child_SID(out, img_array, n, num_layers, ref_spectrum);
