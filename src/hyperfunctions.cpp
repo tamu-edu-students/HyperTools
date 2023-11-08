@@ -75,6 +75,7 @@ void HyperFunctions::gaSpace(bool isImage1)
     
     
     int sumTot = 0;
+    int temp_val2;
     for (int i=0; i<mlt1[0].rows; i++)
     {
         for (int k=0; k<mlt1[1].cols;  k++)
@@ -84,11 +85,11 @@ void HyperFunctions::gaSpace(bool isImage1)
             
                 if(isImage1)
                 {
-                    int temp_val2=mlt1[n].at<uchar>(i,k);
+                    temp_val2=mlt1[n].at<uchar>(i,k);
                 }
                 else
                 {
-                    int temp_val2=mlt2[n].at<uchar>(i,k);
+                    temp_val2=mlt2[n].at<uchar>(i,k);
                 }
                 sumTot += temp_val2;
 
