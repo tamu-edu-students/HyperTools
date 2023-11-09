@@ -8,7 +8,7 @@ project(user_interface_project C CXX)
 #change below to true to use GPU or false to not use GPU
 set(use_CUDA false) 
 #change below to true to use cuvis.sdk
-set (use_cuvis false)
+set (use_cuvis true)
 
 
 find_package(OpenCV  REQUIRED)
@@ -60,29 +60,29 @@ endif(use_CUDA)
 
 if (use_cuvis)
 
-    list(APPEND CMAKE_MODULE_PATH "/cuvis.sdk/Cpp/SDK/cmake/")
+    list(APPEND CMAKE_MODULE_PATH "/cuvis.sdk/cuvis.cpp/")
     find_package(CuvisCpp REQUIRED)    
-    add_definitions(-Duse_cuvis)
+    # add_definitions(-Duse_cuvis)
 
-    add_executable(cubert_example examples/cubert_example.cpp)
-    target_link_libraries(cubert_example PRIVATE cuvis::cpp)
+    # add_executable(cubert_example examples/cubert_example.cpp)
+    # target_link_libraries(cubert_example PRIVATE cuvis::cpp)
 
-    # add_executable(deeplab_example examples/deeplab_example.cpp)
-    # target_link_libraries(deeplab_example PRIVATE cuvis::cpp)
+    # # add_executable(deeplab_example examples/deeplab_example.cpp)
+    # # target_link_libraries(deeplab_example PRIVATE cuvis::cpp)
 
-    add_executable(image_tool_cuvis examples/image_tool.cpp)
-    target_link_libraries(image_tool_cuvis PRIVATE cuvis::cpp)
+    # add_executable(image_tool_cuvis examples/image_tool.cpp)
+    # target_link_libraries(image_tool_cuvis PRIVATE cuvis::cpp)
 
 
-    # if (use_CUDA)
+    # # if (use_CUDA)
 
-    #     list(APPEND CMAKE_MODULE_PATH "/cuvis.sdk/C/SDK/cmake/")
-    #     find_package(Cuvis REQUIRED)
+    # #     list(APPEND CMAKE_MODULE_PATH "/cuvis.sdk/C/SDK/cmake/")
+    # #     find_package(Cuvis REQUIRED)
 
-    #     add_executable(cuda_cubert_example examples/cuda_cubert_example.cu)
-    #     target_link_libraries(cuda_cubert_example PRIVATE cuvis::c)
+    # #     add_executable(cuda_cubert_example examples/cuda_cubert_example.cu)
+    # #     target_link_libraries(cuda_cubert_example PRIVATE cuvis::c)
 
-    # endif(use_CUDA)
+    # # endif(use_CUDA)
 else (use_cuvis)
 
     add_executable(image_tool examples/image_tool.cpp)
