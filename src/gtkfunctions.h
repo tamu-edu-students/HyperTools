@@ -8,7 +8,6 @@ static void set_false_img_b(GtkSpinButton *widget,  gpointer data);
 static void set_min_area(GtkSpinButton *widget,  gpointer data);
 static void set_approx_poly(GtkSpinButton *widget,  gpointer data);
 static void set_img_layer(GtkSpinButton *widget,  gpointer data);	
-
 static void set_false_img_reset(GtkWidget *widget,  gpointer data);
 static void set_false_img_standard_rgb(GtkWidget *widget,  gpointer data);
 static void set_feature_detector_SIFT(GtkWidget *widget,  gpointer data);

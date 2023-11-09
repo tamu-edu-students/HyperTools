@@ -6,6 +6,7 @@
 #include <jsoncpp/json/json.h>
 #include <jsoncpp/json/writer.h>
 #include <thread>
+
 using namespace std;
 using namespace cv;
 
@@ -44,6 +45,7 @@ public:
 	Mat tiled_img;
 	Mat pca_img;
 	Mat ga_img;
+	Mat integral_img;
 			
 	vector<string> class_list;
 	vector<Vec3b> color_combos;
@@ -134,11 +136,11 @@ public:
 	//Custom Feature Detector
 	void CreateCustomFeatureDetector(int hessVal, vector<KeyPoint> &keypoints, Mat feature_img);
 	void gaSpace(bool isImage1);
+	void ImgIntegration();
 
 	//Spatial-Spectral SIFT detector
 	void PerformSift(const cv::Mat &hyperspectralCube);
 	void SSDescriptors(const std::vector<cv::KeyPoint> &keypoints);
-	
 	
 
 
