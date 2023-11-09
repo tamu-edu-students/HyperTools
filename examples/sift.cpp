@@ -72,7 +72,7 @@ int main()
         // filtering the keypoints
         for (const cv::KeyPoint &keypoint : currentKeypoints)
         {
-            if (keypoint.response > .75)
+            if (keypoint.response > 0.75)
             {
                 keypoints.push_back(keypoint);
             }
@@ -87,7 +87,7 @@ const int numThetaBins = 8;
 const int numPhiBins = 4;
 const int numGradientBins = 8;
 const int descriptorSize = numThetaBins * numPhiBins * numGradientBins;
-cv::Mat descriptor = cv::Mat::zeros(1, descriptorSize, CV_32F);
+
 float M;
     for (const cv::KeyPoint &keypoint : keypoints) // the descriptors
     {
@@ -98,7 +98,8 @@ float M;
         {
             for (int y = -8; y <= 7; ++y)
             {
-                for (int z = -4; z <= 3; ++z)
+                int z = -4
+                while(z <= 3)
                 {
                     float Gx, Gy, Gz; // gradients
                     float theta, phi; // theta and phi angle values
@@ -110,6 +111,7 @@ float M;
                     
                     int index = thetaBin * numPhiBins * numGradientBins + phiBin * numGradientBins + gradientBin;
                     descriptor.at<float>(0, index) += M;
+                    z++;
                 }
             }
         }
@@ -119,7 +121,12 @@ float M;
         cv::threshold(descriptor, descriptor, 0.2, 0.2, cv::THRESH_TRUNC);
         cv::normalize(descriptor, descriptor);
        
-        descriptor.push_back(descriptor);
+       // storing the descriptors in a matrix
+       for(const cv::KeyPoint &keypoint : keypoints)
+       {
+            cv::Mat descriptor = cv::Mat::zeros (1,descriptorSize, CV_32F);
+            descriptor.push_back(descriptor);
+       }
 
        
     }
