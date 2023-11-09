@@ -58,12 +58,14 @@ public:
 	Mat tiled_img;
 	Mat pca_img;
 	Mat ga_img;
+	Mat stitch_img;
 			
 	vector<string> class_list;
 	vector<Vec3b> color_combos;
 	vector<vector<Point>>contours_approx;
 	vector<KeyPoint> keypoints1, keypoints2;
 	vector< DMatch > matches;  
+	vector< Point2d> good_point1, good_point2;
 	vector<Vec3b> reference_colors;
 	vector<vector<int>> reference_spectrums;
 	
@@ -116,6 +118,7 @@ public:
 	void DifferenceOfImages();
 	void EdgeDetection();
 	void DimensionalityReduction();
+	void Stitching();
 	void FeatureExtraction();  
 	void FeatureTransformation(); 
 	void GenerateFalseImg();
