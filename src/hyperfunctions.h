@@ -135,6 +135,12 @@ public:
 	void CreateCustomFeatureDetector(int hessVal, vector<KeyPoint> &keypoints, Mat feature_img);
 	void gaSpace(bool isImage1);
 
+	//Spatial-Spectral SIFT detector
+	void CreateSSIFT(vector<KeyPoint> &keypoint,Mat feature_img);
+	void SsiftDescriptors(vector<KeyPoint> &keypoint,Mat feature_img);
+	
+	
+
 
 	//function about match-filtering
 	void filter_matches(vector<DMatch> &matches);

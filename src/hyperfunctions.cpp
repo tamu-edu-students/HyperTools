@@ -179,7 +179,7 @@ void  HyperFunctions::FeatureExtraction()
   // if set to 0, nothing is done, 1 is ga space, 2 is pca
   DimensionalityReduction();
 
-// feature_detector=0; 0 is sift, 1 is surf, 2 is orb, 3 is fast, 9 is custom
+// feature_detector=0; 0 is sift, 1 is surf, 2 is orb, 3 is fast, 4 is SS-SIFT, 5 is custom
   if(feature_detector==0)
   {
     detector_SIFT->detect( feature_img1, keypoints1 );
@@ -200,10 +200,10 @@ void  HyperFunctions::FeatureExtraction()
       detector_FAST->detect( feature_img1, keypoints1 );
       detector_FAST->detect( feature_img2, keypoints2 );  
   } 
-  else  (feature_detector==4)
+  else if (feature_detector==4)
   {     //SS-SIFT feature detector 
-      SS-SIFT( feature_img1, keypoints1 );
-      SS-SIFT( feature_img2, keypoints2 );  
+      CreateSSIFT( feature_img1, keypoints1);
+      CreateSSIFT( feature_img2, keypoints2);  
   } 
   else if (feature_detector==5) 
   {
@@ -213,7 +213,7 @@ void  HyperFunctions::FeatureExtraction()
     CreateCustomFeatureDetector(spacing, keypoints2, feature_img2);
   }
 
-  	// feature_descriptor=0; 0 is sift, 1 is surf, 2 is orb
+  	// feature_descriptor=0; 0 is sift, 1 is surf, 2 is orb, 3 is SS-SIFT
   if(feature_descriptor==0)
   {
     detector_SIFT->compute( feature_img1, keypoints1 , descriptors1);
@@ -229,6 +229,12 @@ void  HyperFunctions::FeatureExtraction()
     detector_ORB->compute( feature_img1, keypoints1 , descriptors1);
     detector_ORB->compute( feature_img2, keypoints2 , descriptors2 );
   }  
+  else
+  {
+    // SS-sift descriptor
+    SsiftDescriptors( feature_img1, keypoints1 , descriptors1);
+    SsiftDescriptors( feature_img2, keypoints2 , descriptors2);
+  }
   
   	// feature_matcher=0; 0 is flann, 1 is bf
   if(feature_matcher==0)

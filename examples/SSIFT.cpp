@@ -37,58 +37,58 @@ void thetaPhi(const cv::Mat &grad_x, const cv::Mat &grad_y, const cv::Mat &grad_
     //return theta,phi; //Return theta & phi as descriptors
 }
 
-// double GaussianFIlter(double x, double y, double lambda, double sigma1, double sigma2)
-// {
-//     return (1 / (2 * pi * pow(sigma1, 2) * sqrt(2 * pi * pow(sigma2, 2)))) * exp(-((pow(x, 2) + pow(y, 2) / 2 * pow(sigma1, 2)) + (pow(lambda, 2) / 2 * pow(sigma2, 2))))
-// }
-
-int main()
+std::vector<cv::KeyPoint> performSift(const cv::Mat &hyperspectralCube, double sigma1, double sigma2, int octaveLevels, double k)
 {
     const float M_max = 1.0; 
-    cv::Mat hyperspectralCube; // we need a hyperspectralcube data
+        cv::Mat hyperspectralCube; // we need a hyperspectralcube data
 
-    std::vector<cv::KeyPoint> keypoints; // final keypoints vector
+        std::vector<cv::KeyPoint> keypoints; // final keypoints vector
 
-    double sigma1 = 1.6; // variables are set based on what the paper said.
-    double sigma2 = 1.8;
+        double sigma1 = 1.6; // variables are set based on what the paper said.
+        double sigma2 = 1.8;
 
-    cv::GaussianBlur(hyperspectralCube, hyperspectralCube, cv::Size(0, 0), sigma1, sigma2, cv::BORDER_DEFAULT);
+        cv::GaussianBlur(hyperspectralCube, hyperspectralCube, cv::Size(0, 0), sigma1, sigma2, cv::BORDER_DEFAULT);
 
-    int octaveLevels = 3;
-    double k = 2.0;
-    cv::Mat previousScale;
-    cv::GaussianBlur(hyperspectralCube, previousScale, cv::Size(0, 0), sigma1, sigma2, cv::BORDER_DEFAULT);
-    for (int octave = 1; octave <= octaveLevels; ++octave)
-    {
-        
-        cv::Mat currentScale; 
-        cv::GaussianBlur(hyperspectralCube, currentScale, cv::Size(0, 0), sigma1, sigma2, cv::BORDER_DEFAULT);
-        cv::Mat dog = currentScale - previousScale;
-      
-
-        std::vector<cv::KeyPoint> currentKeypoints;
-        cv::Ptr<cv::Feature2D> detector = cv::xfeatures2d::SIFT::create();
-        detector->detect(dog, currentKeypoints);
-        // filtering the keypoints
-        for (const cv::KeyPoint &keypoint : currentKeypoints)
+        int octaveLevels = 3;
+        double k = 2.0;
+        cv::Mat previousScale;
+        cv::GaussianBlur(hyperspectralCube, previousScale, cv::Size(0, 0), sigma1, sigma2, cv::BORDER_DEFAULT);
+        for (int octave = 1; octave <= octaveLevels; ++octave)
         {
-            if (keypoint.response > 0.75)
+            
+            cv::Mat currentScale; 
+            cv::GaussianBlur(hyperspectralCube, currentScale, cv::Size(0, 0), sigma1, sigma2, cv::BORDER_DEFAULT);
+            cv::Mat dog = currentScale - previousScale;
+        
+
+            std::vector<cv::KeyPoint> currentKeypoints;
+            cv::Ptr<cv::Feature2D> detector = cv::xfeatures2d::SIFT::create();
+            detector->detect(dog, currentKeypoints);
+            // filtering the keypoints
+            for (const cv::KeyPoint &keypoint : currentKeypoints)
             {
-                keypoints.push_back(keypoint);
+                if (keypoint.response > 0.75)
+                {
+                    keypoints.push_back(keypoint);
+                }
             }
+            // updating for the next octave
+            previousScale = currentScale.clone();
+
+            sigma1 *= k;
+            sigma2 *= k;
         }
-        // updating for the next octave
-        previousScale = currentScale.clone();
+        return keypoints;
+}
 
-        sigma1 *= k;
-        sigma2 *= k;
-    }
-const int numThetaBins = 8;
-const int numPhiBins = 4;
-const int numGradientBins = 8;
-const int descriptorSize = numThetaBins * numPhiBins * numGradientBins;
 
-float M;
+cv::Mat SsiftDescriptors(const std::vector<cv::KeyPoint> &keypoints, int numThetaBins, int numPhiBins, int numGradientBins, float M_max)
+{
+    const int numThetaBins = 8;
+    const int numPhiBins = 4;
+    const int numGradientBins = 8;
+    const int descriptorSize = numThetaBins * numPhiBins * numGradientBins;
+    float M;
     for (const cv::KeyPoint &keypoint : keypoints) // the descriptors
     {
 
@@ -98,8 +98,7 @@ float M;
         {
             for (int y = -8; y <= 7; ++y)
             {
-                int z = -4
-                while(z <= 3)
+                for(int z =-4; z<=3;++z)
                 {
                     float Gx, Gy, Gz; // gradients
                     float theta, phi; // theta and phi angle values
@@ -111,7 +110,6 @@ float M;
                     
                     int index = thetaBin * numPhiBins * numGradientBins + phiBin * numGradientBins + gradientBin;
                     descriptor.at<float>(0, index) += M;
-                    z++;
                 }
             }
         }
@@ -130,5 +128,5 @@ float M;
 
        
     }
-     return 0;
+    return descriptors;
 }
