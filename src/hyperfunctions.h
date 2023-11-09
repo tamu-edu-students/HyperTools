@@ -136,8 +136,8 @@ public:
 	void gaSpace(bool isImage1);
 
 	//Spatial-Spectral SIFT detector
-	void CreatePerformSift(std::vector<cv::KeyPoint> &keypoints);
-	//void CreateSsiftDescriptors(vector<KeyPoint> &keypoint,Mat feature_img);
+	void PerformSift(const cv::Mat &hyperspectralCube);
+	void SSDescriptors(const std::vector<cv::KeyPoint> &keypoints);
 	
 	
 

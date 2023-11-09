@@ -4,6 +4,7 @@
 #include <cmath>
 #include "../src/gtkfunctions.cpp"
 #include "../src/hyperfunctions.cpp"
+//#include "hyperfunctions.h"
 
 
 /*
@@ -37,10 +38,10 @@ void thetaPhi(const cv::Mat &grad_x, const cv::Mat &grad_y, const cv::Mat &grad_
     //return theta,phi; //Return theta & phi as descriptors
 }
 
-std::vector<cv::KeyPoint> PerformSift(const cv::Mat &hyperspectralCube, double sigma1, double sigma2, int octaveLevels, double k)
+void PerformSift(const cv::Mat &hyperspectralCube)
 {
     const float M_max = 1.0; 
-        cv::Mat hyperspectralCube; // we need a hyperspectralcube data
+        //cv::Mat hyperspectralCube; // we need a hyperspectralcube data
 
         std::vector<cv::KeyPoint> keypoints; // final keypoints vector
 
@@ -65,35 +66,38 @@ std::vector<cv::KeyPoint> PerformSift(const cv::Mat &hyperspectralCube, double s
             cv::Ptr<cv::Feature2D> detector = cv::xfeatures2d::SIFT::create();
             detector->detect(dog, currentKeypoints);
             // filtering the keypoints
-            for (const cv::KeyPoint &keypoint : currentKeypoints)
-            {
-                if (keypoint.response > 0.75)
-                {
-                    keypoints.push_back(keypoint);
-                }
-            }
+
+            keypoints.erase(std::remove_if(keypoints.begin(), keypoints.end(), [](const cv::KeyPoint &keypoints) {
+            return keypoints.response <= 0.75;
+            }), keypoints.end());
+
+           /*keypoints1.erase(std::remove_if(keypoints2.begin(), keypoints2.end(), [](const cv::KeyPoint &keypoint) {
+            return keypoint.response <= 0.75;
+            }), keypoints.end());*/
+
             // updating for the next octave
             previousScale = currentScale.clone();
 
             sigma1 *= k;
             sigma2 *= k;
         }
-        return keypoints;
 }
 
 
-cv::Mat SsiftDescriptors(const std::vector<cv::KeyPoint> &keypoints, int numThetaBins, int numPhiBins, int numGradientBins, float M_max)
+void SSDescriptors(const std::vector<cv::KeyPoint> &keypoints,float M_max)
 {
     const int numThetaBins = 8;
     const int numPhiBins = 4;
     const int numGradientBins = 8;
     const int descriptorSize = numThetaBins * numPhiBins * numGradientBins;
     float M;
-    for (const cv::KeyPoint &keypoint : keypoints) // the descriptors
+    //float M_max;
+    cv::Mat descriptor = cv::Mat::zeros(keypoints.size(), descriptorSize, CV_32F); // this is the descriptor for each iteration.
+
+    for (size_t i=0; i<keypoints.size(); ++i) // the descriptors
     {
-
-        cv::Mat descriptor = cv::Mat::zeros(1, descriptorSize, CV_32F); // this is the descriptor for each iteration.
-
+        cv::Mat descriptor = descriptor.row(i);
+        
         for (int x = -8; x <= 7; ++x) // looping around the neighbors for each dimension
         {
             for (int y = -8; y <= 7; ++y)
@@ -120,13 +124,13 @@ cv::Mat SsiftDescriptors(const std::vector<cv::KeyPoint> &keypoints, int numThet
         cv::normalize(descriptor, descriptor);
        
        // storing the descriptors in a matrix
-       for(const cv::KeyPoint &keypoint : keypoints)
+      /* for(const cv::KeyPoint &keypoint : keypoints)
        {
             cv::Mat descriptor = cv::Mat::zeros (1,descriptorSize, CV_32F);
             descriptor.push_back(descriptor);
-       }
+       }*/
 
        
     }
-    return descriptors;
+   // return descriptors;
 }

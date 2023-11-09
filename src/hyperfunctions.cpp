@@ -202,8 +202,10 @@ void  HyperFunctions::FeatureExtraction()
   } 
   else if (feature_detector==4)
   {     //SS-SIFT feature detector 
-      CreatePerformSift( feature_img1, keypoints1);
-      CreatePerformSift( feature_img2, keypoints2);  
+        PerformSift( feature_img1, keypoints1);
+        PerformSift( feature_img2, keypoints2);
+      
+        
   } 
   else if (feature_detector==5) 
   {
@@ -229,12 +231,12 @@ void  HyperFunctions::FeatureExtraction()
     detector_ORB->compute( feature_img1, keypoints1 , descriptors1);
     detector_ORB->compute( feature_img2, keypoints2 , descriptors2 );
   }  
-  /*else
+  else
   {
     // SS-sift descriptor
-    CreateSsiftDescriptors( feature_img1, keypoints1 , descriptors1);
-    CreateSsiftDescriptors( feature_img2, keypoints2 , descriptors2);
-  }*/
+    SSDescriptors->compute( feature_img1, keypoints1 , descriptors1);
+    SSDescriptors->compute( feature_img2, keypoints2 , descriptors2);
+  }
   
   	// feature_matcher=0; 0 is flann, 1 is bf
   if(feature_matcher==0)
