@@ -45,8 +45,8 @@ int main (int argc, char *argv[])
 	HyperFunctions1.feature_matcher=0;
   //HyperFunctions1.FeatureExtraction();
   HyperFunctions1.gaSpace(true);
-  //HyperFunctions1.ImgIntegration();
-  //imshow("Integral Image",HyperFunctions1.integral_img );
+  HyperFunctions1.ImgIntegration();
+  imshow("Integral Image",HyperFunctions1.integral_img);
   
 
 

@@ -86,7 +86,7 @@ void HyperFunctions::gaSpace(bool isImage1)
             
                 if(isImage1)
                 {
-                    temp_val2=mlt1[n].at<uchar>(i,k);
+                    temp_val2=mlt1[n]. at<uchar>(i,k);
                 }
                 else
                 {
@@ -124,6 +124,7 @@ void HyperFunctions::ImgIntegration()
     //Computes image integration
     // computing a integral image based off of ga_img
     cv::integral(ga_img,integral_img,CV_32F);
+    normalize(integral_img, integral_img, 0, 255, NORM_MINMAX, CV_8U);
    
 }
 
@@ -138,7 +139,7 @@ void HyperFunctions::CreateCustomFeatureDetector(int hessVal, vector<KeyPoint> &
     drawKeypoints(feature_img, keypoints, feature_img);
 }
 
-/*void HyperFunctions::PerformSift(const cv::Mat &hyperspectralCub)
+void HyperFunctions::PerformSift(const cv::Mat &hyperspectralCube)
 {
 
 }
@@ -150,8 +151,8 @@ void Hyperfunctions::SSDescriptors(const std::vector<cv::KeyPoint> &keypoints,fl
             cv::Mat descriptor = cv::Mat::zeros (1,descriptorSize, CV_32F);
             descriptor.push_back(descriptor);
        }
-       return descriptor;
-}*/
+       
+}
 void  HyperFunctions::DimensionalityReduction()
 {
     // this is a precursor for feature extraction
@@ -228,13 +229,13 @@ void  HyperFunctions::FeatureExtraction()
       detector_FAST->detect( feature_img1, keypoints1 );
       detector_FAST->detect( feature_img2, keypoints2 );  
   } 
- /* else if (feature_detector==4)
+  else if (feature_detector==4)
   {     //SS-SIFT feature detector 
         PerformSift( feature_img1, keypoints1);
         PerformSift( feature_img2, keypoints2);
       
         
-  } */
+  } 
   else if (feature_detector==5) 
   {
     //custom feature detector  
@@ -259,12 +260,12 @@ void  HyperFunctions::FeatureExtraction()
     detector_ORB->compute( feature_img1, keypoints1 , descriptors1);
     detector_ORB->compute( feature_img2, keypoints2 , descriptors2 );
   }  
-  /*else
+  else
   {
     // SS-sift descriptor
-    SSDescriptors->compute( feature_img1, keypoints1 , descriptors1);
-    SSDescriptors->compute( feature_img2, keypoints2 , descriptors2);
-  }*/
+    SSDescriptors(keypoints1,1.0);
+    SSDescriptors(keypoints2,1.0);
+  }
   
   	// feature_matcher=0; 0 is flann, 1 is bf
   if(feature_matcher==0)
