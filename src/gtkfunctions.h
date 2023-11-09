@@ -15,6 +15,7 @@ static void set_feature_detector_SIFT(GtkWidget *widget,  gpointer data);
 static void set_feature_detector_SURF(GtkWidget *widget,  gpointer data);
 static void set_feature_detector_ORB(GtkWidget *widget,  gpointer data);
 static void set_feature_detector_FAST(GtkWidget *widget,  gpointer data);
+static void set_feature_detector_SS-SIFT(GtkWidget *widget,  gpointer data);
 static void set_feature_detector_custom_detector(GtkWidget *widget,  gpointer data);
 static void set_feature_descriptor_SIFT(GtkWidget *widget,  gpointer data);
 static void set_feature_descriptor_SURF(GtkWidget *widget,  gpointer data);

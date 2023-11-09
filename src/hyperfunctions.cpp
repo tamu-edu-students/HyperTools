@@ -200,7 +200,12 @@ void  HyperFunctions::FeatureExtraction()
       detector_FAST->detect( feature_img1, keypoints1 );
       detector_FAST->detect( feature_img2, keypoints2 );  
   } 
-  else if (feature_detector==4) 
+  else  (feature_detector==4)
+  {     //SS-SIFT feature detector 
+      SS-SIFT( feature_img1, keypoints1 );
+      SS-SIFT( feature_img2, keypoints2 );  
+  } 
+  else if (feature_detector==5) 
   {
     //custom feature detector  
     int spacing = 100;

@@ -612,6 +612,14 @@ static void set_feature_detector_FAST(GtkWidget *widget,  gpointer data)
     if (T==1) {HyperFunctions1->feature_detector=3;}
 
 }
+static void set_feature_detector_SS-SIFT(GtkWidget *widget,  gpointer data)
+{
+    void * data_new=data;
+    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
+    gboolean T = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+    if (T==1) {HyperFunctions1->feature_detector=2;}
+
+}
 static void set_feature_detector_custom_detector(GtkWidget *widget,  gpointer data)
 {
     void * data_new=data;
