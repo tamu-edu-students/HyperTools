@@ -14,6 +14,7 @@ using namespace cv;
 void Classification_Child(int id, int i, Mat* classified_img, Mat* edge_image, vector<vector<Point>>* contours_approx, vector<Vec4i>* hierarchy, vector <Vec3b>* contour_class);
 void EdgeDetection_Child(int id, int i, Mat* output_image, Mat* classified_img);
 //EuD stands for euclidean distance. ED was not used because of possible confusiong with edge detection
+
 void EuD_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index);
 void SAM_img_Child(int id, int k, vector<Mat>* mlt1, vector<vector<int>>* reference_spectrums,Mat* spec_simil_img,int* ref_spec_index);   
 void SCM_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index);
@@ -25,6 +26,19 @@ void City_Block_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* ref
 static Mat toGrayscale(InputArray _src);
 static Mat formatImagesForPCA(const vector<Mat> &data);
 
+
+
+void similarity_img_Child(int id, int algorithmId, int columnIndex, vector<Mat>& hyperspectralImage, vector<double>* reference_spectrum_ptr, Mat* outputSimilarityImage);
+
+/* /// being updated with spectralsimalgorithms.h, include file is in hyperfunctions.cpp
+double CalculateSAM(const vector<double>& referenceSpectrum, const vector<double>& pixelSpectrum);
+double CalculateSID(const vector<double>& referenceSpectrum, const vector<double>& pixelSpectrum);
+double CalculateEuD(const vector<double>& referenceSpectrum, const vector<double>& pixelSpectrum);
+double CalculatedSID(const vector<double>& referenceSpectrum, const vector<double>& pixelSpectrum);
+double CalculatedCos(const vector<double>& referenceSpectrum, const vector<double>& pixelSpectrum);
+double CalculatedJM(const vector<double>& referenceSpectrum, const vector<double>& pixelSpectrum);
+double CalculateCityBlock(const vector<double>& referenceSpectrum, const vector<double>& pixelSpectrum);
+*/
 
 class HyperFunctions 
 {
