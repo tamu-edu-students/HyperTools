@@ -1,3 +1,6 @@
+import sys
+sys.path.insert(1,'submodules/LightGlue/')
+
 from lightglue import LightGlue, SuperPoint, DISK, match_pair
 from lightglue.utils import load_image, rbd
 from lightglue.viz2d import plot_images, plot_keypoints, plot_matches, save_plot
@@ -17,8 +20,8 @@ matcher = LightGlue(features='superpoint').eval().cuda()  # load the matcher
 #matcher = LightGlue(features='disk').eval().cuda()  # load the matcher
 
 # load each image as a torch.Tensor on GPU with shape (3,H,W), normalized in [0,1]
-image0 = load_image('../submodules/LightGlue/assets/sacre_coeur1.jpg').cuda()
-image1 = load_image('../submodules/LightGlue/assets/sacre_coeur2.jpg').cuda()
+image0 = load_image('submodules/LightGlue/assets/sacre_coeur1.jpg').cuda()
+image1 = load_image('submodules/LightGlue/assets/sacre_coeur2.jpg').cuda()
 
 # extract local features
 feats0 = extractor.extract(image0)  # auto-resize the image, disable with resize=None
