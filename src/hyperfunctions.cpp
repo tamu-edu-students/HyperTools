@@ -123,7 +123,7 @@ void HyperFunctions::ImgIntegration()
     //Computes image integration
     // computing a integral image based off of ga_img
     cv::integral(ga_img,integral_img,CV_32F);
-
+   
 }
 
 void HyperFunctions::CreateCustomFeatureDetector(int hessVal, vector<KeyPoint> &keypoints, Mat feature_img)
