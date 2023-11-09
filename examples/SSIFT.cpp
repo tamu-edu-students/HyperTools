@@ -37,7 +37,7 @@ void thetaPhi(const cv::Mat &grad_x, const cv::Mat &grad_y, const cv::Mat &grad_
     //return theta,phi; //Return theta & phi as descriptors
 }
 
-std::vector<cv::KeyPoint> performSift(const cv::Mat &hyperspectralCube, double sigma1, double sigma2, int octaveLevels, double k)
+std::vector<cv::KeyPoint> PerformSift(const cv::Mat &hyperspectralCube, double sigma1, double sigma2, int octaveLevels, double k)
 {
     const float M_max = 1.0; 
         cv::Mat hyperspectralCube; // we need a hyperspectralcube data
