@@ -32,6 +32,8 @@ RUN make -j$(nproc) &&\
  
 RUN apt-get install  language-pack-en-base -y
 
+RUN apt-get install python3-pip -y  && pip install opencv-python numpy matplotlib torch torchvision kornia
+
 WORKDIR /home
 
 RUN cd /home &&\
