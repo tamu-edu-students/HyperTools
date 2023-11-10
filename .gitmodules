@@ -1,3 +1,6 @@
 [submodule "submodules/LightGlue"]
 	path = submodules/LightGlue
 	url = https://github.com/cvg/LightGlue.git
+[submodule "submodules/segment-anything"]
+	path = submodules/segment-anything
+	url = https://github.com/facebookresearch/segment-anything.git
