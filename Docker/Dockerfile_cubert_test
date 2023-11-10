@@ -69,18 +69,36 @@ RUN echo 'export CUVIS_DATA="/opt/cuvis"' >> ~/.bashrc
 RUN apt update -y
 RUN apt upgrade -y
 
-RUN cd /cuvis.sdk && git clone https://github.com/cubert-hyperspectral/cuvis.pyil.git &&\
-    git submodule update --init --recursive
-
 RUN pip install numpy && apt-get install doxygen graphviz -y
 
+# RUN cd /cuvis.sdk && git clone https://github.com/cubert-hyperspectral/cuvis.pyil.git &&\
+#     cd cuvis.pyil &&\
+#     git submodule update --init --recursive &&\
+#     git checkout main &&\
+#     python3.9 -m pip install .
 
-RUN cp /3.2.0/Ubuntu\ 20.04/cuvis_il.py cuvis.sdk/cuvis.python/cuvis/
-RUN cp /3.2.0/Ubuntu\ 20.04/_cuvis_pyil.so cuvis.sdk/cuvis.python/cuvis/
+# # RUN cd /cuvis.sdk/cuvis.python && python3.9 -m pip install  .
 
-RUN cd /cuvis.sdk/cuvis.python && python3.9 -m pip install  --editable .   # && \
-#     python3.9 -m pip install -U Pillow
 
+# # RUN cp /3.2.0/Ubuntu\ 20.04/cuvis_il.py /cuvis.sdk/cuvis.python/cuvis/
+# # RUN cp /3.2.0/Ubuntu\ 20.04/_cuvis_pyil.so /cuvis.sdk/cuvis.python/cuvis/
+
+# RUN cd /cuvis.sdk/cuvis.python &&\
+#     git checkout main &&\
+#     python3.9 -m pip install  .   
+# # && \
+# #     python3.9 -m pip install -U Pillow
+
+# RUN apt-get install swig -y
+
+# RUN apt-get install python3.9-dev &&\
+#     cd /cuvis.sdk/cuvis.pyil/ &&\
+#     mkdir build &&\
+#     cd build &&\
+#     cmake  -DCMAKE_BUILD_TYPE=Release -DDOXYGEN_BUILD_DOCUMENTATION=FALSE -DPython_ROOT_DIR=/cuvis.sdk/cuvis.python -B "/cuvis.sdk/cuvis.pyil/" .. &&\
+#     cmake --build . --target cuvis_pyil --config Release
+#     # cmake .. &&\
+#     # make -j$(nproc) &&\
 
 WORKDIR /home
 

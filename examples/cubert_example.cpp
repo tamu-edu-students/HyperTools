@@ -21,7 +21,7 @@ int main (int argc, char *argv[])
     HyperFunctions1.dist_img = "../../HyperImages/ultris5/Calibration/distanceCalib__ultris5ohnerelay_000_002_snapshot16813826930775916.cu3";
     HyperFunctions1.factor_dir="../../HyperImages/ultris5/Calibration"; // requires init.daq file
     HyperFunctions1.cubert_settings="../settings/ultris5";  //camera settings file 
-    
+       
     // below are needed if the ultris5 is used instead of the ultris 20
     // HyperFunctions1.cubert_settings="../settings/ultris5";  //camera settings file 
     // HyperFunctions1.factor_dir="../settings/ultris5"; // requires init.daq file
