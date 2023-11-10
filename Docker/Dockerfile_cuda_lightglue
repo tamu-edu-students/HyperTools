@@ -35,6 +35,7 @@ RUN apt-get install  language-pack-en-base -y
 RUN apt-get install python3-pip -y  && pip install opencv-python numpy matplotlib torch torchvision kornia
 
 RUN pip install tqdm
+RUN  apt-get install python3-tk -y
 
 WORKDIR /home
 
