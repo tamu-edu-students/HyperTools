@@ -40,3 +40,4 @@
 *.json
 *.DS_Store
 *.log
+*.pyc
