@@ -60,11 +60,11 @@ endif(use_CUDA)
 
 if (use_cuvis)
 
-    # list(APPEND CMAKE_MODULE_PATH "/cuvis.sdk/cuvis.cpp/")
-    # list(APPEND CMAKE_MODULE_PATH "/cuvis.sdk/cuvis.c/")
+    list(APPEND CMAKE_MODULE_PATH "/cuvis.sdk/cuvis.cpp/")
+    list(APPEND CMAKE_MODULE_PATH "/cuvis.sdk/cuvis.c/")
     set(DOXYGEN_BUILD_DOCUMENTATION OFF CACHE BOOL "Create and install the HTML based API documentation (requires Doxygen)" FORCE)
-    list(APPEND CMAKE_MODULE_PATH "/workspaces/HyperTools/submodules/cuvis.sdk/cuvis.c/")
-    list(APPEND CMAKE_MODULE_PATH "/workspaces/HyperTools/submodules/cuvis.sdk/cuvis.cpp/")
+    # list(APPEND CMAKE_MODULE_PATH "/workspaces/HyperTools/submodules/cuvis.sdk/cuvis.c/")
+    # list(APPEND CMAKE_MODULE_PATH "/workspaces/HyperTools/submodules/cuvis.sdk/cuvis.cpp/")
     add_definitions(-Duse_cuvis)
     
     

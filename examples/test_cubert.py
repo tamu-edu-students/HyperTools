@@ -1,3 +1,6 @@
+import sys
+sys.path.append("/workspaces/HyperTools/submodules/cuvis.sdk/cuvis.pyil/build")
+import cuvis_il
 import cuvis
 import numpy as np
 import matplotlib.pyplot as plt

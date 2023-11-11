@@ -60,6 +60,7 @@ RUN apt update
 RUN apt install software-properties-common
 RUN add-apt-repository ppa:deadsnakes/ppa
 RUN apt install python3.9 python3-pip python3-tk -y
+RUN pip install numpy && apt-get install doxygen graphviz swig python3.9-dev  -y
 
 RUN echo 'alias python="/usr/bin/python3.9"' >> ~/.bashrc 
 RUN echo 'alias python3="/usr/bin/python3.9"' >> ~/.bashrc 
@@ -69,7 +70,15 @@ RUN echo 'export CUVIS_DATA="/opt/cuvis"' >> ~/.bashrc
 RUN apt update -y
 RUN apt upgrade -y
 
-RUN pip install numpy && apt-get install doxygen graphviz -y
+# below is a temp fix until the cuvis.cpp repo is updated
+RUN cd /cuvis.sdk/ &&\
+    rm -r cuvis.cpp &&\
+    git clone https://github.com/antmedellin/cuvis.cpp.git &&\
+    cd cuvis.cpp &&\
+    git fetch && git checkout patch-1
+
+
+# RUN apt-get install gedit -y
 
 # RUN cd /cuvis.sdk && git clone https://github.com/cubert-hyperspectral/cuvis.pyil.git &&\
 #     cd cuvis.pyil &&\
@@ -89,9 +98,8 @@ RUN pip install numpy && apt-get install doxygen graphviz -y
 # # && \
 # #     python3.9 -m pip install -U Pillow
 
-# RUN apt-get install swig -y
 
-# RUN apt-get install python3.9-dev &&\
+# RUN &&\
 #     cd /cuvis.sdk/cuvis.pyil/ &&\
 #     mkdir build &&\
 #     cd build &&\
