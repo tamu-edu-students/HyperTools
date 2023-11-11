@@ -62,11 +62,6 @@ RUN add-apt-repository ppa:deadsnakes/ppa
 RUN apt install python3.9 python3-pip python3-tk -y
 RUN pip install numpy && apt-get install doxygen graphviz swig python3.9-dev  -y
 
-RUN echo 'alias python="/usr/bin/python3.9"' >> ~/.bashrc 
-RUN echo 'alias python3="/usr/bin/python3.9"' >> ~/.bashrc 
-RUN echo 'export CUVIS="/lib/cuvis"' >> ~/.bashrc 
-RUN echo 'export CUVIS_DATA="/opt/cuvis"' >> ~/.bashrc 
-
 RUN apt update -y
 RUN apt upgrade -y
 
@@ -78,13 +73,22 @@ RUN cd /cuvis.sdk/ &&\
     git fetch && git checkout patch-1
 
 
-# RUN apt-get install gedit -y
+# below is a temp fix for the cuvis.pyil repo
+RUN cd /cuvis.sdk && git clone https://github.com/antmedellin/cuvis.pyil.git &&\
+    cd cuvis.pyil &&\
+    git submodule update --init --recursive &&\
+    git fetch && git checkout patch-1 &&\
+    python3.9 -m pip install . &&\
+    mkdir build &&\
+    cd build &&\
+    cmake  -DCMAKE_BUILD_TYPE=Release -DDOXYGEN_BUILD_DOCUMENTATION=OFF -DPython_ROOT_DIR=/cuvis.sdk/cuvis.python  .. &&\
+    cmake --build . --target cuvis_pyil --config Release
 
-# RUN cd /cuvis.sdk && git clone https://github.com/cubert-hyperspectral/cuvis.pyil.git &&\
-#     cd cuvis.pyil &&\
-#     git submodule update --init --recursive &&\
-#     git checkout main &&\
-#     python3.9 -m pip install .
+# below is a temp fix for the cuvis.python repo
+RUN cd /cuvis.sdk/cuvis.python &&\
+    git checkout main &&\
+    python3.9 -m pip install  .
+
 
 # # RUN cd /cuvis.sdk/cuvis.python && python3.9 -m pip install  .
 
@@ -92,21 +96,13 @@ RUN cd /cuvis.sdk/ &&\
 # # RUN cp /3.2.0/Ubuntu\ 20.04/cuvis_il.py /cuvis.sdk/cuvis.python/cuvis/
 # # RUN cp /3.2.0/Ubuntu\ 20.04/_cuvis_pyil.so /cuvis.sdk/cuvis.python/cuvis/
 
-# RUN cd /cuvis.sdk/cuvis.python &&\
-#     git checkout main &&\
-#     python3.9 -m pip install  .   
-# # && \
-# #     python3.9 -m pip install -U Pillow
+RUN echo 'alias python="/usr/bin/python3.9"' >> ~/.bashrc 
+RUN echo 'alias python3="/usr/bin/python3.9"' >> ~/.bashrc 
+RUN echo 'export CUVIS="/lib/cuvis"' >> ~/.bashrc 
+RUN echo 'export CUVIS_DATA="/opt/cuvis"' >> ~/.bashrc 
 
+# RUN apt-get install gedit -y
 
-# RUN &&\
-#     cd /cuvis.sdk/cuvis.pyil/ &&\
-#     mkdir build &&\
-#     cd build &&\
-#     cmake  -DCMAKE_BUILD_TYPE=Release -DDOXYGEN_BUILD_DOCUMENTATION=FALSE -DPython_ROOT_DIR=/cuvis.sdk/cuvis.python -B "/cuvis.sdk/cuvis.pyil/" .. &&\
-#     cmake --build . --target cuvis_pyil --config Release
-#     # cmake .. &&\
-#     # make -j$(nproc) &&\
 
 WORKDIR /home
 
