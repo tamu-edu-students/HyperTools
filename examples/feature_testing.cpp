@@ -11,23 +11,20 @@ int main (int argc, char *argv[])
 {
 
   HyperFunctions HyperFunctions1; 
-  // string file_name1="../images/session_002_490_PANIMAGE.tiff";
-  // // HyperFunctions1.feature_img1 = imread(file_name1);
+  
+  
+  // // load hyperspectral image
+  // string file_name1="../../HyperImages/img1.tiff";
   // HyperFunctions1.LoadImageHyper(file_name1);
   // // using the same multilayer tiff for testing
-  // string file_name2="../images/session_002_491_PANIMAGE.tiff";
-  // //HyperFunctions1.feature_img2 = imread(file_name2);
+  // string file_name2="../../HyperImages/img1.tiff";
   // HyperFunctions1.LoadImageHyper(file_name1, false);
 
-  string file_name1="../images/img_1.png";
-  HyperFunctions1.feature_img1 = imread(file_name1);
-  string file_name2="../images/img2.png";
-  HyperFunctions1.feature_img2 = imread(file_name2);
-  // imshow("show", HyperFunctions1.feature_img1);
-  // imshow("show2", HyperFunctions1.feature_img2);
-  // string file_name2="../../HyperImages/img2.tiff";
-  // HyperFunctions1.LoadImageHyper(file_name2, false);
-
+  // load single layer image
+  string file_name1="../../HyperImages/cornfields/session_002/session_002_490_PANIMAGE.tiff";
+  string file_name2="../../HyperImages/cornfields/session_002/session_002_491_PANIMAGE.tiff";
+  HyperFunctions1.LoadFeatureImage1(file_name1);
+  HyperFunctions1.LoadFeatureImage2(file_name2);
 
   // use a single image layer
   // HyperFunctions1.feature_img1=HyperFunctions1.mlt1[60];
@@ -49,12 +46,13 @@ int main (int argc, char *argv[])
   // HyperFunctions1.feature_img2=HyperFunctions1.spec_simil_img;
 
 
-  cv::resize(HyperFunctions1.feature_img1,HyperFunctions1.feature_img1,Size(800, 800),INTER_LINEAR);
-  cv::resize(HyperFunctions1.feature_img2,HyperFunctions1.feature_img2,Size(800, 800),INTER_LINEAR);
-  HyperFunctions1.feature_detector=2;
-	HyperFunctions1.feature_descriptor=2;
+
+  HyperFunctions1.feature_detector=1;
+	HyperFunctions1.feature_descriptor=1;
 	HyperFunctions1.feature_matcher=0;
   HyperFunctions1.FeatureExtraction();
+  
+  // stitch images together
   HyperFunctions1.Stitching();
 
 
