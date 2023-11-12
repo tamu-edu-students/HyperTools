@@ -99,9 +99,10 @@ double calculateSCM(const std::vector<double>& refSpectrum, const std::vector<do
         return 1; // set to white due to an error
     }
     
-    float temp1= sum1/(sqrt(sum2)*sqrt(sum3));
-    double alpha_rad=acos(temp1);
-    return (alpha_rad/3.14159);
+    float temp1= sum1/sqrt((sum2)*(sum3));
+    //double alpha_rad=acos(temp1);
+    //return (alpha_rad/3.14159);
+    return temp1;
 }
 
 //cosine similar to SAM
@@ -184,4 +185,49 @@ double calculateCsq(const std::vector<double>& refSpectrum, const std::vector<do
 
     chiSq = sqrt(sqrt(0.5 * (sqrDist / sum))); // sqrt for data manipulation and made spectral similarity image better
     return chiSq;
+}
+
+// Hellinger Distance
+double calculateHDist(std::vector<double>& refSpectrum, std::vector<double>& pixelSpectrum)
+{
+float sum1=0, sum2=0, sumAll=0;
+    double referenceSpecSum = 0;
+    double pixelSpecSum = 0;
+    for (int i=0; i<refSpectrum.size(); i++)
+    {
+        if (refSpectrum[i]<1)
+        {
+            refSpectrum[i]+=1;
+        }
+        if (pixelSpectrum[i]<1)
+        {
+            pixelSpectrum[i]+=1;
+        }              
+        referenceSpecSum += refSpectrum[i];
+        pixelSpecSum += pixelSpectrum[i];
+    }
+    
+    for (int i=0; i<refSpectrum.size(); i++)
+    {
+        double refNew = refSpectrum[i] / referenceSpecSum;
+        double pixNew = pixelSpectrum[i] / pixelSpecSum;
+
+        sum1 = sqrt(refNew); // √p_i
+        sum2 = sqrt(pixNew); // √q_i
+
+        sumAll += pow(sum1 - sum2, 2); // sum from i=1 to k (√p_i - √q_i)^2    
+    }   
+    
+    return (1/sqrt(2))*(sqrt(sumAll));
+
+}
+
+double calculateCanb(const std::vector<double>& refSpectrum, const std::vector<double>& pixelSpectrum){
+    double sum = 0.0;
+
+    for (size_t i = 0; i < refSpectrum.size(); ++i) {
+        sum += abs(refSpectrum[i] - pixelSpectrum[i]) / (abs(refSpectrum[i]) + abs(pixelSpectrum[i]));
+    }
+
+    return sum;
 }
