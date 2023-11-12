@@ -12,11 +12,19 @@
 using namespace std;
 using namespace cv;
 
-__global__ void img_test_classifier(int *out, int *img_array, int num_pixels, int num_spectrums, int* color_info ) ;
-__global__ void img_test_multi_thread_SAM(int *out, int *img_array, int n, int num_layers, int* ref_spectrum, int sum) ;
-__global__ void img_test_multi_thread_SCM(int *out, int *img_array, int n, int num_layers, int* ref_spectrum) ;
-__global__ void img_test_multi_thread_SID(int *out, int *img_array, int n, int num_layers, int* ref_spectrum) ;
 __global__ void mat_to_oneD_array_child(uchar* mat_array, int* img_array, int n, int start, int inc) ;
+
+/*start of hybrid functions*/
+__device__ void child_SAM(int *out, int *img_array, int n, int num_layers, int* ref_spectrum) ;
+__device__ void child_SCM(int *out, int *img_array, int n, int num_layers, int* ref_spectrum) ;
+__device__ void child_SID(int *out, int *img_array, int n, int num_layers, int* ref_spectrum) ;
+__device__ void child_cos(int *out, int *img_array, int n, int num_layers, int* ref_spectrum) ;
+__device__ void child_JM(int *out, int *img_array, int n, int num_layers, int* ref_spectrum) ;
+__device__ void child_cityblock(int *out, int *img_array, int n, int num_layers, int* ref_spectrum) ;
+__device__ void child_EuD(int *out, int *img_array, int n, int num_layers, int* ref_spectrum) ;
+
+__global__ void parent_control(int *out, int *img_array, int n, int num_layers, int* ref_spectrum, int sim_alg);
+
 
 
 class HyperFunctionsGPU : public HyperFunctions {

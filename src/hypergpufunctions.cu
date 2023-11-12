@@ -171,6 +171,138 @@ __global__ void img_test_multi_thread_SCM(int *out, int *img_array, int n, int n
 }
 
 /**
+ * Cosine Similiarity Algorithm
+*/
+__global__ void img_test_multi_thread_cos(int *out, int *img_array, int n, int num_layers, int* ref_spectrum) 
+{
+    
+    // parallelize tasks
+    // pixels are stored with all pixel values next to each other for the layers    
+    // n is number of pixels 
+    // blockID : block index within the grid
+    // blockDim : how many threads per block
+    // threadIdx : thread index within the block 
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    float sum1=0, sum2=0;
+    float sum3 = 0;
+    for (int a=0; a<num_layers-1; a++) {
+        sum3+=ref_spectrum[a] *ref_spectrum[a]; //sum of squared reference spectra values
+    }
+    if (tid < n){
+        int offset=tid*num_layers; //calculating which index in the image array the values for threadID pixel start at
+        for (int a=0; a<num_layers-1; a++) //iterating through spectra layers for that pixel
+        {
+            sum1+=img_array[offset+a]*ref_spectrum[a]; //image spectra values * corresponding referencec spectrum values
+            sum2+=img_array[offset+a]*img_array[offset+a]; //Squared image spectra values
+        }
+        
+        if (sum1<=0 || sum2<=0 || sum3<=0 )
+        {
+            out[tid] =255; // set to white due to an error
+        }
+        else
+        {
+            float temp1= sum1/(sqrt(sum2)*sqrt(sum3));
+            double alpha_rad=acos(temp1);
+            out[tid] =(int)((double)alpha_rad*(double)255) ;
+        }
+    }
+    
+}
+
+/**
+ * JM distance algorithm 
+ * 
+*/
+__global__ void img_test_multi_thread_JM(int* out, int* img_array, int n, int num_layers, int* ref_spectrum) {
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if (tid < n) {
+        double referenceSpecIntegral = 0;
+        double pixelSpecIntegral = 0;
+
+        int offset = tid * num_layers;
+        for (int i = 0; i < num_layers; i++) {
+            referenceSpecIntegral += ref_spectrum[i];
+            pixelSpecIntegral += img_array[offset + i];
+        }
+
+        double BC = 0;
+        for (int i = 0; i < num_layers; i++) {
+            BC += sqrt((ref_spectrum[i] / referenceSpecIntegral) * (img_array[offset + i] / pixelSpecIntegral));
+        }
+
+        double Bhattacharyya = -log(BC);
+        double JM_distance = sqrt(2 * (1 - exp(-Bhattacharyya)));
+        double JM_distance_scaled = JM_distance * 180.312229203;
+        out[tid] = (int)(JM_distance_scaled);
+    }
+}
+
+/**
+ * City block algorithm 
+ * 
+*/
+__global__ void img_test_multi_thread_cityblock(int* out, int* img_array, int n, int num_layers, int* ref_spectrum) {
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    float sum1=0;
+    
+    if (tid < n){
+        int offset = tid * num_layers;
+        for (int a=0; a<num_layers-1; a++) {
+            sum1 += abs(img_array[offset + a] - ref_spectrum[a]);
+
+        }
+        out[tid] = sum1/(num_layers + 255);
+        
+        
+    }
+
+}
+
+/**
+ * Euclidian
+*/
+__global__ void img_test_multi_thread_EuD(int *out, int *img_array, int n, int num_layers, int* ref_spectrum){
+    
+    // parallelize tasks
+    // pixels are stored with all pixel values next to each other for the layers    
+    // n is number of pixels 
+    // blockID : block index within the grid
+    // blockDim : how many threads per block
+    // threadIdx : thread index within the block 
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    float sum1=0, sum2=0, sum3 = 0;
+
+    for (int a=0; a<num_layers-1; a++) {
+        sum3+=ref_spectrum[a] *ref_spectrum[a]; //sum of squared reference spectra values
+    }
+    if (tid < n){
+        int offset=tid*num_layers; //calculating which index in the image array the values for threadID pixel start at
+        for (int a=0; a<num_layers-1; a++) //iterating through spectra layers for that pixel
+        {
+            sum1+=img_array[offset+a]*ref_spectrum[a]; //image spectra values * corresponding referencec spectrum values
+            sum2+=img_array[offset+a]*img_array[offset+a]; //Squared image spectra values
+        }
+        
+        if (sum1<=0 || sum2<=0 || sum3<=0 )
+        {
+            out[tid] =255; // set to white due to an error
+        }
+        else
+        {
+            float temp1= sum1/(sqrt(sum2)*sqrt(sum3));
+            double alpha_rad=acos(temp1);
+            temp1 = sin(alpha_rad/2);
+            out[tid] =(int)((double)alpha_rad*(double)255) ;
+        }
+}
+}
+/**
  * Calls the multithreaded spectral similarity algorithms, based on the variable spec_sim_alg, set in
     hyperfunctions.cpp.
  * Retrieves output in "out", then calls oneD_array_to_mat(out) to convert out into the OPENCV matrix "spec_simil_img".
@@ -178,19 +310,297 @@ __global__ void img_test_multi_thread_SCM(int *out, int *img_array, int n, int n
 
 void HyperFunctionsGPU::spec_sim_GPU() {
 
-    if (spec_sim_alg == 0) { //running the multithreaded algorithms
-        img_test_multi_thread_SAM<<<grid_size,block_size>>>(d_out, d_img_array, N_size, num_lay, d_ref_spectrum);
-    } else if (spec_sim_alg == 1) {
-        img_test_multi_thread_SCM<<<grid_size,block_size>>>(d_out, d_img_array, N_size, num_lay, d_ref_spectrum);
-    } else if (spec_sim_alg == 2) {
-        img_test_multi_thread_SID<<<grid_size,block_size>>>(d_out, d_img_array, N_size, num_lay, d_ref_spectrum);
-    }
+    parent_control<<<grid_size, block_size>>>(d_out, d_img_array, N_size, num_lay, d_ref_spectrum, spec_sim_alg);
 
     cudaDeviceSynchronize();
     cudaMemcpyAsync(out, d_out, sizeof(int) * N_size, cudaMemcpyDeviceToHost); 
     cudaDeviceSynchronize();
 
     this->oneD_array_to_mat(out);   
+}
+
+/**
+ * Parent Controller for Cuda
+*/
+__global__ void parent_control(int *out, int *img_array, int n, int num_layers, int* ref_spectrum, int sim_alg){
+    // func_ptr functions[] = {
+    // child_SAM,
+    // child_SCM,
+    // child_SID,
+    // child_cos,
+    // child_JM,
+    // child_cityblock,
+    // child_EuD
+    // };
+    // printf("Sim_algorithm %d\n", sim_alg);
+    // functions[sim_alg](out, img_array, n, num_layers, ref_spectrum);
+    // if(sim_alg >= 0 && sim_alg <= 7){
+    //     functions[sim_alg](out, img_array, n, num_layers, ref_spectrum);
+    // }
+    // else{
+    //     printf("It Broke !!\n");
+    // }
+    switch(sim_alg) {
+    case 0:
+        child_SAM(out, img_array, n, num_layers, ref_spectrum);
+        break;
+    case 1:
+        child_SCM(out, img_array, n, num_layers, ref_spectrum);
+        break;
+    case 2:
+        child_SID(out, img_array, n, num_layers, ref_spectrum);
+        break;
+    case 3:
+        child_cos(out, img_array, n, num_layers, ref_spectrum);
+        break;
+    case 4:
+        child_JM(out, img_array, n, num_layers, ref_spectrum);
+        break;
+    case 5:
+        child_cityblock(out, img_array, n, num_layers, ref_spectrum);
+        break;
+    case 6:
+        child_EuD(out, img_array, n, num_layers, ref_spectrum);
+        break;
+    default:
+        printf("It Broke !!\n");
+        break;
+
+    }
+}
+
+
+__device__ void child_SAM(int *out, int *img_array, int n, int num_layers, int* ref_spectrum){
+    
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    float sum1=0, sum2=0;
+    float sum3 = 0;
+    for (int a=0; a<num_layers-1; a++) {
+        sum3+=ref_spectrum[a] *ref_spectrum[a]; //sum of squared reference spectra values
+    }
+
+    
+
+    if (tid < n){
+        int offset=tid*num_layers; //calculating which index in the image array the values for threadID pixel start at
+        for (int a=0; a<num_layers-1; a++) //iterating through spectra layers for that pixel
+        {
+            sum1+=img_array[offset+a]*ref_spectrum[a]; //image spectra values * corresponding referencec spectrum values
+            sum2+=img_array[offset+a]*img_array[offset+a]; //Squared image spectra values
+        }
+        
+        if (sum1<=0 || sum2<=0 || sum3<=0 )
+        {
+            out[tid] =255; // set to white due to an error
+        }
+        else
+        {
+            float temp1= __fdividef(sum1, sqrt(sum2) * sqrt(sum3));
+            double alpha_rad=acos(temp1); // range is 0 to pi
+            out[tid] =(int)(alpha_rad *81) ; // fix range for visualization (0-255) 255/pi is 81.169
+        }
+    }
+}
+
+
+
+/**
+ * 
+ * Spectral Corellation Mapper function for spectral similarity analysis
+ * 
+ * 
+ * 
+*/
+__device__ void child_SCM(int *out, int *img_array, int n, int num_layers, int* ref_spectrum){
+    // parallelize tasks
+    // pixels are stored with all pixel values next to eachother for the layers    
+    // n is number of pixels 
+
+    // blockID : block index within the grid
+    // blockDim : how many threads per block
+    // threadIdx : thread index within the block 
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x; //unique thread ID
+    float sum1=0, sum2=0, sum3=0, mean1=0, mean2=0;
+    int offset=tid*num_layers;
+    if (tid < n){
+        
+
+        for (int a=0; a<num_layers-1; a++)
+        {
+            mean1+=((float)1/(float)(num_layers-1)* (float)img_array[offset+a])  ;
+            mean2+=((float)1/(float)(num_layers-1)* (float)ref_spectrum[a]) ;
+        }
+
+        for (int a=0; a<num_layers-1; a++)
+        {
+            sum1+=(img_array[offset+a]-mean1)*(ref_spectrum[a]-mean2) ;
+            sum2+=(img_array[offset+a]-mean1)*(img_array[offset+a]-mean1);
+            sum3+=(ref_spectrum[a]-mean2)*(ref_spectrum[a]-mean2);
+        }        
+        if (sum2<=0 || sum3<=0 )
+        {
+            out[tid] =255; // set to white due to an error
+        }
+        else
+        {
+            float temp1= sum1/(sqrt(sum2)*sqrt(sum3));
+            double alpha_rad=acos(temp1);
+            out[tid] =(int)((double)alpha_rad*(double)255/(double)3.14159) ;
+        }
+    }
+}
+
+
+__device__ void child_cos(int *out, int *img_array, int n, int num_layers, int* ref_spectrum){
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    float sum1=0, sum2=0;
+    float sum3 = 0;
+    for (int a=0; a<num_layers-1; a++) {
+        sum3+=ref_spectrum[a] *ref_spectrum[a]; //sum of squared reference spectra values
+    }
+    if (tid < n){
+        int offset=tid*num_layers; //calculating which index in the image array the values for threadID pixel start at
+        for (int a=0; a<num_layers-1; a++) //iterating through spectra layers for that pixel
+        {
+            sum1+=img_array[offset+a]*ref_spectrum[a]; //image spectra values * corresponding referencec spectrum values
+            sum2+=img_array[offset+a]*img_array[offset+a]; //Squared image spectra values
+        }
+        
+        if (sum1<=0 || sum2<=0 || sum3<=0 )
+        {
+            out[tid] =255; // set to white due to an error
+        }
+        else
+        {
+            float temp1= sum1/(sqrt(sum2)*sqrt(sum3));
+            double alpha_rad=acos(temp1);
+            out[tid] =(int)((double)alpha_rad*(double)255) ;
+        }
+    }
+}
+/**
+ * SID 
+ * */
+
+__device__ void child_SID(int *out, int *img_array, int n, int num_layers, int* ref_spectrum){
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    float sum1=0, sum2=0, ref_sum=0, pix_sum=0;
+
+    if (tid < n){
+        int offset=tid*num_layers;
+        for (int a=0; a<num_layers-1; a++)
+        {
+            if (ref_spectrum[a]<1){ref_spectrum[a]+=1;}
+            if (img_array[offset+a]<1){img_array[offset+a]+=1;}              
+            ref_sum+= ref_spectrum[a] ;
+            pix_sum+= img_array[offset+a];
+        }
+        
+        // error handling to avoid division by zero
+        if (ref_sum<1){ref_sum+=1;}
+        if (pix_sum<1){pix_sum+=1;}
+        
+        float ref_new[300], pix_new[300];
+        
+        for (int a=0; a<num_layers-1; a++)
+        {
+            ref_new[a]=ref_spectrum[a] / ref_sum ; //probability distribution for reference spectrum
+            pix_new[a]=img_array[offset+a]/pix_sum; //probabiltiy distribution for our image
+            // error handling to avoid division by zero
+        }
+        
+        for (int a=0; a<num_layers-1; a++)
+        {
+            sum1+= ref_new[a]*log(ref_new[a]/pix_new[a]);
+            sum2+= pix_new[a]*log(pix_new[a]/ref_new[a]);
+        }        
+
+        // need to normalize the results better here
+        out[tid] =(sum1+sum2) *60;
+        if (out[tid]>255){out[tid]=255;}
+
+    }
+}
+
+/*JM*/
+__device__ void child_JM(int *out, int *img_array, int n, int num_layers, int* ref_spectrum){
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if (tid < n) {
+        double referenceSpecIntegral = 0;
+        double pixelSpecIntegral = 0;
+
+        int offset = tid * num_layers;
+        for (int i = 0; i < num_layers; i++) {
+            referenceSpecIntegral += ref_spectrum[i];
+            pixelSpecIntegral += img_array[offset + i];
+        }
+
+        double BC = 0;
+        for (int i = 0; i < num_layers; i++) {
+            BC += sqrt((ref_spectrum[i] / referenceSpecIntegral) * (img_array[offset + i] / pixelSpecIntegral));
+        }
+
+        double Bhattacharyya = -log(BC);
+        double JM_distance = sqrt(2 * (1 - exp(-Bhattacharyya)));
+        double JM_distance_scaled = JM_distance * 180.312229203;
+        out[tid] = (int)(JM_distance_scaled);
+    }
+
+}
+
+/*EuD*/
+__device__ void child_EuD(int *out, int *img_array, int n, int num_layers, int* ref_spectrum){
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    float sum1=0, sum2=0, sum3 = 0;
+
+    for (int a=0; a<num_layers-1; a++) {
+        sum3+=ref_spectrum[a] *ref_spectrum[a]; //sum of squared reference spectra values
+    }
+    if (tid < n){
+        int offset=tid*num_layers; //calculating which index in the image array the values for threadID pixel start at
+        for (int a=0; a<num_layers-1; a++) //iterating through spectra layers for that pixel
+        {
+            sum1+=img_array[offset+a]*ref_spectrum[a]; //image spectra values * corresponding referencec spectrum values
+            sum2+=img_array[offset+a]*img_array[offset+a]; //Squared image spectra values
+        }
+        
+        if (sum1<=0 || sum2<=0 || sum3<=0 )
+        {
+            out[tid] =255; // set to white due to an error
+        }
+        else
+        {
+            float temp1= sum1/(sqrt(sum2)*sqrt(sum3));
+            double alpha_rad=acos(temp1);
+            out[tid] =(int)((double)alpha_rad*(double)255) ;
+        }
+    }
+}
+
+/**
+ * City Block
+*/
+__device__ void child_cityblock(int *out, int *img_array, int n, int num_layers, int* ref_spectrum){
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    float sum1=0;
+    
+    if (tid < n){
+        int offset = tid * num_layers;
+        for (int a=0; a<num_layers-1; a++) {
+            sum1 += abs(img_array[offset + a] - ref_spectrum[a]);
+
+        }
+        out[tid] = sum1/(num_layers + 255);
+        
+        
+    }
+
 }
 
 void HyperFunctionsGPU::deallocate_memory() 
@@ -434,5 +844,4 @@ void HyperFunctionsGPU::semantic_segmentation() {
     delete[] ref_spectrum;
 
 }
-
 
