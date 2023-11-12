@@ -378,6 +378,9 @@ __device__ void child_SAM(int *out, int *img_array, int n, int num_layers, int* 
     for (int a=0; a<num_layers-1; a++) {
         sum3+=ref_spectrum[a] *ref_spectrum[a]; //sum of squared reference spectra values
     }
+
+    
+
     if (tid < n){
         int offset=tid*num_layers; //calculating which index in the image array the values for threadID pixel start at
         for (int a=0; a<num_layers-1; a++) //iterating through spectra layers for that pixel
@@ -392,9 +395,9 @@ __device__ void child_SAM(int *out, int *img_array, int n, int num_layers, int* 
         }
         else
         {
-            float temp1= sum1/(sqrt(sum2)*sqrt(sum3));
-            double alpha_rad=acos(temp1);
-            out[tid] =(int)((double)alpha_rad*(double)255/(double)3.14159) ;
+            float temp1= __fdividef(sum1, sqrt(sum2) * sqrt(sum3));
+            double alpha_rad=acos(temp1); // range is 0 to pi
+            out[tid] =(int)(alpha_rad *81) ; // fix range for visualization (0-255) 255/pi is 81.169
         }
     }
 }
@@ -419,8 +422,9 @@ __device__ void child_SCM(int *out, int *img_array, int n, int num_layers, int* 
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x; //unique thread ID
     float sum1=0, sum2=0, sum3=0, mean1=0, mean2=0;
+    int offset=tid*num_layers;
     if (tid < n){
-        int offset=tid*num_layers;
+        
 
         for (int a=0; a<num_layers-1; a++)
         {

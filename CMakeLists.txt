@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 project(user_interface_project C CXX)
 
 #change below to true to use GPU or false to not use GPU
-set(use_CUDA true) 
+set(use_CUDA false) 
 #change below to true to use cuvis.sdk
 set (use_cuvis false)
 
@@ -20,7 +20,7 @@ link_directories(${GTK3_LIBRARY_DIRS} )
 link_libraries(jsoncpp ${GTK3_LIBRARIES} ${OpenCV_LIBS})
 
 if (use_CUDA)
-
+    cmake_policy(SET CMP0146 OLD) 
     find_package(CUDA)
         if(CUDA_FOUND)
             enable_language(CUDA)
@@ -31,13 +31,12 @@ if (use_CUDA)
             endif()
             
             add_definitions(${GTK_CFLAGS_OTHER}) 
-            # cmake_policy(SET CMP0146 NEW) 
 
             add_executable(cuda_example examples/cuda_example.cu)
             set_target_properties(cuda_example PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
-            add_executable(gtk_cuda_example examples/gtk_cuda_example.cu)
-            set_target_properties(gtk_cuda_example PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+            # add_executable(gtk_cuda_example examples/gtk_cuda_example.cu)
+            # set_target_properties(gtk_cuda_example PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
 
         else(CUDA_FOUND)
@@ -84,9 +83,9 @@ if (use_cuvis)
 
     # endif(use_CUDA)
 else (use_cuvis)
-
-    add_executable(image_tool examples/image_tool.cpp)
-
+    if (!use_CUDA)
+        add_executable(image_tool examples/image_tool.cpp)
+    endif(!use_CUDA)
 endif()
 
 
