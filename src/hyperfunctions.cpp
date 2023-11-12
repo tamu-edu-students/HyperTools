@@ -147,6 +147,93 @@ void  HyperFunctions::DimensionalityReduction()
     }
 }
 
+//Stitching two images together
+void HyperFunctions::Stitching(){
+    // feature images must be 8uc1 not 8uc3 ie greyscale and not color images
+    
+    bool use_homography=false;
+
+    // filter matched points
+    //calculation of max and min distances between keypoints
+    int movementDirection = 0;
+    double max_dist = 0; double min_dist = 100;
+    for (const auto& m : matches)
+    {
+        double dist = m.distance;
+        if (dist < min_dist) min_dist = dist;
+        if (dist > max_dist) max_dist = dist;
+    }
+    for (const auto& m : matches)
+    {
+        if (m.distance <= 1.5 * min_dist)
+        {
+            good_point1.push_back(keypoints1.at(m.queryIdx).pt);
+            good_point2.push_back(keypoints2.at(m.trainIdx).pt);
+        }
+    }
+
+    if (use_homography)
+    {
+        // below is not correct, still a work in progress
+        Mat h = findHomography( good_point1, good_point2, RANSAC );
+        // Use homography to warp image
+        Mat img1Warped;
+        warpPerspective(feature_img1, img1Warped, h, feature_img2.size());
+        Mat result;
+        feature_img2.copyTo(result);
+        img1Warped.copyTo(result, feature_img2);
+        stitch_img=result;
+    }
+    else
+    {
+       
+        
+        cv::Rect croppImg1(0, 0, feature_img1.cols, feature_img1.rows);
+        cv::Rect croppImg2(0, 0, feature_img2.cols, feature_img2.rows); 
+
+
+        // movementDirection tells us are both the images aligned or not if not adjust the images accordingly.
+        int imgWidth = feature_img1.cols;
+        for (int i = 0; i < good_point1.size(); ++i)
+        {
+            if (good_point1[i].x < imgWidth)
+            {
+                croppImg1.width = good_point1.at(i).x;
+                croppImg2.x = good_point2[i].x;
+                croppImg2.width = feature_img2.cols - croppImg2.x;
+                movementDirection = good_point1[i].y - good_point2[i].y;
+                imgWidth = good_point1[i].x;
+            }
+        }
+        Mat image1 = feature_img1(croppImg1);
+        Mat image2 = feature_img2(croppImg2);
+
+       
+        int maxHeight = image1.rows > image2.rows ? image1.rows : image2.rows;
+        int maxWidth = image1.cols + image2.cols;
+        stitch_img=cv::Mat::zeros(cv::Size(maxWidth, maxHeight + abs(movementDirection)), CV_8UC1);
+        if (movementDirection > 0)
+        {
+            cv::Mat half1(stitch_img, cv::Rect(0, 0, image1.cols, image1.rows));
+            image1.copyTo(half1);
+            cv::Mat half2(stitch_img, cv::Rect(image1.cols, abs(movementDirection),image2.cols, image2.rows));
+            image2.copyTo(half2);
+        }
+        else
+        {
+            cv::Mat half1(stitch_img, cv::Rect(0, abs(movementDirection), image1.cols, image1.rows));
+            image1.copyTo(half1);
+            cv::Mat half2(stitch_img, cv::Rect(image1.cols,0 ,image2.cols, image2.rows));
+            image2.copyTo(half2);
+        }
+        
+    
+    }
+
+    Mat disp_stitch;
+    cv::resize(stitch_img,disp_stitch,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR);
+    imshow("Stitched Image", disp_stitch );
+}
 // Detects, describes, and matches keypoints between 2 feature images
 void  HyperFunctions::FeatureExtraction()
 {
