@@ -36,7 +36,7 @@ RUN apt-get install python3-pip -y  && pip install opencv-python numpy matplotli
 
 RUN pip install  pycocotools onnx onnxruntime tqdm
 
-RUN  apt-get install python3-tk -y
+RUN  apt-get install python3-tk pocl-opencl-icd -y && pip install pyopencl scipy
 
 WORKDIR /home
 
