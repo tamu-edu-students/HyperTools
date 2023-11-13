@@ -25,6 +25,19 @@ static Mat toGrayscale(InputArray _src);
 static Mat formatImagesForPCA(const vector<Mat> &data);
 
 
+
+void similarity_img_Child(int id, int algorithmId, int columnIndex, vector<Mat>& hyperspectralImage, vector<double>* reference_spectrum_ptr, Mat* outputSimilarityImage);
+
+/* /// being updated with spectralsimalgorithms.h, include file is in hyperfunctions.cpp
+double CalculateSAM(const vector<double>& referenceSpectrum, const vector<double>& pixelSpectrum);
+double CalculateSID(const vector<double>& referenceSpectrum, const vector<double>& pixelSpectrum);
+double CalculateEuD(const vector<double>& referenceSpectrum, const vector<double>& pixelSpectrum);
+double CalculatedSID(const vector<double>& referenceSpectrum, const vector<double>& pixelSpectrum);
+double CalculatedCos(const vector<double>& referenceSpectrum, const vector<double>& pixelSpectrum);
+double CalculatedJM(const vector<double>& referenceSpectrum, const vector<double>& pixelSpectrum);
+double CalculateCityBlock(const vector<double>& referenceSpectrum, const vector<double>& pixelSpectrum);
+*/
+
 class HyperFunctions 
 {
 
@@ -44,12 +57,14 @@ public:
 	Mat tiled_img;
 	Mat pca_img;
 	Mat ga_img;
+	Mat stitch_img;
 			
 	vector<string> class_list;
 	vector<Vec3b> color_combos;
 	vector<vector<Point>>contours_approx;
 	vector<KeyPoint> keypoints1, keypoints2;
 	vector< DMatch > matches;  
+	vector< Point2d> good_point1, good_point2;
 	vector<Vec3b> reference_colors;
 	vector<vector<int>> reference_spectrums;
 	
@@ -102,6 +117,7 @@ public:
 	void DifferenceOfImages();
 	void EdgeDetection();
 	void DimensionalityReduction();
+	void Stitching();
 	void FeatureExtraction();  
 	void FeatureTransformation(); 
 	void GenerateFalseImg();

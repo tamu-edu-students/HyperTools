@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include "ctpl.h"
 #include "opencv2/xfeatures2d.hpp"
+#include "spectralsimalgorithms.cpp"
 
 using namespace cv;
 using namespace std;
@@ -146,6 +147,93 @@ void  HyperFunctions::DimensionalityReduction()
     }
 }
 
+//Stitching two images together
+void HyperFunctions::Stitching(){
+    // feature images must be 8uc1 not 8uc3 ie greyscale and not color images
+    
+    bool use_homography=false;
+
+    // filter matched points
+    //calculation of max and min distances between keypoints
+    int movementDirection = 0;
+    double max_dist = 0; double min_dist = 100;
+    for (const auto& m : matches)
+    {
+        double dist = m.distance;
+        if (dist < min_dist) min_dist = dist;
+        if (dist > max_dist) max_dist = dist;
+    }
+    for (const auto& m : matches)
+    {
+        if (m.distance <= 1.5 * min_dist)
+        {
+            good_point1.push_back(keypoints1.at(m.queryIdx).pt);
+            good_point2.push_back(keypoints2.at(m.trainIdx).pt);
+        }
+    }
+
+    if (use_homography)
+    {
+        // below is not correct, still a work in progress
+        Mat h = findHomography( good_point1, good_point2, RANSAC );
+        // Use homography to warp image
+        Mat img1Warped;
+        warpPerspective(feature_img1, img1Warped, h, feature_img2.size());
+        Mat result;
+        feature_img2.copyTo(result);
+        img1Warped.copyTo(result, feature_img2);
+        stitch_img=result;
+    }
+    else
+    {
+       
+        
+        cv::Rect croppImg1(0, 0, feature_img1.cols, feature_img1.rows);
+        cv::Rect croppImg2(0, 0, feature_img2.cols, feature_img2.rows); 
+
+
+        // movementDirection tells us are both the images aligned or not if not adjust the images accordingly.
+        int imgWidth = feature_img1.cols;
+        for (int i = 0; i < good_point1.size(); ++i)
+        {
+            if (good_point1[i].x < imgWidth)
+            {
+                croppImg1.width = good_point1.at(i).x;
+                croppImg2.x = good_point2[i].x;
+                croppImg2.width = feature_img2.cols - croppImg2.x;
+                movementDirection = good_point1[i].y - good_point2[i].y;
+                imgWidth = good_point1[i].x;
+            }
+        }
+        Mat image1 = feature_img1(croppImg1);
+        Mat image2 = feature_img2(croppImg2);
+
+       
+        int maxHeight = image1.rows > image2.rows ? image1.rows : image2.rows;
+        int maxWidth = image1.cols + image2.cols;
+        stitch_img=cv::Mat::zeros(cv::Size(maxWidth, maxHeight + abs(movementDirection)), CV_8UC1);
+        if (movementDirection > 0)
+        {
+            cv::Mat half1(stitch_img, cv::Rect(0, 0, image1.cols, image1.rows));
+            image1.copyTo(half1);
+            cv::Mat half2(stitch_img, cv::Rect(image1.cols, abs(movementDirection),image2.cols, image2.rows));
+            image2.copyTo(half2);
+        }
+        else
+        {
+            cv::Mat half1(stitch_img, cv::Rect(0, abs(movementDirection), image1.cols, image1.rows));
+            image1.copyTo(half1);
+            cv::Mat half2(stitch_img, cv::Rect(image1.cols,0 ,image2.cols, image2.rows));
+            image2.copyTo(half2);
+        }
+        
+    
+    }
+
+    Mat disp_stitch;
+    cv::resize(stitch_img,disp_stitch,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR);
+    imshow("Stitched Image", disp_stitch );
+}
 // Detects, describes, and matches keypoints between 2 feature images
 void  HyperFunctions::FeatureExtraction()
 {
@@ -1116,6 +1204,111 @@ void  HyperFunctions::SemanticSegmenter()
     classified_img=temp_class_img;
 }
 
+void SpecSimilChild(int threadId, int algorithmId, int columnIndex, vector<Mat>* mlt, vector<int>* reference_spectrum_ptr, Mat* outputSimilarityImage) {
+
+    vector<Mat> hyperspectralImage=*mlt; //dereferences
+    vector<int> reference_spectrumAsInt = *reference_spectrum_ptr;
+    vector<double> reference_spectrum(reference_spectrumAsInt.begin(), reference_spectrumAsInt.end());
+
+    //Normalizes the reference vector if that is necessary for the comparison algorithm
+    //Some algorithms re-normalize anyway which is a source of future optimizations (get rid of redundant code)
+    if (algorithmId == 4 || algorithmId == 6 || algorithmId == 7) {
+        double reference_spectrum_sum = 0;
+        for (int i = 0; i < reference_spectrum.size(); i++)
+        {
+            reference_spectrum_sum += reference_spectrum[i];
+        }
+        for (int i = 0; i < reference_spectrum.size(); i++)
+        {
+            reference_spectrum[i] /= reference_spectrum_sum;
+        }
+    }
+
+    for (int rowIndex = 0; rowIndex <hyperspectralImage[1].rows; rowIndex++)
+    {
+        //Find the pixel spectrum
+        vector<double> pixel_spectrum; 
+        double pixel_spectrum_sum = 0;
+
+        for (int layer = 0; layer < reference_spectrum.size(); layer++) //Assumes that pixel and reference spectra are the same size.
+        {
+            pixel_spectrum.push_back(hyperspectralImage[layer].at<uchar>(rowIndex,columnIndex));
+            pixel_spectrum_sum += hyperspectralImage[layer].at<uchar>(rowIndex,columnIndex);
+        }
+
+        //Normalizes the pixel vector if that is necessary for the comparison algorithm
+        if (algorithmId == 4 || algorithmId == 6 || algorithmId == 7) {
+            for (int layer = 0; layer < reference_spectrum.size(); layer++)
+            {
+                pixel_spectrum[layer] /= pixel_spectrum_sum;
+            }
+        }
+
+        double similarityValue = 0;
+
+        switch(algorithmId) { //Manipulation of similarity values not complete yet...
+        // most of these having scaling parameters that need to be tuned to the environment and desired level of spectral discrimination
+            case 0:
+                similarityValue = calculateSAM(reference_spectrum, pixel_spectrum) * 255;
+                //Below is equivalent using the calculateCOS function
+                //similarityValue = acos(calculateCOS(reference_spectrum, pixel_spectrum)) / 3.141592 * 255;
+                break;
+            case 1:
+                similarityValue = (1-calculateSCM(reference_spectrum, pixel_spectrum)) * 0.5 * 255;
+                break;
+            case 2:
+                similarityValue = calculateSID(reference_spectrum, pixel_spectrum) * 60;
+                break;
+            case 3:
+                //similarityValue = calculateEUD(reference_spectrum, pixel_spectrum) / (reference_spectrum.size() + 255) * 255;
+                similarityValue = calculateEUD(reference_spectrum, pixel_spectrum) / (reference_spectrum.size()) * 10;
+                break;
+            case 4:
+                similarityValue = calculateCsq(reference_spectrum, pixel_spectrum) * 255;
+                break;
+            case 5:
+                //calculateCOS gives high values for things that are similar, so this flips that relationship
+                similarityValue = (1-calculateCOS(reference_spectrum, pixel_spectrum)) * 255;
+                break;
+            case 6:
+                //similarityValue = (calculateCB(reference_spectrum, pixel_spectrum) / (reference_spectrum.size() + 255)) * 255;
+                similarityValue = calculateCB(reference_spectrum, pixel_spectrum) / (reference_spectrum.size()) * 40000;
+                break;
+            case 7:
+                similarityValue = calculateJM(reference_spectrum, pixel_spectrum) * 255;
+                break;
+            case 8: //Testing NS3
+                similarityValue = 6000* sqrt(pow(sqrt(1/reference_spectrum.size()) * calculateEUD(reference_spectrum, pixel_spectrum), 2)
+                                      +pow(1-cos(calculateSAM(reference_spectrum, pixel_spectrum)), 2));
+                break;
+            case 9: //Testing JM-SAM
+                similarityValue = 255 * (calculateJM(reference_spectrum, pixel_spectrum) * tan(calculateSAM(reference_spectrum, pixel_spectrum)));
+                break;
+            case 10: //SCA
+                similarityValue = 255 * ( (1/M_PI) * acos((calculateSCM(reference_spectrum, pixel_spectrum)+1)*0.5));
+                break;
+            case 11: //SID-SAM
+                similarityValue = 255 * calculateSID(reference_spectrum, pixel_spectrum) * tan(calculateSAM(reference_spectrum, pixel_spectrum));
+                break;
+            case 12: //SID-SCA
+                similarityValue = 255 * calculateSID(reference_spectrum, pixel_spectrum) * tan(( acos((calculateSCM(reference_spectrum, pixel_spectrum)+1)*0.5)));
+                break;
+            case 13: //Hellinger Distance
+                similarityValue = calculateHDist(reference_spectrum, pixel_spectrum) * 255;
+                break;
+            case 14: //Canberra distance
+                similarityValue = .8 * calculateCanb(reference_spectrum, pixel_spectrum);
+                break;
+        }
+        // cout<<similarityValue<<endl;
+        //clamp the similarity value to 255
+        if (similarityValue > 255) {
+            similarityValue = 255;
+        }
+        outputSimilarityImage->at<uchar>(rowIndex, columnIndex) = similarityValue; 
+    }
+}
+
 //---------------------------------------------------------
 // Name: SpecSimilParent
 // Description: to determine the similarity between sets
@@ -1123,453 +1316,15 @@ void  HyperFunctions::SemanticSegmenter()
 //---------------------------------------------------------
 void  HyperFunctions::SpecSimilParent()
 {
-
-//spec_sim_alg SAM=0, SCM=1, SID=2, EuD=3, cSq=4
-// ref_spec_index
-
     Mat temp_img(mlt1[1].rows, mlt1[1].cols, CV_8UC1, Scalar(0));
     spec_simil_img=temp_img;
 
-    if (spec_sim_alg==0)
-    {
-        this->SAM_img();
-    }
-    else if (spec_sim_alg==1)
-    {
-        this->SCM_img();
-    }
-    else if (spec_sim_alg==2)
-    {
-        this->SID_img();
-    }
-    else if (spec_sim_alg==3)
-    {
-        this->EuD_img();
-    }
-    else if (spec_sim_alg==4)
-    {
-        this->cSq_img();
-    }
-    else if(spec_sim_alg==5){
-        this->Cos_img();
-    }
-    else if(spec_sim_alg==6){
-        this->City_img();
-    }
-    else if (spec_sim_alg==7)
-    {
-        this->JM_img();
-    }
-}
-
-
-//---------------------------------------------------------
-// Name: cSq_img
-// PreCondition: cSq value as produced by cSq_img_child
-// PostCondition: threadpool of cSq values
-//---------------------------------------------------------
-void HyperFunctions::cSq_img()
-{
     ctpl::thread_pool p(num_threads);
     
     for (int k=0; k<mlt1[1].cols; k+=1)
     {
-        p.push(cSq_img_Child, k, &mlt1,&reference_spectrums,&spec_simil_img,&ref_spec_index);
-
+        p.push(SpecSimilChild, spec_sim_alg, k, &mlt1, &reference_spectrums[ref_spec_index], &spec_simil_img);
     }
-}
-
-//---------------------------------------------------------
-// Name: cSq_img_child
-// PreCondition:  
-// PostCondition: 
-//---------------------------------------------------------
-void cSq_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index)   
-{   
- 
-    vector<Mat> mlt1=*mlt2; 
-    vector<vector<int>>  reference_spectrums= *reference_spectrums2;
-
-    double sqrDist = 0;
-    double sum = 0;
-    double chiSq = 0;
-
-    double xIntg;
-    double yIntg;
-
-
-    for (int j=0; j<mlt1[1].rows; j++) {
-        sqrDist = 0;
-        sum = 0;
-        chiSq = 0;
-
-        xIntg = 0;
-        yIntg = 0;
-
-
-        for (int n = 0; n < reference_spectrums[*ref_spec_index].size(); n++) {
-            xIntg += reference_spectrums[*ref_spec_index][n];
-            yIntg += mlt1[n].at<uchar>(j,k);
-            
-        }
-
-        for (int n = 0; n < reference_spectrums[*ref_spec_index].size(); n++) {
-            sqrDist = pow((reference_spectrums[*ref_spec_index][n]/xIntg) - (mlt1[n].at<uchar>(j,k) / yIntg), 2);
-            sum = (reference_spectrums[*ref_spec_index][n]/xIntg) + (mlt1[n].at<uchar>(j,k) / yIntg);
-            chiSq += (sqrDist / sum);            
-        }
-
-        chiSq = sqrt(sqrt(0.5 * (sqrDist / sum))) * 255; // sqrt for data manipulation and made spectral similarity image better
-        spec_simil_img->at<uchar>(j,k) = chiSq;
-    }
-
-}
-
-//---------------------------------------------------------
-// Name: SAM_img
-// PreCondition: SAM score output from SAM_img_child 
-// PostCondition: threadpool of SAM values
-//---------------------------------------------------------
-void HyperFunctions::SAM_img()
-{
-    ctpl::thread_pool p(num_threads);
-    
-    for (int k=0; k<mlt1[1].cols; k+=1)
-    {
-        p.push(SAM_img_Child, k, &mlt1,&reference_spectrums,&spec_simil_img,&ref_spec_index);
-
-    }
-}
-
-//---------------------------------------------------------
-// Name: SID_img
-// PreCondition: SID value as produced by SID_img_child
-// PostCondition: threadpool of SID values
-//---------------------------------------------------------
-void  HyperFunctions::SID_img()
-{
-    ctpl::thread_pool p(num_threads);
-    for (int k=0; k<mlt1[1].cols; k+=1)
-    {
-         p.push(SID_img_Child, k, &mlt1,&reference_spectrums,&spec_simil_img,&ref_spec_index);
-    }
-}
-
-void  HyperFunctions::EuD_img()
-{
-    ctpl::thread_pool p(num_threads);
-    for (int k=0; k<mlt1[1].cols; k+=1)
-    {
-         p.push(EuD_img_Child, k, &mlt1,&reference_spectrums,&spec_simil_img,&ref_spec_index);
-    }
-}
-
-void  HyperFunctions::JM_img()
-{
-    ctpl::thread_pool p(num_threads);
-    for (int k=0; k<mlt1[1].cols; k+=1)
-    {
-         p.push(JM_img_Child, k, &mlt1,&reference_spectrums,&spec_simil_img,&ref_spec_index);
-    }
-}
-
-void  HyperFunctions::Cos_img()
-{
-    ctpl::thread_pool p(num_threads);
-    for (int k=0; k<mlt1[1].cols; k+=1)
-    {
-         p.push(Cos_img_Child, k, &mlt1,&reference_spectrums,&spec_simil_img,&ref_spec_index);
-    }
-}
-
-//---------------------------------------------------------
-// Name: City_img
-// PreCondition: City Block value from City_Block_Child
-// PostCondition: threadpool of City Block values
-//---------------------------------------------------------
-void  HyperFunctions::City_img()
-{    
-    ctpl::thread_pool p(num_threads);
-    for (int k=0; k<mlt1[1].cols; k+=1)
-    {
-         p.push(City_Block_Child, k, &mlt1,&reference_spectrums,&spec_simil_img,&ref_spec_index);
-    }
-}
-
-//parent and child
-void City_Block_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index)   
-{
-//utilize mat1 and mat2 
-    //mlt2 is the image, reference spectrums2 is the referencing, spec_simil is where we put it, ref_spec_index is where we 
-    vector<Mat> mlt1=*mlt2; //dereferences
-    vector<vector<int>>  reference_spectrums= *reference_spectrums2;
-    int temp_val;
-    //iterate through the rows of mlt1
-    for (int j=0; j<mlt1[1].rows; j++)
-    {
-        float sum1=0;
-        int scale = 0;
-        for (int a=0; a<reference_spectrums[*ref_spec_index].size(); a++)
-        {
-            int temp_val2=mlt1[a].at<uchar>(j,k); //extracts temp of mlt at location j,k
-            sum1+=abs(temp_val2 - reference_spectrums[*ref_spec_index][a]);
-        }
-
-        if (sum1<=0)
-        {
-            temp_val=255; // set to white due to an error
-        }
-        else
-        {
-            //TODO: 255 is an arbitrary value, we will change this in testing:
-            temp_val = sum1/(reference_spectrums[*ref_spec_index].size() + 255); 
-        }
-        spec_simil_img->at<uchar>(j,k)=temp_val; 
-    }
-}
-
-//-----------------------------------
-// Name: Cos_img_img
-// PreCondition: Cosine value as produced by Cos_img_child
-// PostCondition: threadpool of Cosine values
-//---------------------------------------------------------
-void Cos_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index)   
-{   
-    // single thread
-    vector<Mat> mlt1=*mlt2; 
-    vector<vector<int>>  reference_spectrums= *reference_spectrums2;
-    int temp_val=0;
-    for (int j=0; j<mlt1[1].rows; j++)
-    {
-        float dot_product = 0.0, sq_a = 0.0, sq_b = 0.0;
-        for(int i =0 ; i < reference_spectrums[*ref_spec_index].size(); i++){
-            int temp_val2 = mlt1[i].at<uchar>(j,k);
-            dot_product += reference_spectrums[*ref_spec_index][i] * temp_val2 ;
-            sq_a += reference_spectrums[*ref_spec_index][i] * reference_spectrums[*ref_spec_index][i];
-            sq_b += temp_val2 * temp_val2;
-        }
-        if (dot_product<=0 || sq_a<=0 || sq_b<=0 )
-        {
-            temp_val=255; // set to white due to an error
-        }
-        else
-        {
-            temp_val = (acos(dot_product / (sqrt(sq_a) * sqrt(sq_b)))) * double(255);
-            //temp_val = temp_val / 3.14159;
-        }
-
-        spec_simil_img->at<uchar>(j,k)=temp_val; 
-    }
-}
-
-//---------------------------------------------------------
-// Name: SAM_img_child
-// PreCondition: test spectra (t) and reference spectra r of a set lenghth 
-// PostCondition: Spectral Angle Mapper (SAM) score using arccos()
-//---------------------------------------------------------
-void SAM_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index)   
-{   
-    // single thread
-    vector<Mat> mlt1=*mlt2; 
-    vector<vector<int>>  reference_spectrums= *reference_spectrums2;
-    int temp_val=0;
-    for (int j=0; j<mlt1[1].rows; j++)
-    {
-        float sum1=0, sum2=0, sum3=0;
-        for (int a=0; a<reference_spectrums[*ref_spec_index].size(); a++)
-        {
-            sum3+=reference_spectrums[*ref_spec_index][a] *reference_spectrums[*ref_spec_index][a] ;
-        }
-        for (int a=0; a<reference_spectrums[*ref_spec_index].size(); a++)
-        {
-            
-            int temp_val2=mlt1[a].at<uchar>(j,k);
-            sum1+=temp_val2*reference_spectrums[*ref_spec_index][a] ;
-            sum2+=temp_val2*temp_val2;
-        }
-        if (sum1<=0 || sum2<=0 || sum3<=0 )
-        {
-            temp_val=255; // set to white due to an error
-        }
-        else
-        {
-            float temp1= sum1/(sqrt(sum2)*sqrt(sum3));
-            double alpha_rad=acos(temp1);
-            temp_val=(int)((double)alpha_rad*(double)255/(double)3.14159) ;
-        }
-        spec_simil_img->at<uchar>(j,k)=temp_val; 
-    }
-}
-
-void EuD_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index)   
-{   
-    // single thread
-    vector<Mat> mlt1=*mlt2; 
-    vector<vector<int>>  reference_spectrums= *reference_spectrums2;
-    int temp_val=0;
-    for (int j=0; j<mlt1[1].rows; j++)
-    {
-        float sum1=0, sum2=0, sum3=0;
-        for (int a=0; a<reference_spectrums[*ref_spec_index].size(); a++)
-        {
-            sum3+=reference_spectrums[*ref_spec_index][a] *reference_spectrums[*ref_spec_index][a] ;
-        }
-        for (int a=0; a<reference_spectrums[*ref_spec_index].size(); a++)
-        {
-            
-            int temp_val2=mlt1[a].at<uchar>(j,k);
-            sum1+=temp_val2*reference_spectrums[*ref_spec_index][a] ;
-            sum2+=temp_val2*temp_val2;
-        }
-        if (sum1<=0 || sum2<=0 || sum3<=0 )
-        {
-            temp_val=255; // set to white due to an error
-        }
-        else
-        {
-            float temp1= sum1/(sqrt(sum2)*sqrt(sum3));
-            double alpha_rad=acos(temp1);
-            temp1 = sin(alpha_rad/2);
-            temp_val=(int)((double)temp1*(double)255) ;
-        }
-        spec_simil_img->at<uchar>(j,k)=temp_val; 
-    }
-}
-
-void JM_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index)   
-{   
-    // single thread
-    vector<Mat> mlt1=*mlt2; 
-    vector<vector<int>>  reference_spectrums= *reference_spectrums2;
-
-    for (int j=0; j<mlt1[1].rows; j++)
-    {
-        //JM relies on the vectors being probability distributions (values for each wavelength must add to 1)
-        //Therefore when calculating BC we must divide the values by the integral.
-        double referenceSpecIntegral = 0;
-        double pixelSpecIntegral = 0;
-
-        for (int i=0; i<reference_spectrums[*ref_spec_index].size(); i++)
-        {
-            referenceSpecIntegral += reference_spectrums[*ref_spec_index][i];
-            pixelSpecIntegral += mlt1[i].at<uchar>(j,k);
-        }
-
-        double BC = 0;
-        for (int i=0; i<reference_spectrums[*ref_spec_index].size(); i++)
-        {
-            BC += sqrt((reference_spectrums[*ref_spec_index][i]/referenceSpecIntegral) * (mlt1[i].at<uchar>(j,k)/pixelSpecIntegral));
-        }
-
-        double Bhattacharrya = -log(BC); //Intermediate step in calculating JM_distance
-        double JM_distance = sqrt(2* (1 - pow(M_E, -Bhattacharrya)));
-        double JM_distance_scaled = JM_distance * 180.312229203; //Scaling from 0-sqrt(2) up to 0-255
-        spec_simil_img->at<uchar>(j,k)=JM_distance_scaled; 
-    }
-}
-
-//---------------------------------------------------------
-// Name: SID_img_Child
-// Description: Spectral information divergence (SID) method computes spectral similarity
-// based on the divergence between the probability distributions of the two spectra r and t
-// PreCondition: reference spectra as a vector and test spectra as a matrix  
-// PostCondition: SID represented as q_i*log(q_i/p_i) + p_i*log(p_i/q_i) 
-// for q_i and p_i representing the distribution values of reference and test spectra respectively
-//---------------------------------------------------------
-void SID_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index)   
-{   
-    // single thread
-    vector<Mat> mlt1=*mlt2; 
-    vector<vector<int>>  reference_spectrums= *reference_spectrums2;
-    int temp_val=0;
-    for (int j=0; j<mlt1[1].rows; j++)
-    {
-            float sum1=0, sum2=0, ref_sum=0, pix_sum=0;
-            for (int a=0; a<reference_spectrums[*ref_spec_index].size(); a++)
-            {
-                if (reference_spectrums[*ref_spec_index][a]<1){reference_spectrums[*ref_spec_index][a]+=1;}
-                if (mlt1[a].at<uchar>(j,k)<1){mlt1[a].at<uchar>(j,k)+=1;}              
-                ref_sum+= reference_spectrums[*ref_spec_index][a] ;
-                pix_sum+= mlt1[a].at<uchar>(j,k);
-            }
-            if (ref_sum<1){ref_sum+=1;}
-            if (pix_sum<1){pix_sum+=1;}
-            
-            float ref_new[300], pix_new[300];
-            for (int a=0; a<reference_spectrums[*ref_spec_index].size(); a++)
-            {
-                ref_new[a]=reference_spectrums[*ref_spec_index][a] / ref_sum ;
-                pix_new[a]=mlt1[a].at<uchar>(j,k)/pix_sum;
-                // error handling to avoid division by zero
-            
-            }
-            for (int a=0; a<reference_spectrums[*ref_spec_index].size(); a++)
-            {
-                sum1+= ref_new[a]*log(ref_new[a]/pix_new[a]);   // q_i*log(q_i/p_i)
-                sum2+= pix_new[a]*log(pix_new[a]/ref_new[a]);   // p_i*log(p_i/q_i)
-            }   
-            
-            temp_val=(sum1+sum2) *60;
-            if (temp_val>255){temp_val=255;}
-
-        spec_simil_img->at<uchar>(j,k)=temp_val;     
-    }
-}
-
-//---------------------------------------------------------
-// Name: SCM_img
-// PreCondition: SCM value from SCM_img_child
-// PostCondition: threadpool of SCM values
-//---------------------------------------------------------
-void  HyperFunctions::SCM_img()
-{    
-    ctpl::thread_pool p(num_threads);
-    for (int k=0; k<mlt1[1].cols; k+=1)
-    {
-         p.push(SCM_img_Child, k, &mlt1,&reference_spectrums,&spec_simil_img,&ref_spec_index);
-    }
-}
-
-
-//---------------------------------------------------------
-// Name: SCM_img_Child
-// Description: Spectral Correlation Mapper (SCM) 
-// PreCondition: image spectrum (represented by X or a matrix) and reference spectrum (represented as Y or by a vector) 
-// PostCondition: A quotient of the sum of all (X - X_avg)(Y - Y_avg) and the square root of (X - X_avg)^2(Y - Y_avg)^2,
-// mathematically represented as R.
-//---------------------------------------------------------
-void SCM_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index){
-    vector<Mat> mlt1=*mlt2; 
-    vector<vector<int>>  reference_spectrums = *reference_spectrums2;
-    int temp_val=0;
-    
-    for (int j=0; j<mlt1[1].rows; j++)
-        {
-            float sum1=0, sum2=0, sum3=0, mean1=0, mean2=0;
-            int num_layers = reference_spectrums[*ref_spec_index].size();
-            for (int a=0; a<num_layers; a++)
-            {
-                mean1+=((float)1/(float)(num_layers-1)* (float)mlt1[a].at<uchar>(j,k))  ;
-                mean2+=((float)1/(float)(num_layers-1)* (float)reference_spectrums[*ref_spec_index][a]) ;
-            }
-            for (int a=0; a<num_layers; a++)
-            {
-                sum1+=(mlt1[a].at<uchar>(j,k)-mean1)*(reference_spectrums[*ref_spec_index][a]-mean2) ;
-                sum2+=(mlt1[a].at<uchar>(j,k)-mean1)*(mlt1[a].at<uchar>(j,k)-mean1);
-                sum3+=(reference_spectrums[*ref_spec_index][a]-mean2)*(reference_spectrums[*ref_spec_index][a]-mean2);
-            }
-            if (sum2<=0 || sum3<=0 )
-            {
-                temp_val =255; // set to white due to an error
-            }
-            else
-            {
-                float temp1= sum1/(sqrt(sum2)*sqrt(sum3));
-                double alpha_rad=acos(temp1);
-                temp_val =(int)((double)alpha_rad*(double)255/(double)3.14159) ;
-            }
-            spec_simil_img->at<uchar>(j,k)=temp_val; 
-        }
 }
 
 void HyperFunctions::thickEdgeContourApproximation(int idx){
