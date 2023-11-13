@@ -15,16 +15,15 @@ int main (int argc, char *argv[])
     HyperFunctionsCuvis HyperFunctions1;
 
     // below is for ultris 5 example
-    HyperFunctions1.cubert_img = "../../HyperImages/export/Auto_001.cu3s";
+    HyperFunctions1.cubert_img = "../../HyperImages/export/Test_001.cu3s";
     HyperFunctions1.dark_img = "../../HyperImages/Calib100/dark.cu3s";
     HyperFunctions1.white_img = "../../HyperImages/Calib100/white.cu3s";
     HyperFunctions1.dist_img = "../../HyperImages/Calib100/distance.cu3s";
-
-
     
     // below are needed if the ultris5 is used instead of the ultris 20
     HyperFunctions1.cubert_settings="../settings/ultris5";  //camera settings file 
     HyperFunctions1.factor_dir="../settings/ultris5"; // requires init.daq file
+
 
     // ultris 20 example
     // HyperFunctions1.cubert_img = "../../HyperImages/cornfields/session_002/session_002_490.cu3";
@@ -35,9 +34,9 @@ int main (int argc, char *argv[])
 
 
     // below is for taking an image
-    // string file_name, const int exposure_ms, const int num_image
-    // string is not used right now
-    // HyperFunctions1.TakeImageHyper1("placeholder",100, 1);
+    // string file_name_base, const int exposure_ms, const int num_image
+    // for some reason cannot take image and reprocess image in the same run
+    // HyperFunctions1.TakeImageHyper1("test",100, 1);
 
 
 
