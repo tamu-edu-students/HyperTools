@@ -725,6 +725,61 @@ static void set_spec_sim_alg_jm_distance(GtkWidget *widget,  gpointer data)
     if (T==1) {HyperFunctions1->spec_sim_alg=7;}
 }
 
+static void set_spec_sim_alg_NS3(GtkWidget *widget,  gpointer data)
+{
+    void * data_new=data;
+    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
+    gboolean T = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+    if (T==1) {HyperFunctions1->spec_sim_alg=8;}
+}
+
+static void set_spec_sim_alg_JM_SAM(GtkWidget *widget,  gpointer data)
+{
+    void * data_new=data;
+    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
+    gboolean T = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+    if (T==1) {HyperFunctions1->spec_sim_alg=9;}
+}
+
+static void set_spec_sim_alg_SCA(GtkWidget *widget,  gpointer data)
+{
+    void * data_new=data;
+    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
+    gboolean T = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+    if (T==1) {HyperFunctions1->spec_sim_alg=10;}
+}
+
+static void set_spec_sim_alg_SID_SAM(GtkWidget *widget,  gpointer data)
+{
+    void * data_new=data;
+    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
+    gboolean T = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+    if (T==1) {HyperFunctions1->spec_sim_alg=11;}
+}
+
+static void set_spec_sim_alg_SID_SCA(GtkWidget *widget,  gpointer data)
+{
+    void * data_new=data;
+    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
+    gboolean T = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+    if (T==1) {HyperFunctions1->spec_sim_alg=12;}
+}
+
+static void set_spec_sim_alg_hellinger(GtkWidget *widget,  gpointer data)
+{
+    void * data_new=data;
+    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
+    gboolean T = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+    if (T==1) {HyperFunctions1->spec_sim_alg=13;}
+}
+
+static void set_spec_sim_alg_canberra(GtkWidget *widget,  gpointer data)
+{
+    void * data_new=data;
+    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
+    gboolean T = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+    if (T==1) {HyperFunctions1->spec_sim_alg=14;}
+}
 
 static void load_img(GtkWidget *widget,  GtkImage*  data)
 {

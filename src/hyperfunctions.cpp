@@ -1209,7 +1209,7 @@ void SpecSimilChild(int threadId, int algorithmId, int columnIndex, vector<Mat>*
                 similarityValue = calculateHDist(reference_spectrum, pixel_spectrum) * 60;
                 break;
             case 14: //Canberra distance
-                similarityValue = 255 * calculateCanb(reference_spectrum, pixel_spectrum);
+                similarityValue = 0.1 * calculateCanb(reference_spectrum, pixel_spectrum);
                 break;
         }
 

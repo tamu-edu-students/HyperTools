@@ -226,7 +226,7 @@ double calculateCanb(const std::vector<double>& refSpectrum, const std::vector<d
     double sum = 0.0;
 
     for (size_t i = 0; i < refSpectrum.size(); ++i) {
-        sum += abs(refSpectrum[i] - pixelSpectrum[i]) / (abs(refSpectrum[i]) + abs(pixelSpectrum[i]));
+        sum += std::abs((refSpectrum[i]+1) - (pixelSpectrum[i]+1)) / (std::abs((refSpectrum[i]+1)) + std::abs((pixelSpectrum[i]+1)));
     }
 
     return sum;
