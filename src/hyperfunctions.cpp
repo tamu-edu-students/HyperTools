@@ -1247,6 +1247,7 @@ void SpecSimilChild(int threadId, int algorithmId, int columnIndex, vector<Mat>*
         double similarityValue = 0;
 
         switch(algorithmId) { //Manipulation of similarity values not complete yet...
+        // most of these having scaling parameters that need to be tuned to the environment and desired level of spectral discrimination
             case 0:
                 similarityValue = calculateSAM(reference_spectrum, pixel_spectrum) * 255;
                 //Below is equivalent using the calculateCOS function
@@ -1271,13 +1272,13 @@ void SpecSimilChild(int threadId, int algorithmId, int columnIndex, vector<Mat>*
                 break;
             case 6:
                 //similarityValue = (calculateCB(reference_spectrum, pixel_spectrum) / (reference_spectrum.size() + 255)) * 255;
-                similarityValue = calculateCB(reference_spectrum, pixel_spectrum) / (reference_spectrum.size()) * 1000;
+                similarityValue = calculateCB(reference_spectrum, pixel_spectrum) / (reference_spectrum.size()) * 40000;
                 break;
             case 7:
                 similarityValue = calculateJM(reference_spectrum, pixel_spectrum) * 255;
                 break;
             case 8: //Testing NS3
-                similarityValue = 255* sqrt(pow(sqrt(1/reference_spectrum.size()) * calculateEUD(reference_spectrum, pixel_spectrum), 2)
+                similarityValue = 6000* sqrt(pow(sqrt(1/reference_spectrum.size()) * calculateEUD(reference_spectrum, pixel_spectrum), 2)
                                       +pow(1-cos(calculateSAM(reference_spectrum, pixel_spectrum)), 2));
                 break;
             case 9: //Testing JM-SAM
@@ -1293,13 +1294,17 @@ void SpecSimilChild(int threadId, int algorithmId, int columnIndex, vector<Mat>*
                 similarityValue = 255 * calculateSID(reference_spectrum, pixel_spectrum) * tan(( acos((calculateSCM(reference_spectrum, pixel_spectrum)+1)*0.5)));
                 break;
             case 13: //Hellinger Distance
-                similarityValue = calculateHDist(reference_spectrum, pixel_spectrum) * 60;
+                similarityValue = calculateHDist(reference_spectrum, pixel_spectrum) * 255;
                 break;
             case 14: //Canberra distance
-                similarityValue = 255 * calculateCanb(reference_spectrum, pixel_spectrum);
+                similarityValue = .8 * calculateCanb(reference_spectrum, pixel_spectrum);
                 break;
         }
-
+        // cout<<similarityValue<<endl;
+        //clamp the similarity value to 255
+        if (similarityValue > 255) {
+            similarityValue = 255;
+        }
         outputSimilarityImage->at<uchar>(rowIndex, columnIndex) = similarityValue; 
     }
 }

@@ -198,6 +198,27 @@ int main (int argc, char *argv[])
   button = gtk_builder_get_object (builder, "semantic_jm_distance");
   g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_jm_distance), &HyperFunctions1);
 
+  button = gtk_builder_get_object (builder, "semantic_NS3");
+  g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_NS3), &HyperFunctions1);
+
+  button = gtk_builder_get_object (builder, "semantic_JM_SAM");
+  g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_JM_SAM), &HyperFunctions1);
+
+  button = gtk_builder_get_object (builder, "semantic_SCA");
+  g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_SCA), &HyperFunctions1);
+
+  button = gtk_builder_get_object (builder, "semantic_SID_SAM");
+  g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_SID_SAM), &HyperFunctions1);
+
+  button = gtk_builder_get_object (builder, "semantic_SID_SCA");
+  g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_SID_SCA), &HyperFunctions1);
+
+  button = gtk_builder_get_object (builder, "semantic_hellinger");
+  g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_hellinger), &HyperFunctions1);
+
+  button = gtk_builder_get_object (builder, "semantic_canberra");
+  g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_canberra), &HyperFunctions1);
+
   button = gtk_builder_get_object (builder, "similarity_SAM");
   g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_SAM), &HyperFunctions1);
 
@@ -221,6 +242,27 @@ int main (int argc, char *argv[])
 
   button = gtk_builder_get_object (builder, "similarity_jm_distance");
   g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_jm_distance), &HyperFunctions1);
+
+  button = gtk_builder_get_object (builder, "similarity_NS3");
+  g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_NS3), &HyperFunctions1);
+
+  button = gtk_builder_get_object (builder, "similarity_JM_SAM");
+  g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_JM_SAM), &HyperFunctions1);
+
+  button = gtk_builder_get_object (builder, "similarity_SCA");
+  g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_SCA), &HyperFunctions1);
+
+  button = gtk_builder_get_object (builder, "similarity_SID_SAM");
+  g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_SID_SAM), &HyperFunctions1);
+
+  button = gtk_builder_get_object (builder, "similarity_SID_SCA");
+  g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_SID_SCA), &HyperFunctions1);
+
+  button = gtk_builder_get_object (builder, "similarity_hellinger");
+  g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_hellinger), &HyperFunctions1);
+
+  button = gtk_builder_get_object (builder, "similarity_canberra");
+  g_signal_connect (button, "toggled", G_CALLBACK (set_spec_sim_alg_canberra), &HyperFunctions1);
 
   button = gtk_builder_get_object (builder, "similarity_items");
   g_signal_connect (button, "set-focus-child", G_CALLBACK (get_class_list), &HyperFunctions1);
