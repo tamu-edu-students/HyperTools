@@ -8,7 +8,7 @@ project(user_interface_project C CXX)
 #change below to true to use GPU or false to not use GPU
 set(use_CUDA false) 
 #change below to true to use cuvis.sdk
-set (use_cuvis true)
+set (use_cuvis false)
 
 
 find_package(OpenCV  REQUIRED)
