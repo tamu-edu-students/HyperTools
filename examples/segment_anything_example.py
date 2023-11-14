@@ -16,42 +16,18 @@ from matplotlib import animation
 import json 
 from multiprocessing import cpu_count, Process, Value, Array, Pool, TimeoutError
 import math
-
-# below dependencies are maybe future work for integration with hyperspectral data
 #using opencl instead of cuda for improved platform support
 from scipy import stats as st
 from pyopencl.tools import get_test_platforms_and_devices
 import pyopencl as cl
+
+#problem with cuvis code, need to fix
 # import cuvis
 # lib_dir = os.getenv("CUVIS")
 # data_dir = os.path.normpath(os.path.join(lib_dir, os.path.pardir, "sdk", "sample_data", "set1"))
 
-#opencl code for spectral angle mapper
-kernel_code = """
-    __kernel void spectral_angle_mapper(__global const float* spectra,
-                                        __global const float* reference,
-                                        __global float* angles,
-                                        const int num_bands)
-    {
-        int gid = get_global_id(0);
+ # Define the OpenCL kernel code
 
-        float dot_product = 0.0f;
-        float norm_spectra = 0.0f;
-        float norm_reference = 0.0f;
-
-        for (int i = 0; i < num_bands; i++)
-        {
-            dot_product += spectra[gid * num_bands + i] * reference[i];
-            norm_spectra += spectra[gid * num_bands + i] * spectra[gid * num_bands + i];
-            norm_reference += reference[i] * reference[i];
-        }
-
-        norm_spectra = sqrt(norm_spectra);
-        norm_reference = sqrt(norm_reference);
-
-        angles[gid] = acos(dot_product / (norm_spectra * norm_reference));
-    }
-    """   
     
 def extract_rgb(cube, red_layer=78 , green_layer=40, blue_layer=25,  visualize=False):
 
@@ -93,7 +69,6 @@ def show_anns(anns):
         img[m] = color_mask
     ax.imshow(img)
 
-
 def segment_img(sam,rgb_img):
     
     #generate masks on rgb image using the base parameters
@@ -105,9 +80,9 @@ def segment_img(sam,rgb_img):
     return masks
     
     
-    #tune SAM parameters to generate more masks
-    #parameters were found online and havent been tuned 
-    # startTime = time.time()
+    # # tune SAM parameters to generate more masks
+    # # parameters were found online and havent been tuned 
+    # # startTime = time.time()
     # mask_generator_2 = SamAutomaticMaskGenerator(
     # model=sam,
     # points_per_side=32,
@@ -117,9 +92,9 @@ def segment_img(sam,rgb_img):
     # crop_n_points_downscale_factor=2,
     # min_mask_region_area=100,  # Requires open-cv to run post-processing
     # )
-    # endTime = time.time()
-    # print("time to generate masks: ", endTime-startTime)
     # masks2 = mask_generator_2.generate(rgb_img)
+    # # endTime = time.time()
+    # # print("time to generate masks: ", endTime-startTime)
     # return masks2
     
     #documentation for masks
@@ -146,6 +121,7 @@ def segment_img(sam,rgb_img):
     #print(masks[0]['point_coords'])
     #"point_coords"          : [[x, y]],         # The point coordinates input to the model to generate the mask
     #pixel coordinates that were inputted to the model to generate the mask 
+
 def semantic_class(data):
 
     arr=np.zeros((data.shape[0],data.shape[1]))
@@ -155,6 +131,7 @@ def semantic_class(data):
             #print(data[i,j,:], np.argmin(data[i,j,:]))
             arr[i,j]=np.argmin(data[i,j,:])
     return arr
+
 def read_spec_json(file_name):
     
     f=open(file_name)
@@ -217,46 +194,130 @@ def find_unsegmented_points(masks):
     
     return unsegmented_points
 
+def SpectralAngleMapper(cur_pixel, ref_spec):
+        dot_product = np.dot( cur_pixel, ref_spec)
+        norm_spectral=np.linalg.norm(cur_pixel)
+        norm_ref=np.linalg.norm(ref_spec)
+        denom = norm_spectral * norm_ref
+        if denom == 0:
+            return 3.14
+        alpha_rad=math.acos(dot_product / (denom)); 
+        return alpha_rad*255/3.1416 
+        
 def perform_similarity(cube1, spectral_array):
-    data = cube1 # x,y,chan
-    spec_sim_arr_1=np.zeros((cube1.shape[0],cube1.shape[1],len(spectral_array))) #y,x
-    
-    for k in range(len(spectral_array)):
-        ref_spec =spectral_array[k,:]
-        arr=np.zeros((cube1.shape[0],cube1.shape[1])) #y,x
-        if (k==0):
-            print(get_test_platforms_and_devices())  
-        spectra=data.astype('float32')
-        spectra=spectra.reshape((spectra.shape[0]*spectra.shape[1]),spectra.shape[2])
-        reference=ref_spec.astype('float32')
-       
-        # Initialize the OpenCL context and command queue
-        platform = cl.get_platforms()[0]
-        device = platform.get_devices()[0]
-        context = cl.Context([device])
-        queue = cl.CommandQueue(context)
-        
-        # Create OpenCL buffers for the input and output data
-        spectra_buffer = cl.Buffer(context, cl.mem_flags.READ_ONLY | cl.mem_flags.COPY_HOST_PTR, hostbuf=spectra)
-        reference_buffer = cl.Buffer(context, cl.mem_flags.READ_ONLY | cl.mem_flags.COPY_HOST_PTR, hostbuf=reference)
-        angles_buffer = cl.Buffer(context, cl.mem_flags.WRITE_ONLY, size=spectra.shape[0] * np.float32().itemsize)
+    thread_pool=True # set to true to use thread pool, false to use opencl
+    print(cube1.shape, spectral_array.shape)
+    #cube 1 x,y,channels
+    #spectral array item_num,channels ie 3,164
+    if (cube1.shape[2] != spectral_array.shape[1]):
+         print("Error: cube and spectral array have different number of channels")
+         return
+    else :
+        kernel_code = """
+            __kernel void spectral_angle_mapper(__global const float* spectra,
+                                                __global const float* reference,
+                                                __global float* angles,
+                                                const int num_bands)
+            {
+                int gid = get_global_id(0);
 
-        # Compile the OpenCL kernel program
-        program = cl.Program(context, kernel_code).build()
+                float dot_product = 0.0f;
+                float norm_spectra = 0.0f;
+                float norm_reference = 0.0f;
 
-        # Execute the OpenCL kernel function
-        program.spectral_angle_mapper(queue, spectra.shape, None, spectra_buffer, reference_buffer, angles_buffer, np.int32(spectra.shape[1]))
+                for (int i = 0; i < num_bands; i++)
+                {
+                    dot_product += spectra[gid * num_bands + i] * reference[i];
+                    norm_spectra += spectra[gid * num_bands + i] * spectra[gid * num_bands + i];
+                    norm_reference += reference[i] * reference[i];
+                }
 
-        # Read the results from the OpenCL buffer
-        angles = np.empty_like(spectra[:, 0], dtype=np.float32)
-        cl.enqueue_copy(queue, angles, angles_buffer)
-        
-        arr=angles.reshape(data.shape[0],data.shape[1])
-        #print(angles.shape, angles.shape[0])
+                norm_spectra = sqrt(norm_spectra);
+                norm_reference = sqrt(norm_reference);
+
+                angles[gid] = acos(dot_product / (norm_spectra * norm_reference));
+            }
+            """   
+        #perform spectral angle mapper
+        spec_sim_arr_1=np.zeros((cube1.shape[0], cube1.shape[1],len(spectral_array)))
+        # print(len(spectral_array))
+        for k in range(len(spectral_array)):
+            print(k)
+            ref_spec =  spectral_array[k,:]
+            arr=np.zeros((cube1.shape[0], cube1.shape[1])) #y,x
+            
+            if (thread_pool):
+                #thread pool to speed up computation
+                with Pool(processes=cpu_count()) as pool:
+                        for  i in  range (cube1.shape[0]):
+                            itr=0
+                            #for result in pool.map(SpectralCorrelationMapper, ( data[i,j,:] for j in range((cube.height)) ) ):
+                            for result in pool.starmap(SpectralAngleMapper, ((cube1[i, j, :], ref_spec) for j in range(cube1.shape[1]))):
+                                arr[i,itr]=result  
+                                itr+=1
+                            spec_sim_arr_1[:,:,k]=arr
+            else:
+                get_test_platforms_and_devices()
+                spectra=cube1.astype('float32')
+                spectra=spectra.reshape((spectra.shape[0]*spectra.shape[1]),spectra.shape[2])
+                # print(spectra.shape, spectra.shape[0])
+                reference=ref_spec.astype('float32')
+                # Initialize the OpenCL context and command queue
+                platform = cl.get_platforms()[0]
+                device = platform.get_devices()[0]
+                context = cl.Context([device])
+                queue = cl.CommandQueue(context)
+                # Create OpenCL buffers for the input and output data
+                spectra_buffer = cl.Buffer(context, cl.mem_flags.READ_ONLY | cl.mem_flags.COPY_HOST_PTR, hostbuf=spectra)
+                reference_buffer = cl.Buffer(context, cl.mem_flags.READ_ONLY | cl.mem_flags.COPY_HOST_PTR, hostbuf=reference)
+                angles_buffer = cl.Buffer(context, cl.mem_flags.WRITE_ONLY, size=spectra.shape[0] * np.float32().itemsize)
+
+                # Compile the OpenCL kernel program
+                program = cl.Program(context, kernel_code).build()
+
+                # Execute the OpenCL kernel function
+                program.spectral_angle_mapper(queue, spectra.shape, None, spectra_buffer, reference_buffer, angles_buffer, np.int32(spectra.shape[1]))
+
+                # Read the results from the OpenCL buffer
+                angles = np.empty_like(spectra[:, 0], dtype=np.float32)
+                cl.enqueue_copy(queue, angles, angles_buffer)
                 
-        spec_sim_arr_1[:,:,k]=arr
-    return spec_sim_arr_1
+                arr=angles.reshape(cube1.shape[0],cube1.shape[1])
+                #print(angles.shape, angles.shape[0])
+                spec_sim_arr_1[:,:,k]=arr
+                        
+            # plt.imshow(spec_sim_arr_1[:,:,k]/3.15) 
+            # plt.show()
+        return spec_sim_arr_1
       
+def fuse_results(cube1, masks, unsegmented_points, class_img):
+    #use mode to get the class with most values
+    temp_img2=np.zeros((cube1.shape[0], cube1.shape[1])) #y,x
+    class_img+=1
+
+    for i in range(len(masks)+1):
+        
+        if (i!=len(masks)):
+            temp_data=masks[i]['segmentation']
+            segmentation_data_vals= list(zip(*np.where(temp_data == True)))
+        else:
+            segmentation_data_vals=unsegmented_points
+        #print(type(segmentation_data_vals))
+
+        #find mode here 
+        temp_array=np.zeros((len(segmentation_data_vals)))
+        for j in range(len(segmentation_data_vals)):
+            temp_array[j]=class_img[segmentation_data_vals[j][0], segmentation_data_vals[j][1]]
+            
+        mode_val = int(st.mode(temp_array,keepdims=False).mode)
+        #print(mode_val)    
+        for j in segmentation_data_vals:
+            temp_img2[j[0],j[1]]=mode_val-1
+    return temp_img2
+    
+    
+    
+    
 if __name__ == "__main__":
     
     #print cl enabled devices on machine 
@@ -265,7 +326,7 @@ if __name__ == "__main__":
     #         print(f"Platform {i}, Device {j}: {device.name}")
             
     
-    # print("start")
+    # clear cuda cache and load sam model
     torch.cuda.empty_cache()
     # model needs to be downloaded from online (https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth)
     # there are other models that can be used as well.
@@ -273,7 +334,7 @@ if __name__ == "__main__":
     sam.to(device='cuda')
     
     
-    # load rgb image into numpy array
+    # load rgb image into numpy array and convert to rgb
     rgb_img = cv2.imread("images/lena3.png")
     rgb_img = cv2.cvtColor(rgb_img,  cv2.COLOR_BGR2RGB)
     
@@ -288,63 +349,46 @@ if __name__ == "__main__":
     # create rgb image from hyperspectral image
     rgb_img= extract_rgb(cube1, 163 , 104, 65,  False)
 
-    #resize image to reduce computation time
-    rgb_img = cv2.resize(rgb_img, (300, 300))
+    #resize image to reduce computation time for segmentation
+    #need to unresize for correct correlation
+    # rgb_img = cv2.resize(rgb_img, (300, 300))
     
-    #perform segmentation
+    # #perform segmentation
     masks = segment_img(sam,rgb_img)
     
-    # get unsegmented points
+    # # get unsegmented points
     unsegmented_points = find_unsegmented_points(masks)
     
     #load spectral database
-    color_array, spectral_array= read_spec_json('json/spectral_database1.json')
+    color_array, spectral_array= read_spec_json('json/spectral_database_U20.json')
     
-    
-    
+    # create spectral similarity images
     spec_sim_arr_1 = perform_similarity(cube1, spectral_array)
 
-        
-    # class_img= semantic_class(spec_sim_arr_1)
-    # #convert semantic class image that has values 0-n to rgb image for visualization 
-    # color_img= semantic_color(class_img, color_array)
+    #convert spectral similarity image to semantic class image
+    class_img= semantic_class(spec_sim_arr_1)
     
-    # #take in the class_img and masks 
-    # #use mode to get the class with most values
-    # #combine the hyperspectral data with ai model  
-    # temp_img2=np.zeros((cube1.shape[0],cube1.shape[1])) #y,x
-    # class_img+=1
+    #convert semantic class image that has values 0-n to rgb image for visualization 
+    color_img= semantic_color(class_img, color_array)
+    
+    # # fuse the results of spectral angle mapper and segment anything
+    temp_img2 = fuse_results(cube1, masks, unsegmented_points, class_img)
 
-    # for i in range(len(masks)+1):
-        
-    #     if (i!=len(masks)):
-    #         temp_data=masks[i]['segmentation']
-    #         segmentation_data_vals= list(zip(*np.where(temp_data == True)))
-    #     else:
-    #         segmentation_data_vals=unsegmented_points
-    #     #print(type(segmentation_data_vals))
+    # #convert fused image to rgb image for visualization
+    fusion_img= semantic_color(temp_img2, color_array)
+    
+    #show the resulting image of spectral angle mapper for a layer
+    # plt.imshow(spec_sim_arr_1[:,:,1]/3.15)  
+    
+    #show the resulting hyperspectral classified img
+    # plt.imshow(color_img/255)  
+    # plt.show()
 
-    #     #find mode here 
-    #     temp_array=np.zeros((len(segmentation_data_vals)))
-    #     for j in range(len(segmentation_data_vals)):
-    #         temp_array[j]=class_img[segmentation_data_vals[j][0], segmentation_data_vals[j][1]]
-            
-    #     mode_val = int(st.mode(temp_array,keepdims=False).mode)
-    #     #print(mode_val)    
-    #     for j in segmentation_data_vals:
-    #         temp_img2[j[0],j[1]]=mode_val-1
-    
-    
-    
-    
-    
-    fusion_img= semantic_color(temp_img2, color_array)  
-    
     #show the resulting image of sam sam 
-    plt.imshow(spec_sim_arr_1[:,:,1]/3.15)  
+    plt.imshow(fusion_img/255)  
+    plt.show()
     
     #show masks on rgb image
     # plt.imshow(rgb_img)
     # show_anns(masks)
-    
-    plt.show()
+    # plt.show()
