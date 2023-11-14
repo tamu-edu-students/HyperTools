@@ -8,7 +8,7 @@ project(user_interface_project C CXX)
 #change below to true to use GPU or false to not use GPU
 set(use_CUDA false) 
 #change below to true to use cuvis.sdk
-set (use_cuvis false)
+set (use_cuvis true)
 
 
 find_package(OpenCV  REQUIRED)
@@ -20,7 +20,8 @@ link_directories(${GTK3_LIBRARY_DIRS} )
 link_libraries(jsoncpp ${GTK3_LIBRARIES} ${OpenCV_LIBS})
 
 if (use_CUDA)
-    cmake_policy(SET CMP0146 OLD) 
+    # below may or may not be needed to fix a warning
+    # cmake_policy(SET CMP0146 OLD) 
     find_package(CUDA)
         if(CUDA_FOUND)
             enable_language(CUDA)
@@ -83,9 +84,9 @@ if (use_cuvis)
 
     # endif(use_CUDA)
 else (use_cuvis)
-    if (!use_CUDA)
+    if (NOT use_CUDA)
         add_executable(image_tool examples/image_tool.cpp)
-    endif(!use_CUDA)
+    endif(NOT use_CUDA)
 endif()
 
 

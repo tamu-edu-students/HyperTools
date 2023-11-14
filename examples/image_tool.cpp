@@ -46,7 +46,6 @@ int main (int argc, char *argv[])
     HyperFunctions1.white_img = "../../HyperImages/cornfields/Calibration/white__session_002_752_snapshot16423136896447489.cu3";
     HyperFunctions1.dist_img = "../../HyperImages/cornfields/Calibration/distanceCalib__session_000_790_snapshot16423004058237746.cu3";
     HyperFunctions1.ReprocessImage( HyperFunctions1.cubert_img);
-    cout<<"testing here"<<endl;
   #else
     HyperFunctions HyperFunctions1; 
     string file_name2="../../HyperImages/img1.tiff";
