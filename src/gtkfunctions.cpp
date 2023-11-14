@@ -24,8 +24,11 @@ struct spin_struct_gtk {
     GtkSpinButton *button1;
     GtkSpinButton *button2;
     GtkSpinButton *button3;
+    GtkSpinButton *button4;
+    GtkSpinButton *button5;
     HyperFunctions *HyperFunctions1;
 };
+  
   
 static void print_hello (GtkWidget *widget, gpointer   data)
 {
