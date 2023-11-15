@@ -23,7 +23,7 @@ using namespace std::chrono;
  * returns : inverse cos of i * r / (r^2 * i^2). 
  * 
 */
-__global__ void img_test_multi_thread_SAM(int *out, int *img_array, int n, int num_layers, int* ref_spectrum) 
+__global__ void img_test_multi_thread_SAM(float *out, int *img_array, int n, int num_layers, int* ref_spectrum) 
 {
     
     // parallelize tasks
@@ -73,7 +73,7 @@ __global__ void img_test_multi_thread_SAM(int *out, int *img_array, int n, int n
  * 
 */
 
-__global__ void img_test_multi_thread_SID(int *out, int *img_array, int n, int num_layers, int* ref_spectrum) 
+__global__ void img_test_multi_thread_SID(float *out, int *img_array, int n, int num_layers, int* ref_spectrum) 
 {
     // parallelize tasks
     
@@ -130,7 +130,7 @@ __global__ void img_test_multi_thread_SID(int *out, int *img_array, int n, int n
  * 
  * 
 */
-__global__ void img_test_multi_thread_SCM(int *out, int *img_array, int n, int num_layers, int* ref_spectrum) 
+__global__ void img_test_multi_thread_SCM(float *out, int *img_array, int n, int num_layers, int* ref_spectrum) 
 { 
     // parallelize tasks
     // pixels are stored with all pixel values next to eachother for the layers    
@@ -173,7 +173,7 @@ __global__ void img_test_multi_thread_SCM(int *out, int *img_array, int n, int n
 /**
  * Cosine Similiarity Algorithm
 */
-__global__ void img_test_multi_thread_cos(int *out, int *img_array, int n, int num_layers, int* ref_spectrum) 
+__global__ void img_test_multi_thread_cos(float *out, int *img_array, int n, int num_layers, int* ref_spectrum) 
 {
     
     // parallelize tasks
@@ -266,7 +266,7 @@ __global__ void img_test_multi_thread_cityblock(int* out, int* img_array, int n,
 /**
  * Euclidian
 */
-__global__ void img_test_multi_thread_EuD(int *out, int *img_array, int n, int num_layers, int* ref_spectrum){
+__global__ void img_test_multi_thread_EuD(float *out, int *img_array, int n, int num_layers, int* ref_spectrum){
     
     // parallelize tasks
     // pixels are stored with all pixel values next to each other for the layers    
@@ -313,7 +313,7 @@ void HyperFunctionsGPU::spec_sim_GPU() {
     parent_control<<<grid_size, block_size>>>(d_out, d_img_array, N_size, num_lay, d_ref_spectrum, spec_sim_alg);
 
     cudaDeviceSynchronize();
-    cudaMemcpyAsync(out, d_out, sizeof(int) * N_size, cudaMemcpyDeviceToHost); 
+    cudaMemcpyAsync(out, d_out, sizeof(float) * N_size, cudaMemcpyDeviceToHost); 
     cudaDeviceSynchronize();
 
     this->oneD_array_to_mat(out);   
@@ -322,12 +322,16 @@ void HyperFunctionsGPU::spec_sim_GPU() {
 /**
  * Parent Controller for Cuda
 */
-__global__ void parent_control(int *out, int *img_array, int n, int num_layers, int* ref_spectrum, int sim_alg){
+__global__ void parent_control(float *out, int *img_array, int n, int num_layers, int* ref_spectrum, int sim_alg){
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
 
     switch(sim_alg) {
     case 0:
         child_SAM(out, img_array, n, num_layers, ref_spectrum);
+        if(tid < n){
+            out[tid] = out[tid];
+
+        }
         break;
     case 1:
         child_SCM(out, img_array, n, num_layers, ref_spectrum);
@@ -357,7 +361,7 @@ __global__ void parent_control(int *out, int *img_array, int n, int num_layers, 
     }
 }
 
-__device__ void child_SID_SAM(int *out, int *img_array, int n, int num_layers, int* ref_spectrum){
+__device__ void child_SID_SAM(float *out, int *img_array, int n, int num_layers, int* ref_spectrum){
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
 
     child_SID(out, img_array, n, num_layers, ref_spectrum);
@@ -370,7 +374,7 @@ __device__ void child_SID_SAM(int *out, int *img_array, int n, int num_layers, i
 }
 
 
-__device__ void child_SAM(int *out, int *img_array, int n, int num_layers, int* ref_spectrum){
+__device__ void child_SAM(float *out, int *img_array, int n, int num_layers, int* ref_spectrum){
     
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     float sum1=0, sum2=0;
@@ -394,7 +398,7 @@ __device__ void child_SAM(int *out, int *img_array, int n, int num_layers, int* 
         {
             float temp1= sum1/(sqrt(sum2)*sqrt(sum3));
             double alpha_rad=acos(temp1);
-            out[tid] =(int)((double)alpha_rad*(double)255/(double)3.14159) ;
+            out[tid] = (float)alpha_rad; //(int)((double)alpha_rad*(double)255/(double)3.14159) ;
         }
     }
 }
@@ -408,7 +412,7 @@ __device__ void child_SAM(int *out, int *img_array, int n, int num_layers, int* 
  * 
  * 
 */
-__device__ void child_SCM(int *out, int *img_array, int n, int num_layers, int* ref_spectrum){
+__device__ void child_SCM(float *out, int *img_array, int n, int num_layers, int* ref_spectrum){
     // parallelize tasks
     // pixels are stored with all pixel values next to eachother for the layers    
     // n is number of pixels 
@@ -448,7 +452,7 @@ __device__ void child_SCM(int *out, int *img_array, int n, int num_layers, int* 
 }
 
 
-__device__ void child_cos(int *out, int *img_array, int n, int num_layers, int* ref_spectrum){
+__device__ void child_cos(float *out, int *img_array, int n, int num_layers, int* ref_spectrum){
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     float sum1=0, sum2=0;
@@ -480,7 +484,7 @@ __device__ void child_cos(int *out, int *img_array, int n, int num_layers, int* 
  * SID 
  * */
 
-__device__ void child_SID(int *out, int *img_array, int n, int num_layers, int* ref_spectrum){
+__device__ void child_SID(float *out, int *img_array, int n, int num_layers, int* ref_spectrum){
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     float sum1=0, sum2=0, ref_sum=0, pix_sum=0;
 
@@ -521,7 +525,7 @@ __device__ void child_SID(int *out, int *img_array, int n, int num_layers, int* 
 }
 
 /*JM*/
-__device__ void child_JM(int *out, int *img_array, int n, int num_layers, int* ref_spectrum){
+__device__ void child_JM(float *out, int *img_array, int n, int num_layers, int* ref_spectrum){
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -549,7 +553,7 @@ __device__ void child_JM(int *out, int *img_array, int n, int num_layers, int* r
 }
 
 /*EuD*/
-__device__ void child_EuD(int *out, int *img_array, int n, int num_layers, int* ref_spectrum){
+__device__ void child_EuD(float *out, int *img_array, int n, int num_layers, int* ref_spectrum){
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     float sum1=0, sum2=0, sum3 = 0;
@@ -581,7 +585,7 @@ __device__ void child_EuD(int *out, int *img_array, int n, int num_layers, int* 
 /**
  * City Block
 */
-__device__ void child_cityblock(int *out, int *img_array, int n, int num_layers, int* ref_spectrum){
+__device__ void child_cityblock(float *out, int *img_array, int n, int num_layers, int* ref_spectrum){
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     float sum1=0;
@@ -619,8 +623,8 @@ void HyperFunctionsGPU::allocate_memory() {
     
     int tmp_len1=reference_spectrums[ref_spec_index].size(); 
 
-    cudaHostAlloc ((void**)&out, sizeof(int) * N_size, cudaHostAllocDefault);
-    cudaMalloc((void**)&d_out, sizeof(int) * N_size);
+    cudaHostAlloc ((void**)&out, sizeof(float) * N_size, cudaHostAllocDefault);
+    cudaMalloc((void**)&d_out, sizeof(float) * N_size);
     cudaMalloc((void**)&d_ref_spectrum, sizeof(int) * tmp_len1);
 
     //allocating memory on the GPU device
@@ -641,10 +645,12 @@ void HyperFunctionsGPU::allocate_memory() {
  * Converts one-D array to 1 channel 8 bit OPENCV matrix. 
  * Used in manipulating spectral similarity data. 
 */
-void HyperFunctionsGPU::oneD_array_to_mat(int* img_array)
+void HyperFunctionsGPU::oneD_array_to_mat(float* img_array)
 {
     spec_simil_img = cv::Mat(mlt1[1].rows, mlt1[1].cols, CV_32SC1, img_array);
+    cout << spec_simil_img << endl;
     spec_simil_img.convertTo(spec_simil_img, CV_8UC1); //converting to 8 bit unsigned, 1 channel. 
+    
 }
 
 /**
