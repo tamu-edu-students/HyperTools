@@ -323,23 +323,8 @@ void HyperFunctionsGPU::spec_sim_GPU() {
  * Parent Controller for Cuda
 */
 __global__ void parent_control(int *out, int *img_array, int n, int num_layers, int* ref_spectrum, int sim_alg){
-    // func_ptr functions[] = {
-    // child_SAM,
-    // child_SCM,
-    // child_SID,
-    // child_cos,
-    // child_JM,
-    // child_cityblock,
-    // child_EuD
-    // };
-    // printf("Sim_algorithm %d\n", sim_alg);
-    // functions[sim_alg](out, img_array, n, num_layers, ref_spectrum);
-    // if(sim_alg >= 0 && sim_alg <= 7){
-    //     functions[sim_alg](out, img_array, n, num_layers, ref_spectrum);
-    // }
-    // else{
-    //     printf("It Broke !!\n");
-    // }
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+
     switch(sim_alg) {
     case 0:
         child_SAM(out, img_array, n, num_layers, ref_spectrum);
@@ -352,6 +337,7 @@ __global__ void parent_control(int *out, int *img_array, int n, int num_layers, 
         break;
     case 3:
         child_cos(out, img_array, n, num_layers, ref_spectrum);
+        
         break;
     case 4:
         child_JM(out, img_array, n, num_layers, ref_spectrum);
@@ -362,11 +348,25 @@ __global__ void parent_control(int *out, int *img_array, int n, int num_layers, 
     case 6:
         child_EuD(out, img_array, n, num_layers, ref_spectrum);
         break;
+    case 7:
+        child_SID_SAM(out, img_array, n, num_layers, ref_spectrum);
     default:
         printf("It Broke !!\n");
         break;
 
     }
+}
+
+__device__ void child_SID_SAM(int *out, int *img_array, int n, int num_layers, int* ref_spectrum){
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+
+    child_SID(out, img_array, n, num_layers, ref_spectrum);
+    int sid_result = out[tid];
+    
+    child_SAM(out, img_array, n, num_layers, ref_spectrum);
+    int sam_result = out[tid];
+
+    out[tid] = sid_result * sam_result;
 }
 
 
