@@ -241,7 +241,7 @@ void HyperFunctions::SSDescriptors(const std::vector<cv::KeyPoint> &keypoints,fl
             descriptors.push_back(descriptor);
        }
     }
-       
+
 }
 void  HyperFunctions::DimensionalityReduction()
 {
