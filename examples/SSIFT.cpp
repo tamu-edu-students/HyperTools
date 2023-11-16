@@ -81,6 +81,7 @@ void PerformSift(const cv::Mat &hyperspectralCube)
             sigma1 *= k;
             sigma2 *= k;
         }
+         
 }
 
 

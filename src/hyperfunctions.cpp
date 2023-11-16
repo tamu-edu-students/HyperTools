@@ -163,9 +163,9 @@ void HyperFunctions::SSDetector(const cv::Mat &hyperspectralCube, std::vector<cv
             cv::Mat dog = currentScale - previousScale;
         
 
-            std::vector<cv::KeyPoint> currentKeypoints;
+            std::vector<cv::KeyPoint> keypoints;
             cv::Ptr<cv::Feature2D> detector = cv::xfeatures2d::SIFT::create();
-            detector->detect(dog, currentKeypoints);
+            detector->detect(dog, keypoints);
             // filtering the keypoints
 
             keypoints.erase(std::remove_if(keypoints.begin(), keypoints.end(), [](const cv::KeyPoint &keypoints) {
@@ -182,6 +182,7 @@ void HyperFunctions::SSDetector(const cv::Mat &hyperspectralCube, std::vector<cv
             sigma1 *= k;
             sigma2 *= k;
         }
+        //SSDescriptors(keypoints,0.0);
 }
 
 void HyperFunctions::SSDescriptors(const std::vector<cv::KeyPoint> &keypoints,float M_max = 1.0)
@@ -223,7 +224,7 @@ void HyperFunctions::SSDescriptors(const std::vector<cv::KeyPoint> &keypoints,fl
         cv::threshold(descriptor, descriptor, 0.2, 0.2, cv::THRESH_TRUNC);
         cv::normalize(descriptor, descriptor);
     }
-       
+
 }
 void  HyperFunctions::DimensionalityReduction()
 {
@@ -316,14 +317,14 @@ void  HyperFunctions::FeatureExtraction()
         //     std::cout<<keypoints2.at(i).pt()<<std::endl;
         // }
 
-        for (const auto& kp : keypoints1) 
+        /*for (const auto& kp : keypoints1) 
         {
              std::cout << "x_1: " << kp.pt.x << ", y_1: " << kp.pt.y << std::endl;
         }
         for (const auto& kp : keypoints2) 
         {
              std::cout << "x_2: " << kp.pt.x << ", y_2: " << kp.pt.y << std::endl;
-        }
+        }*/
   } 
   else if (feature_detector==5) 
   {

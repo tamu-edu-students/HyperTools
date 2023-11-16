@@ -44,6 +44,8 @@ int main (int argc, char *argv[])
 	HyperFunctions1.feature_descriptor=3;
 	HyperFunctions1.feature_matcher=0;
   HyperFunctions1.FeatureExtraction();
+  
+
 
 
   // Creating and showing integral image:
