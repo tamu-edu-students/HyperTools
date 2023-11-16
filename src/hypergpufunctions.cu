@@ -324,13 +324,12 @@ void HyperFunctionsGPU::spec_sim_GPU() {
 */
 __global__ void parent_control(float *out, int *img_array, int n, int num_layers, int* ref_spectrum, int sim_alg){
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
-
+    
     switch(sim_alg) {
     case 0:
         child_SAM(out, img_array, n, num_layers, ref_spectrum);
         if(tid < n){
-            out[tid] = out[tid];
-
+            out[tid] = 81*out[tid];
         }
         break;
     case 1:
@@ -338,6 +337,9 @@ __global__ void parent_control(float *out, int *img_array, int n, int num_layers
         break;
     case 2:
         child_SID(out, img_array, n, num_layers, ref_spectrum);
+        if(tid < n){
+            out[tid] = 60*out[tid];
+        }
         break;
     case 3:
         child_cos(out, img_array, n, num_layers, ref_spectrum);
@@ -354,6 +356,7 @@ __global__ void parent_control(float *out, int *img_array, int n, int num_layers
         break;
     case 7:
         child_SID_SAM(out, img_array, n, num_layers, ref_spectrum);
+        break;
     default:
         printf("It Broke !!\n");
         break;
@@ -370,7 +373,7 @@ __device__ void child_SID_SAM(float *out, int *img_array, int n, int num_layers,
     child_SAM(out, img_array, n, num_layers, ref_spectrum);
     int sam_result = out[tid];
 
-    out[tid] = sid_result * sam_result;
+    out[tid] = 255*(sid_result * __tanf(sam_result));
 }
 
 
@@ -397,7 +400,7 @@ __device__ void child_SAM(float *out, int *img_array, int n, int num_layers, int
         else
         {
             float temp1= sum1/(sqrt(sum2)*sqrt(sum3));
-            double alpha_rad=acos(temp1);
+            double alpha_rad = acos(temp1);
             out[tid] = (float)alpha_rad; //(int)((double)alpha_rad*(double)255/(double)3.14159) ;
         }
     }
@@ -518,7 +521,7 @@ __device__ void child_SID(float *out, int *img_array, int n, int num_layers, int
         }        
 
         // need to normalize the results better here
-        out[tid] =(sum1+sum2) *60;
+        out[tid] =(sum1+sum2);
         if (out[tid]>255){out[tid]=255;}
 
     }
@@ -647,8 +650,7 @@ void HyperFunctionsGPU::allocate_memory() {
 */
 void HyperFunctionsGPU::oneD_array_to_mat(float* img_array)
 {
-    spec_simil_img = cv::Mat(mlt1[1].rows, mlt1[1].cols, CV_32SC1, img_array);
-    cout << spec_simil_img << endl;
+    spec_simil_img = cv::Mat(mlt1[1].rows, mlt1[1].cols, CV_32FC1, img_array);
     spec_simil_img.convertTo(spec_simil_img, CV_8UC1); //converting to 8 bit unsigned, 1 channel. 
     
 }
