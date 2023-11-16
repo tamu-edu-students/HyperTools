@@ -153,8 +153,8 @@ public:
 	void ImgIntegration();
 
 	//Spatial-Spectral SIFT detector
-	void PerformSift(const cv::Mat &hyperspectralCube);
-	void SSDescriptors(const std::vector<cv::KeyPoint> &keypoints);
+	void SSDetector(const cv::Mat &hyperspectralCube, std::vector<cv::KeyPoint> &keypoints);
+	void SSDescriptors(const std::vector<cv::KeyPoint> &keypoints, float M_max);
 	
 
 

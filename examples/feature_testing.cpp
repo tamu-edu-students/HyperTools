@@ -40,13 +40,17 @@ int main (int argc, char *argv[])
 
 
 
-  HyperFunctions1.feature_detector=2;
-	HyperFunctions1.feature_descriptor=2;
+  HyperFunctions1.feature_detector=4;
+	HyperFunctions1.feature_descriptor=3;
 	HyperFunctions1.feature_matcher=0;
-  //HyperFunctions1.FeatureExtraction();
-  HyperFunctions1.gaSpace(true);
-  HyperFunctions1.ImgIntegration();
-  imshow("Integral Image",HyperFunctions1.integral_img);
+  HyperFunctions1.FeatureExtraction();
+
+
+  // Creating and showing integral image:
+  //HyperFunctions1.gaSpace(true);
+  //HyperFunctions1.ImgIntegration();
+  //imshow("Integral Image",HyperFunctions1.integral_img);
+
   
 
 

@@ -139,18 +139,90 @@ void HyperFunctions::CreateCustomFeatureDetector(int hessVal, vector<KeyPoint> &
     drawKeypoints(feature_img, keypoints, feature_img);
 }
 
-void HyperFunctions::PerformSift(const cv::Mat &hyperspectralCube)
+void HyperFunctions::SSDetector(const cv::Mat &hyperspectralCube, std::vector<cv::KeyPoint> &keypoints)
 {
+    const float M_max = 1.0; 
+        //cv::Mat hyperspectralCube; // we need a hyperspectralcube data
 
+         // final keypoints vector
+
+        double sigma1 = 1.6; // variables are set based on what the paper said.
+        double sigma2 = 1.8;
+
+        cv::GaussianBlur(hyperspectralCube, hyperspectralCube, cv::Size(0, 0), sigma1, sigma2, cv::BORDER_DEFAULT);
+
+        int octaveLevels = 3;
+        double k = 2.0;
+        cv::Mat previousScale;
+        cv::GaussianBlur(hyperspectralCube, previousScale, cv::Size(0, 0), sigma1, sigma2, cv::BORDER_DEFAULT);
+        for (int octave = 1; octave <= octaveLevels; ++octave)
+        {
+            
+            cv::Mat currentScale; 
+            cv::GaussianBlur(hyperspectralCube, currentScale, cv::Size(0, 0), sigma1, sigma2, cv::BORDER_DEFAULT);
+            cv::Mat dog = currentScale - previousScale;
+        
+
+            std::vector<cv::KeyPoint> currentKeypoints;
+            cv::Ptr<cv::Feature2D> detector = cv::xfeatures2d::SIFT::create();
+            detector->detect(dog, currentKeypoints);
+            // filtering the keypoints
+
+            keypoints.erase(std::remove_if(keypoints.begin(), keypoints.end(), [](const cv::KeyPoint &keypoints) {
+            return keypoints.response <= 0.75;
+            }), keypoints.end());
+
+           /*keypoints1.erase(std::remove_if(keypoints2.begin(), keypoints2.end(), [](const cv::KeyPoint &keypoint) {
+            return keypoint.response <= 0.75;
+            }), keypoints.end());*/
+
+            // updating for the next octave
+            previousScale = currentScale.clone();
+
+            sigma1 *= k;
+            sigma2 *= k;
+        }
 }
 
-void Hyperfunctions::SSDescriptors(const std::vector<cv::KeyPoint> &keypoints,float M_max)
+void HyperFunctions::SSDescriptors(const std::vector<cv::KeyPoint> &keypoints,float M_max = 1.0)
 {
-    for(const cv::KeyPoint &keypoint : keypoints)
-       {
-            cv::Mat descriptor = cv::Mat::zeros (1,descriptorSize, CV_32F);
-            descriptor.push_back(descriptor);
-       }
+     const int numThetaBins = 8;
+    const int numPhiBins = 4;
+    const int numGradientBins = 8;
+    const int descriptorSize = numThetaBins * numPhiBins * numGradientBins;
+    float M;
+    //float M_max;
+    cv::Mat descriptor = cv::Mat::zeros(keypoints.size(), descriptorSize, CV_32F); // this is the descriptor for each iteration.
+
+    for (size_t i=0; i<keypoints.size(); ++i) // the descriptors
+    {
+        cv::Mat descriptor = descriptor.row(i);
+        
+        for (int x = -8; x <= 7; ++x) // looping around the neighbors for each dimension
+        {
+            for (int y = -8; y <= 7; ++y)
+            {
+                for(int z =-4; z<=3;++z)
+                {
+                    float Gx, Gy, Gz; // gradients
+                    float theta, phi; // theta and phi angle values
+
+                    int thetaBin = static_cast<int>(theta / (360.0 / numThetaBins));
+                    int phiBin = static_cast<int>((phi + 90.0) / (180.0 / numPhiBins));
+                    int gradientBin = static_cast<int>(M / (M_max / numGradientBins));
+
+                    
+                    int index = thetaBin * numPhiBins * numGradientBins + phiBin * numGradientBins + gradientBin;
+                    descriptor.at<float>(0, index) += M;
+                }
+            }
+        }
+
+       
+        cv::normalize(descriptor, descriptor); // not sure why we need to do this.
+        cv::threshold(descriptor, descriptor, 0.2, 0.2, cv::THRESH_TRUNC);
+        cv::normalize(descriptor, descriptor);
+    }
        
 }
 void  HyperFunctions::DimensionalityReduction()
@@ -189,7 +261,7 @@ void  HyperFunctions::FeatureExtraction()
     return;
   }
   
-  if(feature_detector<0 || feature_detector>4 || feature_descriptor<0 || feature_descriptor>2 || feature_matcher<0 || feature_matcher>1)
+  if(feature_detector<0 || feature_detector>4 || feature_descriptor<0 || feature_descriptor>3 || feature_matcher<0 || feature_matcher>1)
   {
     cout<<"invalid feature combination"<<endl;
   }
@@ -231,10 +303,27 @@ void  HyperFunctions::FeatureExtraction()
   } 
   else if (feature_detector==4)
   {     //SS-SIFT feature detector 
-        PerformSift( feature_img1, keypoints1);
-        PerformSift( feature_img2, keypoints2);
-      
-        
+        SSDetector(feature_img1, keypoints1);
+        SSDetector( feature_img2, keypoints2);
+
+       
+        // for(size_t i = 0;i<keypoints1.size();i++)
+        // {
+        //     std::cout<<keypoints1.at(i).pt()<<std::endl;
+        // }
+        // for(size_t i = 0;i<keypoints2.size();i++)
+        // {
+        //     std::cout<<keypoints2.at(i).pt()<<std::endl;
+        // }
+
+        for (const auto& kp : keypoints1) 
+        {
+             std::cout << "x_1: " << kp.pt.x << ", y_1: " << kp.pt.y << std::endl;
+        }
+        for (const auto& kp : keypoints2) 
+        {
+             std::cout << "x_2: " << kp.pt.x << ", y_2: " << kp.pt.y << std::endl;
+        }
   } 
   else if (feature_detector==5) 
   {
@@ -260,7 +349,7 @@ void  HyperFunctions::FeatureExtraction()
     detector_ORB->compute( feature_img1, keypoints1 , descriptors1);
     detector_ORB->compute( feature_img2, keypoints2 , descriptors2 );
   }  
-  else
+  else if(feature_descriptor == 3)
   {
     // SS-sift descriptor
     SSDescriptors(keypoints1,1.0);

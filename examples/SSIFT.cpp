@@ -40,7 +40,7 @@ void thetaPhi(const cv::Mat &grad_x, const cv::Mat &grad_y, const cv::Mat &grad_
 
 void PerformSift(const cv::Mat &hyperspectralCube)
 {
-    const float M_max = 1.0; 
+        const float M_max = 1.0; 
         //cv::Mat hyperspectralCube; // we need a hyperspectralcube data
 
         std::vector<cv::KeyPoint> keypoints; // final keypoints vector
