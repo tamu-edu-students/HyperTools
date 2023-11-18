@@ -1476,16 +1476,7 @@ void  HyperFunctions::PCA_img(bool isImage1 = true)
 void HyperFunctions::MNF_img(bool isImage1=true)
 {
 
-// steps involved - 1. estimate noise in image, 2. perform noise whitening, 3. apply pca.
-
-// // Whitening step
-// Mat mean, cov;
-// cv::calcCovarMatrix(data, cov, mean, cv::COVAR_NORMAL | cv::COVAR_ROWS);
-// cov = cov / (data.rows - 1);
-// Mat sqrtInvCov;
-// cv::sqrt(cov.inv(), sqrtInvCov);
-// data = (data - repeat(mean, data.rows, 1)) * sqrtInvCov;
-
+//minimum noise fraction (allegedly, not sure if it is correct process)
     Mat data;
     vector<Mat> inputImage;
     if (isImage1)
@@ -1550,5 +1541,73 @@ void HyperFunctions::MNF_img(bool isImage1=true)
     // cv::resize(mnf_img,mnf_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR);
     // imshow("MNF Results", mnf_img);
 
+
+}
+
+void HyperFunctions::NWHFC_img(bool isImage1=true)
+{
+
+    //  noise-whitened Harsanyi–Farrand–Chang (NWHFC) method.
+    
+    vector<Mat> inputImage;
+    if (isImage1)
+    {
+        inputImage = mlt1;
+    }
+    else
+    {
+        inputImage = mlt2;
+
+    }
+
+
+    // Compute the covariance matrix of the image data: You can use the cv::calcCovarMatrix function provided by OpenCV to compute the covariance matrix of your hyperspectral image data.
+
+    // Merge all bands into a single Mat
+    Mat data;
+    cv::merge(inputImage, data);
+
+    // Reshape the data to 2D (rows = number of pixels, cols = number of bands)
+    data = data.reshape(1, data.rows*data.cols);
+
+    // Compute the covariance matrix
+    Mat mean, cov;
+    cv::calcCovarMatrix(data, cov, mean, cv::COVAR_NORMAL | cv::COVAR_ROWS);
+    cov = cov / (data.rows - 1);
+
+    // Perform eigenvalue decomposition: You can use the cv::eigen function to perform an eigenvalue decomposition of the covariance matrix. This will give you the eigenvalues and eigenvectors of the covariance matrix.
+
+    Mat eigenvalues, eigenvectors;
+    cv::eigen(cov, eigenvalues, eigenvectors);
+
+    // Perform a whitening transformation: This involves dividing each element of the eigenvector matrix by the square root of the corresponding eigenvalue. This step will give you the whitened eigenvectors.
+
+    // Perform a whitening transformation
+    Mat whitenedEigenvectors = eigenvectors.clone();
+    for(int i = 0; i < eigenvectors.cols; i++) {
+        whitenedEigenvectors.col(i) = eigenvectors.col(i) / sqrt(eigenvalues.at<float>(i, 0));
+    }
+
+    // Compute the inverse of the whitened eigenvectors: You can use the cv::invert function to compute the inverse of the whitened eigenvectors. This will give you the NWHFC transform matrix.
+
+    // Compute the inverse of the whitened eigenvectors
+    Mat nwhfcTransform;
+    cv::invert(whitenedEigenvectors, nwhfcTransform);
+
+    // Apply the NWHFC transform to the image data: This involves multiplying the NWHFC transform matrix with the image data. You can use the cv::gemm function to perform this matrix multiplication.
+
+    // Apply the NWHFC transform to the image data
+    Mat transformedData;
+    
+    nwhfcTransform.convertTo(nwhfcTransform, CV_32F);
+    data.convertTo(data, CV_32F);
+
+cout << "nwhfcTransform size: " << nwhfcTransform.size() << endl;
+cout << "data size: " << data.size() << endl;
+    cv::gemm( data,nwhfcTransform, 1, Mat(), 0, transformedData);
+
+    cout<<transformedData.size()<<endl;
+    
+// right now there is a lot of nan in result so need to investigate
 
 }

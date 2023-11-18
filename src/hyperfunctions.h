@@ -126,6 +126,8 @@ public:
 	void TileImage(); // set for 164 needs to be made modular 
 	void PCA_img(bool isImage1);
 	void MNF_img(bool isImage1);
+	void NWHFC_img(bool isImage1);
+
 	
 	// functions involving spectral similarity algorithms
 	void EuD_img();

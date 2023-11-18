@@ -16,10 +16,12 @@ int main (int argc, char *argv[])
   // load hyperspectral image
   string file_name1="../../HyperImages/img1.tiff";
   HyperFunctions1.LoadImageHyper(file_name1);
+  HyperFunctions1.NWHFC_img();
+
 
   // using the same multilayer tiff for testing
-  string file_name2="../../HyperImages/img1.tiff";
-  HyperFunctions1.LoadImageHyper(file_name1, false);
+  // string file_name2="../../HyperImages/img1.tiff";
+  // HyperFunctions1.LoadImageHyper(file_name1, false);
 
   // load single layer image
   // string file_name1="../../HyperImages/cornfields/session_002/session_002_490_PANIMAGE.tiff";
@@ -38,7 +40,7 @@ int main (int argc, char *argv[])
   //  HyperFunctions1.dimensionality_reduction = 2;
 
   // use mnf (needs to be added to dimensional reduction)
-  HyperFunctions1.dimensionality_reduction = 3;
+  // HyperFunctions1.dimensionality_reduction = 3;
 
 
   // use spectral similarity
@@ -55,7 +57,7 @@ int main (int argc, char *argv[])
   HyperFunctions1.feature_detector=2;
 	HyperFunctions1.feature_descriptor=2;
 	HyperFunctions1.feature_matcher=0;
-  HyperFunctions1.FeatureExtraction();
+  // HyperFunctions1.FeatureExtraction();
   
   // stitch images together
   // HyperFunctions1.Stitching();
