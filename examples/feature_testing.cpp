@@ -2,7 +2,8 @@
 #include "opencv2/opencv.hpp"
 #include <cmath>
 #include "../src/hyperfunctions.cpp"
-
+#include "../src/hypercuvisfunctions.cpp"
+#include "cuvis.hpp"
 using namespace cv;
 using namespace std;
 
@@ -10,12 +11,28 @@ using namespace std;
 int main (int argc, char *argv[])
 {
 
-  HyperFunctions HyperFunctions1; 
+  HyperFunctionsCuvis HyperFunctions1; 
   
   
   // load hyperspectral image
   string file_name1="../../HyperImages/img1.tiff";
   HyperFunctions1.LoadImageHyper(file_name1);
+
+
+    // // below is for ultris 5 example
+    // HyperFunctions1.cubert_img = "../../HyperImages/export/Test_001.cu3s";
+    // HyperFunctions1.dark_img = "../../HyperImages/Calib100/dark.cu3s";
+    // HyperFunctions1.white_img = "../../HyperImages/Calib100/white.cu3s";
+    // HyperFunctions1.dist_img = "../../HyperImages/Calib100/distance.cu3s";
+    
+    // // below are needed if the ultris5 is used instead of the ultris 20
+    // HyperFunctions1.cubert_settings="../settings/ultris5";  //camera settings file 
+    // HyperFunctions1.factor_dir="../settings/ultris5"; // requires init.daq file
+    // HyperFunctions1.ReprocessImage( HyperFunctions1.cubert_img);  
+
+
+
+
   HyperFunctions1.NWHFC_img();
 
 

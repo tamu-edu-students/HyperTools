@@ -8,7 +8,7 @@ project(user_interface_project C CXX)
 #change below to true to use GPU or false to not use GPU
 set(use_CUDA false) 
 #change below to true to use cuvis.sdk
-set (use_cuvis false)
+set (use_cuvis true)
 
 
 find_package(OpenCV  REQUIRED)
@@ -50,7 +50,7 @@ else(use_CUDA)
     # Declare the executable target built from your sources
     # add_executable(semantic_interface examples/semantic_segmentation.cpp)
     add_executable(feature_tool examples/feature_tool.cpp)
-    add_executable(feature_testing examples/feature_testing.cpp)
+    # add_executable(feature_testing examples/feature_testing.cpp)
     # add_executable(ground_truth_example examples/ground_truth_example.cpp)
 
     add_definitions(${GTK3_CFLAGS} ${GTK3_CFLAGS_OTHER})
@@ -72,6 +72,9 @@ if (use_cuvis)
 
     add_executable(image_tool_cuvis examples/image_tool.cpp)
     target_link_libraries(image_tool_cuvis PRIVATE cuvis::cpp)
+
+    add_executable(feature_testing examples/feature_testing.cpp)
+    target_link_libraries(feature_testing PRIVATE cuvis::cpp)
 
 
     # if (use_CUDA)

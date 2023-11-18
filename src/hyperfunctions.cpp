@@ -1579,20 +1579,46 @@ void HyperFunctions::NWHFC_img(bool isImage1=true)
 
     Mat eigenvalues, eigenvectors;
     cv::eigen(cov, eigenvalues, eigenvectors);
-
+// Check the eigenvalues and eigenvectors
+//these are fine
+// cout << "Eigenvalues: " << eigenvalues << endl;
+// cout << "Eigenvectors: " << eigenvectors << endl;
     // Perform a whitening transformation: This involves dividing each element of the eigenvector matrix by the square root of the corresponding eigenvalue. This step will give you the whitened eigenvectors.
 
     // Perform a whitening transformation
-    Mat whitenedEigenvectors = eigenvectors.clone();
+        // Mat cameraMatrix = Mat::eye(3, 3, CV_64F);
+
+    Mat whitenedEigenvectors = Mat::eye(eigenvectors.size(), CV_64F);//eigenvectors.clone();
+    int num_zero=0;
+    // cout<<eigenvalues.size()<<endl;
+    // cout<<eigenvalues.type()<<endl;
     for(int i = 0; i < eigenvectors.cols; i++) {
+           float eigenvalue = eigenvalues.at<double>(0,i);
+        if(eigenvalue == 0 || isnan(eigenvalue)) {
+            cout << "Warning: Eigenvalue at index " << i << " is zero or nan." << endl;
+            num_zero++;
+            continue;
+        }
         whitenedEigenvectors.col(i) = eigenvectors.col(i) / sqrt(eigenvalues.at<float>(i, 0));
     }
+    cout<<"num_zero: "<<num_zero<<endl;
+    whitenedEigenvectors.convertTo(whitenedEigenvectors, CV_32F);
+    cv::patchNaNs(whitenedEigenvectors, 0);
+
+// Check the whitened eigenvectors
+// cout << "Whitened eigenvectors: " << whitenedEigenvectors << endl;
+// Check the determinant of the whitened eigenvectors
+double det = determinant(whitenedEigenvectors);
+cout << "Determinant: " << det << endl;
+// since determinant is zero it is not invertible
 
     // Compute the inverse of the whitened eigenvectors: You can use the cv::invert function to compute the inverse of the whitened eigenvectors. This will give you the NWHFC transform matrix.
 
     // Compute the inverse of the whitened eigenvectors
     Mat nwhfcTransform;
     cv::invert(whitenedEigenvectors, nwhfcTransform);
+// Check the NWHFC transform matrix
+// cout << "NWHFC transform: " << nwhfcTransform << endl;
 
     // Apply the NWHFC transform to the image data: This involves multiplying the NWHFC transform matrix with the image data. You can use the cv::gemm function to perform this matrix multiplication.
 
@@ -1607,7 +1633,16 @@ cout << "data size: " << data.size() << endl;
     cv::gemm( data,nwhfcTransform, 1, Mat(), 0, transformedData);
 
     cout<<transformedData.size()<<endl;
-    
+    // Check if there are any nan values
+    bool hasNan = !cv::checkRange(transformedData, true, nullptr, -std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
+
+    // If there are nan values, count them
+    int numNan = 0;
+    if(hasNan) {
+        numNan = transformedData.total() - cv::countNonZero(transformedData == transformedData);
+    }
+
+    cout << "Number of nan values: " << numNan << endl;
 // right now there is a lot of nan in result so need to investigate
 
 }
