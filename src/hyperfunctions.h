@@ -58,6 +58,7 @@ public:
 	Mat pca_img;
 	Mat ga_img;
 	Mat stitch_img;
+	Mat mnf_img;
 			
 	vector<string> class_list;
 	vector<Vec3b> color_combos;
@@ -124,6 +125,7 @@ public:
 	void thickEdgeContourApproximation(int idx);
 	void TileImage(); // set for 164 needs to be made modular 
 	void PCA_img(bool isImage1);
+	void MNF_img(bool isImage1);
 	
 	// functions involving spectral similarity algorithms
 	void EuD_img();

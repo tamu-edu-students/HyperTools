@@ -145,6 +145,12 @@ void  HyperFunctions::DimensionalityReduction()
         PCA_img(false);
         feature_img2 = pca_img;
     }
+    else if(dimensionality_reduction == 3){
+        MNF_img(true);
+        feature_img1 = mnf_img;
+        MNF_img(false);
+        feature_img2 = mnf_img;
+    }
 }
 
 //Stitching two images together
@@ -1461,6 +1467,88 @@ void  HyperFunctions::PCA_img(bool isImage1 = true)
     reconstruction = toGrayscale(reconstruction); // re-scale for displaying purposes
     pca_img=reconstruction;
     //not writing multiple layers yet because some versions of opencv do not have the function
-    //imwritemulti(reduced_file_path,reconstruction);    
+    //imwritemulti(reduced_file_path,reconstruction);  
+    // cv::resize(pca_img,pca_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR);
+    // imshow("PCA Results", pca_img);
+
 }
 
+void HyperFunctions::MNF_img(bool isImage1=true)
+{
+
+// steps involved - 1. estimate noise in image, 2. perform noise whitening, 3. apply pca.
+
+// // Whitening step
+// Mat mean, cov;
+// cv::calcCovarMatrix(data, cov, mean, cv::COVAR_NORMAL | cv::COVAR_ROWS);
+// cov = cov / (data.rows - 1);
+// Mat sqrtInvCov;
+// cv::sqrt(cov.inv(), sqrtInvCov);
+// data = (data - repeat(mean, data.rows, 1)) * sqrtInvCov;
+
+    Mat data;
+    vector<Mat> inputImage;
+    if (isImage1)
+    {
+        inputImage = mlt1;
+    }
+    else
+    {
+        inputImage = mlt2;
+
+    }
+
+    vector<Mat> whitenedData(inputImage.size());
+    //estimate noise in the image
+    for(int i = 0; i < inputImage.size(); i++) {
+        // 1. Apply high-pass filter
+        Mat lowPass, highPass;
+        GaussianBlur(inputImage[i], lowPass, Size(3, 3), 0);
+        subtract(inputImage[i], lowPass, highPass);
+
+        // 2. Calculate standard deviation
+        Mat mean, stddev;
+        meanStdDev(highPass, mean, stddev);
+
+        // The standard deviation is an estimate of the noise
+        double noiseEstimate = stddev.at<double>(0, 0);
+
+        // Perform noise whitening 
+        whitenedData[i] = inputImage[i] / noiseEstimate;
+    }
+
+    data = formatImagesForPCA(whitenedData);
+
+
+    // apply pca 
+    int reduced_image_layers = 3;
+
+    PCA pca(data, cv::Mat(), PCA::DATA_AS_ROW, reduced_image_layers); 
+
+    Mat principal_components = pca.eigenvectors;
+
+    vector<Mat> ReducedImage;
+    for (int i = 0; i < reduced_image_layers; i++) {
+        Mat layer = principal_components*data.t();
+        //Mat layer = principal_components.row(i)*data.t();
+        //layer = pca.backProject(layer);
+        //layer = layer.reshape(inputImage[0].channels(), inputImage[0].rows); // reshape from a row vector into image shape
+        layer = toGrayscale(layer);
+        ReducedImage.push_back(layer);
+    }
+
+
+    
+    // Demonstration of the effect of retainedVariance on the first image
+    Mat point = pca.project(data.row(0)); // project into the eigenspace, thus the image becomes a "point"
+    Mat reconstruction = pca.backProject(point); // re-create the image from the "point"
+    reconstruction = reconstruction.reshape(inputImage[0].channels(), inputImage[0].rows); // reshape from a row vector into image shape
+    reconstruction = toGrayscale(reconstruction); // re-scale for displaying purposes
+    mnf_img=reconstruction;
+
+
+    // cv::resize(mnf_img,mnf_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR);
+    // imshow("MNF Results", mnf_img);
+
+
+}
