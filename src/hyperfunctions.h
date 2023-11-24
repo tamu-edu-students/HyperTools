@@ -154,7 +154,7 @@ public:
 
 	//Spatial-Spectral SIFT detector
 	void SSDetector(const cv::Mat &hyperspectralCube, std::vector<cv::KeyPoint> &keypoints);
-	void SSDescriptors(const std::vector<cv::KeyPoint> &keypoints, float M_max);
+	void SSDescriptors(const std::vector<cv::KeyPoint> &keypoints1, const std::vector<cv::KeyPoint> &keypoints2, cv::Mat &descriptor1, cv::Mat &descriptor2, float M_max);
 	
 
 
