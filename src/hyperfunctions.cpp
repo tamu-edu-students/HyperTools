@@ -180,6 +180,13 @@ void HyperFunctions::SSDetector(const cv::Mat &hyperspectralCube, std::vector<cv
     //      std::cout << "x_1: " << kp.pt.x << ", y_1: " << kp.pt.y << std::endl;
     //      }
 }
+cv::Mat visualizeDescriptors(const cv::Mat& descriptors) {
+    cv::Mat visualization;
+    cv::resize(descriptors, visualization, cv::Size(400, 400));
+    cv::imshow("Descriptors", visualization);
+    cv::waitKey(0);
+    return visualization;
+}
 
 void HyperFunctions::SSDescriptors(const std::vector<cv::KeyPoint> &keypoints1, const std::vector<cv::KeyPoint> &keypoints2, cv::Mat &descriptor1, cv::Mat &descriptor2, float M_max = 1.0)
 {
@@ -195,26 +202,21 @@ void HyperFunctions::SSDescriptors(const std::vector<cv::KeyPoint> &keypoints1, 
     for (size_t i = 0; i < keypoints1.size(); ++i)
     {
         cv::Mat descriptor_1 = descriptor1.row(i);
+        const cv::KeyPoint& kp = keypoints1[i];
 
         for (int x = -8; x <= 7; ++x)
         {
             for (int y = -8; y <= 7; ++y)
             {
-                for (int z = -4; z <= 3; ++z)
-                {
-                   
+                float theta = std::atan2(kp.pt.y -  y, kp.pt.x - x) * (180.0 / CV_PI);
+                float phi = 0.0; // Since there is no z component
 
-                    float theta = std::atan2(y, x) * (180.0 / CV_PI);
-                    float phi = std::acos(z / std::sqrt(x*x + y*y + z*z)) * (180.0 / CV_PI);
+                int thetaBin = static_cast<int>(theta / (360.0 / numThetaBins));
+                int phiBin = static_cast<int>((phi + 90.0) / (180.0 / numPhiBins));
+                int gradientBin = static_cast<int>(M / (M_max / numGradientBins));
 
-
-                    int thetaBin = static_cast<int>(theta / (360.0 / numThetaBins));
-                    int phiBin = static_cast<int>((phi + 90.0) / (180.0 / numPhiBins));
-                    int gradientBin = static_cast<int>(M / (M_max / numGradientBins));
-
-                    int index = thetaBin * numPhiBins * numGradientBins + phiBin * numGradientBins + gradientBin;
-                    descriptor_1.at<float>(0, index) += M; // Updated index to access the correct element in the descriptor matrix.
-                }
+                int index = thetaBin * numPhiBins * numGradientBins + phiBin * numGradientBins + gradientBin;
+                descriptor_1.at<float>(0, index) += M;
             }
         }
 
@@ -228,25 +230,21 @@ void HyperFunctions::SSDescriptors(const std::vector<cv::KeyPoint> &keypoints1, 
     for (size_t i = 0; i < keypoints2.size(); ++i)
     {
         cv::Mat descriptor_2 = descriptor2.row(i);
+        const cv::KeyPoint& kp = keypoints2[i];
 
         for (int x = -8; x <= 7; ++x)
         {
             for (int y = -8; y <= 7; ++y)
             {
-                for (int z = -4; z <= 3; ++z)
-                {
+                float theta = std::atan2(kp.pt.y -  y, kp.pt.x - x) * (180.0 / CV_PI);
+                float phi = 0.0; // Since there is no z component
 
-                    float theta = std::atan2(y, x) * (180.0 / CV_PI);
-                    float phi = std::acos(z / std::sqrt(x * x + y * y + z * z)) * (180.0 / CV_PI);
-                    
+                int thetaBin = static_cast<int>(theta / (360.0 / numThetaBins));
+                int phiBin = static_cast<int>((phi + 90.0) / (180.0 / numPhiBins));
+                int gradientBin = static_cast<int>(M / (M_max / numGradientBins));
 
-                    int thetaBin = static_cast<int>(theta / (360.0 / numThetaBins));
-                    int phiBin = static_cast<int>((phi + 90.0) / (180.0 / numPhiBins));
-                    int gradientBin = static_cast<int>(M / (M_max / numGradientBins));
-
-                    int index = thetaBin * numPhiBins * numGradientBins + phiBin * numGradientBins + gradientBin;
-                    descriptor_2.at<float>(0, index) += M;
-                }
+                int index = thetaBin * numPhiBins * numGradientBins + phiBin * numGradientBins + gradientBin;
+                descriptor_2.at<float>(0, index) += M;
             }
         }
 
@@ -255,6 +253,7 @@ void HyperFunctions::SSDescriptors(const std::vector<cv::KeyPoint> &keypoints1, 
         cv::normalize(descriptor_2, descriptor_2);
     }
 }
+
 
 void HyperFunctions::DimensionalityReduction()
 {
@@ -376,7 +375,8 @@ void HyperFunctions::FeatureExtraction()
     {
         // SS-sift descriptor
         SSDescriptors(keypoints1, keypoints2, descriptors1, descriptors2, 1.0);
-       
+        visualizeDescriptors(descriptors1);
+        visualizeDescriptors(descriptors2);
     }
 
     // feature_matcher=0; 0 is flann, 1 is bf
