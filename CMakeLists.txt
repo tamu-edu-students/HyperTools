@@ -51,6 +51,11 @@ else(use_CUDA)
     # add_executable(semantic_interface examples/semantic_segmentation.cpp)
     add_executable(feature_tool examples/feature_tool.cpp)
     add_executable(feature_testing examples/feature_testing.cpp)
+
+    find_package(GDAL REQUIRED)
+
+    add_executable(test_envi_read examples/test_envi_read.cpp)
+    target_link_libraries(test_envi_read PRIVATE ${GDAL_LIBRARY})
     # add_executable(ground_truth_example examples/ground_truth_example.cpp)
 
     add_definitions(${GTK3_CFLAGS} ${GTK3_CFLAGS_OTHER})
