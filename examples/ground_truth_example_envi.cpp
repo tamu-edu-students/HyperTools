@@ -2,6 +2,9 @@
 #include <iostream>
 #include "opencv2/opencv.hpp"
 #include <cmath>
+#include "gdal/gdal.h"
+#include "gdal/gdal_priv.h"
+#include "gdal/cpl_conv.h"  // for CPLMalloc()
 
 #include "../src/gtkfunctions.cpp"
 #include "../src/hyperfunctions.cpp"
@@ -14,7 +17,6 @@ int main (int argc, char *argv[])
     
     //ENVI is stored as a pair of DAT and HDR
     string dat_file = "../../HyperImages/test.dat";
-    string hdr_file = "../../HyperImages/test.hdr";
 
     //Ground truth png
     string gt_file = "../../HyperImages/labeledtest.png";
@@ -22,20 +24,67 @@ int main (int argc, char *argv[])
     //name of spectral database being created
     string spectral_database="../json/envi_spectral_database.json";
     
+    // Register GDAL drivers
+    GDALAllRegister();
+
+    //const char* enviHeaderPath = "../../HyperImages/test.dat";
+
+    std::vector<cv::Mat> imageBands;
+
+    // Open the ENVI file
+    GDALDataset *poDataset = (GDALDataset *) GDALOpen(dat_file, GA_ReadOnly);
+    
+    if (poDataset != nullptr) {
+        // Get information about the dataset
+        int width = poDataset->GetRasterXSize();
+        int height = poDataset->GetRasterYSize();
+        int numBands = poDataset->GetRasterCount();
+
+        printf("Width: %d, Height: %d, Bands: %d\n", width, height, numBands);
+
+        // Loop through bands and read data
+        for (int bandNum = 1; bandNum <= 5/*numBands*/; ++bandNum) {
+            GDALRasterBand *poBand = poDataset->GetRasterBand(bandNum);
+
+            // Allocate memory to store pixel values
+            int *bandData = (int *) CPLMalloc(sizeof(int) * width * height);
+
+            // Read band data
+            poBand->RasterIO(GF_Read, 0, 0, width, height, bandData, width, height, GDT_Int32, 0, 0);
+
+            // Create an OpenCV Mat from the band data
+            cv::Mat bandMat(height, width, CV_32SC1, bandData);
+
+            // Add the Mat to the vector
+            imageBands.push_back(bandMat);
+
+            // Release allocated memory
+            CPLFree(bandData);
+        }
+
+        // Close the dataset
+        GDALClose(poDataset);
+
+    } else {
+        printf("Failed to open the dataset.\n");
+    }
+
     // name of semantic classes 
     vector<string> class_list{"Unknown","Alfalfa", "Corn-notill", "Corn-mintill","Corn","Grass-pasture", "Grass-trees", "Grass-pasture-mowed","Hay-windrowed","Oats", "Soybean-notill", "Soybean-mintill", "Soybean-clean", "Wheat", "Woods", "Buildings-Grass-Trees-Drives", "Stone-Steel-Towers"};
     
     
     HyperFunctions HyperFunctions1;
-    // load hyperspectral image 
-    HyperFunctions1.LoadImageHyper(file_name1);
+    // load hyperspectral image
+    HyperFunctions1.mlt1 = imageBands;
+    //HyperFunctions1.LoadImageHyper(file_name1);
 
     // load ground truth image
-    Mat gt_img=imread(file_name2, IMREAD_COLOR);
+    Mat gt_img = imread(gt_file, IMREAD_COLOR);
     
     // make sure ground truth image is 8 bit single channel
     // ref https://gist.github.com/yangcha/38f2fa630e223a8546f9b48ebbb3e61a
     //cout<<gt_img.type()<<endl;
+    /*
     if (gt_img.type()==16)
     { // color img
         //gt_img.convertTo(gt_img,CV_8UC1);converts to 8bit
@@ -51,12 +100,13 @@ int main (int argc, char *argv[])
     {
         cout << "unsupported image type" << endl;
     }
-
+    */
     
     // get number of semantic classes 
     // assumption 0 is unknown
     // class values 1-N (N is total number of classes)
     // only care about max value
+    /*
     double minVal; 
     double maxVal; 
     Point minLoc; 
@@ -68,24 +118,59 @@ int main (int argc, char *argv[])
     {
         cout<<"improper input"<<endl;
         return -1;
-    }
+    }*/
+
+    int numClasses = 44; //should read from json
     
-    
+     // Example data structure: vector of pairs (hex color, index)
+    vector<pair<string, int>> colorIndexVector;
+
     // get pixel coordinates of each semantic class
     // assumes we do not care about unknown and unknown =0 
-    vector<vector<Point>> class_coordinates((int)(maxVal+1));
+    vector<vector<Point>> class_coordinates((int)(numClasses+1));
 
-    int temp_val;
+    Vec3b temp_val;// Access the pixel value at the specified point
+
+    int which_class = 0;
+
     for  (int i=0; i<gt_img.rows ; i++)
     {
         for (int j=0; j<gt_img.cols ; j++)
         {
+            which_class = 0;
             temp_val=gt_img.at<uchar>(i,j);
+            int r = temp_val[0];
+            int g = temp_val[1];
+            int b = temp_val[2];
+
+            //Creates a hexadecimal color based on the rgb values in the pixel.
+            hexColor << "#" << std::setfill('0') << std::setw(2) << std::hex << r
+             << std::setfill('0') << std::setw(2) << std::hex << g
+             << std::setfill('0') << std::setw(2) << std::hex << b;
+            string targetHexColor = hexColor.str();
+
+            //checks if the hexadecimal color of a particular pixel in the ground truth image is contained in the colorIndexVector
+            //"it" is an iterator. If it finds the hex value then it will be located at that spot in the vector. If not, then it will be at the end.
+            auto it = std::find_if(colorIndexVector.begin(), colorIndexVector.end(),
+                                    [targetHexColor](const auto& pair) {
+                                        return pair.first == targetHexColor;
+                                    });
+
+            if (it != colorIndexVector.end()) {
+                which_class = it->second;
+                //std::cout << "Hex color value found at index: " << index << std::endl;
+            } else {
+                which_class = 0; //unknown class
+                std::cout << "Hex color value not found in the data structure." << std::endl;
+            }
+
             Point temp_point=Point(i,j);
+            class_coordinates[which_class].push_back(temp_point); 
+            /*
             if (temp_val>0 && temp_val<=maxVal)
             {
-            	class_coordinates[temp_val].push_back(temp_point);  
-            }
+            	class_coordinates[which_class].push_back(temp_point);  
+            }*/
         }
     }
 

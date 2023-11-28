@@ -46,8 +46,6 @@ int main() {
         // Close the dataset
         GDALClose(poDataset);
 
-        imwritemulti("../../HyperImages/test_produced.tiff", imageBands);
-
     } else {
         printf("Failed to open the dataset.\n");
     }
