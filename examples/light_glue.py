@@ -1,7 +1,7 @@
 import sys
 sys.path.insert(1,'submodules/LightGlue/')
 
-from lightglue import LightGlue, SuperPoint, DISK, match_pair
+from lightglue import LightGlue, SuperPoint, DISK, match_pair, SIFT, ALIKED
 from lightglue.utils import load_image, rbd
 from lightglue.viz2d import plot_images, plot_keypoints, plot_matches, save_plot
 import torch
@@ -27,7 +27,7 @@ def extract_rgb(cube, red_layer=78 , green_layer=40, blue_layer=25,  visualize=F
 
         
     data=np.stack([red_img,green_img,blue_img], axis=-1)
-    print(data.shape)
+    # print(data.shape)
     #print(type(image))
 
     #convert to 8bit
@@ -145,10 +145,16 @@ if __name__ == "__main__":
     # SuperPoint+LightGlue # not good for hyperspectral images not many matched points neither is sift or aliked
     # extractor = SuperPoint(max_num_keypoints=2048).eval().cuda()  # load the extractor
     # matcher = LightGlue(features='superpoint').eval().cuda()  # load the matcher
+    
+    # extractor = SIFT(max_num_keypoints=2048).eval().cuda()  # load the extractor
+    # matcher = LightGlue(features='sift').eval().cuda()  # load the matcher
+    
+    # extractor = ALIKED(max_num_keypoints=2048).eval().cuda()  # load the extractor
+    # matcher = LightGlue(features='aliked').eval().cuda()  # load the matcher
 
     # or DISK+LightGlue # getting decent results for hyperspectral images
-    # extractor = DISK(max_num_keypoints=2048).eval().cuda()  # load the extractor
-    # matcher = LightGlue(features='disk').eval().cuda()  # load the matcher
+    extractor = DISK(max_num_keypoints=2048).eval().cuda()  # load the extractor
+    matcher = LightGlue(features='disk').eval().cuda()  # load the matcher
 
     # load each image as a torch.Tensor on GPU with shape (3,H,W), normalized in [0,1]
     # image0 = load_image('submodules/LightGlue/assets/sacre_coeur1.jpg').cuda()
@@ -165,20 +171,22 @@ if __name__ == "__main__":
     cube1 = cube1[:, :, :]  
     # print(cube1.shape)
 
-    # mylist = []
-    # loaded,mylist = cv2.imreadmulti(mats = mylist, filename = "../HyperImages/img1.tiff", flags = cv2.IMREAD_ANYCOLOR )
-    # cube2=np.array(mylist)
-    # cube2 = cube2[:, :, :]  
+    mylist = []
+    loaded,mylist = cv2.imreadmulti(mats = mylist, filename = "../HyperImages/img2.tiff", flags = cv2.IMREAD_ANYCOLOR )
+    cube2=np.array(mylist)
+    cube2 = cube2[:, :, :]  
     # print(cube2.shape)
-    cube2 = cube1
+    
+    #use below to set the both images to be the same
+    # cube2 = cube1
 
     #single channel from hyperspectral image
-    image0 = extract_single_layer(cube1, 100)
-    image1 = extract_single_layer(cube1, 100)
+    # image0 = extract_single_layer(cube1, 100)
+    # image1 = extract_single_layer(cube2, 100)
 
     #rgb image from hyperspectral image
-    # image0=extract_rgb(cube1)
-    # image1=extract_rgb(cube2)
+    image0=extract_rgb(cube1)
+    image1=extract_rgb(cube2)
 
     # spectral similarity image from hyperspectral image
     # color_array, spectral_array= read_spec_json('json/spectral_database_U20.json')
@@ -196,39 +204,82 @@ if __name__ == "__main__":
 
 
     # pca of hyperspectral image
-    image2= perform_pca(cube1)
+    # image2= perform_pca(cube1)
 
 
 
 
-    # image0 = cube1[100, :, :]
-    # image0 = np.expand_dims(image0, axis=0)
+    # below is to process the image to be in the correct format for the lightglue library
+
+    # make sure it is chann, x, y
     # print(image0.shape)
+    # print(len(image0.shape))
+    
+    # if only x,y then add channel dimension    
+    if (len(image0.shape)==2):
+        image0 = np.expand_dims(image0, axis=0)
+    if (len(image1.shape)==2):
+        image1 = np.expand_dims(image1, axis=0)
+    # print(image0.shape)
+    
+    # if in x,y,channel then convert to channel,x,y
+    if(image0.shape[2]==3):
+        image0 = np.transpose(image0, (2, 0, 1)) # channels, x, y
+    if(image1.shape[2]==3):
+        image1 = np.transpose(image1, (2, 0, 1))
+    
+    if (image0.shape[0] == 3 or image0.shape[0] == 1) :
+        pass
+        # has correct dimensions
+    else:
+        print("Error: image0 does not have 1 or 3 channels")
+        sys.exit()
 
-    # image1 = cube2[100, :, :]
-    # image1 = np.expand_dims(image1, axis=0)
+    if (image1.shape[0] == 3 or image1.shape[0] == 1) :
+        pass
+        # has correct dimensions    
+    else:
+        print("Error: image0 does not have 1 or 3 channels")
+        sys.exit()
 
-    # image0 = torch.from_numpy(image0).unsqueeze(0).float().cuda()
-    # image1 = torch.from_numpy(image1).unsqueeze(0).float().cuda()
+    # convert values to be between 0 and 1
+    if (np.max(image0) > 1):
+        image0 = image0/255
+    if (np.max(image1) > 1):
+        image1 = image1/255
+    
+    # convert to torch tensor for lightglue library    
+    if (type(image0) != torch.Tensor):
+        # print("Error: image0 is not a torch tensor")
+        # sys.exit()
+        image0 = torch.from_numpy(image0).float().cuda()
+        # image0 = image0.cpu()
+    if (type(image1) != torch.Tensor):  
+        # print("Error: image1 is not a torch tensor")
+        # sys.exit()
+        image1 = torch.from_numpy(image1).float().cuda()
+        # image1 = image1.cpu()
+    
+    # print(image0.shape)
+    # print(image1.shape)
+    
+    # extract local features
+    feats0 = extractor.extract(image0)  # auto-resize the image, disable with resize=None
+    feats1 = extractor.extract(image1)
+    # print(feats0) # this is a dictionary with keys 'keypoints' and 'descriptors'   and keypoint scores and other information about the image, device
+    # match the features
+    matches01 = matcher({'image0': feats0, 'image1': feats1})
+    feats0, feats1, matches01 = [rbd(x) for x in [feats0, feats1, matches01]]  # remove batch dimension
+    matches = matches01['matches']  # indices with shape (K,2)
+    print('number of matched features: ', len(matches))
+    points0 = feats0['keypoints'][matches[..., 0]]  # coordinates in image #0, shape (K,2)
+    points1 = feats1['keypoints'][matches[..., 1]]  # coordinates in image #1, shape (K,2)
 
-
-    # # extract local features
-    # feats0 = extractor.extract(image0)  # auto-resize the image, disable with resize=None
-    # feats1 = extractor.extract(image1)
-    # # print(feats0) # this is a dictionary with keys 'keypoints' and 'descriptors'   and keypoint scores and other information about the image, device
-    # # match the features
-    # matches01 = matcher({'image0': feats0, 'image1': feats1})
-    # feats0, feats1, matches01 = [rbd(x) for x in [feats0, feats1, matches01]]  # remove batch dimension
-    # matches = matches01['matches']  # indices with shape (K,2)
-    # print(len(matches))
-    # points0 = feats0['keypoints'][matches[..., 0]]  # coordinates in image #0, shape (K,2)
-    # points1 = feats1['keypoints'][matches[..., 1]]  # coordinates in image #1, shape (K,2)
-
-    # plot_images([image0.cpu(), image1.cpu()])
-    plot_images([image0, image1])
-    # #plot_keypoints(points0, points1)
-    # plot_matches(points0[:, :], points1[:, :])
-    # plt.show()
+    plot_images([image0.cpu(), image1.cpu()])
+    # plot_images([image0, image1])
+    #plot_keypoints(points0, points1)
+    plot_matches(points0[:, :], points1[:, :])
+    plt.show()
 
 
     # tradtional way with opencv
