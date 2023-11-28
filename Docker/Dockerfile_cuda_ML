@@ -34,7 +34,7 @@ RUN apt-get install  language-pack-en-base -y
 
 RUN apt-get install python3-pip -y  && pip install opencv-python numpy matplotlib torch torchvision kornia
 
-RUN pip install  pycocotools onnx onnxruntime tqdm
+RUN pip install  pycocotools onnx onnxruntime tqdm pandas scikit-learn
 
 RUN  apt-get install python3-tk -y
 
