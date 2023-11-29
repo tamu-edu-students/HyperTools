@@ -45,7 +45,7 @@ int main (int argc, char *argv[])
         printf("Width: %d, Height: %d, Bands: %d\n", width, height, numBands);
 
         // Loop through bands and read data
-        for (int bandNum = 0; bandNum < numBands-1; bandNum++) {
+        for (int bandNum = 1; bandNum < numBands; ++bandNum) {
             GDALRasterBand *poBand = poDataset->GetRasterBand(bandNum);
 
             // Allocate memory to store pixel values
