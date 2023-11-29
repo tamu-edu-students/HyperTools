@@ -45,18 +45,33 @@ int main (int argc, char *argv[])
         printf("Width: %d, Height: %d, Bands: %d\n", width, height, numBands);
 
         // Loop through bands and read data
-        for (int bandNum = 1; bandNum <= 5/*numBands*/; ++bandNum) {
+        for (int bandNum = 0; bandNum < numBands-1; bandNum++) {
             GDALRasterBand *poBand = poDataset->GetRasterBand(bandNum);
 
             // Allocate memory to store pixel values
-            int *bandData = (int *) CPLMalloc(sizeof(int) * width * height);
+            //int *bandData = (int *) CPLMalloc(sizeof(int) * width * height);
+            float *bandData = (float *) CPLMalloc(sizeof(float) * width * height);
+            //unsigned char *bandData = (unsigned char *)CPLMalloc(sizeof(unsigned char) * width * height);
+
 
             // Read band data
-            poBand->RasterIO(GF_Read, 0, 0, width, height, bandData, width, height, GDT_Int32, 0, 0);
+            poBand->RasterIO(GF_Read, 0, 0, width, height, bandData, width, height, GDT_Float32, 0, 0);
+
+            // Scale the values to the range 0-255
+            for (int i = 0; i < width * height; ++i) {
+                bandData[i] *= 255.0;
+                //cout << bandData[i] << endl;
+            }
 
             // Create an OpenCV Mat from the band data
-            cv::Mat bandMat(height, width, CV_32SC1, bandData);
-
+            cv::Mat bandMat(height, width, CV_8UC1, bandData);
+            
+            //cout << bandMat << endl;
+/*
+            double min, max;
+            cv::minMaxIdx(bandMat, &min, &max);
+            bandMat = (bandMat - min) * (255.0 / (max - min));
+*/
             // Add the Mat to the vector
             imageBands.push_back(bandMat);
 
@@ -117,6 +132,15 @@ int main (int argc, char *argv[])
     HyperFunctions1.mlt1 = imageBands;
     //HyperFunctions1.LoadImageHyper(file_name1);
 
+
+    std::cout << "Type of myMat: " << HyperFunctions1.mlt1[0].type() << std::endl;
+
+    for (int i =0; i < HyperFunctions1.mlt1.size(); i ++) {
+        imshow("", HyperFunctions1.mlt1[i]);
+        cv::waitKey(30);
+    }
+
+return 1;
     // load ground truth image
     Mat gt_img = imread(gt_file, IMREAD_COLOR);
     
@@ -176,6 +200,7 @@ int main (int argc, char *argv[])
     {
         for (int j=0; j<gt_img.cols ; j++)
         {
+            //cout << i << j << endl;
             which_class = 0;
             temp_val=gt_img.at<Vec3b>(i,j);
             int r = temp_val[2];
@@ -223,9 +248,6 @@ int main (int argc, char *argv[])
     
     }*/
 
-
-
-
     // find average spectrum for each semantic class
     int class_coordinates_size = class_coordinates.size();
     int mlt1_size = HyperFunctions1.mlt1.size();
@@ -246,7 +268,7 @@ int main (int argc, char *argv[])
             avgSpectrums[i][j] = 0;
         }
     }
-    
+
     for  (int i=1; i<class_coordinates.size() ; i++)    // for each class
     {
         // for each pixel in class
@@ -255,6 +277,10 @@ int main (int argc, char *argv[])
             // for spectrum of each pixel
             for  (int j=0; j<HyperFunctions1.mlt1.size() ; j++)
             {
+                //cout << HyperFunctions1.mlt1[0].at<uchar>(tempPt) << endl;
+               // cout << tempPt << endl;
+                //cout << "mlt1[0] size: " << HyperFunctions1.mlt1[0].size() << endl;
+                //cout << i << " " << k << " " << j << endl;
                 avgSpectrums[i][j] += HyperFunctions1.mlt1[j].at<uchar>(tempPt);
             }
         }
@@ -267,6 +293,7 @@ int main (int argc, char *argv[])
             avgSpectrums_vector[i][j]=avgSpectrums[i][j];
         }
     }
+
 
 
     vector<double> accuracy_by_class (class_coordinates.size());

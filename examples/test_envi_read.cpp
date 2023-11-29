@@ -24,7 +24,7 @@ int main() {
         std::vector<cv::Mat> imageBands;
 
         // Loop through bands and read data
-        for (int bandNum = 1; bandNum <= 5/*numBands*/; ++bandNum) {
+        for (int bandNum = 1; bandNum <= numBands; ++bandNum) {
             GDALRasterBand *poBand = poDataset->GetRasterBand(bandNum);
 
             // Allocate memory to store pixel values
