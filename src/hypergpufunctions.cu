@@ -334,7 +334,11 @@ __global__ void parent_control(float *out, int *img_array, int n, int num_layers
         break;
     case 1:
         child_SCM(out, img_array, n, num_layers, ref_spectrum);
+        if(tid < n){
+            out[tid] = (1-out[tid]) * 0.5 * 255;
+        }
         break;
+
     case 2:
 
         child_SID(out, img_array, n, num_layers, ref_spectrum);
@@ -387,6 +391,30 @@ __global__ void parent_control(float *out, int *img_array, int n, int num_layers
             out[tid] = 255 * (jm_result * tanf(sam_result));
         }
         break;
+    case 9:
+        // SCA
+        if(tid < n){
+            child_SCM(out, img_array, n, num_layers, ref_spectrum);
+            float scm_result = out[tid];
+
+            out[tid] = 255 * ((1/3.141592654) * acos((scm_result)+1)*0.5);
+
+        }
+        break;
+    case 10:
+        // SID-SCA
+        if(tid < n){
+            child_SCM(out, img_array, n, num_layers, ref_spectrum);
+            float scm_result = out[tid];
+
+            child_SID(out, img_array, n, num_layers, ref_spectrum);
+            float sid_result = out[tid];
+
+            out[tid] = 255 * sid_result * tanf(( acos((scm_result+1)*0.5)));
+        }
+        
+        break;
+
     default:
         printf("It Broke !!\n");
         break;
@@ -462,13 +490,13 @@ __device__ void child_SCM(float *out, int *img_array, int n, int num_layers, int
         }        
         if (sum2<=0 || sum3<=0 )
         {
-            out[tid] =255; // set to white due to an error
+            out[tid] = 1; // set to white due to an error
         }
         else
         {
-            float temp1= sum1/(sqrt(sum2)*sqrt(sum3));
-            double alpha_rad=acos(temp1);
-            out[tid] =(int)((double)alpha_rad*(double)255/(double)3.14159) ;
+            float temp1= sum1/(sqrt((sum2)*(sum3)));
+            // double alpha_rad=acos(temp1);
+            out[tid] = temp1;
         }
     }
 }
