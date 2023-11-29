@@ -22,7 +22,6 @@ __device__ void child_cos(float *out, int *img_array, int n, int num_layers, int
 __device__ void child_JM(float *out, int *img_array, int n, int num_layers, int* ref_spectrum) ;
 __device__ void child_cityblock(float *out, int *img_array, int n, int num_layers, int* ref_spectrum) ;
 __device__ void child_EuD(float *out, int *img_array, int n, int num_layers, int* ref_spectrum) ;
-__device__ void child_SID_SAM(float *out, int *img_array, int n, int num_layers, int* ref_spectrum) ;
 
 __global__ void parent_control(float *out, int *img_array, int n, int num_layers, int* ref_spectrum, int sim_alg);
 

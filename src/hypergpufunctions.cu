@@ -327,17 +327,19 @@ __global__ void parent_control(float *out, int *img_array, int n, int num_layers
     
     switch(sim_alg) {
     case 0:
-        child_SAM(out, img_array, n, num_layers, ref_spectrum);
-        if(tid < n){
-            out[tid] = 81*out[tid];
+        child_SAM(out, img_array, n, num_layers, ref_spectrum);          
+        if (tid < n){
+            out[tid] = 255 * out[tid];
         }
         break;
     case 1:
         child_SCM(out, img_array, n, num_layers, ref_spectrum);
         break;
     case 2:
+
         child_SID(out, img_array, n, num_layers, ref_spectrum);
         if(tid < n){
+            
             out[tid] = 60*out[tid];
         }
         break;
@@ -347,6 +349,9 @@ __global__ void parent_control(float *out, int *img_array, int n, int num_layers
         break;
     case 4:
         child_JM(out, img_array, n, num_layers, ref_spectrum);
+        if(tid < n){
+            out[tid] = out[tid] * 255; 
+        }
         break;
     case 5:
         child_cityblock(out, img_array, n, num_layers, ref_spectrum);
@@ -355,8 +360,34 @@ __global__ void parent_control(float *out, int *img_array, int n, int num_layers
         child_EuD(out, img_array, n, num_layers, ref_spectrum);
         break;
     case 7:
-        child_SID_SAM(out, img_array, n, num_layers, ref_spectrum);
+        // SID-SAM
+        if (tid < n){
+                
+            child_SID(out, img_array, n, num_layers, ref_spectrum);
+            float sid_result = out[tid];
+            
+
+            child_SAM(out, img_array, n, num_layers, ref_spectrum);
+            float sam_result = out[tid];
+            
+            out[tid] = 255 * (sid_result * tanf(sam_result));
+        }
         break;
+    case 8:
+        //JM-SAM
+        if(tid < n){
+
+            child_JM(out, img_array, n, num_layers, ref_spectrum);
+            float jm_result = out[tid];
+            
+
+            child_SAM(out, img_array, n, num_layers, ref_spectrum);
+            float sam_result = out[tid];
+            
+            out[tid] = 255 * (jm_result * tanf(sam_result));
+
+            
+        }
     default:
         printf("It Broke !!\n");
         break;
@@ -364,17 +395,6 @@ __global__ void parent_control(float *out, int *img_array, int n, int num_layers
     }
 }
 
-__device__ void child_SID_SAM(float *out, int *img_array, int n, int num_layers, int* ref_spectrum){
-    int tid = blockIdx.x * blockDim.x + threadIdx.x;
-
-    child_SID(out, img_array, n, num_layers, ref_spectrum);
-    int sid_result = out[tid];
-    
-    child_SAM(out, img_array, n, num_layers, ref_spectrum);
-    int sam_result = out[tid];
-
-    out[tid] = 255*(sid_result * __tanf(sam_result));
-}
 
 
 __device__ void child_SAM(float *out, int *img_array, int n, int num_layers, int* ref_spectrum){
@@ -395,7 +415,7 @@ __device__ void child_SAM(float *out, int *img_array, int n, int num_layers, int
         
         if (sum1<=0 || sum2<=0 || sum3<=0 )
         {
-            out[tid] =255; // set to white due to an error
+            out[tid] = 1; // set to white due to an error
         }
         else
         {
@@ -522,7 +542,7 @@ __device__ void child_SID(float *out, int *img_array, int n, int num_layers, int
 
         // need to normalize the results better here
         out[tid] =(sum1+sum2);
-        if (out[tid]>255){out[tid]=255;}
+        // if (out[tid]>255){out[tid]=255;}
 
     }
 }
@@ -549,8 +569,8 @@ __device__ void child_JM(float *out, int *img_array, int n, int num_layers, int*
 
         double Bhattacharyya = -log(BC);
         double JM_distance = sqrt(2 * (1 - exp(-Bhattacharyya)));
-        double JM_distance_scaled = JM_distance * 180.312229203;
-        out[tid] = (int)(JM_distance_scaled);
+        double JM_distance_scaled = JM_distance * 0.70711;
+        out[tid] = (float)(JM_distance_scaled);
     }
 
 }
