@@ -5,18 +5,20 @@
 #include "gdal/gdal.h"
 #include "gdal/gdal_priv.h"
 #include "gdal/cpl_conv.h"  // for CPLMalloc()
-
+#include <jsoncpp/json/json.h>
+#include <jsoncpp/json/writer.h>
 #include "../src/gtkfunctions.cpp"
 #include "../src/hyperfunctions.cpp"
 using namespace cv;
 using namespace std;
 using namespace std::chrono;
+using namespace Json;
 
 int main (int argc, char *argv[])
 {
     
     //ENVI is stored as a pair of DAT and HDR
-    string dat_file = "../../HyperImages/test.dat";
+    const char* dat_file = "../../HyperImages/test.dat";
 
     //Ground truth png
     string gt_file = "../../HyperImages/labeledtest.png";
@@ -70,9 +72,46 @@ int main (int argc, char *argv[])
     }
 
     // name of semantic classes 
-    vector<string> class_list{"Unknown","Alfalfa", "Corn-notill", "Corn-mintill","Corn","Grass-pasture", "Grass-trees", "Grass-pasture-mowed","Hay-windrowed","Oats", "Soybean-notill", "Soybean-mintill", "Soybean-clean", "Wheat", "Woods", "Buildings-Grass-Trees-Drives", "Stone-Steel-Towers"};
-    
-    
+    //vector<string> class_list{"Unknown","Alfalfa", "Corn-notill", "Corn-mintill","Corn","Grass-pasture", "Grass-trees", "Grass-pasture-mowed","Hay-windrowed","Oats", "Soybean-notill", "Soybean-mintill", "Soybean-clean", "Wheat", "Woods", "Buildings-Grass-Trees-Drives", "Stone-Steel-Towers"};
+        
+    // Read the JSON file
+    ifstream ifs("../../HyperImages/label_info.json");
+    if (!ifs.is_open()) {
+        cerr << "Error opening JSON file." << endl;
+        return -1;
+    }
+
+    // Parse the JSON
+    CharReaderBuilder readerBuilder;
+    Value jsonData;
+    parseFromStream(readerBuilder, ifs, &jsonData, nullptr);
+
+    // Extract class names and color hex codes
+    vector<string> class_list;
+    vector<pair<string, int>> colorIndexVector;
+
+    const Value& items = jsonData["items"];
+    int i = 0;
+    for (const auto& item : items) {
+        string name = item["name"].asString();
+        string colorHexCode = item["color_hex_code"].asString();
+
+        class_list.push_back(name);
+        colorIndexVector.push_back({colorHexCode, i});
+        i++; //Rewriting this loop to look better might be a better idea
+    }
+
+    // Print the results
+    cout << "Class List:" << endl;
+    for (const auto& className : class_list) {
+        cout << className << endl;
+    }
+
+    cout << "\nColor Index Vector:" << endl;
+    for (const auto& pair : colorIndexVector) {
+        cout << "Color: " << pair.first << ", Index: " << pair.second << endl;
+    }
+
     HyperFunctions HyperFunctions1;
     // load hyperspectral image
     HyperFunctions1.mlt1 = imageBands;
@@ -120,10 +159,10 @@ int main (int argc, char *argv[])
         return -1;
     }*/
 
-    int numClasses = 44; //should read from json
+    int numClasses = colorIndexVector.size(); //should read from json
     
      // Example data structure: vector of pairs (hex color, index)
-    vector<pair<string, int>> colorIndexVector;
+    //vector<pair<string, int>> colorIndexVector;
 
     // get pixel coordinates of each semantic class
     // assumes we do not care about unknown and unknown =0 
@@ -138,16 +177,19 @@ int main (int argc, char *argv[])
         for (int j=0; j<gt_img.cols ; j++)
         {
             which_class = 0;
-            temp_val=gt_img.at<uchar>(i,j);
-            int r = temp_val[0];
+            temp_val=gt_img.at<Vec3b>(i,j);
+            int r = temp_val[2];
             int g = temp_val[1];
-            int b = temp_val[2];
+            int b = temp_val[0];
 
             //Creates a hexadecimal color based on the rgb values in the pixel.
+            ostringstream hexColor;
             hexColor << "#" << std::setfill('0') << std::setw(2) << std::hex << r
              << std::setfill('0') << std::setw(2) << std::hex << g
              << std::setfill('0') << std::setw(2) << std::hex << b;
             string targetHexColor = hexColor.str();
+
+            //std::cout << targetHexColor << std::endl;
 
             //checks if the hexadecimal color of a particular pixel in the ground truth image is contained in the colorIndexVector
             //"it" is an iterator. If it finds the hex value then it will be located at that spot in the vector. If not, then it will be at the end.
@@ -158,7 +200,6 @@ int main (int argc, char *argv[])
 
             if (it != colorIndexVector.end()) {
                 which_class = it->second;
-                //std::cout << "Hex color value found at index: " << index << std::endl;
             } else {
                 which_class = 0; //unknown class
                 std::cout << "Hex color value not found in the data structure." << std::endl;

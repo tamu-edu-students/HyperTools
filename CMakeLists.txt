@@ -54,6 +54,9 @@ else(use_CUDA)
 
     find_package(GDAL REQUIRED)
 
+    add_executable(ground_truth_example_envi examples/ground_truth_example_envi.cpp)
+    target_link_libraries(ground_truth_example_envi PRIVATE ${GDAL_LIBRARY})
+
     add_executable(test_envi_read examples/test_envi_read.cpp)
     target_link_libraries(test_envi_read PRIVATE ${GDAL_LIBRARY})
     # add_executable(ground_truth_example examples/ground_truth_example.cpp)
