@@ -385,9 +385,8 @@ __global__ void parent_control(float *out, int *img_array, int n, int num_layers
             float sam_result = out[tid];
             
             out[tid] = 255 * (jm_result * tanf(sam_result));
-
-            
         }
+        break;
     default:
         printf("It Broke !!\n");
         break;
