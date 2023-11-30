@@ -31,7 +31,7 @@ int main() {
         std::vector<cv::Mat> imageBands;
 
         // Loop through bands and read data
-        for (int bandNum = 1; bandNum < numBands; ++bandNum) {
+        for (int bandNum = 1; bandNum <= numBands; ++bandNum) {
             GDALRasterBand *poBand = poDataset->GetRasterBand(bandNum);
 
             // Allocate memory to store pixel values
@@ -39,15 +39,26 @@ int main() {
             float *bandData = (float *) CPLMalloc(sizeof(float) * width * height);
 
             // Read band data
-            poBand->RasterIO(GF_Read, 0, 0, width, height, bandData, width, height, GDT_Int32, 0, 0);
+            poBand->RasterIO(GF_Read, 0, 0, width, height, bandData, width, height, GDT_Float32, 0, 0);
 
             // Create an OpenCV Mat from the band data
-            cv::Mat bandMat(height, width, CV_32SC1, bandData);
+            cv::Mat bandMat(height, width, CV_32FC1, bandData);
+            bandMat = bandMat.t(); 
+            cv::flip(bandMat, bandMat, 1); 
 
-            cout<<"bandMat: "<<bandMat<<endl;
+            double minVal, maxVal;
+            cv::minMaxLoc(bandMat, &minVal, &maxVal);
+            bandMat = (bandMat - minVal) / (maxVal - minVal);
+            std::cout << "Before normalization: Min = " << minVal << ", Max = " << maxVal << std::endl;
+
+            cv::minMaxLoc(bandMat, &minVal, &maxVal);
+            std::cout << "After normalization: Min = " << minVal << ", Max = " << maxVal << std::endl;
+
 
             cv::normalize(bandMat, bandMat, 0.0, 1.0, cv::NORM_MINMAX);
             bandMat.convertTo(bandMat, CV_8UC1, 255.0);
+            // cout<<"bandMat: "<<bandMat<<endl;
+
             cv::imshow("bandMat", bandMat);
             cv::waitKey(30);
 
