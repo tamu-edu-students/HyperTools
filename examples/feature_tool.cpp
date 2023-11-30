@@ -69,8 +69,11 @@ int main (int argc, char *argv[])
   button = gtk_builder_get_object (builder, "detect_ORB");
   g_signal_connect (button, "toggled", G_CALLBACK (set_feature_detector_ORB), &HyperFunctions1);
 
-  button = gtk_builder_get_object (builder, "custom_detector");
-  g_signal_connect (button, "toggled", G_CALLBACK (set_feature_detector_custom_detector), &HyperFunctions1);
+  button = gtk_builder_get_object (builder, "example_detector");
+  g_signal_connect (button, "toggled", G_CALLBACK (set_feature_detector_example_detector), &HyperFunctions1);
+  
+  button = gtk_builder_get_object (builder, "SSSift_detector");
+  g_signal_connect (button, "toggled", G_CALLBACK (set_feature_detector_SSSift), &HyperFunctions1);
   
   button = gtk_builder_get_object (builder, "descript_SIFT");
   g_signal_connect (button, "toggled", G_CALLBACK (set_feature_descriptor_SIFT), &HyperFunctions1);
@@ -80,6 +83,12 @@ int main (int argc, char *argv[])
   
   button = gtk_builder_get_object (builder, "descript_ORB");
   g_signal_connect (button, "toggled", G_CALLBACK (set_feature_descriptor_ORB), &HyperFunctions1);
+
+  button = gtk_builder_get_object (builder, "descript_example");
+  g_signal_connect (button, "toggled", G_CALLBACK (set_feature_descriptor_example_detector), &HyperFunctions1);
+
+  button = gtk_builder_get_object (builder, "descript_SSSift");
+  g_signal_connect (button, "toggled", G_CALLBACK (set_feature_descriptor_SSSift), &HyperFunctions1);
   
   button = gtk_builder_get_object (builder, "match_bf");
   g_signal_connect (button, "toggled", G_CALLBACK (set_feature_matcher_BF), &HyperFunctions1);

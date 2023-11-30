@@ -149,6 +149,7 @@ public:
 
 	//Custom Feature Detector
 	void CreateCustomFeatureDetector(int hessVal, vector<KeyPoint> &keypoints, Mat feature_img);
+	void computeCustomDescriptor ( const cv::Mat& feature_img, std::vector<cv::KeyPoint> & keypoints,cv::Mat& descriptors);
 	void gaSpace(bool isImage1);
 	void ImgIntegration();
 

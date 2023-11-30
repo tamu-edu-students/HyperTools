@@ -180,6 +180,7 @@ void HyperFunctions::SSDetector(const cv::Mat &hyperspectralCube, std::vector<cv
     //      std::cout << "x_1: " << kp.pt.x << ", y_1: " << kp.pt.y << std::endl;
     //      }
 }
+
 cv::Mat visualizeDescriptors(const cv::Mat& descriptors) {
     cv::Mat visualization;
     cv::resize(descriptors, visualization, cv::Size(400, 400));
@@ -294,10 +295,10 @@ void HyperFunctions::FeatureExtraction()
         return;
     }
 
-    if (feature_detector < 0 || feature_detector > 4 || feature_descriptor < 0 || feature_descriptor > 3 || feature_matcher < 0 || feature_matcher > 1)
-    {
-        cout << "invalid feature combination" << endl;
-    }
+    // if (feature_detector < 0 || feature_detector > 4 || feature_descriptor < 0 || feature_descriptor > 3 || feature_matcher < 0 || feature_matcher > 1)
+    // {
+    //     cout << "invalid feature combination" << endl;
+    // }
 
     int minHessian = 400;
     Ptr<SURF> detector_SURF = SURF::create(minHessian);
@@ -354,7 +355,6 @@ void HyperFunctions::FeatureExtraction()
         CreateCustomFeatureDetector(spacing, keypoints1, feature_img1); // input is the spacing between keypoints
         CreateCustomFeatureDetector(spacing, keypoints2, feature_img2);
     }
-    std::cout << "POINT 2" << std::endl;
     // feature_descriptor=0; 0 is sift, 1 is surf, 2 is orb, 3 is SS-SIFT
     if (feature_descriptor == 0)
     {
@@ -375,8 +375,16 @@ void HyperFunctions::FeatureExtraction()
     {
         // SS-sift descriptor
         SSDescriptors(keypoints1, keypoints2, descriptors1, descriptors2, 1.0);
-        visualizeDescriptors(descriptors1);
-        visualizeDescriptors(descriptors2);
+        // visualizeDescriptors(descriptors1);
+        // visualizeDescriptors(descriptors2);
+    }
+    else if (feature_descriptor == 4)
+    {
+        // example descriptor 
+        // HyperFunctions::computeCustomDescriptor ( const cv::Mat& feature_img, std::vector<cv::KeyPoint> & keypoints,cv::Mat& descriptors)
+        computeCustomDescriptor ( feature_img1,  keypoints1, descriptors1);
+        computeCustomDescriptor ( feature_img2,  keypoints2, descriptors2);
+        
     }
 
     // feature_matcher=0; 0 is flann, 1 is bf
@@ -407,8 +415,12 @@ void HyperFunctions::FeatureExtraction()
         }
     }
 
-    // filter_matches(matches);
-    std::cout << "POINT" << std::endl;
+    if (filter==1)
+    {
+        // match based on distance
+        filter_matches(matches);
+    }
+    
     Mat temp_img;
     drawMatches(feature_img1, keypoints1, feature_img2, keypoints2, matches, temp_img);
 
@@ -417,6 +429,7 @@ void HyperFunctions::FeatureExtraction()
     feature_img_combined = temp_img;
     imshow("Feature Images ", feature_img_combined);
 }
+
 void HyperFunctions::filter_matches(vector<DMatch> &matches)
 {
     if (filter == 1)
@@ -432,6 +445,38 @@ void HyperFunctions::filter_matches(vector<DMatch> &matches)
         }
     }
 }
+
+void HyperFunctions::computeCustomDescriptor ( const cv::Mat& feature_img, std::vector<cv::KeyPoint> & keypoints,cv::Mat& descriptors)
+{
+  int descriptorSize = 128;
+
+  //create descriptor matrix
+
+  descriptors = cv::Mat(keypoints.size(),descriptorSize, CV_32F);
+
+  for ( size_t i = 0; i < keypoints.size(); ++i)
+  {
+    float x = keypoints[i].pt.x;
+    float y = keypoints[i].pt.y;
+// usinig hessian blob integer approximation 
+    for (int j = 0; j <descriptorSize; ++j)
+    {
+      float scale = 1.0f + (j -descriptorSize/2) * 0.1f;
+
+      int det_Hessian =  
+      feature_img.at<uchar>(cvRound (y +scale), cvRound(x + scale))
+      * feature_img.at<uchar>(cvRound (y-scale), cvRound(x - scale))
+      - feature_img.at<uchar> (cvRound(y + scale), cvRound (x-scale))
+      * feature_img.at<uchar> (cvRound(y -scale), cvRound(x + scale ));
+
+      descriptors.at<float>(i,j) = static_cast<float>(det_Hessian);
+    }
+  }
+
+}
+
+
+
 // Finds the transformation matrix between two images
 void HyperFunctions::FeatureTransformation()
 {
@@ -469,9 +514,9 @@ void HyperFunctions::FeatureTransformation()
     // cout<<" Essential Matrix"<<endl;
     // cout<<E<<endl;
 
-    cout << "Fundamental Matrix" << endl;
-    cout << R << endl
-         << t << endl;
+    // cout << "Fundamental Matrix" << endl;
+    // cout << R << endl
+    //      << t << endl;
 
     // cout<<"inliers: " <<inlier_num<< " num of matches: "<<mask.rows<<endl;
     // cout<<" accuracy of feature matching: "<< (double)inlier_num/(double)(mask.rows)<<endl;
