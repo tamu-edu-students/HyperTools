@@ -12,12 +12,20 @@ int main (int argc, char *argv[])
 {
 
   HyperFunctions HyperFunctions1; 
+  
+  
+  // load hyperspectral image
   string file_name1="../../HyperImages/img1.tiff";
   HyperFunctions1.LoadImageHyper(file_name1);
   // using the same multilayer tiff for testing
   string file_name2="../../HyperImages/img1.tiff";
   HyperFunctions1.LoadImageHyper(file_name1, false);
 
+  // load single layer image
+  // string file_name1="../../HyperImages/cornfields/session_002/session_002_490_PANIMAGE.tiff";
+  // string file_name2="../../HyperImages/cornfields/session_002/session_002_491_PANIMAGE.tiff";
+  // HyperFunctions1.LoadFeatureImage1(file_name1);
+  // HyperFunctions1.LoadFeatureImage2(file_name2);
 
   // use a single image layer
   // HyperFunctions1.feature_img1=HyperFunctions1.mlt1[60];
@@ -54,6 +62,10 @@ int main (int argc, char *argv[])
   imshow("Integral Image",HyperFunctions1.integral_img);
 
   
+  
+  // stitch images together
+  // reuires featureextraction to be run first
+  // HyperFunctions1.Stitching();
 
 
   cv::waitKey();

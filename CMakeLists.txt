@@ -20,7 +20,8 @@ link_directories(${GTK3_LIBRARY_DIRS} )
 link_libraries(jsoncpp ${GTK3_LIBRARIES} ${OpenCV_LIBS})
 
 if (use_CUDA)
-
+    # below may or may not be needed to fix a warning
+    # cmake_policy(SET CMP0146 OLD) 
     find_package(CUDA)
         if(CUDA_FOUND)
             enable_language(CUDA)
@@ -31,13 +32,12 @@ if (use_CUDA)
             endif()
             
             add_definitions(${GTK_CFLAGS_OTHER}) 
-            cmake_policy(SET CMP0146 NEW) 
 
             add_executable(cuda_example examples/cuda_example.cu)
             set_target_properties(cuda_example PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
-            add_executable(gtk_cuda_example examples/gtk_cuda_example.cu)
-            set_target_properties(gtk_cuda_example PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+            # add_executable(gtk_cuda_example examples/gtk_cuda_example.cu)
+            # set_target_properties(gtk_cuda_example PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
         else(CUDA_FOUND)
             message("Required CUDA Packages not found")
@@ -84,9 +84,9 @@ if (use_cuvis)
 
     # endif(use_CUDA)
 else (use_cuvis)
-
-    add_executable(image_tool examples/image_tool.cpp)
-
+    if (NOT use_CUDA)
+        add_executable(image_tool examples/image_tool.cpp)
+    endif(NOT use_CUDA)
 endif()
 
 
