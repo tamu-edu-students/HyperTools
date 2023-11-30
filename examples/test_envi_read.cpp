@@ -4,6 +4,11 @@
 #include "opencv2/opencv.hpp"
 
 int main() {
+
+// install gdal on ubuntu
+// apt-get update & apt-get install libgdal-dev -y
+// run ./test_envi_read
+
     // Register GDAL drivers
     GDALAllRegister();
 
@@ -35,6 +40,9 @@ int main() {
 
             // Create an OpenCV Mat from the band data
             cv::Mat bandMat(height, width, CV_32SC1, bandData);
+
+            cv::imshow("bandMat", bandMat);
+            cv::waitKey(30);
 
             // Add the Mat to the vector
             imageBands.push_back(bandMat);
