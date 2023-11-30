@@ -213,6 +213,7 @@ def perform_similarity(cube1, spectral_array):
          print("Error: cube and spectral array have different number of channels")
          return
     else :
+        #not currently working
         kernel_code = """
             __kernel void spectral_angle_mapper(__global const float* spectra,
                                                 __global const float* reference,
@@ -378,17 +379,18 @@ if __name__ == "__main__":
     fusion_img= semantic_color(temp_img2, color_array)
     
     #show the resulting image of spectral angle mapper for a layer
-    # plt.imshow(spec_sim_arr_1[:,:,1]/3.15)  
+    plt.imshow(spec_sim_arr_1[:,:,1]/3.15)
+    plt.show()  
     
     #show the resulting hyperspectral classified img
-    # plt.imshow(color_img/255)  
-    # plt.show()
+    plt.imshow(color_img/255)  
+    plt.show()
 
     #show the resulting image of sam sam 
     plt.imshow(fusion_img/255)  
     plt.show()
     
     #show masks on rgb image
-    # plt.imshow(rgb_img)
-    # show_anns(masks)
-    # plt.show()
+    plt.imshow(rgb_img)
+    show_anns(masks)
+    plt.show()
