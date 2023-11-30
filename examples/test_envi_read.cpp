@@ -48,14 +48,15 @@ int main() {
 
             double minVal, maxVal;
             cv::minMaxLoc(bandMat, &minVal, &maxVal);
-            bandMat = (bandMat - minVal) / (maxVal - minVal);
+            //double adjustMaxVal = maxVal*10;
+            bandMat = (bandMat - minVal) / (maxVal- minVal);
             std::cout << "Before normalization: Min = " << minVal << ", Max = " << maxVal << std::endl;
 
             cv::minMaxLoc(bandMat, &minVal, &maxVal);
             std::cout << "After normalization: Min = " << minVal << ", Max = " << maxVal << std::endl;
 
 
-            cv::normalize(bandMat, bandMat, 0.0, 1.0, cv::NORM_MINMAX);
+            //cv::normalize(bandMat, bandMat, 0.0, 1.0, cv::NORM_MINMAX);
             bandMat.convertTo(bandMat, CV_8UC1, 255.0);
             // cout<<"bandMat: "<<bandMat<<endl;
 
