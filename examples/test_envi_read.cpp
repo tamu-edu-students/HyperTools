@@ -3,6 +3,8 @@
 #include "gdal/cpl_conv.h"  // for CPLMalloc()
 #include "opencv2/opencv.hpp"
 
+
+using namespace std;
 int main() {
 
 // install gdal on ubuntu
@@ -29,11 +31,12 @@ int main() {
         std::vector<cv::Mat> imageBands;
 
         // Loop through bands and read data
-        for (int bandNum = 1; bandNum <= numBands; ++bandNum) {
+        for (int bandNum = 1; bandNum < numBands; ++bandNum) {
             GDALRasterBand *poBand = poDataset->GetRasterBand(bandNum);
 
             // Allocate memory to store pixel values
-            int *bandData = (int *) CPLMalloc(sizeof(int) * width * height);
+            // int *bandData = (int *) CPLMalloc(sizeof(int) * width * height);
+            float *bandData = (float *) CPLMalloc(sizeof(float) * width * height);
 
             // Read band data
             poBand->RasterIO(GF_Read, 0, 0, width, height, bandData, width, height, GDT_Int32, 0, 0);
@@ -41,6 +44,10 @@ int main() {
             // Create an OpenCV Mat from the band data
             cv::Mat bandMat(height, width, CV_32SC1, bandData);
 
+            cout<<"bandMat: "<<bandMat<<endl;
+
+            cv::normalize(bandMat, bandMat, 0.0, 1.0, cv::NORM_MINMAX);
+            bandMat.convertTo(bandMat, CV_8UC1, 255.0);
             cv::imshow("bandMat", bandMat);
             cv::waitKey(30);
 
