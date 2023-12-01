@@ -1,3 +1,4 @@
+import sys
 import cuvis
 import numpy as np
 import matplotlib.pyplot as plt
@@ -55,7 +56,7 @@ def   reprocessMeasurement(userSettingsDir,measurementLoc,darkLoc,whiteLoc,dista
     
     print("loading user settings...")
     settings = cuvis.General(userSettingsDir)
-    settings.setLogLevel("info")
+    # settings.setLogLevel("info")
 
     print("loading measurement file...")
     mesu = cuvis.Measurement(measurementLoc)
@@ -67,7 +68,7 @@ def   reprocessMeasurement(userSettingsDir,measurementLoc,darkLoc,whiteLoc,dista
     print("loading dark...")
     distance = cuvis.Measurement(distanceLoc)
 
-    print("Data 1 {} t={}ms mode={}".format(mesu.Name,mesu.IntegrationTime,mesu.ProcessingMode,))
+    # print("Data 1 {} t={}ms mode={}".format(mesu.Name,mesu.IntegrationTime,mesu.ProcessingMode,))
 
     print("loading calibration and processing context (factory)...")
     calibration = cuvis.Calibration(factoryDir)
@@ -154,6 +155,7 @@ if __name__ == "__main__":
 
    # make sure terminal is in the right directory when running this file
    # I was running from the examples directory of hypertools
+   # this file needs to be updated to work with new version of cuvis
     
     userSettingsDir = "../settings/" 
     measurementLoc = "../../HyperImages/cornfields/session_002/session_002_490.cu3"
