@@ -60,15 +60,20 @@ endif(use_CUDA)
 
 if (use_cuvis)
 
-    list(APPEND CMAKE_MODULE_PATH "/cuvis.sdk/Cpp/SDK/cmake/")
-    find_package(CuvisCpp REQUIRED)    
+    list(APPEND CMAKE_MODULE_PATH "/cuvis.sdk/cuvis.cpp/")
+    list(APPEND CMAKE_MODULE_PATH "/cuvis.sdk/cuvis.c/")
+    set(DOXYGEN_BUILD_DOCUMENTATION OFF CACHE BOOL "Create and install the HTML based API documentation (requires Doxygen)" FORCE)
+
     add_definitions(-Duse_cuvis)
+    find_package(Cuvis REQUIRED 3.2.0)
+    find_package(CuvisCpp REQUIRED)    
+    
 
     add_executable(cubert_example examples/cubert_example.cpp)
     target_link_libraries(cubert_example PRIVATE cuvis::cpp)
 
-    # add_executable(deeplab_example examples/deeplab_example.cpp)
-    # target_link_libraries(deeplab_example PRIVATE cuvis::cpp)
+    # # add_executable(deeplab_example examples/deeplab_example.cpp)
+    # # target_link_libraries(deeplab_example PRIVATE cuvis::cpp)
 
     add_executable(image_tool_cuvis examples/image_tool.cpp)
     target_link_libraries(image_tool_cuvis PRIVATE cuvis::cpp)
@@ -76,11 +81,8 @@ if (use_cuvis)
 
     # if (use_CUDA)
 
-    #     list(APPEND CMAKE_MODULE_PATH "/cuvis.sdk/C/SDK/cmake/")
-    #     find_package(Cuvis REQUIRED)
-
     #     add_executable(cuda_cubert_example examples/cuda_cubert_example.cu)
-    #     target_link_libraries(cuda_cubert_example PRIVATE cuvis::c)
+    #     target_link_libraries(cuda_cubert_example PRIVATE cuvis::cpp)
 
     # endif(use_CUDA)
 else (use_cuvis)
