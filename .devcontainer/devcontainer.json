@@ -10,12 +10,11 @@
 	// https://docs.docker.com/build/building/multi-platform/#:~:text=Docker%20images%20can%20support%20multiple,operating%20systems%2C%20such%20as%20Windows.
 
 	// make sure to uncomment the image that is desired for development
-	// "image": "hypertools_4_2:latest" ,
-	"image": "hypertools_cubert_test:latest" ,
+	"image": "hypertools_4_2:latest" ,
+	// "image": "hypertools_cubert:latest" ,
 	// "image": "hypertools_4_2_cuda:latest" ,
 	// "image": "hypertools_current_opencv:latest" ,
 	// "image": "hypertools_cubert_cuda:latest" ,
-	// "image": "hypertools_cuda_lightglue:latest" ,
 	
 	"mounts": [
 

@@ -73,7 +73,7 @@ if (use_cuvis)
     
 
     add_executable(cubert_example examples/cubert_example.cpp)
-    target_link_libraries(cubert_example PRIVATE cuvis::c)
+    target_link_libraries(cubert_example PRIVATE cuvis::cpp)
 
     # # add_executable(deeplab_example examples/deeplab_example.cpp)
     # # target_link_libraries(deeplab_example PRIVATE cuvis::cpp)

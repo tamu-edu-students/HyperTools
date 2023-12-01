@@ -15,22 +15,22 @@ int main (int argc, char *argv[])
     HyperFunctionsCuvis HyperFunctions1;
 
     // below is for ultris 5 example
-    HyperFunctions1.cubert_img = "../../HyperImages/ultris5/session_000/session_000_013_snapshot.cu3";
-    HyperFunctions1.dark_img = "../../HyperImages/ultris5/Calibration/dark__session_001_003_snapshot16813826516209154.cu3";
-    HyperFunctions1.white_img = "../../HyperImages/ultris5/Calibration/white__session_001_005_snapshot16813826606404753.cu3";
-    HyperFunctions1.dist_img = "../../HyperImages/ultris5/Calibration/distanceCalib__ultris5ohnerelay_000_002_snapshot16813826930775916.cu3";
-    HyperFunctions1.factor_dir="../../HyperImages/ultris5/Calibration"; // requires init.daq file
-    HyperFunctions1.cubert_settings="../settings/ultris5";  //camera settings file 
+    // HyperFunctions1.cubert_img = "../../HyperImages/ultris5/session_000/session_000_013_snapshot.cu3";
+    // HyperFunctions1.dark_img = "../../HyperImages/ultris5/Calibration/dark__session_001_003_snapshot16813826516209154.cu3";
+    // HyperFunctions1.white_img = "../../HyperImages/ultris5/Calibration/white__session_001_005_snapshot16813826606404753.cu3";
+    // HyperFunctions1.dist_img = "../../HyperImages/ultris5/Calibration/distanceCalib__ultris5ohnerelay_000_002_snapshot16813826930775916.cu3";
+    // HyperFunctions1.factor_dir="../../HyperImages/ultris5/Calibration"; // requires init.daq file
+    // HyperFunctions1.cubert_settings="../settings/ultris5";  //camera settings file 
        
     // below are needed if the ultris5 is used instead of the ultris 20
     // HyperFunctions1.cubert_settings="../settings/ultris5";  //camera settings file 
     // HyperFunctions1.factor_dir="../settings/ultris5"; // requires init.daq file
 
     // ultris 20 example
-    // HyperFunctions1.cubert_img = "../../HyperImages/cornfields/session_002/session_002_490.cu3";
-    // HyperFunctions1.dark_img = "../../HyperImages/cornfields/Calibration/dark__session_002_003_snapshot16423119279414228.cu3";
-    // HyperFunctions1.white_img = "../../HyperImages/cornfields/Calibration/white__session_002_752_snapshot16423136896447489.cu3";
-    // HyperFunctions1.dist_img = "../../HyperImages/cornfields/Calibration/distanceCalib__session_000_790_snapshot16423004058237746.cu3";
+    HyperFunctions1.cubert_img = "../../HyperImages/cornfields/session_002/session_002_490.cu3";
+    HyperFunctions1.dark_img = "../../HyperImages/cornfields/Calibration/dark__session_002_003_snapshot16423119279414228.cu3";
+    HyperFunctions1.white_img = "../../HyperImages/cornfields/Calibration/white__session_002_752_snapshot16423136896447489.cu3";
+    HyperFunctions1.dist_img = "../../HyperImages/cornfields/Calibration/distanceCalib__session_000_790_snapshot16423004058237746.cu3";
 
 
     // below is for reprocessing the image in the case when raw mode is required
@@ -63,17 +63,17 @@ int main (int argc, char *argv[])
 
     // below only works for ultris20 images due to different number of layers in default spectral database
     // below loads spectral database and performs classification
-    string spec_database= "../json/spectral_database_U5.json";
+    // string spec_database= "../json/spectral_database_U5.json";
     // string spec_database= "../json/spectral_database_U20.json";
-    HyperFunctions1.read_ref_spec_json(spec_database);
+    // HyperFunctions1.read_ref_spec_json(spec_database);
 
     // generate spectral similarity image
    	// HyperFunctions1.SpecSimilParent();
     // HyperFunctions1.DispSpecSim();
 
     // generate classified image
-    HyperFunctions1.SemanticSegmenter();
-    HyperFunctions1.DispClassifiedImage();
+    // HyperFunctions1.SemanticSegmenter();
+    // HyperFunctions1.DispClassifiedImage();
     cv::waitKey();
 
   
