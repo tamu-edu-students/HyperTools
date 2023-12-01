@@ -307,8 +307,8 @@
           </packing>
         </child>
         <child>
-          <object class="GtkRadioButton" id="custom_detector">
-            <property name="label" translatable="yes">CUSTOM Detector</property>
+          <object class="GtkRadioButton" id="example_detector">
+            <property name="label" translatable="yes">Example Detector</property>
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">False</property>
@@ -321,13 +321,46 @@
           </packing>
         </child>
         <child>
-          <placeholder/>
+          <object class="GtkRadioButton" id="descript_example">
+            <property name="label" translatable="yes">Example Descriptor</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">False</property>
+            <property name="draw_indicator">True</property>
+            <property name="group">descript_SIFT</property>
+          </object>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="top_attach">6</property>
+          </packing>
         </child>
         <child>
-          <placeholder/>
+          <object class="GtkRadioButton" id="descript_SSSift">
+            <property name="label" translatable="yes">SS SIFT Descriptor</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">False</property>
+            <property name="draw_indicator">True</property>
+            <property name="group">descript_SIFT</property>
+          </object>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="top_attach">7</property>
+          </packing>
         </child>
         <child>
-          <placeholder/>
+          <object class="GtkRadioButton" id="SSSift_detector">
+            <property name="label" translatable="yes">SS SIFT Detector</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">False</property>
+            <property name="draw_indicator">True</property>
+            <property name="group">detect_SIFT</property>
+          </object>
+          <packing>
+            <property name="left_attach">0</property>
+            <property name="top_attach">8</property>
+          </packing>
         </child>
         <child>
           <placeholder/>

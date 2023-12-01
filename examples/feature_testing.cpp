@@ -3,6 +3,7 @@
 #include <cmath>
 #include "../src/hyperfunctions.cpp"
 
+
 using namespace cv;
 using namespace std;
 
@@ -27,8 +28,8 @@ int main (int argc, char *argv[])
   // HyperFunctions1.LoadFeatureImage2(file_name2);
 
   // use a single image layer
-  // HyperFunctions1.feature_img1=HyperFunctions1.mlt1[60];
-	// HyperFunctions1.feature_img2=HyperFunctions1.mlt2[70];
+  HyperFunctions1.feature_img1=HyperFunctions1.mlt1[60];
+	HyperFunctions1.feature_img2=HyperFunctions1.mlt2[70];
 
   // use ga space
   HyperFunctions1.dimensionality_reduction = 1;
@@ -52,7 +53,18 @@ int main (int argc, char *argv[])
 	HyperFunctions1.feature_matcher=0;
   HyperFunctions1.FeatureExtraction();
   
+
+
+
+  // Creating and showing integral image:
+  // HyperFunctions1.gaSpace(true);
+  // HyperFunctions1.ImgIntegration();
+  // imshow("Integral Image",HyperFunctions1.integral_img);
+
+  
+  
   // stitch images together
+  // reuires featureextraction to be run first
   // HyperFunctions1.Stitching();
 
 

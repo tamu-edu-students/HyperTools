@@ -615,12 +615,20 @@ static void set_feature_detector_FAST(GtkWidget *widget,  gpointer data)
     if (T==1) {HyperFunctions1->feature_detector=3;}
 
 }
-static void set_feature_detector_custom_detector(GtkWidget *widget,  gpointer data)
+static void set_feature_detector_SSSift(GtkWidget *widget,  gpointer data)
 {
     void * data_new=data;
     HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
     gboolean T = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
     if (T==1) {HyperFunctions1->feature_detector=4;}
+
+}
+static void set_feature_detector_example_detector(GtkWidget *widget,  gpointer data)
+{
+    void * data_new=data;
+    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
+    gboolean T = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+    if (T==1) {HyperFunctions1->feature_detector=5;}
 
 }
 static void set_feature_descriptor_SIFT(GtkWidget *widget,  gpointer data)
@@ -645,6 +653,22 @@ static void set_feature_descriptor_ORB(GtkWidget *widget,  gpointer data)
     HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
     gboolean T = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
     if (T==1) {HyperFunctions1->feature_descriptor=2;}
+
+}
+static void set_feature_descriptor_SSSift(GtkWidget *widget,  gpointer data)
+{
+    void * data_new=data;
+    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
+    gboolean T = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+    if (T==1) {HyperFunctions1->feature_descriptor=3;}
+
+}
+static void set_feature_descriptor_example_detector(GtkWidget *widget,  gpointer data)
+{
+    void * data_new=data;
+    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
+    gboolean T = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+    if (T==1) {HyperFunctions1->feature_descriptor=4;}
 
 }
 static void set_feature_matcher_FLANN(GtkWidget *widget,  gpointer data)

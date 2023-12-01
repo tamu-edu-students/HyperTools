@@ -39,7 +39,6 @@ if (use_CUDA)
             # add_executable(gtk_cuda_example examples/gtk_cuda_example.cu)
             # set_target_properties(gtk_cuda_example PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
-
         else(CUDA_FOUND)
             message("Required CUDA Packages not found")
 
@@ -51,7 +50,7 @@ else(use_CUDA)
     # add_executable(semantic_interface examples/semantic_segmentation.cpp)
     add_executable(feature_tool examples/feature_tool.cpp)
     add_executable(feature_testing examples/feature_testing.cpp)
-    # add_executable(ground_truth_example examples/ground_truth_example.cpp)
+    #add_executable(ground_truth_example examples/ground_truth_example.cpp)
 
     add_definitions(${GTK3_CFLAGS} ${GTK3_CFLAGS_OTHER})
 
