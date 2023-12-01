@@ -8,7 +8,7 @@ project(user_interface_project C CXX)
 #change below to true to use GPU or false to not use GPU
 set(use_CUDA false) 
 #change below to true to use cuvis.sdk
-set (use_cuvis true)
+set (use_cuvis false)
 
 
 find_package(OpenCV  REQUIRED)
@@ -63,11 +63,8 @@ if (use_cuvis)
     list(APPEND CMAKE_MODULE_PATH "/cuvis.sdk/cuvis.cpp/")
     list(APPEND CMAKE_MODULE_PATH "/cuvis.sdk/cuvis.c/")
     set(DOXYGEN_BUILD_DOCUMENTATION OFF CACHE BOOL "Create and install the HTML based API documentation (requires Doxygen)" FORCE)
-    # list(APPEND CMAKE_MODULE_PATH "/workspaces/HyperTools/submodules/cuvis.sdk/cuvis.c/")
-    # list(APPEND CMAKE_MODULE_PATH "/workspaces/HyperTools/submodules/cuvis.sdk/cuvis.cpp/")
+
     add_definitions(-Duse_cuvis)
-    
-    
     find_package(Cuvis REQUIRED 3.2.0)
     find_package(CuvisCpp REQUIRED)    
     
@@ -78,16 +75,16 @@ if (use_cuvis)
     # # add_executable(deeplab_example examples/deeplab_example.cpp)
     # # target_link_libraries(deeplab_example PRIVATE cuvis::cpp)
 
-    # add_executable(image_tool_cuvis examples/image_tool.cpp)
-    # target_link_libraries(image_tool_cuvis PRIVATE cuvis::cpp)
+    add_executable(image_tool_cuvis examples/image_tool.cpp)
+    target_link_libraries(image_tool_cuvis PRIVATE cuvis::cpp)
 
 
-    if (use_CUDA)
+    # if (use_CUDA)
 
-        add_executable(cuda_cubert_example examples/cuda_cubert_example.cu)
-        target_link_libraries(cuda_cubert_example PRIVATE cuvis::cpp)
+    #     add_executable(cuda_cubert_example examples/cuda_cubert_example.cu)
+    #     target_link_libraries(cuda_cubert_example PRIVATE cuvis::cpp)
 
-    endif(use_CUDA)
+    # endif(use_CUDA)
 else (use_cuvis)
 
     add_executable(image_tool examples/image_tool.cpp)
