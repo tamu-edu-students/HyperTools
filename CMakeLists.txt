@@ -13,11 +13,12 @@ set (use_cuvis false)
 
 find_package(OpenCV  REQUIRED)
 find_package(PkgConfig REQUIRED)
+find_package(GDAL REQUIRED)
 pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
 include_directories( ${OpenCV_INCLUDE_DIRS} )
 include_directories(${GTK3_INCLUDE_DIRS} )
 link_directories(${GTK3_LIBRARY_DIRS} )
-link_libraries(jsoncpp ${GTK3_LIBRARIES} ${OpenCV_LIBS})
+link_libraries(jsoncpp ${GTK3_LIBRARIES} ${OpenCV_LIBS} ${GDAL_LIBRARY})
 
 if (use_CUDA)
     # below may or may not be needed to fix a warning
@@ -52,13 +53,9 @@ else(use_CUDA)
     add_executable(feature_tool examples/feature_tool.cpp)
     add_executable(feature_testing examples/feature_testing.cpp)
 
-    find_package(GDAL REQUIRED)
-
     add_executable(ground_truth_example_envi examples/ground_truth_example_envi.cpp)
-    target_link_libraries(ground_truth_example_envi PRIVATE ${GDAL_LIBRARY})
+    target_link_libraries(ground_truth_example_envi PRIVATE )
 
-    add_executable(test_envi_read examples/test_envi_read.cpp)
-    target_link_libraries(test_envi_read PRIVATE ${GDAL_LIBRARY})
     # add_executable(ground_truth_example examples/ground_truth_example.cpp)
 
     add_definitions(${GTK3_CFLAGS} ${GTK3_CFLAGS_OTHER})
