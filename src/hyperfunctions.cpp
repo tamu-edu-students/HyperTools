@@ -181,13 +181,7 @@ void HyperFunctions::SSDetector(const cv::Mat &hyperspectralCube, std::vector<cv
     //      }
 }
 
-cv::Mat visualizeDescriptors(const cv::Mat& descriptors) {
-    cv::Mat visualization;
-    cv::resize(descriptors, visualization, cv::Size(400, 400));
-    cv::imshow("Descriptors", visualization);
-    cv::waitKey(0);
-    return visualization;
-}
+
 
 void HyperFunctions::SSDescriptors(const std::vector<cv::KeyPoint> &keypoints1, const std::vector<cv::KeyPoint> &keypoints2, cv::Mat &descriptor1, cv::Mat &descriptor2, float M_max = 1.0)
 {
@@ -502,11 +496,10 @@ void HyperFunctions::FeatureExtraction()
         }
     }
 
-    if (filter==1)
-    {
-        // match based on distance
-        filter_matches(matches);
-    }
+
+    // filter matches with desired approach
+    filter_matches(matches);
+
     
     Mat temp_img;
     drawMatches(feature_img1, keypoints1, feature_img2, keypoints2, matches, temp_img);
