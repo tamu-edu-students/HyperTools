@@ -16,7 +16,20 @@ using namespace Json;
 
 int main (int argc, char *argv[])
 {
-    
+    //Collect command line arguments to determine which algorithms to use on the image.
+    int firstAlgorithm = 0;
+    int secondAlgorithm = 1;
+
+    if (argc == 3) {
+        // Convert command line argument to integer
+        firstAlgorithm = std::stoi(argv[1]);
+        secondAlgorithm = std::stoi(argv[2]);
+    }
+    else if (argc == 2) {
+        firstAlgorithm = std::stoi(argv[1]);
+    }
+
+
     //ENVI is stored as a pair of DAT and HDR
     const char* dat_file = "../../HyperImages/test.dat";
 
@@ -25,66 +38,6 @@ int main (int argc, char *argv[])
     
     //name of spectral database being created
     string spectral_database="../json/envi_spectral_database.json";
-    
-    // Register GDAL drivers
-    GDALAllRegister();
-
-    //const char* enviHeaderPath = "../../HyperImages/test.dat";
-
-    std::vector<cv::Mat> imageBands;
-
-    // Open the ENVI file
-    GDALDataset *poDataset = (GDALDataset *) GDALOpen(dat_file, GA_ReadOnly);
-    
-    if (poDataset != nullptr) {
-        // Get information about the dataset
-        int width = poDataset->GetRasterXSize();
-        int height = poDataset->GetRasterYSize();
-        int numBands = poDataset->GetRasterCount();
-
-        printf("Width: %d, Height: %d, Bands: %d\n", width, height, numBands);
-
-        // Loop through bands and read data
-        for (int bandNum = 1; bandNum < numBands; ++bandNum) {
-            GDALRasterBand *poBand = poDataset->GetRasterBand(bandNum);
-
-            // Allocate memory to store pixel values
-            //int *bandData = (int *) CPLMalloc(sizeof(int) * width * height);
-            float *bandData = (float *) CPLMalloc(sizeof(float) * width * height);
-            //unsigned char *bandData = (unsigned char *)CPLMalloc(sizeof(unsigned char) * width * height);
-
-
-            // Read band data
-            poBand->RasterIO(GF_Read, 0, 0, width, height, bandData, width, height, GDT_Float32, 0, 0);
-
-            // Scale the values to the range 0-255
-            for (int i = 0; i < width * height; ++i) {
-                bandData[i] *= 255.0;
-                //cout << bandData[i] << endl;
-            }
-
-            // Create an OpenCV Mat from the band data
-            cv::Mat bandMat(height, width, CV_8UC1, bandData);
-            
-            //cout << bandMat << endl;
-/*
-            double min, max;
-            cv::minMaxIdx(bandMat, &min, &max);
-            bandMat = (bandMat - min) * (255.0 / (max - min));
-*/
-            // Add the Mat to the vector
-            imageBands.push_back(bandMat);
-
-            // Release allocated memory
-            CPLFree(bandData);
-        }
-
-        // Close the dataset
-        GDALClose(poDataset);
-
-    } else {
-        printf("Failed to open the dataset.\n");
-    }
 
     // name of semantic classes 
     //vector<string> class_list{"Unknown","Alfalfa", "Corn-notill", "Corn-mintill","Corn","Grass-pasture", "Grass-trees", "Grass-pasture-mowed","Hay-windrowed","Oats", "Soybean-notill", "Soybean-mintill", "Soybean-clean", "Wheat", "Woods", "Buildings-Grass-Trees-Drives", "Stone-Steel-Towers"};
@@ -107,6 +60,7 @@ int main (int argc, char *argv[])
 
     const Value& items = jsonData["items"];
     int i = 0;
+    class_list.push_back("unknown");
     for (const auto& item : items) {
         string name = item["name"].asString();
         string colorHexCode = item["color_hex_code"].asString();
@@ -117,72 +71,27 @@ int main (int argc, char *argv[])
     }
 
     // Print the results
-    cout << "Class List:" << endl;
+    //cout << "Class List:" << endl;
     for (const auto& className : class_list) {
-        cout << className << endl;
+        //cout << className << endl;
     }
 
-    cout << "\nColor Index Vector:" << endl;
+   // cout << "\nColor Index Vector:" << endl;
     for (const auto& pair : colorIndexVector) {
-        cout << "Color: " << pair.first << ", Index: " << pair.second << endl;
+        //cout << "Color: " << pair.first << ", Index: " << pair.second << endl;
     }
 
     HyperFunctions HyperFunctions1;
     // load hyperspectral image
-    HyperFunctions1.mlt1 = imageBands;
-    //HyperFunctions1.LoadImageHyper(file_name1);
+    //HyperFunctions1.mlt1 = imageBands;
+    HyperFunctions1.LoadImageHyper(dat_file);
 
 
-    std::cout << "Type of myMat: " << HyperFunctions1.mlt1[0].type() << std::endl;
+    //std::cout << "Type of myMat: " << HyperFunctions1.mlt1[0].type() << std::endl;
 
-    for (int i =0; i < HyperFunctions1.mlt1.size(); i ++) {
-        imshow("", HyperFunctions1.mlt1[i]);
-        cv::waitKey(30);
-    }
-
-return 1;
     // load ground truth image
     Mat gt_img = imread(gt_file, IMREAD_COLOR);
     
-    // make sure ground truth image is 8 bit single channel
-    // ref https://gist.github.com/yangcha/38f2fa630e223a8546f9b48ebbb3e61a
-    //cout<<gt_img.type()<<endl;
-    /*
-    if (gt_img.type()==16)
-    { // color img
-        //gt_img.convertTo(gt_img,CV_8UC1);converts to 8bit
-        cvtColor(gt_img, gt_img, COLOR_BGR2GRAY);
-    
-    }
-    else if (gt_img.type()==0)
-    {
-     // right now dont do anything 
-    
-    }
-    else
-    {
-        cout << "unsupported image type" << endl;
-    }
-    */
-    
-    // get number of semantic classes 
-    // assumption 0 is unknown
-    // class values 1-N (N is total number of classes)
-    // only care about max value
-    /*
-    double minVal; 
-    double maxVal; 
-    Point minLoc; 
-    Point maxLoc;
-    minMaxLoc( gt_img, &minVal, &maxVal, &minLoc, &maxLoc );
-    cout<<"Number of semantic classes: "<<maxVal<<endl;
-    
-    if (maxVal<1)
-    {
-        cout<<"improper input"<<endl;
-        return -1;
-    }*/
-
     int numClasses = colorIndexVector.size(); //should read from json
     
      // Example data structure: vector of pairs (hex color, index)
@@ -224,7 +133,7 @@ return 1;
                                     });
 
             if (it != colorIndexVector.end()) {
-                which_class = it->second;
+                which_class = it->second + 1; //the first color index corresponds to the second class index (1)
             } else {
                 which_class = 0; //unknown class
                 std::cout << "Hex color value not found in the data structure." << std::endl;
@@ -240,8 +149,8 @@ return 1;
         }
     }
 
-    // verify number of samples is right
-    /*cout << "class and number of samples in class" << endl;
+    // verify number of firstAlgples is right
+    /*cout << "class and number of firstAlgples in class" << endl;
     for  (int i=1; i<class_coordinates.size() ; i++)
     {
         cout << i << "  " <<class_coordinates[i].size() << endl;
@@ -269,6 +178,8 @@ return 1;
         }
     }
 
+
+
     for  (int i=1; i<class_coordinates.size() ; i++)    // for each class
     {
         // for each pixel in class
@@ -287,7 +198,9 @@ return 1;
 
         for  (int j=0; j<HyperFunctions1.mlt1.size() ; j++)
         {
-            avgSpectrums[i][j] /= class_coordinates[i].size();
+            if (class_coordinates[i].size() > 0) {
+                avgSpectrums[i][j] /= class_coordinates[i].size();
+            }
             if (avgSpectrums[i][j]<0){ avgSpectrums[i][j]=0;}
             if (avgSpectrums[i][j]>255){ avgSpectrums[i][j]=255;}
             avgSpectrums_vector[i][j]=avgSpectrums[i][j];
@@ -295,6 +208,11 @@ return 1;
     }
 
 
+    //int al = sizeof(avgSpectrums)/sizeof(avgSpectrums[0]); //length calculation
+   //cout << "The length of the array is: " << al << endl;
+   //cout << "The length of the vector is: " << avgSpectrums_vector.size() << endl;
+
+//cout << avgSpectrums_vector[44][0] << endl;
 
     vector<double> accuracy_by_class (class_coordinates.size());
     
@@ -305,7 +223,6 @@ return 1;
     Json::Value value_obj;
     // value_obj = completeJsonData2;
     
-   
     
     for (int j=1; j<class_coordinates.size() ; j++)
     {
@@ -336,18 +253,24 @@ return 1;
                 cout<<" error: out of limit for spectral wavelength"<<endl;
                 return -1;
             }
+            //cout << i << " " << j << endl;
             if (avgSpectrums[j][i]<0){ avgSpectrums[j][i]=0;}
             if (avgSpectrums[j][i]>255){ avgSpectrums[j][i]=255;}
             value_obj["Spectral_Information"][class_list[j]][zero_pad_result] = avgSpectrums_vector[j][i]; //value between 0-255 corresponding to reflectance
-
+            //cout << i << " " << j << "time2" << endl;
         }
 
+        //Guessing seg fault
+        //cout << "line 245" << endl;
         // may need to also set color information for visualization in addition to the class number 
         //value_obj["Color_Information"][class_list[j]]["Class_Number"] = j;
         value_obj["Color_Information"][class_list[j]]["red_value"] = j;
         value_obj["Color_Information"][class_list[j]]["green_value"] = j;
         value_obj["Color_Information"][class_list[j]]["blue_value"] = j;
+
+        //cout << "line 252" << endl;
     }
+
 
     Json::StyledWriter styledWriter;
     file_id << styledWriter.write(value_obj);
@@ -366,9 +289,9 @@ return 1;
     cv::waitKey();*/
     
 
-    // set alg to SAM and perform semantic segmentation
-    //cout << "Segmenting Image with SAM algorithm" << endl;
-    HyperFunctions1.spec_sim_alg = 0;
+    // set alg to firstAlg and perform semantic segmentation
+    //cout << "Segmenting Image with firstAlg algorithm" << endl;
+    HyperFunctions1.spec_sim_alg = firstAlgorithm;
     auto start = high_resolution_clock::now();
     HyperFunctions1.SemanticSegmenter();
     auto end = high_resolution_clock::now();
@@ -376,11 +299,14 @@ return 1;
     //HyperFunctions1.DispClassifiedImage();
     //cv::waitKey();
     
-    //cout << "SAM_img done" << endl;
+    //cout << "firstAlg_img done" << endl;
     
-    cout << "Comparing GT to SAM algorithm" << endl;
+    cout << "Comparing GT to algorithm " << firstAlgorithm << endl;
     for  (int i=1; i<class_coordinates.size() ; i++)    // for each class
     {
+        if (class_coordinates[i].size() < 1) {
+            continue;
+        }
         for (int k = 0; k < class_coordinates[i].size(); k++){
             Point tempPt = class_coordinates[i][k];
             int gtClass = i;    // assuming also comparing unknowns(0)
@@ -396,13 +322,13 @@ return 1;
  
 
 
-    // setting SAM as ground "ground truth"
-    Mat SAM_img_Classified, SAM_img_Classified_normal;
-    SAM_img_Classified = HyperFunctions1.classified_img;
+    // setting firstAlg as ground "ground truth"
+    Mat firstAlg_img_Classified, firstAlg_img_Classified_normal;
+    firstAlg_img_Classified = HyperFunctions1.classified_img;
 
-    // visualize results of sam and gt img
-    normalize(SAM_img_Classified, SAM_img_Classified_normal, 0,255, NORM_MINMAX, CV_8UC1);
-    imshow("sam img", SAM_img_Classified_normal);
+    // visualize results of firstAlg and gt img
+    normalize(firstAlg_img_Classified, firstAlg_img_Classified_normal, 0,255, NORM_MINMAX, CV_8UC1);
+    imshow("firstAlg img", firstAlg_img_Classified_normal);
     Mat gt_normal;
     normalize(gt_img, gt_normal, 0,255, NORM_MINMAX, CV_8UC1);
     imshow("gt img", gt_normal);
@@ -411,40 +337,43 @@ return 1;
 
 
 
-    // Sets it to SCM for comparison
-    HyperFunctions1.spec_sim_alg = 1; 
+    // Sets it to secondAlg for comparison
+    HyperFunctions1.spec_sim_alg = secondAlgorithm; 
     HyperFunctions1.SemanticSegmenter();
 
-    //For each pixel in the SCM classified image, compare to the SAM one
+    //For each pixel in the secondAlg classified image, compare to the firstAlg one
     vector<double> accuracy_by_class2 (class_coordinates.size());
-    vector<double> SAM_in_class (class_coordinates.size()); //How many pixels the SAM said were in the class
-    vector<double> SCM_in_class (class_coordinates.size()); //How many pixels the SAM said were in the class
-    cout << "Comparing SAM to SCM results" << endl;
+    vector<double> firstAlg_in_class (class_coordinates.size()); //How many pixels the firstAlg said were in the class
+    vector<double> secondAlg_in_class (class_coordinates.size()); //How many pixels the secondAlg said were in the class
+    cout << "Comparing algorithms " << firstAlgorithm << " and " << secondAlgorithm << endl;
     for  (int i=0; i<HyperFunctions1.classified_img.rows ; i++)
     {
         for (int k = 0; k < HyperFunctions1.classified_img.cols; k++){
-            Vec3b SAM_Class = SAM_img_Classified.at<Vec3b>(i,k);    
-            Vec3b SCM_Class = HyperFunctions1.classified_img.at<Vec3b>(i,k);
-            if (SAM_Class == SCM_Class) {
-                accuracy_by_class2[SAM_Class[0]] += 1;
+            Vec3b firstAlg_Class = firstAlg_img_Classified.at<Vec3b>(i,k);    
+            Vec3b secondAlg_Class = HyperFunctions1.classified_img.at<Vec3b>(i,k);
+            if (firstAlg_Class == secondAlg_Class) {
+                accuracy_by_class2[firstAlg_Class[0]] += 1;
             }
-            SAM_in_class[SAM_Class[0]] += 1;
-            SCM_in_class[SCM_Class[0]] += 1;
+            firstAlg_in_class[firstAlg_Class[0]] += 1;
+            secondAlg_in_class[secondAlg_Class[0]] += 1;
         }
         
     }
 
     
     for (int i = 1; i < class_coordinates_size; i++) {
-        cout << "SCM percentage agreement with SAM class " << i << ": " << 100*(double)(accuracy_by_class2[i] ) / SAM_in_class[i]<< "%" <<endl;
-        cout << "SAM percentage agreement with SCM class " << i << ": " << 100*(double)(accuracy_by_class2[i] ) / SCM_in_class[i]<< "%" <<endl;
+        if (class_coordinates[i].size() < 1) {
+            continue;
+        }
+        cout << "secondAlg percentage agreement with firstAlg class " << i << ": " << 100*(double)(accuracy_by_class2[i] ) / firstAlg_in_class[i]<< "%" <<endl;
+        cout << "firstAlg percentage agreement with secondAlg class " << i << ": " << 100*(double)(accuracy_by_class2[i] ) / secondAlg_in_class[i]<< "%" <<endl;
     }
 
 
-    Mat SCM_img_Classified, SCM_img_Classified_normal;
-    SCM_img_Classified = HyperFunctions1.classified_img;
-    normalize(SCM_img_Classified, SCM_img_Classified_normal, 0,255, NORM_MINMAX, CV_8UC1);
-    imshow("scm img", SAM_img_Classified_normal);
+    Mat secondAlg_img_Classified, secondAlg_img_Classified_normal;
+    secondAlg_img_Classified = HyperFunctions1.classified_img;
+    normalize(secondAlg_img_Classified, secondAlg_img_Classified_normal, 0,255, NORM_MINMAX, CV_8UC1);
+    imshow("secondAlg img", secondAlg_img_Classified_normal);
     cv::waitKey();
   
   return 0;

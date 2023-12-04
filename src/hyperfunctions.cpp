@@ -98,8 +98,8 @@ void HyperFunctions::LoadImageHyper(string file_name, bool isImage1=true)
                 bandMat.convertTo(bandMat, CV_8UC1, 255.0);
 
                 // below is for visualization
-                cv::imshow("bandMat", bandMat);
-                cv::waitKey(30);
+                //cv::imshow("bandMat", bandMat);
+                //cv::waitKey(30);
 
 
                 if (isImage1) {
