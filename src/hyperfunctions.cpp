@@ -82,7 +82,12 @@ void HyperFunctions::LoadImageHyper(string file_name, bool isImage1=true)
                 float *bandData = (float *) CPLMalloc(sizeof(float) * width * height);
 
                 // Read band data
-                poBand->RasterIO(GF_Read, 0, 0, width, height, bandData, width, height, GDT_Float32, 0, 0);
+                CPLErr err =  poBand->RasterIO(GF_Read, 0, 0, width, height, bandData, width, height, GDT_Float32, 0, 0);
+
+                if (err != CE_None) {
+                    // Handle the error
+                    std::cerr << "Error reading band data: " << CPLGetLastErrorMsg() << std::endl;
+                }
 
                 // Create an OpenCV Mat from the band data
                 cv::Mat bandMat(height, width, CV_32FC1, bandData);
