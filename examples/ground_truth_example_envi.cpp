@@ -72,7 +72,8 @@ int main (int argc, char *argv[])
 
     // Extract class names and color hex codes
     vector<string> class_list;
-    vector<pair<string, int>> colorIndexVector;
+    vector<string> colorHexVector;
+    vector<Vec3b> colorBGRVector;
 
     const Value& items = jsonData["items"];
     int i = 0;
@@ -82,17 +83,92 @@ int main (int argc, char *argv[])
         string colorHexCode = item["color_hex_code"].asString();
 
         class_list.push_back(name);
-        colorIndexVector.push_back({colorHexCode, i});
+        colorHexVector.push_back(colorHexCode);
         i++; //Rewriting this loop to look better might be a better idea
-        cout<<name<<" "<<colorHexCode<<endl;
+        // cout<<name<<" "<<colorHexCode<<endl;
     }
 
-    int numClasses = colorIndexVector.size(); 
-    cout<<"number of classes: "<<numClasses<<endl;
+    
 
 
     // convert hex colors to rgb
 
+
+    // cv::Vec3b hexToRgb(const std::string& hex) {
+    // int r = std::stoi(hex.substr(1, 2), nullptr, 16);
+    // int g = std::stoi(hex.substr(3, 2), nullptr, 16);
+    // int b = std::stoi(hex.substr(5, 2), nullptr, 16);
+    // return cv::Vec3b(b, g, r);
+    // };
+    i=0;
+    for (const auto& hex : colorHexVector) {
+        
+        int r = std::stoi(hex.substr(1, 2), nullptr, 16);
+        int g = std::stoi(hex.substr(3, 2), nullptr, 16);
+        int b = std::stoi(hex.substr(5, 2), nullptr, 16);
+        cv::Vec3b bgr_value;
+        bgr_value = cv::Vec3b(b, g, r);
+        cout << class_list[i] <<"  Hex: " << hex << ", BGR: " << bgr_value << endl;
+        colorBGRVector.push_back(bgr_value);
+        i++;
+    }
+
+
+ 
+
+
+    Mat gt_img;
+    Vec3b temp_val;
+    bool all_pixel_values_valid = true;
+
+    // get pixel coordinates of each semantic class
+    // assumes we do not care about unknown and unknown =0 
+    int numClasses = colorHexVector.size(); 
+    cout<<"number of semantic classes: "<<numClasses<<endl;
+
+    //make sure pixel values are all valid
+    for (int i=0; i<gt_files.size(); i++)
+    {
+        gt_img = imread(gt_files[i], IMREAD_COLOR);
+        for  (int i=0; i<gt_img.rows ; i++)
+        {
+            for (int j=0; j<gt_img.cols ; j++)
+            {
+                temp_val=gt_img.at<Vec3b>(i,j);
+
+                //make sure pixel rgb values are valid
+                auto it = std::find(colorBGRVector.begin(), colorBGRVector.end(), temp_val);
+
+                if (it != colorBGRVector.end()) {
+                    // temp_val is in colorBGRVector
+                } else {
+                    // temp_val is not in colorBGRVector
+                    cout<<"error: pixel value not in colorBGRVector "<< temp_val<<endl;
+                    all_pixel_values_valid = false;
+                }
+
+            }
+        }
+    }
+
+    // stop if there are invalid pixels
+    if (!all_pixel_values_valid)
+    {
+        cout<<"error: pixel values not valid"<<endl;
+        return -1;
+    }
+    else
+    {
+        cout<<"all pixel values are valid"<<endl;
+    }
+
+
+    
+
+    // see what mat type ground truth images are in for analysis
+    //  Mat test_img = imread(gt_files[0], IMREAD_COLOR);
+    //  cout<<test_img.type()<<endl; // type 16, cv_8uc3
+    //  cout<<test_img.at<Vec3b>(10,10)<<endl;
 
     // // test visualization of rgb of hyperspectral image and gt image
     // for (int i=0; i<envi_files.size(); i++)
@@ -108,6 +184,173 @@ int main (int argc, char *argv[])
 
     //     waitKey(300);
     // }
+
+
+    // go through each image and create spectral database
+    
+    // make a directory for results
+    string results_dir = lib_hsi_dir + "results/";
+    std::filesystem::create_directory(results_dir);
+    string spec_database_dir = lib_hsi_dir + "spectral_databases/";
+    std::filesystem::create_directory(spec_database_dir);
+
+    for (int i=0; i<gt_files.size(); i++)
+    // for (int i=0; i<3; i++)
+    {
+        vector<vector<Point>> class_coordinates((int)(numClasses));
+        gt_img = imread(gt_files[i], IMREAD_COLOR);
+        for  (int i=0; i<gt_img.rows ; i++)
+        // for  (int i=0; i<3 ; i++)
+        {
+            for (int j=0; j<gt_img.cols ; j++)
+            // for (int j=0; j<3 ; j++)
+            {
+                temp_val=gt_img.at<Vec3b>(i,j);
+
+                auto it = std::find(colorBGRVector.begin(), colorBGRVector.end(), temp_val);
+
+                if (it != colorBGRVector.end()) {
+                    // print the index of temp_val, temp_val, and the index of the colorBGRVector
+                    // cout << "Class name: " << class_list[std::distance(colorBGRVector.begin(), it)] << ", Value of temp_val: " << temp_val << ", Index of colorBGRVector: " << std::distance(colorBGRVector.begin(), it) << endl;
+
+                    Point temp_point=Point(i,j);
+                    class_coordinates[std::distance(colorBGRVector.begin(), it)].push_back(temp_point); 
+
+
+                } 
+
+            }
+        } // end of going through each pixel in gt image
+
+
+        // find average spectrum for each semantic class
+        int class_coordinates_size = class_coordinates.size();
+        HyperFunctions1.LoadImageHyper(envi_files[i]);
+        int mlt1_size = HyperFunctions1.mlt1.size();
+        int avgSpectrums[class_coordinates_size][mlt1_size];
+
+        vector<vector<int>> avgSpectrums_vector ((int)(class_coordinates_size));
+        for  (int i=1; i<class_coordinates.size() ; i++)    // for each class
+        {
+            avgSpectrums_vector[i]= vector<int> (mlt1_size);    
+        }
+        
+        // initialize all values at zero 
+        for  (int i=1; i<class_coordinates.size() ; i++)    // for each class
+        {
+            for  (int j=0; j<HyperFunctions1.mlt1.size() ; j++)
+            {
+                avgSpectrums[i][j] = 0;
+            }
+        }
+
+        for  (int i=1; i<class_coordinates.size() ; i++)    // for each class
+        {
+            // for each pixel in class
+            for (int k = 0; k < class_coordinates[i].size(); k++){
+                Point tempPt = class_coordinates[i][k];
+                // for spectrum of each pixel
+                for  (int j=0; j<HyperFunctions1.mlt1.size() ; j++)
+                {
+                    //cout << HyperFunctions1.mlt1[0].at<uchar>(tempPt) << endl;
+                    // cout << tempPt << endl;
+                    //cout << "mlt1[0] size: " << HyperFunctions1.mlt1[0].size() << endl;
+                    //cout << i << " " << k << " " << j << endl;
+                    avgSpectrums[i][j] += HyperFunctions1.mlt1[j].at<uchar>(tempPt);
+                }
+            }
+
+            for  (int j=0; j<HyperFunctions1.mlt1.size() ; j++)
+            {
+                if (class_coordinates[i].size() > 0) {
+                    avgSpectrums[i][j] /= class_coordinates[i].size();
+                }
+                if (avgSpectrums[i][j]<0){ avgSpectrums[i][j]=0;}
+                if (avgSpectrums[i][j]>255){ avgSpectrums[i][j]=255;}
+                avgSpectrums_vector[i][j]=avgSpectrums[i][j];
+            }
+        }
+
+        // double check the length is correct, should match the number of semantic classes
+        // int al = sizeof(avgSpectrums)/sizeof(avgSpectrums[0]); //length calculation
+        // cout << "The length of the array is: " << al << endl;
+        // cout << "The length of the vector is: " << avgSpectrums_vector.size() << endl;
+        
+        // save spectral database to json file
+        string spectral_database_name = spec_database_dir + std::filesystem::path(envi_files[i]).stem().string() + ".json";
+        // cout<<spectral_database_name<<endl;
+        std::ofstream file_id;
+        file_id.open(spectral_database_name);
+        Json::Value value_obj;
+
+        
+
+        for (int j=1; j<class_coordinates.size() ; j++)
+        {
+            
+            // check if class is all zeros 
+            bool all_zeros = true;
+
+            for  (int k=0; k<HyperFunctions1.mlt1.size() ; k++)
+            {
+                if (avgSpectrums[j][k] != 0)
+                {
+                    all_zeros = false;
+                }
+            }
+
+            if (all_zeros)
+            {
+                // cout<<"class "<<j<<" "<<class_list[j]<<" is all zeros"<<endl;
+                continue;
+            }
+            
+            
+            value_obj["Color_Information"][class_list[j]]["red_value"] = colorBGRVector[j][2];
+            value_obj["Color_Information"][class_list[j]]["green_value"] = colorBGRVector[j][1];
+            value_obj["Color_Information"][class_list[j]]["blue_value"] = colorBGRVector[j][0];
+            
+            // i should be the spectral wavelength (modify for loop)
+            // want to save by wavelength value rather than the layer value
+            for (int i=0; i<HyperFunctions1.mlt1.size();i+=1)
+            {
+                string zero_pad_result;
+            
+                if (i<10)
+                {
+                    zero_pad_result="000"+to_string(i);
+                }
+                else if(i<100)
+                {
+                    zero_pad_result="00"+to_string(i);
+                }
+                else if(i<1000)
+                {
+                    zero_pad_result="0"+to_string(i);
+                }
+                else if (i<10000)
+                {
+                    zero_pad_result=to_string(i);
+                }
+                else
+                {
+                    cout<<" error: out of limit for spectral wavelength"<<endl;
+                    return -1;
+                }
+                //cout << i << " " << j << endl;
+                if (avgSpectrums[j][i]<0){ avgSpectrums[j][i]=0;}
+                if (avgSpectrums[j][i]>255){ avgSpectrums[j][i]=255;}
+                value_obj["Spectral_Information"][class_list[j]][zero_pad_result] = avgSpectrums_vector[j][i]; //value between 0-255 corresponding to reflectance
+                 
+            }
+        }
+        Json::StyledWriter styledWriter;
+        file_id << styledWriter.write(value_obj);
+        file_id.close();
+        cout<< i<< " spectral database was saved to json file: " << spectral_database_name << endl;
+
+
+    } // end of going through each image
 
 
 
