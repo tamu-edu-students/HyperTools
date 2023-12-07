@@ -24,16 +24,29 @@ int main (int argc, char *argv[])
     // parent folder to analyze
     string lib_hsi_dir = "../../HyperImages/LIB-HSI/LIB-HSI/validation/";
 
-    // extensions to search for
+    // extensions to search for hyperspectral image
     string envi_ext = ".dat";
+
+    // extension to search for ground truth image
     string gt_ext = ".png";
 
     // database with gt info about classes 
     string gt_database="../json/lib_hsi.json";
 
+    // used to find average spectrum for each semantic class, not needed if already processed
+    bool get_average_spectrum = false;
+
+    // directory for results
+    string results_dir = lib_hsi_dir + "results/";
+    // directory for spectral database
+    string spec_database_dir = lib_hsi_dir + "spectral_databases/";
+
+
+
     HyperFunctions HyperFunctions1;
     vector<string> envi_files;
     vector<string> gt_files;
+    vector<string> spectral_database_files;
     int k=0;
 
     //assume that there is a gt file for each envi file
@@ -189,15 +202,20 @@ int main (int argc, char *argv[])
     // go through each image and create spectral database
     
     // make a directory for results
-    string results_dir = lib_hsi_dir + "results/";
+    
     std::filesystem::create_directory(results_dir);
-    string spec_database_dir = lib_hsi_dir + "spectral_databases/";
+    
     std::filesystem::create_directory(spec_database_dir);
+    
+    
 
+    if (get_average_spectrum)
+    {
+        
     for (int i=0; i<gt_files.size(); i++)
     // for (int i=0; i<3; i++)
     {
-        vector<vector<Point>> class_coordinates((int)(numClasses));
+        vector<vector<Point>> class_coordinates((int)(numClasses+1));
         gt_img = imread(gt_files[i], IMREAD_COLOR);
         for  (int i=0; i<gt_img.rows ; i++)
         // for  (int i=0; i<3 ; i++)
@@ -230,13 +248,13 @@ int main (int argc, char *argv[])
         int avgSpectrums[class_coordinates_size][mlt1_size];
 
         vector<vector<int>> avgSpectrums_vector ((int)(class_coordinates_size));
-        for  (int i=1; i<class_coordinates.size() ; i++)    // for each class
+        for  (int i=0; i<class_coordinates.size() ; i++)    // for each class
         {
             avgSpectrums_vector[i]= vector<int> (mlt1_size);    
         }
         
         // initialize all values at zero 
-        for  (int i=1; i<class_coordinates.size() ; i++)    // for each class
+        for  (int i=0; i<class_coordinates.size() ; i++)    // for each class
         {
             for  (int j=0; j<HyperFunctions1.mlt1.size() ; j++)
             {
@@ -244,7 +262,7 @@ int main (int argc, char *argv[])
             }
         }
 
-        for  (int i=1; i<class_coordinates.size() ; i++)    // for each class
+        for  (int i=0; i<class_coordinates.size() ; i++)    // for each class
         {
             // for each pixel in class
             for (int k = 0; k < class_coordinates[i].size(); k++){
@@ -305,10 +323,10 @@ int main (int argc, char *argv[])
                 continue;
             }
             
-            
-            value_obj["Color_Information"][class_list[j]]["red_value"] = colorBGRVector[j][2];
-            value_obj["Color_Information"][class_list[j]]["green_value"] = colorBGRVector[j][1];
-            value_obj["Color_Information"][class_list[j]]["blue_value"] = colorBGRVector[j][0];
+            // pretty sure this is wrong but it works 
+            value_obj["Color_Information"][class_list[j]]["red_value"] = colorBGRVector[j][0];
+            value_obj["Color_Information"][class_list[j]]["green_value"] = colorBGRVector[j][2];
+            value_obj["Color_Information"][class_list[j]]["blue_value"] = colorBGRVector[j][1];
             
             // i should be the spectral wavelength (modify for loop)
             // want to save by wavelength value rather than the layer value
@@ -348,11 +366,198 @@ int main (int argc, char *argv[])
         file_id << styledWriter.write(value_obj);
         file_id.close();
         cout<< i<< " spectral database was saved to json file: " << spectral_database_name << endl;
+        spectral_database_files.push_back(spectral_database_name);
 
 
     } // end of going through each image
+    } //end if 
 
 
+    // int img_index = 20;
+    for (int img_index = 0; img_index < envi_files.size(); img_index++)
+    {
+        HyperFunctions1.LoadImageHyper(envi_files[img_index]);
+        string spec_data_name = spec_database_dir + std::filesystem::path(envi_files[img_index]).stem().string() + ".json";
+        HyperFunctions1.read_ref_spec_json(spec_data_name);
+        HyperFunctions1.read_spectral_json(spec_data_name);
+        
+        // print results to json file 
+        std::ofstream file_id2;
+        string result_database_name = results_dir + std::filesystem::path(envi_files[img_index]).stem().string() + ".json";
+        file_id2.open(result_database_name);
+        Json::Value value_obj2;
+
+
+        // will need to iterate over all the algorithms  with a loop 
+        HyperFunctions1.spec_sim_alg = 0;
+        int total_sum_pixels=0;
+        // algorithms are from 0-14
+
+        // for (int spec_sim_val=0; spec_sim_val<15; spec_sim_val++)
+        for (int spec_sim_val=0; spec_sim_val<1; spec_sim_val++)
+        {
+            HyperFunctions1.spec_sim_alg = spec_sim_val;
+           
+       
+
+        auto start = high_resolution_clock::now();
+        HyperFunctions1.SemanticSegmenter();
+        auto end = high_resolution_clock::now();
+        // cout << "Time taken : " << (float)duration_cast<milliseconds>(end-start).count() / (float)1000 << " " << "seconds"<<endl;
+
+
+
+        // below is to visualize the results
+        // imshow("gt", imread(gt_files[img_index], IMREAD_COLOR));
+        // HyperFunctions1.false_img_b = HyperFunctions1.mlt1.size()/3;
+        // HyperFunctions1.false_img_g = HyperFunctions1.mlt1.size()*2/3;
+        // HyperFunctions1.false_img_r = HyperFunctions1.mlt1.size()-1;
+        // HyperFunctions1.GenerateFalseImg();
+        // HyperFunctions1.DispFalseImage();
+        // HyperFunctions1.DispClassifiedImage();
+        // cv::waitKey();
+
+        for  (int i=0; i<HyperFunctions1.classified_img.rows ; i++)
+        {
+            for (int j=0; j<HyperFunctions1.classified_img.cols ; j++)
+            {
+                temp_val=HyperFunctions1.classified_img.at<Vec3b>(i,j);
+
+                //make sure pixel rgb values are valid
+                auto it = std::find(colorBGRVector.begin(), colorBGRVector.end(), temp_val);
+
+                if (it != colorBGRVector.end()) {
+                    // temp_val is in colorBGRVector
+                } else {
+                    // temp_val is not in colorBGRVector
+                    cout<<"error: pixel value not in colorBGRVector "<< temp_val<<endl;
+                    all_pixel_values_valid = false;
+                    return -1;
+                }
+
+            }
+        }
+
+
+
+        
+       
+
+        
+
+        value_obj2["Spectral Similarity Algorithm"][to_string(HyperFunctions1.spec_sim_alg)]["Time"] = (float)duration_cast<milliseconds>(end-start).count() / (float)1000;
+        // value_obj2["Spectral Similarity Algorithm"][HyperFunctions1.spec_sim_alg]["Number of Classes"] = HyperFunctions1.reference_colors.size();
+        value_obj2["Spectral Similarity Algorithm"][to_string(HyperFunctions1.spec_sim_alg)]["Number of Classes"] = static_cast<unsigned int>(HyperFunctions1.reference_colors.size());
+
+        // get class names, num pixels, and colors in json file 
+        total_sum_pixels =0;
+        for (int i=0; i< HyperFunctions1.class_list.size(); i++)
+        {
+            value_obj2["Image_info"][HyperFunctions1.class_list[i]]["red_value"]=HyperFunctions1.color_combos[i][2];
+            value_obj2["Image_info"][HyperFunctions1.class_list[i]]["green_value"]=HyperFunctions1.color_combos[i][1];
+            value_obj2["Image_info"][HyperFunctions1.class_list[i]]["blue_value"]=HyperFunctions1.color_combos[i][0];
+
+            Mat gt_img2 = imread(gt_files[img_index], IMREAD_COLOR);
+            int num_pixels_in_class = 0;
+            
+            // cout<<"given "<<HyperFunctions1.color_combos[i]<<endl;
+            for (int j=0; j<gt_img2.rows ; j++)
+            // for (int j=0; j<1 ; j++)
+            {
+                for (int k=0; k<gt_img2.cols ; k++)
+                // for (int k=0; k<1 ; k++)
+                {
+                    temp_val=gt_img2.at<Vec3b>(j,k);
+                    Vec3b temp_val2;
+                    temp_val2[0] = temp_val[1];
+                    temp_val2[1] = temp_val[2];
+                    temp_val2[2] = temp_val[0];
+
+                    // cout<<"ref "<<temp_val2<<endl;
+                    if (temp_val2 == HyperFunctions1.color_combos[i])
+                    {
+                        num_pixels_in_class++;
+                        // cout<<"true"<<endl;
+                    }
+                    // else {
+                    //     auto itr = find(HyperFunctions1.color_combos.begin(), HyperFunctions1.color_combos.end(), temp_val2);
+                    //     if (itr != HyperFunctions1.color_combos.end())
+                    //     {
+                    //         // temp_val2 is in color_combos
+                    //     }
+                    //     else
+                    //     {
+                    //         cout<<"error: pixel value not in color_combos "<< temp_val2<<endl;
+                    //         return -1;
+                    //     }
+
+                    // }
+                }
+            }
+            value_obj2["Image_info"][HyperFunctions1.class_list[i]]["num_pixels"] = num_pixels_in_class;
+            total_sum_pixels += num_pixels_in_class;
+
+            // get accuracy of class
+
+            // make sure images are same size 
+            if (HyperFunctions1.classified_img.rows != gt_img2.rows || HyperFunctions1.classified_img.cols != gt_img2.cols)
+            {
+                cout<<"error: classified_img and gt_img2 are not same size"<<endl;
+                return -1;
+            }
+
+            int num_correct_pixels_in_class = 0;
+            int num_incorrect_pixels_in_class = 0;
+
+            for (int j=0; j<HyperFunctions1.classified_img.rows ; j++)
+            {
+                for (int k=0; k<HyperFunctions1.classified_img.cols ; k++)
+                {
+                    temp_val=gt_img2.at<Vec3b>(j,k);
+                    Vec3b temp_val2;
+                    temp_val2[0] = temp_val[1];
+                    temp_val2[1] = temp_val[2];
+                    temp_val2[2] = temp_val[0];
+
+                    if (temp_val2 == HyperFunctions1.color_combos[i])
+                    {
+                        // cout<<"here"<<endl;
+                        if (HyperFunctions1.classified_img.at<Vec3b>(j,k) ==  HyperFunctions1.color_combos[i])
+                        {
+                            num_correct_pixels_in_class++;
+                        }
+                        else
+                        {
+                            num_incorrect_pixels_in_class++;
+                        }
+                    }
+                }
+            }
+
+            
+            value_obj2["Spectral Similarity Algorithm"][to_string(HyperFunctions1.spec_sim_alg)][HyperFunctions1.class_list[i]]["correct"] = num_correct_pixels_in_class;
+            value_obj2["Spectral Similarity Algorithm"][to_string(HyperFunctions1.spec_sim_alg)][HyperFunctions1.class_list[i]]["incorrect"] = num_incorrect_pixels_in_class;
+            // cout<<HyperFunctions1.class_list[i]<<endl;
+        }
+
+        
+
+
+
+
+
+        
+        } // end spec sim loop
+        cout<<"total sum pixels: "<<total_sum_pixels<<endl;
+        
+        Json::StyledWriter styledWriter2;
+        file_id2 << styledWriter2.write(value_obj2);
+        file_id2.close();
+
+        cout<< img_index << " result database was saved to json file: " << result_database_name << endl;
+        // return -2;
+
+    } // end envi loop
 
 
 //  below is the refernce code  --------------------------------------------
