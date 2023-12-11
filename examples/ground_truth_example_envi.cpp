@@ -384,7 +384,7 @@ int main (int argc, char *argv[])
         // algorithms are from 0-14
         // change below for full test
         // for (int spec_sim_val=0; spec_sim_val<15; spec_sim_val++)
-        for (int spec_sim_val=0; spec_sim_val<1; spec_sim_val++)
+        for (int spec_sim_val=0; spec_sim_val<2; spec_sim_val++)
         {
             HyperFunctions1.spec_sim_alg = spec_sim_val;
 
@@ -490,23 +490,28 @@ int main (int argc, char *argv[])
                 {
                     for (int k=0; k<HyperFunctions1.classified_img.cols ; k++)
                     {
-                        temp_val=gt_img2.at<Vec3b>(j,k);
+                        // temp_val=gt_img2.at<Vec3b>(j,k);
+                        
+                        temp_val = HyperFunctions1.classified_img.at<Vec3b>(j,k);
                         Vec3b temp_val2;
                         temp_val2[0] = temp_val[1];
                         temp_val2[1] = temp_val[2];
                         temp_val2[2] = temp_val[0];
 
-
-                        if (gt_img2.at<Vec3b>(j,k) == HyperFunctions1.classified_img.at<Vec3b>(j,k))
+                        // only check pixels if it is in the class
+                        if (HyperFunctions1.color_combos[i] == temp_val2)
                         {
+                            if (gt_img2.at<Vec3b>(j,k) == HyperFunctions1.classified_img.at<Vec3b>(j,k))
+                            {
 
                                 num_correct_pixels_in_class++;
-                            
-                        }
-                        else
-                        {
-                            num_incorrect_pixels_in_class++;
+                                
+                            }
+                            else
+                            {
+                                num_incorrect_pixels_in_class++;
 
+                            }
                         }
                     }
                 }
@@ -525,15 +530,7 @@ int main (int argc, char *argv[])
 
         // cout<<"total sum pixels: "<<total_sum_pixels<<endl;
         
-        // for (int t=0; t<found_colors.size(); t++)
-        // {
-        //     cout<<"found "<<found_colors[t]<<endl;
-        // }
-
-        // for (int t=0; t<HyperFunctions1.color_combos.size(); t++)
-        // {
-        //     cout<<"given "<<HyperFunctions1.color_combos[t]<<endl;
-        // }
+       
 
 
 
@@ -557,7 +554,7 @@ int main (int argc, char *argv[])
 
 
 
-        // return -2;
+        return -2;
 
     } // end envi loop
 
