@@ -5,7 +5,7 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update
 RUN apt-get upgrade -y
 
-RUN apt-get install cmake build-essential  g++ wget unzip libgtk2.0-dev pkg-config  libjsoncpp-dev libcanberra-gtk-module libgtk2.0-dev libgtk-3-dev libboost-all-dev glade  git -y 
+RUN apt-get update && apt-get install cmake build-essential  g++ wget unzip libgtk2.0-dev pkg-config  libjsoncpp-dev libcanberra-gtk-module libgtk2.0-dev libgtk-3-dev libboost-all-dev glade  git -y 
 
 
 RUN mkdir -p opencv_build cd opencv_build && \
@@ -31,6 +31,8 @@ RUN make -j$(nproc) &&\
     ldconfig
  
 RUN apt-get install  language-pack-en-base -y
+
+RUN apt-get install -y libgdal-dev
 
 WORKDIR /home
 
