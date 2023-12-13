@@ -19,7 +19,7 @@ using namespace std;
 using namespace cv::xfeatures2d;
 
 // Loads first hyperspectral image for analysis
-void HyperFunctions::LoadImageHyper(string file_name, bool isImage1=true)
+void HyperFunctions::LoadImageHyper(string file_name, bool isImage1 = true)
 {
     // if (isImage1) {
     //     mlt1.clear();
@@ -34,7 +34,8 @@ void HyperFunctions::LoadImageHyper(string file_name, bool isImage1=true)
     if (isImage1) {
         mlt1.clear();
     }
-    else {
+    else
+    {
         mlt2.clear();
     }
 	string file_ext;
@@ -131,45 +132,41 @@ void HyperFunctions::LoadImageHyper(string file_name, bool isImage1=true)
     {
         cout<<"file extension not supported"<<endl;
     }
-
-    
 }
-
 
 // Loads a segmented or classified image
 // mainly used to reprocess classified images through filtering and polygon simplification
 void HyperFunctions::LoadImageClassified(string file_name)
 {
-	classified_img = cv::imread(file_name);
+    classified_img = cv::imread(file_name);
 }
 
 // loads the first grayscale image for feature analysis
 void HyperFunctions::LoadFeatureImage1(string file_name)
 {
-	feature_img1 = cv::imread(file_name, IMREAD_GRAYSCALE);
+    feature_img1 = cv::imread(file_name, IMREAD_GRAYSCALE);
 }
 
 //  loads the second grayscale image for feature analysis
 void HyperFunctions::LoadFeatureImage2(string file_name)
 {
-	feature_img2 = cv::imread(file_name, IMREAD_GRAYSCALE);
+    feature_img2 = cv::imread(file_name, IMREAD_GRAYSCALE);
 }
 
 // Displays side by side feature images
-void  HyperFunctions::DispFeatureImgs()
+void HyperFunctions::DispFeatureImgs()
 {
-   Mat temp_img, temp_img2, temp_img3;
-   cv::resize(feature_img1,temp_img2,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR);
-   cv::resize(feature_img2,temp_img3,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR);
-   Mat matArray1[]={temp_img2,temp_img3};
-   hconcat(matArray1,2,temp_img);
-   cv::resize(temp_img,temp_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR); 
-   feature_img_combined=temp_img;
+    Mat temp_img, temp_img2, temp_img3;
+    cv::resize(feature_img1, temp_img2, Size(WINDOW_WIDTH, WINDOW_HEIGHT), INTER_LINEAR);
+    cv::resize(feature_img2, temp_img3, Size(WINDOW_WIDTH, WINDOW_HEIGHT), INTER_LINEAR);
+    Mat matArray1[] = {temp_img2, temp_img3};
+    hconcat(matArray1, 2, temp_img);
+    cv::resize(temp_img, temp_img, Size(WINDOW_WIDTH, WINDOW_HEIGHT), INTER_LINEAR);
+    feature_img_combined = temp_img;
     //    imshow("Feature Images ", feature_img_combined);
 }
 
-
-//GA-ORB turning hyperspectral into 2-D
+// GA-ORB turning hyperspectral into 2-D
 
 void HyperFunctions::gaSpace(bool isImage1)
 {
@@ -177,52 +174,58 @@ void HyperFunctions::gaSpace(bool isImage1)
     Mat output_image(mlt1[0].rows, mlt1[0].cols, CV_16U, cv::Scalar(0));
     int numChannels = mlt1.size();
 
-
-    
-    
     int sumTot = 0;
     int temp_val2;
-    for (int i=0; i<mlt1[0].rows; i++)
+    for (int i = 0; i < mlt1[0].rows; i++)
     {
-        for (int k=0; k<mlt1[1].cols;  k++)
+        for (int k = 0; k < mlt1[1].cols; k++)
         {
-            for (int n=0; n < numChannels; n++)
+            for (int n = 0; n < numChannels; n++)
             {
-            
-                if(isImage1)
+
+                if (isImage1)
                 {
-                    temp_val2=mlt1[n].at<uchar>(i,k);
+                    temp_val2 = mlt1[n].at<uchar>(i, k);
                 }
                 else
                 {
-                    temp_val2=mlt2[n].at<uchar>(i,k);
+                    temp_val2 = mlt2[n].at<uchar>(i, k);
                 }
                 sumTot += temp_val2;
-
-
             }
-            
+
             output_image.at<ushort>(i, k) = sumTot;
             sumTot = 0;
         }
-        
     }
 
-
-    ga_img=output_image;
+    ga_img = output_image;
     // convert to Mat data type that is compatible with Fast
     normalize(ga_img, ga_img, 0, 255, NORM_MINMAX, CV_8U);
     // imshow("Output Image", output_image);
     // cv::waitKey();
-    //return output_image;
-    
-   
+    // return output_image;
+}
+// Integral Image
+void HyperFunctions::ImgIntegration()
+{
+    // Checks if image is empty
+    if (ga_img.empty())
+    {
+        std::cerr << "Error: Input image is empty." << std::endl;
+    }
+    // Computes image integration
+    //  computing a integral image based off of ga_img
+    cv::integral(ga_img, integral_img, CV_32F);
+    normalize(integral_img, integral_img, 0, 255, NORM_MINMAX, CV_8U);
 }
 
 void HyperFunctions::CreateCustomFeatureDetector(int hessVal, vector<KeyPoint> &keypoints, Mat feature_img)
 {
-    for (int y = 0; y < feature_img.rows; y += hessVal) {
-        for (int x = 0; x < feature_img.cols; x += hessVal) {
+    for (int y = 0; y < feature_img.rows; y += hessVal)
+    {
+        for (int x = 0; x < feature_img.cols; x += hessVal)
+        {
             keypoints.push_back(cv::KeyPoint(static_cast<float>(x), static_cast<float>(y), 1));
         }
     }
@@ -230,21 +233,145 @@ void HyperFunctions::CreateCustomFeatureDetector(int hessVal, vector<KeyPoint> &
     drawKeypoints(feature_img, keypoints, feature_img);
 }
 
-void  HyperFunctions::DimensionalityReduction()
+void HyperFunctions::SSDetector(const cv::Mat &hyperspectralCube, std::vector<cv::KeyPoint> &keypoints)
+{
+    const float M_max = 1.0;
+    // cv::Mat hyperspectralCube; // we need a hyperspectralcube data
+
+    // final keypoints vector
+
+    double sigma1 = 1.6; // variables are set based on what the paper said.
+    double sigma2 = 1.8;
+
+    cv::GaussianBlur(hyperspectralCube, hyperspectralCube, cv::Size(0, 0), sigma1, sigma2, cv::BORDER_DEFAULT);
+
+    int octaveLevels = 3;
+    double k = 2.0;
+    cv::Mat previousScale;
+    cv::GaussianBlur(hyperspectralCube, previousScale, cv::Size(0, 0), sigma1, sigma2, cv::BORDER_DEFAULT);
+    for (int octave = 1; octave <= octaveLevels; ++octave)
+    {
+
+        cv::Mat currentScale;
+        cv::GaussianBlur(hyperspectralCube, currentScale, cv::Size(0, 0), sigma1, sigma2, cv::BORDER_DEFAULT);
+        cv::Mat dog = currentScale - previousScale;
+
+        // std::vector<cv::KeyPoint> currentKeypoints;
+
+        // cv::Ptr<cv::Feature2D> detector = cv::xfeatures2d::SIFT::create();
+        cv::Ptr<cv::xfeatures2d::SIFT> detector = cv::xfeatures2d::SIFT::create();
+
+        detector->detect(dog, keypoints);
+
+        // filtering the keypoints
+
+        // keypoints.erase(std::remove_if(keypoints.begin(), keypoints.end(), [](const cv::KeyPoint &keypoints) {
+        // return keypoints.response <= 0.75;
+        // }), keypoints.end());
+
+        /*keypoints1.erase(std::remove_if(keypoints2.begin(), keypoints2.end(), [](const cv::KeyPoint &keypoint) {
+         return keypoint.response <= 0.75;
+         }), keypoints.end());*/
+
+        // updating for the next octave
+        previousScale = currentScale.clone();
+
+        sigma1 *= k;
+        sigma2 *= k;
+    }
+    // for (const auto& kp : keypoints)
+    //       {
+    //      std::cout << "x_1: " << kp.pt.x << ", y_1: " << kp.pt.y << std::endl;
+    //      }
+}
+
+
+
+void HyperFunctions::SSDescriptors(const std::vector<cv::KeyPoint> &keypoints1, const std::vector<cv::KeyPoint> &keypoints2, cv::Mat &descriptor1, cv::Mat &descriptor2, float M_max = 1.0)
+{
+    const int numThetaBins = 8;
+    const int numPhiBins = 4;
+    const int numGradientBins = 8;
+    const int descriptorSize = numThetaBins * numPhiBins * numGradientBins;
+
+    float M = 1.0;
+
+    // Process keypoints1
+    descriptor1 = cv::Mat::zeros(keypoints1.size(), descriptorSize, CV_32F);
+    for (size_t i = 0; i < keypoints1.size(); ++i)
+    {
+        cv::Mat descriptor_1 = descriptor1.row(i);
+        const cv::KeyPoint& kp = keypoints1[i];
+
+        for (int x = -8; x <= 7; ++x)
+        {
+            for (int y = -8; y <= 7; ++y)
+            {
+                float theta = std::atan2(kp.pt.y -  y, kp.pt.x - x) * (180.0 / CV_PI);
+                float phi = 0.0; // Since there is no z component
+
+                int thetaBin = static_cast<int>(theta / (360.0 / numThetaBins));
+                int phiBin = static_cast<int>((phi + 90.0) / (180.0 / numPhiBins));
+                int gradientBin = static_cast<int>(M / (M_max / numGradientBins));
+
+                int index = thetaBin * numPhiBins * numGradientBins + phiBin * numGradientBins + gradientBin;
+                descriptor_1.at<float>(0, index) += M;
+            }
+        }
+
+        cv::normalize(descriptor_1, descriptor_1);
+        cv::threshold(descriptor_1, descriptor_1, 0.2, 0.2, cv::THRESH_TRUNC);
+        cv::normalize(descriptor_1, descriptor_1);
+    }
+
+    // Process keypoints2
+    descriptor2 = cv::Mat::zeros(keypoints2.size(), descriptorSize, CV_32F);
+    for (size_t i = 0; i < keypoints2.size(); ++i)
+    {
+        cv::Mat descriptor_2 = descriptor2.row(i);
+        const cv::KeyPoint& kp = keypoints2[i];
+
+        for (int x = -8; x <= 7; ++x)
+        {
+            for (int y = -8; y <= 7; ++y)
+            {
+                float theta = std::atan2(kp.pt.y -  y, kp.pt.x - x) * (180.0 / CV_PI);
+                float phi = 0.0; // Since there is no z component
+
+                int thetaBin = static_cast<int>(theta / (360.0 / numThetaBins));
+                int phiBin = static_cast<int>((phi + 90.0) / (180.0 / numPhiBins));
+                int gradientBin = static_cast<int>(M / (M_max / numGradientBins));
+
+                int index = thetaBin * numPhiBins * numGradientBins + phiBin * numGradientBins + gradientBin;
+                descriptor_2.at<float>(0, index) += M;
+            }
+        }
+
+        cv::normalize(descriptor_2, descriptor_2);
+        cv::threshold(descriptor_2, descriptor_2, 0.2, 0.2, cv::THRESH_TRUNC);
+        cv::normalize(descriptor_2, descriptor_2);
+    }
+}
+
+
+void HyperFunctions::DimensionalityReduction()
 {
     // this is a precursor for feature extraction
     // reduces the dimensionality of the data to a single greyscale image
 
-    if(dimensionality_reduction == 0){
-        //cout<<"dimensionality reduction not needed"<<endl;
+    if (dimensionality_reduction == 0)
+    {
+        // cout<<"dimensionality reduction not needed"<<endl;
     }
-    else if(dimensionality_reduction == 1){
+    else if (dimensionality_reduction == 1)
+    {
         gaSpace(true);
         feature_img1 = ga_img;
         gaSpace(false);
         feature_img2 = ga_img;
     }
-    else if(dimensionality_reduction == 2){
+    else if (dimensionality_reduction == 2)
+    {
         PCA_img(true);
         feature_img1 = pca_img;
         PCA_img(false);
@@ -340,130 +467,161 @@ void HyperFunctions::Stitching(){
     imshow("Stitched Image", disp_stitch );
 }
 // Detects, describes, and matches keypoints between 2 feature images
-void  HyperFunctions::FeatureExtraction()
+void HyperFunctions::FeatureExtraction()
 {
-   	// feature_detector=0; 0 is sift, 1 is surf, 2 is orb, 3 is fast 
-	// feature_descriptor=0; 0 is sift, 1 is surf, 2 is orb
-	// feature_matcher=0; 0 is flann, 1 is bf
-  //cout<<feature_detector<<" "<<feature_descriptor<<" "<<feature_matcher<<endl;
+    // feature_detector=0; 0 is sift, 1 is surf, 2 is orb, 3 is fast
+    // feature_descriptor=0; 0 is sift, 1 is surf, 2 is orb
+    // feature_matcher=0; 0 is flann, 1 is bf
+    // cout<<feature_detector<<" "<<feature_descriptor<<" "<<feature_matcher<<endl;
 
-  if (feature_detector==0 && feature_descriptor==2)
-  {
-    cout<<"invalid detector/descriptor combination"<<endl;
-    return;
-  }
-  
-  if(feature_detector<0 || feature_detector>4 || feature_descriptor<0 || feature_descriptor>2 || feature_matcher<0 || feature_matcher>1)
-  {
-    cout<<"invalid feature combination"<<endl;
-  }
-  
-  int minHessian = 400;
-  Ptr<SURF> detector_SURF = SURF::create( minHessian ); 
-  cv::Ptr<SIFT> detector_SIFT = SIFT::create();   
-  Ptr<FastFeatureDetector> detector_FAST = FastFeatureDetector::create();
-  Ptr<ORB> detector_ORB = ORB::create();
-  Ptr<DescriptorMatcher> matcher;
-  Mat descriptors1, descriptors2;
-
-  
-  // perform dimensionality reduction on the data to reduce hyperspectral image to a single layer
-  // dimensionality_reduction=0; this is the variable that needs to be set
-  // if set to 0, nothing is done, 1 is ga space, 2 is pca
-  DimensionalityReduction();
-
-// feature_detector=0; 0 is sift, 1 is surf, 2 is orb, 3 is fast, 9 is custom
-  if(feature_detector==0)
-  {
-    detector_SIFT->detect( feature_img1, keypoints1 );
-    detector_SIFT->detect( feature_img2, keypoints2 );
-  }
-  else if (feature_detector==1)
-  {
-      detector_SURF->detect( feature_img1, keypoints1 );
-      detector_SURF->detect( feature_img2, keypoints2 );  
-  }
-  else if (feature_detector==2)
-  {
-      detector_ORB->detect( feature_img1, keypoints1 );
-      detector_ORB->detect( feature_img2, keypoints2 );  
-  }
-  else if (feature_detector==3)
-  {
-      detector_FAST->detect( feature_img1, keypoints1 );
-      detector_FAST->detect( feature_img2, keypoints2 );  
-  } 
-  else if (feature_detector==4) 
-  {
-    //custom feature detector  
-    int spacing = 100;
-    CreateCustomFeatureDetector(spacing, keypoints1, feature_img1);  //input is the spacing between keypoints
-    CreateCustomFeatureDetector(spacing, keypoints2, feature_img2);
-  }
-
-  	// feature_descriptor=0; 0 is sift, 1 is surf, 2 is orb
-  if(feature_descriptor==0)
-  {
-    detector_SIFT->compute( feature_img1, keypoints1 , descriptors1);
-    detector_SIFT->compute( feature_img2, keypoints2 , descriptors2);
-  }  
-  else if(feature_descriptor==1)
-  {
-    detector_SURF->compute( feature_img1, keypoints1 , descriptors1);
-    detector_SURF->compute( feature_img2, keypoints2 , descriptors2 );
-  }  
-  else if(feature_descriptor==2)
-  {
-    detector_ORB->compute( feature_img1, keypoints1 , descriptors1);
-    detector_ORB->compute( feature_img2, keypoints2 , descriptors2 );
-  }  
-  
-  	// feature_matcher=0; 0 is flann, 1 is bf
-  if(feature_matcher==0)
-  {
-    if(feature_descriptor==2) // binary descriptor 
+    if (feature_detector == 0 && feature_descriptor == 2)
     {
-        matcher = cv::makePtr<cv::FlannBasedMatcher>(cv::makePtr<cv::flann::LshIndexParams>(12, 20, 2));
-        matcher->match( descriptors1, descriptors2, matches );
+        cout << "invalid detector/descriptor combination" << endl;
+        return;
     }
-    else
-    {
-        matcher = DescriptorMatcher::create(DescriptorMatcher::FLANNBASED);
-        matcher->match( descriptors1, descriptors2, matches );        
-    }
-  }    
-  else if(feature_matcher==1)
-  {
-    if(feature_descriptor==2) // binary descriptor 
-    {
-        matcher = cv::DescriptorMatcher::create("BruteForce-Hamming");
-        matcher->match( descriptors1, descriptors2, matches );
-    }
-    else
-    {
-        matcher = DescriptorMatcher::create(DescriptorMatcher::BRUTEFORCE);
-        matcher->match( descriptors1, descriptors2, matches );        
-    }  
-  }   
-   
-    // filter_matches(matches);
 
-  Mat temp_img;  
-  drawMatches( feature_img1, keypoints1, feature_img2, keypoints2, matches, temp_img ); 
+    // if (feature_detector < 0 || feature_detector > 4 || feature_descriptor < 0 || feature_descriptor > 3 || feature_matcher < 0 || feature_matcher > 1)
+    // {
+    //     cout << "invalid feature combination" << endl;
+    // }
 
-   cv::resize(temp_img,temp_img,Size(WINDOW_WIDTH*2, WINDOW_HEIGHT),INTER_LINEAR); 
-   
-   feature_img_combined= temp_img;
-   imshow("Feature Images ", feature_img_combined);
+    int minHessian = 400;
+    Ptr<SURF> detector_SURF = SURF::create(minHessian);
+    cv::Ptr<SIFT> detector_SIFT = SIFT::create();
+    Ptr<FastFeatureDetector> detector_FAST = FastFeatureDetector::create();
+    Ptr<ORB> detector_ORB = ORB::create();
+    Ptr<DescriptorMatcher> matcher;
+    Mat descriptors1, descriptors2;
+
+    // perform dimensionality reduction on the data to reduce hyperspectral image to a single layer
+    // dimensionality_reduction=0; this is the variable that needs to be set
+    // if set to 0, nothing is done, 1 is ga space, 2 is pca
+    DimensionalityReduction();
+
+    // feature_detector=0; 0 is sift, 1 is surf, 2 is orb, 3 is fast, 4 is SS-SIFT, 5 is custom
+    if (feature_detector == 0)
+    {
+        detector_SIFT->detect(feature_img1, keypoints1);
+        detector_SIFT->detect(feature_img2, keypoints2);
+    }
+    else if (feature_detector == 1)
+    {
+        detector_SURF->detect(feature_img1, keypoints1);
+        detector_SURF->detect(feature_img2, keypoints2);
+    }
+    else if (feature_detector == 2)
+    {
+        detector_ORB->detect(feature_img1, keypoints1);
+        detector_ORB->detect(feature_img2, keypoints2);
+    }
+    else if (feature_detector == 3)
+    {
+        detector_FAST->detect(feature_img1, keypoints1);
+        detector_FAST->detect(feature_img2, keypoints2);
+    }
+    else if (feature_detector == 4)
+    { // SS-SIFT feature detector
+        SSDetector(feature_img1, keypoints1);
+        SSDetector(feature_img2, keypoints2);
+
+        // for (const auto& kp : keypoints1)
+        // {
+        //      std::cout << "x_1: " << kp.pt.x << ", y_1: " << kp.pt.y << std::endl;
+        // }
+        // for (const auto& kp : keypoints2)
+        // {
+        //      std::cout << "x_2: " << kp.pt.x << ", y_2: " << kp.pt.y << std::endl;
+        // }
+    }
+    else if (feature_detector == 5)
+    {
+        // custom feature detector
+        int spacing = 100;
+        CreateCustomFeatureDetector(spacing, keypoints1, feature_img1); // input is the spacing between keypoints
+        CreateCustomFeatureDetector(spacing, keypoints2, feature_img2);
+    }
+    // feature_descriptor=0; 0 is sift, 1 is surf, 2 is orb, 3 is SS-SIFT
+    if (feature_descriptor == 0)
+    {
+        detector_SIFT->compute(feature_img1, keypoints1, descriptors1);
+        detector_SIFT->compute(feature_img2, keypoints2, descriptors2);
+    }
+    else if (feature_descriptor == 1)
+    {
+        detector_SURF->compute(feature_img1, keypoints1, descriptors1);
+        detector_SURF->compute(feature_img2, keypoints2, descriptors2);
+    }
+    else if (feature_descriptor == 2)
+    {
+        detector_ORB->compute(feature_img1, keypoints1, descriptors1);
+        detector_ORB->compute(feature_img2, keypoints2, descriptors2);
+    }
+    else if (feature_descriptor == 3)
+    {
+        // SS-sift descriptor
+        SSDescriptors(keypoints1, keypoints2, descriptors1, descriptors2, 1.0);
+        // visualizeDescriptors(descriptors1);
+        // visualizeDescriptors(descriptors2);
+    }
+    else if (feature_descriptor == 4)
+    {
+        // example descriptor 
+        // HyperFunctions::computeCustomDescriptor ( const cv::Mat& feature_img, std::vector<cv::KeyPoint> & keypoints,cv::Mat& descriptors)
+        computeCustomDescriptor ( feature_img1,  keypoints1, descriptors1);
+        computeCustomDescriptor ( feature_img2,  keypoints2, descriptors2);
+        
+    }
+
+    // feature_matcher=0; 0 is flann, 1 is bf
+    if (feature_matcher == 0)
+    {
+        if (feature_descriptor == 2) // binary descriptor
+        {
+            matcher = cv::makePtr<cv::FlannBasedMatcher>(cv::makePtr<cv::flann::LshIndexParams>(12, 20, 2));
+            matcher->match(descriptors1, descriptors2, matches);
+        }
+        else
+        {
+            matcher = DescriptorMatcher::create(DescriptorMatcher::FLANNBASED);
+            matcher->match(descriptors1, descriptors2, matches);
+        }
+    }
+    else if (feature_matcher == 1)
+    {
+        if (feature_descriptor == 2) // binary descriptor
+        {
+            matcher = cv::DescriptorMatcher::create("BruteForce-Hamming");
+            matcher->match(descriptors1, descriptors2, matches);
+        }
+        else
+        {
+            matcher = DescriptorMatcher::create(DescriptorMatcher::BRUTEFORCE);
+            matcher->match(descriptors1, descriptors2, matches);
+        }
+    }
+
+
+    // filter matches with desired approach
+    filter_matches(matches);
+
+    
+    Mat temp_img;
+    drawMatches(feature_img1, keypoints1, feature_img2, keypoints2, matches, temp_img);
+
+    cv::resize(temp_img, temp_img, Size(WINDOW_WIDTH * 2, WINDOW_HEIGHT), INTER_LINEAR);
+
+    feature_img_combined = temp_img;
+    imshow("Feature Images ", feature_img_combined);
 }
+
 void HyperFunctions::filter_matches(vector<DMatch> &matches)
 {
-    if(filter == 1)
+    if (filter == 1)
     {
-       // vector<Dmatch> good_matches;
-        for(size_t i = 0; i<matches.size();i++)
+        // vector<Dmatch> good_matches;
+        for (size_t i = 0; i < matches.size(); i++)
         {
-            if(matches.at(i).distance < .75)
+            if (matches.at(i).distance > .75)
             {
                 matches.erase(matches.begin() + i);
                 i--;
@@ -471,406 +629,429 @@ void HyperFunctions::filter_matches(vector<DMatch> &matches)
         }
     }
 }
+
+void HyperFunctions::computeCustomDescriptor ( const cv::Mat& feature_img, std::vector<cv::KeyPoint> & keypoints,cv::Mat& descriptors)
+{
+  int descriptorSize = 128;
+
+  //create descriptor matrix
+
+  descriptors = cv::Mat(keypoints.size(),descriptorSize, CV_32F);
+
+  for ( size_t i = 0; i < keypoints.size(); ++i)
+  {
+    float x = keypoints[i].pt.x;
+    float y = keypoints[i].pt.y;
+// usinig hessian blob integer approximation 
+    for (int j = 0; j <descriptorSize; ++j)
+    {
+      float scale = 1.0f + (j -descriptorSize/2) * 0.1f;
+
+      int det_Hessian =  
+      feature_img.at<uchar>(cvRound (y +scale), cvRound(x + scale))
+      * feature_img.at<uchar>(cvRound (y-scale), cvRound(x - scale))
+      - feature_img.at<uchar> (cvRound(y + scale), cvRound (x-scale))
+      * feature_img.at<uchar> (cvRound(y -scale), cvRound(x + scale ));
+
+      descriptors.at<float>(i,j) = static_cast<float>(det_Hessian);
+    }
+  }
+
+}
+
+
+
 // Finds the transformation matrix between two images
 void HyperFunctions::FeatureTransformation()
 {
     // camera intrinsic parameters
-    //double focal = 718.8560;
+    // double focal = 718.8560;
     cv::Point2d pp(607.1928, 185.2157);
     Mat cameraMatrix = Mat::eye(3, 3, CV_64F);
-    
-    //recovering the pose and the essential matrix
-    Mat E,R,t, mask;
+
+    // recovering the pose and the essential matrix
+    Mat E, R, t, mask;
     vector<Point2f> points1;
     vector<Point2f> points2;
-    for( int i = 0; i < matches.size(); i++ )
+    for (int i = 0; i < matches.size(); i++)
     {
-      points1.push_back(keypoints1[matches[i].queryIdx].pt);
-      points2.push_back(keypoints2[matches[i].trainIdx].pt);
+        points1.push_back(keypoints1[matches[i].queryIdx].pt);
+        points2.push_back(keypoints2[matches[i].trainIdx].pt);
     }
-    
+
     // uses ransac to filter out outliers
     E = findEssentialMat(points1, points2, cameraMatrix, RANSAC, 0.999, 1.0, mask);
     recoverPose(E, points1, points2, cameraMatrix, R, t, mask);
     // E = findEssentialMat(points2, points1, focal, pp, RANSAC, 0.999, 1.0, mask);
     //  recoverPose(E, points2, points1, R, t, focal, pp, mask);
-    
-    int inlier_num=0;
-    for (int i=0; i<mask.rows; i++)
+
+    int inlier_num = 0;
+    for (int i = 0; i < mask.rows; i++)
     {
-	    int temp_val2=mask.at<uchar>(i);
-	    if (temp_val2==1)
-	    {
-		    inlier_num+=1;
-	    }
+        int temp_val2 = mask.at<uchar>(i);
+        if (temp_val2 == 1)
+        {
+            inlier_num += 1;
+        }
     }
-    
-    //cout<<" Essential Matrix"<<endl;
-    //cout<<E<<endl;
 
-    cout<<"Fundamental Matrix"<<endl;
-    cout<<R<<endl<<t<<endl;
+    // cout<<" Essential Matrix"<<endl;
+    // cout<<E<<endl;
 
-   //cout<<"inliers: " <<inlier_num<< " num of matches: "<<mask.rows<<endl;
-   //cout<<" accuracy of feature matching: "<< (double)inlier_num/(double)(mask.rows)<<endl;
+    // cout << "Fundamental Matrix" << endl;
+    // cout << R << endl
+    //      << t << endl;
 
+    // cout<<"inliers: " <<inlier_num<< " num of matches: "<<mask.rows<<endl;
+    // cout<<" accuracy of feature matching: "<< (double)inlier_num/(double)(mask.rows)<<endl;
 }
 
 // To display classified image
-void  HyperFunctions::DispClassifiedImage()
+void HyperFunctions::DispClassifiedImage()
 {
 
-   Mat temp_img;
-   cv::resize(classified_img,temp_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR); 
-   imshow("Classified Image", temp_img);
+    Mat temp_img;
+    cv::resize(classified_img, temp_img, Size(WINDOW_WIDTH, WINDOW_HEIGHT), INTER_LINEAR);
+    imshow("Classified Image", temp_img);
 }
 
 // To display false image (RGB layers are set by the user from the hyperspectral image)
-void  HyperFunctions::DispFalseImage()
+void HyperFunctions::DispFalseImage()
 {
-   Mat temp_img;
-   cv::resize(false_img,temp_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR); 
-   imshow("False Image", temp_img);
+    Mat temp_img;
+    cv::resize(false_img, temp_img, Size(WINDOW_WIDTH, WINDOW_HEIGHT), INTER_LINEAR);
+    imshow("False Image", temp_img);
 }
 
 // To display spectral similarity image
-void  HyperFunctions::DispSpecSim()
+void HyperFunctions::DispSpecSim()
 {
-   Mat temp_img;
-   cv::resize(spec_simil_img,temp_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR); 
-   imshow("Spectral Similarity Image", temp_img);
+    Mat temp_img;
+    cv::resize(spec_simil_img, temp_img, Size(WINDOW_WIDTH, WINDOW_HEIGHT), INTER_LINEAR);
+    imshow("Spectral Similarity Image", temp_img);
 }
 
 // To display edge detection image (edges are from the classified image)
-void  HyperFunctions::DispEdgeImage()
+void HyperFunctions::DispEdgeImage()
 {
     Mat temp_img;
-    cv::resize(edge_image,temp_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR); 
+    cv::resize(edge_image, temp_img, Size(WINDOW_WIDTH, WINDOW_HEIGHT), INTER_LINEAR);
     cv::imshow("Edge Detection Image", temp_img);
 }
 
 // Displays contour image (based on the classified image)
-void  HyperFunctions::DispContours()
+void HyperFunctions::DispContours()
 {
     Mat temp_img;
-    cv::resize(contour_img,temp_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR); 
+    cv::resize(contour_img, temp_img, Size(WINDOW_WIDTH, WINDOW_HEIGHT), INTER_LINEAR);
     cv::imshow("Contour Image", temp_img);
 }
 
 // Displays the differences between the classified image and the contour image
-void  HyperFunctions::DispDifference()
+void HyperFunctions::DispDifference()
 {
     Mat temp_img;
-    cv::resize(difference_img,temp_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR); 
+    cv::resize(difference_img, temp_img, Size(WINDOW_WIDTH, WINDOW_HEIGHT), INTER_LINEAR);
     cv::imshow("Difference Image", temp_img);
 }
 
 // displays the tiled image (each image layer of the hyperspectral image is a tile)
-void  HyperFunctions::DispTiled()
+void HyperFunctions::DispTiled()
 {
     Mat temp_img;
-    cv::resize(tiled_img,temp_img,Size(WINDOW_WIDTH, WINDOW_HEIGHT),INTER_LINEAR); 
+    cv::resize(tiled_img, temp_img, Size(WINDOW_WIDTH, WINDOW_HEIGHT), INTER_LINEAR);
     cv::imshow("Tiled Image", temp_img);
 }
 
 // generates the false image by setting the RGB layers to what the user defines
-void  HyperFunctions::GenerateFalseImg()
+void HyperFunctions::GenerateFalseImg()
 {
 
-  vector<Mat> channels(3);
-  channels[0]=mlt1[false_img_b]; //b
-  channels[1]=mlt1[false_img_g]; //g
-  channels[2]=mlt1[false_img_r]; //r
-  merge(channels,false_img); // create new single channel image
-
-    
+    vector<Mat> channels(3);
+    channels[0] = mlt1[false_img_b]; // b
+    channels[1] = mlt1[false_img_g]; // g
+    channels[2] = mlt1[false_img_r]; // r
+    merge(channels, false_img);      // create new single channel image
 }
 
 //---------------------------------------------------------
 // Name: DifferenceOfImages
-// Description: Primarily for semantic interface tool to see how different parameters affect results. 
+// Description: Primarily for semantic interface tool to see how different parameters affect results.
 // Outputs a binary image with black and white pixels.
 // Black pixels represents no change between the filtered/approximated image and white pixels denotes a change.
 //---------------------------------------------------------
-void  HyperFunctions::DifferenceOfImages()
+void HyperFunctions::DifferenceOfImages()
 {
 
     DetectContours();
-	    // create a copy of the incoming image in terms of size (length and width) and initialize as an all black image
+    // create a copy of the incoming image in terms of size (length and width) and initialize as an all black image
     Mat output_image(classified_img.rows, classified_img.cols, CV_8UC1, cv::Scalar(0));
     // using 8 bit image so white pixel has a value of 255
 
-    Vec3b temp_val, compare_val; // rgb value of image at a pixel 
+    Vec3b temp_val, compare_val; // rgb value of image at a pixel
 
-
-
-     for(int i = 0; i <classified_img.rows; i++) 
-     {
-        for(int j = 0; j < classified_img.cols; j++)
+    for (int i = 0; i < classified_img.rows; i++)
+    {
+        for (int j = 0; j < classified_img.cols; j++)
         {
-            if ( classified_img.at<Vec3b>(i,j) != contour_img.at<Vec3b>(i,j))
+            if (classified_img.at<Vec3b>(i, j) != contour_img.at<Vec3b>(i, j))
             {
-                output_image.at<uchar>(i,j)=255; 
+                output_image.at<uchar>(i, j) = 255;
             }
         }
-     }   
+    }
 
-    difference_img= output_image; 
-	
+    difference_img = output_image;
 }
 
 // creates a binary image that sets boundary pixels as white and non-boundary pixels as black
 // input is a classified image
 // the output of this is used to find the contours in the image
 // this is multi-threaded for speed requirements
-void EdgeDetection_Child(int id, int i, Mat* output_image, Mat* classified_img2)
+void EdgeDetection_Child(int id, int i, Mat *output_image, Mat *classified_img2)
 {
 
-    bool edge=false;
-    Vec3b temp_val, compare_val; // rgb value of image at a pixel 
-    Mat classified_img=*classified_img2;
-        for(int j = 0; j < classified_img.cols; j++)
+    bool edge = false;
+    Vec3b temp_val, compare_val; // rgb value of image at a pixel
+    Mat classified_img = *classified_img2;
+    for (int j = 0; j < classified_img.cols; j++)
+    {
+        edge = false;
+
+        if (i == 0 || j == 0 || i == classified_img.rows - 1 || j == classified_img.cols - 1)
         {
-              edge=false;
-              
-              if (i==0 || j==0 ||   i== classified_img.rows-1  || j==classified_img.cols-1)
-              {
-                // set boundaries of image to edge
-                edge=true;
-              }
-              else
-              {
-                temp_val=classified_img.at<Vec3b>(i,j); // in form (y,x) 
-              
-                // go through image pixel by pixel  and look at surrounding 8 pixels, if there is a difference in color between center and other pixels, then it is an edge 
-                
-                for (int a=-1; a<2; a++)
+            // set boundaries of image to edge
+            edge = true;
+        }
+        else
+        {
+            temp_val = classified_img.at<Vec3b>(i, j); // in form (y,x)
+
+            // go through image pixel by pixel  and look at surrounding 8 pixels, if there is a difference in color between center and other pixels, then it is an edge
+
+            for (int a = -1; a < 2; a++)
+            {
+                for (int b = -1; b < 2; b++)
                 {
-                    for (int b=-1; b<2; b++)
+                    compare_val = classified_img.at<Vec3b>(i + a, j + b);
+                    if (compare_val != temp_val)
                     {
-                        compare_val=classified_img.at<Vec3b>(i+a,j+b);
-                        if (compare_val != temp_val)
-                        {
-                            edge=true;
-                        }            
-                    }           
-                }        
-              }
-            
-              if (edge)
-              {
-                  // set edge pixel to white
-                  output_image->at<uchar>(i,j)=255;            
-              }
-         }
-}  
-                  
-void HyperFunctions::EdgeDetection( )
+                        edge = true;
+                    }
+                }
+            }
+        }
+
+        if (edge)
+        {
+            // set edge pixel to white
+            output_image->at<uchar>(i, j) = 255;
+        }
+    }
+}
+
+void HyperFunctions::EdgeDetection()
 {
     // create a copy of the incoming image in terms of size (length and width) and initialize as an all black image
     Mat output_image(classified_img.rows, classified_img.cols, CV_8UC1, cv::Scalar(0));
     // using 8 bit image so white pixel has a value of 255
 
     ctpl::thread_pool p(num_threads);
-    for(int i = 0; i <classified_img.rows; i++) 
+    for (int i = 0; i < classified_img.rows; i++)
     {
-        p.push(EdgeDetection_Child,i,&output_image,&classified_img);
-    }  
+        p.push(EdgeDetection_Child, i, &output_image, &classified_img);
+    }
 
-    edge_image=output_image;
+    edge_image = output_image;
 }
 
 // threaded function for DetectContours
-void Classification_Child(int id, int i, Mat* classified_img, Mat* edge_image, vector<vector<Point>>* contours_approx, vector<Vec4i>* hierarchy, vector <Vec3b>* contour_class)
+void Classification_Child(int id, int i, Mat *classified_img, Mat *edge_image, vector<vector<Point>> *contours_approx, vector<Vec4i> *hierarchy, vector<Vec3b> *contour_class)
 {
     Mat b_hist, g_hist, r_hist;
     int histSize = 256;
-    float range[] = { 0, 256 }; //the upper boundary is exclusive
-    const float* histRange[] = { range };
+    float range[] = {0, 256}; // the upper boundary is exclusive
+    const float *histRange[] = {range};
     bool uniform = true, accumulate = false;
     vector<Mat> bgr_planes;
-    split( *classified_img, bgr_planes );
-    Vec3b color_temp; 
+    split(*classified_img, bgr_planes);
+    Vec3b color_temp;
 
-     Mat drawing2 = Mat::zeros( edge_image->size(), CV_8UC1 );
-     Scalar color = Scalar( 255);
-     drawContours( drawing2, *contours_approx, i, color, FILLED, 8, *hierarchy, 0, Point() ); 
-     calcHist( &bgr_planes[0], 1, 0, drawing2, b_hist, 1, &histSize, histRange, uniform, accumulate );
-     calcHist( &bgr_planes[1], 1, 0, drawing2, g_hist, 1, &histSize, histRange, uniform, accumulate );
-     calcHist( &bgr_planes[2], 1, 0, drawing2, r_hist, 1, &histSize, histRange, uniform, accumulate );
-     int max_r=0, max_b=0, max_g=0;
-     int max_r_loc=0, max_b_loc=0, max_g_loc=0;
-     
-     
-        for (int j=0; j<256 ; j++)
+    Mat drawing2 = Mat::zeros(edge_image->size(), CV_8UC1);
+    Scalar color = Scalar(255);
+    drawContours(drawing2, *contours_approx, i, color, FILLED, 8, *hierarchy, 0, Point());
+    calcHist(&bgr_planes[0], 1, 0, drawing2, b_hist, 1, &histSize, histRange, uniform, accumulate);
+    calcHist(&bgr_planes[1], 1, 0, drawing2, g_hist, 1, &histSize, histRange, uniform, accumulate);
+    calcHist(&bgr_planes[2], 1, 0, drawing2, r_hist, 1, &histSize, histRange, uniform, accumulate);
+    int max_r = 0, max_b = 0, max_g = 0;
+    int max_r_loc = 0, max_b_loc = 0, max_g_loc = 0;
+
+    for (int j = 0; j < 256; j++)
+    {
+        if (r_hist.at<float>(j) > max_r)
         {
-            if (r_hist.at<float>(j) > max_r)
-            {
-                max_r=r_hist.at<float>(j);
-                max_r_loc=j;
-                color_temp[1]=max_r_loc;
-            }
-            
-            if (g_hist.at<float>(j) > max_g)
-            {
-                max_g=g_hist.at<float>(j);
-                max_g_loc=j;
-                color_temp[0]=max_g_loc;
-            }
-            
-            if (b_hist.at<float>(j) > max_b)
-            {
-                max_b=b_hist.at<float>(j);
-                max_b_loc=j;
-                color_temp[2]=max_b_loc;
-            }
-      
+            max_r = r_hist.at<float>(j);
+            max_r_loc = j;
+            color_temp[1] = max_r_loc;
         }
-        (*contour_class)[i]=  color_temp;
+
+        if (g_hist.at<float>(j) > max_g)
+        {
+            max_g = g_hist.at<float>(j);
+            max_g_loc = j;
+            color_temp[0] = max_g_loc;
+        }
+
+        if (b_hist.at<float>(j) > max_b)
+        {
+            max_b = b_hist.at<float>(j);
+            max_b_loc = j;
+            color_temp[2] = max_b_loc;
+        }
+    }
+    (*contour_class)[i] = color_temp;
 }
 
-// Description: to identify and extract the boundaries (or contours) of specific objects 
+// Description: to identify and extract the boundaries (or contours) of specific objects
 // in an image to make out the shapes of objects.
 void HyperFunctions::DetectContours()
 {
 
-    //cout<<"min area "<<min_area<<" coeff poly "<<polygon_approx_coeff<<endl;
+    // cout<<"min area "<<min_area<<" coeff poly "<<polygon_approx_coeff<<endl;
     if (edge_image.empty())
     {
-    EdgeDetection();
+        EdgeDetection();
     }
 
-	read_spectral_json(spectral_database);
+    read_spectral_json(spectral_database);
 
-	contours_approx.clear();
+    contours_approx.clear();
     vector<Vec4i> hierarchy;
     double img_area_meters, img_area_pixels, contour_temp_area;
-    img_area_pixels =  edge_image.rows*edge_image.cols ; 
-    img_area_meters= pow(double(2)*avgDist* tan(fov*3.14159/double(180)/(double)2),2);   
-    
-    findContours( edge_image, contours_approx, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0, 0) ); 
-    
-    for (int i=0 ; i<contours_approx.size(); i++)
+    img_area_pixels = edge_image.rows * edge_image.cols;
+    img_area_meters = pow(double(2) * avgDist * tan(fov * 3.14159 / double(180) / (double)2), 2);
+
+    findContours(edge_image, contours_approx, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0, 0));
+
+    for (int i = 0; i < contours_approx.size(); i++)
     {
         contour_temp_area = img_area_meters * contourArea(contours_approx[i]) / img_area_pixels;
-        if (contour_temp_area < min_area)            
+        if (contour_temp_area < min_area)
         {
-            contours_approx[i].clear();                   
+            contours_approx[i].clear();
             contours_approx[i].push_back(Point(0, 0));
-         }     
-    }    
-    
-    Mat drawing = Mat::zeros( edge_image.size(), CV_8UC3 );
-    vector <Vec3b> contour_class(contours_approx.size()+1);
-    ctpl::thread_pool p(num_threads);
-    for(int i = 0; i <contours_approx.size(); i++) 
-    {
-        if (contours_approx[i].size()>2)
-        {
-            p.push(Classification_Child,i,&classified_img,&edge_image, &contours_approx, &hierarchy, &contour_class);
         }
-    }  
-    
-    // wait until threadpool is finished here
-    while(p.n_idle()<num_threads)
-    {
-        //cout<<" running threads "<< p.size()  <<" idle threads "<<  p.n_idle()  <<endl;
-        //do nothing 
     }
-    
-    //int count =0;
-    for( int i = 0; i< contours_approx.size(); i++ )
+
+    Mat drawing = Mat::zeros(edge_image.size(), CV_8UC3);
+    vector<Vec3b> contour_class(contours_approx.size() + 1);
+    ctpl::thread_pool p(num_threads);
+    for (int i = 0; i < contours_approx.size(); i++)
     {
-        if (contours_approx[i].size()>2)
+        if (contours_approx[i].size() > 2)
         {
-            
+            p.push(Classification_Child, i, &classified_img, &edge_image, &contours_approx, &hierarchy, &contour_class);
+        }
+    }
+
+    // wait until threadpool is finished here
+    while (p.n_idle() < num_threads)
+    {
+        // cout<<" running threads "<< p.size()  <<" idle threads "<<  p.n_idle()  <<endl;
+        // do nothing
+    }
+
+    // int count =0;
+    for (int i = 0; i < contours_approx.size(); i++)
+    {
+        if (contours_approx[i].size() > 2)
+        {
+
             Vec3b color = contour_class[i];
 
-            string classification="unknown";
-            for (int j=0; j< color_combos.size() ;j++)
+            string classification = "unknown";
+            for (int j = 0; j < color_combos.size(); j++)
             {
                 if (color == color_combos[j])
                 {
-                    classification=class_list[j];
+                    classification = class_list[j];
                 }
             }
-            //cout<<i<<" here "<<color<<endl;
-            if (contours_approx[i][0]==Point(0,0) && contours_approx[i][1]==Point(0,edge_image.rows-1)  && contours_approx[i][2]==Point(edge_image.cols-1,edge_image.rows-1)  && contours_approx[i][3]==Point(edge_image.cols-1,0))
+            // cout<<i<<" here "<<color<<endl;
+            if (contours_approx[i][0] == Point(0, 0) && contours_approx[i][1] == Point(0, edge_image.rows - 1) && contours_approx[i][2] == Point(edge_image.cols - 1, edge_image.rows - 1) && contours_approx[i][3] == Point(edge_image.cols - 1, 0))
             {
-                //writeJSON(event, contours_approx, i, "ballpark", count);
-                //count++;
-                Scalar temp_col=Scalar(color[2],color[0],color[1]);
-                drawContours( drawing, contours_approx, i, temp_col, FILLED, 8, hierarchy, 0, Point() );
-            
+                // writeJSON(event, contours_approx, i, "ballpark", count);
+                // count++;
+                Scalar temp_col = Scalar(color[2], color[0], color[1]);
+                drawContours(drawing, contours_approx, i, temp_col, FILLED, 8, hierarchy, 0, Point());
             }
             else
             {
-                //double epsilon = polygon_approx_coeff/1000 * arcLength(contours_approx[i], true);
-                // opencv method of approximating polygons
-                //approxPolyDP(contours_approx[i],contour_approx_new[i],epsilon,true);
-                // thick edge approximation algorithm 
+                // double epsilon = polygon_approx_coeff/1000 * arcLength(contours_approx[i], true);
+                //  opencv method of approximating polygons
+                // approxPolyDP(contours_approx[i],contour_approx_new[i],epsilon,true);
+                //  thick edge approximation algorithm
                 thickEdgeContourApproximation(i);
                 if (contour_class[hierarchy[i][3]] != contour_class[i])
                 {
-                     //writeJSON(event, contours_approx, i, classification,count);
-                     //count++;
-                    Scalar temp_col=Scalar(color[2],color[0],color[1]);
-                    drawContours( drawing, contours_approx, i, temp_col, FILLED, 8, hierarchy, 0, Point() );                
-                }                           
-            }               
+                    // writeJSON(event, contours_approx, i, classification,count);
+                    // count++;
+                    Scalar temp_col = Scalar(color[2], color[0], color[1]);
+                    drawContours(drawing, contours_approx, i, temp_col, FILLED, 8, hierarchy, 0, Point());
+                }
+            }
         }
     }
-    
-    // uncomment to write contours to json file 
-    //writeJSON_full(contours_approx, contour_class, hierarchy);
-    contour_img=drawing;
-    
+
+    // uncomment to write contours to json file
+    // writeJSON_full(contours_approx, contour_class, hierarchy);
+    contour_img = drawing;
 
 } // end function
 
 // Creates tile image or default/base image
 // assumes 164 layers in hyperspectral image
-void   HyperFunctions::TileImage()
+void HyperFunctions::TileImage()
 {
-    Mat empty_img= mlt1[0]*0;
-    int num_chan=mlt1.size();
-    int num_tile_rows=ceil(sqrt(num_chan));
-    int cur_lay=0;
+    Mat empty_img = mlt1[0] * 0;
+    int num_chan = mlt1.size();
+    int num_tile_rows = ceil(sqrt(num_chan));
+    int cur_lay = 0;
     vector<Mat> matArrayRows;
     Mat matArray[num_chan];
-   
-    for (int i=0; i<num_tile_rows; i++)
+
+    for (int i = 0; i < num_tile_rows; i++)
     {
-        for (int j=0; j<num_tile_rows; j++)
+        for (int j = 0; j < num_tile_rows; j++)
         {
-            if (cur_lay<num_chan)
+            if (cur_lay < num_chan)
             {
-                matArray[j]=mlt1[cur_lay];          
+                matArray[j] = mlt1[cur_lay];
             }
             else
             {
-                matArray[j]=empty_img;      
+                matArray[j] = empty_img;
             }
             cur_lay++;
         }
-        
+
         Mat temp_row;
-        hconcat(matArray,num_tile_rows,temp_row);
+        hconcat(matArray, num_tile_rows, temp_row);
         matArrayRows.push_back(temp_row);
     }
-    for (int i=0; i<num_tile_rows; i++)
+    for (int i = 0; i < num_tile_rows; i++)
     {
-        matArray[i]=matArrayRows[i];
+        matArray[i] = matArrayRows[i];
     }
-    
+
     Mat temp_tile;
-    vconcat(matArray,num_tile_rows,temp_tile);
-   
-    tiled_img=temp_tile;
-    
+    vconcat(matArray, num_tile_rows, temp_tile);
+
+    tiled_img = temp_tile;
+
     /*Mat empty_img= mlt1[0]*0;
     Mat h1,h2,h3,h4,h5,h6,h7,h8,h9,h10,h11,h12,h13, base_image;
-    
+
     // 13 x 13 tile image singe 164 bands
     Mat matArray1[]={mlt1[0],mlt1[1],mlt1[2],mlt1[3],mlt1[4],mlt1[5],mlt1[6],mlt1[7],mlt1[8],mlt1[9],mlt1[10],mlt1[11],mlt1[12]};
     Mat matArray2[]={mlt1[13],mlt1[14],mlt1[15],mlt1[16],mlt1[17],mlt1[18],mlt1[19],mlt1[20],mlt1[21],mlt1[22],mlt1[23],mlt1[24],mlt1[25]};
@@ -902,71 +1083,72 @@ void   HyperFunctions::TileImage()
     hconcat(matArray13,13,h13);
     Mat matArray14[]={h1,h2,h3,h4,h5 ,h6,h7,h8,h9,h10,h11,h12,h13 };
     vconcat(matArray14,13,base_image);
-       
+
     tiled_img=base_image;*/
 }
 
 //---------------------------------------------------------
 // Name: read_spectral_json
-// Description: reads json file containing spectral information and RGB color values 
+// Description: reads json file containing spectral information and RGB color values
 // for creating a classified image. used in Image Tool.
-//---------------------------------------------------------  
-void HyperFunctions::read_spectral_json(string file_name )
+//---------------------------------------------------------
+void HyperFunctions::read_spectral_json(string file_name)
 {
 
-// read spectral database and return classes and rgb values 
+    // read spectral database and return classes and rgb values
 
-    Vec3b color;     
- 
-	vector<string> class_list2; 
-	color_combos.clear();
-	
+    Vec3b color;
+
+    vector<string> class_list2;
+    color_combos.clear();
+
     ifstream ifs(file_name);
     Json::Reader reader;
     Json::Value completeJsonData;
-    reader.parse(ifs,completeJsonData);
-    //cout<< "Complete JSON data: "<<endl<< completeJsonData<<endl;
-    
+    reader.parse(ifs, completeJsonData);
+    // cout<< "Complete JSON data: "<<endl<< completeJsonData<<endl;
+
     // load rgb values and classes
 
-    for (auto const& id3 : completeJsonData["Color_Information"].getMemberNames()) 
+    for (auto const &id3 : completeJsonData["Color_Information"].getMemberNames())
     {
-       color[2] =  completeJsonData["Color_Information"][id3]["red_value"].asInt();
-       color[0] =  completeJsonData["Color_Information"][id3]["blue_value"].asInt();
-       color[1] =  completeJsonData["Color_Information"][id3]["green_value"].asInt();
+        color[2] = completeJsonData["Color_Information"][id3]["red_value"].asInt();
+        color[0] = completeJsonData["Color_Information"][id3]["blue_value"].asInt();
+        color[1] = completeJsonData["Color_Information"][id3]["green_value"].asInt();
 
-      //cout<<id3<<color<<endl;
-       color_combos.push_back(color);
-       class_list2.push_back(id3);
+        // cout<<id3<<color<<endl;
+        color_combos.push_back(color);
+        class_list2.push_back(id3);
     }
 
-class_list=class_list2;
+    class_list = class_list2;
 }
 
 //---------------------------------------------------------
 // Name: writeJSON
 // Description: holds information about the extracted contours for navigation
-//---------------------------------------------------------  
-void HyperFunctions::writeJSON(Json::Value &event, vector<vector<Point> > &contours, int idx, string classification, int count)
+//---------------------------------------------------------
+void HyperFunctions::writeJSON(Json::Value &event, vector<vector<Point>> &contours, int idx, string classification, int count)
 {
 
     Json::Value vec(Json::arrayValue);
-    for (int i = 0; i< contours[idx].size(); i++){
+    for (int i = 0; i < contours[idx].size(); i++)
+    {
         Json::Value arr(Json::arrayValue);
-        //cout << (contours[idx][i].x) << endl;
-        //cout << (contours[idx][i].y) << endl;
+        // cout << (contours[idx][i].x) << endl;
+        // cout << (contours[idx][i].y) << endl;
         arr.append(contours[idx][i].x);
         arr.append(contours[idx][i].y);
         vec.append(arr);
-    }    
-    
-    // change below to the correct classification  
+    }
+
+    // change below to the correct classification
     string Name;
     if (classification == "ballpark")
         Name = "Ballpark";
     else
         Name = classification + to_string(count);
-    event["features"][count]["type"]= "Feature";
+    event["features"][count]["type"] = "Feature";
     event["features"][count]["properties"]["Name"] = Name;
     event["features"][count]["properties"]["sensor_visibility_above"] = "yes";
     event["features"][count]["properties"]["sensor_visibility_side"] = "yes";
@@ -974,70 +1156,70 @@ void HyperFunctions::writeJSON(Json::Value &event, vector<vector<Point> > &conto
     event["features"][count]["properties"]["traversability_gv"] = "100";
     event["features"][count]["properties"]["traversability_ped"] = "100";
     event["features"][count]["geometry"]["type"] = "LineString";
-    event["features"][count]["geometry"]["coordinates"]=vec;
+    event["features"][count]["geometry"]["coordinates"] = vec;
 }
 
 //---------------------------------------------------------
 // Name: writeJSON
 // Description: holds information about the extracted contours for navigation
-//---------------------------------------------------------  
-void HyperFunctions::writeJSON_full(vector<vector<Point> > contours, vector <Vec3b> contour_class,vector<Vec4i> hierarchy)
+//---------------------------------------------------------
+void HyperFunctions::writeJSON_full(vector<vector<Point>> contours, vector<Vec3b> contour_class, vector<Vec4i> hierarchy)
 {
 
     std::ofstream file_id;
     file_id.open(output_polygons);
-    Json::Value event; 
-    // initialise JSON file 
+    Json::Value event;
+    // initialise JSON file
     event["type"] = "FeatureCollection";
-    event["generator"] = "Img Segmentation";    
+    event["generator"] = "Img Segmentation";
     string Name;
-     
-    int count=0 ;
-    int idx=0;
+
+    int count = 0;
+    int idx = 0;
     string classification = class_list[idx];
 
-    for (int idx=0; idx < contours.size()  ; idx ++)
-    {    
-        bool write_to_file=false;
-        if (contours[idx].size()>2 && contour_class[hierarchy[idx][3]] != contour_class[idx] && idx>0)
-        {            
+    for (int idx = 0; idx < contours.size(); idx++)
+    {
+        bool write_to_file = false;
+        if (contours[idx].size() > 2 && contour_class[hierarchy[idx][3]] != contour_class[idx] && idx > 0)
+        {
             Vec3b color = contour_class[idx];
-            classification="unknown";
-            for (int j=0; j< color_combos.size() ;j++)
+            classification = "unknown";
+            for (int j = 0; j < color_combos.size(); j++)
             {
                 if (color == color_combos[j])
                 {
-                    classification=class_list[j];
+                    classification = class_list[j];
                 }
-            }            
+            }
 
-            write_to_file=true;
+            write_to_file = true;
         }
-        //else if (contours[idx][0]==Point(0,0) && contours[idx][1]==Point(0,edge_image.rows-1)  && contours[idx][2]==Point(edge_image.cols-1,edge_image.rows-1)  && contours[idx][3]==Point(edge_image.cols-1,0))
-        else if (idx==0)
+        // else if (contours[idx][0]==Point(0,0) && contours[idx][1]==Point(0,edge_image.rows-1)  && contours[idx][2]==Point(edge_image.cols-1,edge_image.rows-1)  && contours[idx][3]==Point(edge_image.cols-1,0))
+        else if (idx == 0)
         {
             Name = "Ballpark";
-            write_to_file=true;
+            write_to_file = true;
         }
 
         if (write_to_file)
         {
-            
-                    
+
             Json::Value vec(Json::arrayValue);
-            for (int i = 0; i< contours[idx].size(); i++){
+            for (int i = 0; i < contours[idx].size(); i++)
+            {
                 Json::Value arr(Json::arrayValue);
                 arr.append(contours[idx][i].x);
                 arr.append(contours[idx][i].y);
                 vec.append(arr);
-            }            
+            }
 
-            if (idx>0)
+            if (idx > 0)
             {
                 Name = classification + to_string(count);
             }
-            //cout<<Name<<" "<<idx<<endl;
-            event["features"][count]["type"]= "Feature";
+            // cout<<Name<<" "<<idx<<endl;
+            event["features"][count]["type"] = "Feature";
             event["features"][count]["properties"]["Name"] = Name;
             event["features"][count]["properties"]["sensor_visibility_above"] = "yes";
             event["features"][count]["properties"]["sensor_visibility_side"] = "yes";
@@ -1045,112 +1227,106 @@ void HyperFunctions::writeJSON_full(vector<vector<Point> > contours, vector <Vec
             event["features"][count]["properties"]["traversability_gv"] = "100";
             event["features"][count]["properties"]["traversability_ped"] = "100";
             event["features"][count]["geometry"]["type"] = "LineString";
-            event["features"][count]["geometry"]["coordinates"]=vec;
+            event["features"][count]["geometry"]["coordinates"] = vec;
             count++;
         }
-    }    
+    }
 
     Json::StyledWriter styledWriter;
     file_id << styledWriter.write(event);
-    file_id.close();  
-
+    file_id.close();
 }
 
 //---------------------------------------------------------
 // Name: read_img_json
 // Description: obtains info about the camera/image to help convert pixel coordinates to GPS coordinates.
 //---------------------------------------------------------
-void  HyperFunctions::read_img_json(string file_name)
+void HyperFunctions::read_img_json(string file_name)
 {
 
     ifstream ifs(file_name);
     Json::Reader reader;
     Json::Value completeJsonData;
-    reader.parse(ifs,completeJsonData);
+    reader.parse(ifs, completeJsonData);
 
-    fov=completeJsonData["FOV"].asDouble();
-    avgDist=completeJsonData["AvgDistanceMeters"].asDouble();
-    gps1=completeJsonData["GPS1"].asDouble();
-    gps2= completeJsonData["GPS2"].asDouble();
-
+    fov = completeJsonData["FOV"].asDouble();
+    avgDist = completeJsonData["AvgDistanceMeters"].asDouble();
+    gps1 = completeJsonData["GPS1"].asDouble();
+    gps2 = completeJsonData["GPS2"].asDouble();
 }
 
 // saves spectral and color information to json file of spectral curves
 // assumes a ultris x20 hyperspectral image
 // Accesses camera information (camera_database) and modifies spectral database
-void  HyperFunctions::save_ref_spec_json(string item_name)
+void HyperFunctions::save_ref_spec_json(string item_name)
 {
     int img_hist[mlt1.size()];
-    for (int i=0; i<mlt1.size();i++)
+    for (int i = 0; i < mlt1.size(); i++)
     {
-        img_hist[i]=mlt1[i].at<uchar>(cur_loc);
+        img_hist[i] = mlt1[i].at<uchar>(cur_loc);
     }
-    string user_input=item_name;
-    
-    // modify spectral database  
+    string user_input = item_name;
+
+    // modify spectral database
     ifstream ifs2(spectral_database);
     Json::Reader reader2;
     Json::Value completeJsonData2;
-    reader2.parse(ifs2,completeJsonData2);
-    
+    reader2.parse(ifs2, completeJsonData2);
+
     std::ofstream file_id;
     file_id.open(spectral_database);
     Json::Value value_obj;
     value_obj = completeJsonData2;
-    // save histogram to json file 
-    
-    for (int i=0; i<mlt1.size(); i++)
+    // save histogram to json file
+
+    for (int i = 0; i < mlt1.size(); i++)
     {
         string zero_pad_result;
-    
-        if (i<10)
+
+        if (i < 10)
         {
-            zero_pad_result="000"+to_string(i);
+            zero_pad_result = "000" + to_string(i);
         }
-        else if(i<100)
+        else if (i < 100)
         {
-            zero_pad_result="00"+to_string(i);
+            zero_pad_result = "00" + to_string(i);
         }
-        else if(i<1000)
+        else if (i < 1000)
         {
-            zero_pad_result="0"+to_string(i);
+            zero_pad_result = "0" + to_string(i);
         }
-        else if (i<10000)
+        else if (i < 10000)
         {
-            zero_pad_result=to_string(i);
+            zero_pad_result = to_string(i);
         }
         else
         {
-            cout<<" error: out of limit for spectral wavelength"<<endl;
-            return ;
+            cout << " error: out of limit for spectral wavelength" << endl;
+            return;
         }
 
-
         value_obj["Spectral_Information"][user_input][zero_pad_result] = img_hist[i];
-
     }
 
     // change to 163, 104, 64 layer value, order is bgr
 
-    if (mlt1.size()==164)
+    if (mlt1.size() == 164)
     {
-        value_obj["Color_Information"][user_input]["red_value"]=img_hist[64];
-        value_obj["Color_Information"][user_input]["blue_value"]=img_hist[104];
-        value_obj["Color_Information"][user_input]["green_value"]=img_hist[163];
+        value_obj["Color_Information"][user_input]["red_value"] = img_hist[64];
+        value_obj["Color_Information"][user_input]["blue_value"] = img_hist[104];
+        value_obj["Color_Information"][user_input]["green_value"] = img_hist[163];
     }
-    else 
+    else
     {
-        value_obj["Color_Information"][user_input]["red_value"]=img_hist[1 * mlt1.size() / 3];
-        value_obj["Color_Information"][user_input]["blue_value"]=img_hist[2 * mlt1.size() / 3];
-        value_obj["Color_Information"][user_input]["green_value"]=img_hist[3 * mlt1.size() / 3-1];
+        value_obj["Color_Information"][user_input]["red_value"] = img_hist[1 * mlt1.size() / 3];
+        value_obj["Color_Information"][user_input]["blue_value"] = img_hist[2 * mlt1.size() / 3];
+        value_obj["Color_Information"][user_input]["green_value"] = img_hist[3 * mlt1.size() / 3 - 1];
     }
-    // write out to json file 
+    // write out to json file
     Json::StyledWriter styledWriter;
     file_id << styledWriter.write(value_obj);
     file_id.close();
 
-    
-    
     /*int img_hist[mlt1.size()-1];
     for (int i=0; i<=mlt1.size()-1;i++)
     {
@@ -1167,7 +1343,7 @@ void  HyperFunctions::save_ref_spec_json(string item_name)
     min_wave = completeJsonData["Ultris_X20"]["Camera_Information"]["Min_Wavelength"].asInt();
     spect_step = completeJsonData["Ultris_X20"]["Camera_Information"]["Spectral_Sampling"].asInt();
 
-    // modify spectral database  
+    // modify spectral database
     ifstream ifs2(spectral_database);
     Json::Reader reader2;
     Json::Value completeJsonData2;
@@ -1177,7 +1353,7 @@ void  HyperFunctions::save_ref_spec_json(string item_name)
     file_id.open(spectral_database);
     Json::Value value_obj;
     value_obj = completeJsonData2;
-    // save histogram to json file 
+    // save histogram to json file
     for (int i=min_wave; i<=(max_wave);i+=spect_step)
     {
     value_obj["Spectral_Information"][user_input][to_string(i)] = img_hist[loop_it];
@@ -1188,70 +1364,67 @@ void  HyperFunctions::save_ref_spec_json(string item_name)
     value_obj["Color_Information"][user_input]["red_value"]=img_hist[64];
     value_obj["Color_Information"][user_input]["blue_value"]=img_hist[104];
     value_obj["Color_Information"][user_input]["green_value"]=img_hist[163];
-    // write out to json file 
+    // write out to json file
     Json::StyledWriter styledWriter;
     file_id << styledWriter.write(value_obj);
     file_id.close();
     */
-
 }
 
 // reads spectral and color information from items in json file
-void  HyperFunctions::read_ref_spec_json(string file_name)
-{    
-    // read json file 
+void HyperFunctions::read_ref_spec_json(string file_name)
+{
+    // read json file
     ifstream ifs2(file_name);
     Json::Reader reader2;
     Json::Value completeJsonData2;
-    reader2.parse(ifs2,completeJsonData2);
+    reader2.parse(ifs2, completeJsonData2);
 
-
-    // initialize variables 
+    // initialize variables
     int layer_values;
     Vec3b color;
-    if(reference_spectrums.size()>0)
+    if (reference_spectrums.size() > 0)
     {
-    reference_spectrums.clear();
+        reference_spectrums.clear();
     }
-    if (reference_colors.size()>0)
+    if (reference_colors.size() > 0)
     {
-    reference_colors.clear();
+        reference_colors.clear();
     }
 
-    // gets spectrum of items in spectral database                         
-    for (auto const& id : completeJsonData2["Spectral_Information"].getMemberNames()) 
+    // gets spectrum of items in spectral database
+    for (auto const &id : completeJsonData2["Spectral_Information"].getMemberNames())
     {
-    vector<int> tempValues1;
-      for (auto const& id2 : completeJsonData2["Spectral_Information"][id].getMemberNames()) 
-      {
-        layer_values= completeJsonData2["Spectral_Information"][id][id2].asInt();
-        tempValues1.push_back(layer_values);
-      }
-    reference_spectrums.push_back(tempValues1);
+        vector<int> tempValues1;
+        for (auto const &id2 : completeJsonData2["Spectral_Information"][id].getMemberNames())
+        {
+            layer_values = completeJsonData2["Spectral_Information"][id][id2].asInt();
+            tempValues1.push_back(layer_values);
+        }
+        reference_spectrums.push_back(tempValues1);
     }
 
     // gets colors of items in database
-    for (auto const& id3 : completeJsonData2["Color_Information"].getMemberNames()) 
+    for (auto const &id3 : completeJsonData2["Color_Information"].getMemberNames())
     {
-        color[0] =  completeJsonData2["Color_Information"][id3]["red_value"].asInt();
-        color[1] =  completeJsonData2["Color_Information"][id3]["blue_value"].asInt();
-        color[2] =  completeJsonData2["Color_Information"][id3]["green_value"].asInt();
+        color[0] = completeJsonData2["Color_Information"][id3]["red_value"].asInt();
+        color[1] = completeJsonData2["Color_Information"][id3]["blue_value"].asInt();
+        color[2] = completeJsonData2["Color_Information"][id3]["green_value"].asInt();
         reference_colors.push_back(color);
     }
 }
 
 // creates a blank spectral database to fill in
-void  HyperFunctions::save_new_spec_database_json()
+void HyperFunctions::save_new_spec_database_json()
 {
     std::ofstream file_id3;
     file_id3.open(spectral_database);
     Json::Value new_obj;
     Json::StyledWriter styledWriter2;
-    new_obj["Spectral_Information"]={};
-    new_obj["Color_Information"]={};
+    new_obj["Spectral_Information"] = {};
+    new_obj["Color_Information"] = {};
     file_id3 << styledWriter2.write(new_obj);
     file_id3.close();
-
 }
 
 //---------------------------------------------------------
@@ -1259,65 +1432,62 @@ void  HyperFunctions::save_new_spec_database_json()
 // Description: Takes hyperspectral data and assigns each pixel a color
 // based on which reference spectra it is most similar to.
 //---------------------------------------------------------
-void  HyperFunctions::SemanticSegmenter()
+void HyperFunctions::SemanticSegmenter()
 {
 
-//classified_img
+    // classified_img
 
     vector<Mat> temp_results;
 
-    for (int i=0; i<reference_spectrums.size();i++)
+    for (int i = 0; i < reference_spectrums.size(); i++)
     {
-        ref_spec_index=i;
+        ref_spec_index = i;
         this->SpecSimilParent();
         temp_results.push_back(spec_simil_img);
     }
-    Mat temp_class_img(mlt1[1].rows, mlt1[1].cols, CV_8UC3, Scalar(0,0,0));
+    Mat temp_class_img(mlt1[1].rows, mlt1[1].cols, CV_8UC3, Scalar(0, 0, 0));
 
-    for(int k = 0; k < mlt1[1].cols; k++)
+    for (int k = 0; k < mlt1[1].cols; k++)
     {
-        for (int j=0; j < mlt1[1].rows; j++)
-        {    
+        for (int j = 0; j < mlt1[1].rows; j++)
+        {
             double low_val;
-            for (int i=0; i<temp_results.size(); i++)
+            for (int i = 0; i < temp_results.size(); i++)
             {
-                if (i==0)
+                if (i == 0)
                 {
-                    low_val=temp_results[i].at<uchar>(j,k);
-                    if (low_val<=classification_threshold){
-                        temp_class_img.at<Vec3b>(Point(k,j)) = reference_colors[i];
+                    low_val = temp_results[i].at<uchar>(j, k);
+                    if (low_val <= classification_threshold)
+                    {
+                        temp_class_img.at<Vec3b>(Point(k, j)) = reference_colors[i];
                     }
-                    
                 }
                 else
                 {
-                    if ( temp_results[i].at<uchar>(j,k) <low_val && temp_results[i].at<uchar>(j,k)<=classification_threshold)
+                    if (temp_results[i].at<uchar>(j, k) < low_val && temp_results[i].at<uchar>(j, k) <= classification_threshold)
                     {
-                        low_val=temp_results[i].at<uchar>(j,k);
-                        temp_class_img.at<Vec3b>(Point(k,j)) = reference_colors[i];
-                    
+                        low_val = temp_results[i].at<uchar>(j, k);
+                        temp_class_img.at<Vec3b>(Point(k, j)) = reference_colors[i];
                     }
-                
                 }
             }
         }
-        
-       
     }
 
-
-    classified_img=temp_class_img;
+    classified_img = temp_class_img;
 }
 
-void SpecSimilChild(int threadId, int algorithmId, int columnIndex, vector<Mat>* mlt, vector<int>* reference_spectrum_ptr, Mat* outputSimilarityImage) {
+void SpecSimilChild(int threadId, int algorithmId, int columnIndex, vector<Mat> *mlt, vector<int> *reference_spectrum_ptr, Mat *outputSimilarityImage)
+{
 
-    vector<Mat> hyperspectralImage=*mlt; //dereferences
+    vector<Mat> hyperspectralImage = *mlt; // dereferences
     vector<int> reference_spectrumAsInt = *reference_spectrum_ptr;
     vector<double> reference_spectrum(reference_spectrumAsInt.begin(), reference_spectrumAsInt.end());
 
-    //Normalizes the reference vector if that is necessary for the comparison algorithm
-    //Some algorithms re-normalize anyway which is a source of future optimizations (get rid of redundant code)
-    if (algorithmId == 4 || algorithmId == 6 || algorithmId == 7) {
+    // Normalizes the reference vector if that is necessary for the comparison algorithm
+    // Some algorithms re-normalize anyway which is a source of future optimizations (get rid of redundant code)
+    if (algorithmId == 4 || algorithmId == 6 || algorithmId == 7)
+    {
         double reference_spectrum_sum = 0;
         for (int i = 0; i < reference_spectrum.size(); i++)
         {
@@ -1329,20 +1499,21 @@ void SpecSimilChild(int threadId, int algorithmId, int columnIndex, vector<Mat>*
         }
     }
 
-    for (int rowIndex = 0; rowIndex <hyperspectralImage[1].rows; rowIndex++)
+    for (int rowIndex = 0; rowIndex < hyperspectralImage[1].rows; rowIndex++)
     {
-        //Find the pixel spectrum
-        vector<double> pixel_spectrum; 
+        // Find the pixel spectrum
+        vector<double> pixel_spectrum;
         double pixel_spectrum_sum = 0;
 
-        for (int layer = 0; layer < reference_spectrum.size(); layer++) //Assumes that pixel and reference spectra are the same size.
+        for (int layer = 0; layer < reference_spectrum.size(); layer++) // Assumes that pixel and reference spectra are the same size.
         {
-            pixel_spectrum.push_back(hyperspectralImage[layer].at<uchar>(rowIndex,columnIndex));
-            pixel_spectrum_sum += hyperspectralImage[layer].at<uchar>(rowIndex,columnIndex);
+            pixel_spectrum.push_back(hyperspectralImage[layer].at<uchar>(rowIndex, columnIndex));
+            pixel_spectrum_sum += hyperspectralImage[layer].at<uchar>(rowIndex, columnIndex);
         }
 
-        //Normalizes the pixel vector if that is necessary for the comparison algorithm
-        if (algorithmId == 4 || algorithmId == 6 || algorithmId == 7) {
+        // Normalizes the pixel vector if that is necessary for the comparison algorithm
+        if (algorithmId == 4 || algorithmId == 6 || algorithmId == 7)
+        {
             for (int layer = 0; layer < reference_spectrum.size(); layer++)
             {
                 pixel_spectrum[layer] /= pixel_spectrum_sum;
@@ -1405,11 +1576,7 @@ void SpecSimilChild(int threadId, int algorithmId, int columnIndex, vector<Mat>*
                 similarityValue = .8 * calculateCanb(reference_spectrum, pixel_spectrum);
                 break;
         }
-        // cout<<similarityValue<<endl;
-        //clamp the similarity value to 255
-        if (similarityValue > 255) {
-            similarityValue = 255;
-        }
+
         outputSimilarityImage->at<uchar>(rowIndex, columnIndex) = similarityValue; 
     }
 }
@@ -1419,30 +1586,31 @@ void SpecSimilChild(int threadId, int algorithmId, int columnIndex, vector<Mat>*
 // Description: to determine the similarity between sets
 // of data (spectral curves) within threadpool based on their spectral properties
 //---------------------------------------------------------
-void  HyperFunctions::SpecSimilParent()
+void HyperFunctions::SpecSimilParent()
 {
     Mat temp_img(mlt1[1].rows, mlt1[1].cols, CV_8UC1, Scalar(0));
-    spec_simil_img=temp_img;
+    spec_simil_img = temp_img;
 
     ctpl::thread_pool p(num_threads);
-    
-    for (int k=0; k<mlt1[1].cols; k+=1)
+
+    for (int k = 0; k < mlt1[1].cols; k += 1)
     {
         p.push(SpecSimilChild, spec_sim_alg, k, &mlt1, &reference_spectrums[ref_spec_index], &spec_simil_img);
     }
 }
 
-void HyperFunctions::thickEdgeContourApproximation(int idx){
-    
+void HyperFunctions::thickEdgeContourApproximation(int idx)
+{
 
     int sz = contours_approx[idx].size();
     int endPt = 2;
-    int stPt = 1-1;
+    int stPt = 1 - 1;
     int midPt = 1;
     vector<vector<int>> breakPt;
 
-    while(stPt < sz && (stPt+endPt) < sz){
-        
+    while (stPt < sz && (stPt + endPt) < sz)
+    {
+
         double xS = (double)contours_approx[idx][stPt].x;
         double yS = (double)contours_approx[idx][stPt].y;
         double xE = (double)contours_approx[idx][stPt + endPt].x;
@@ -1450,71 +1618,76 @@ void HyperFunctions::thickEdgeContourApproximation(int idx){
         double xM = (double)contours_approx[idx][stPt + midPt].x;
         double yM = (double)contours_approx[idx][stPt + midPt].y;
 
-        if(stPt == (sz-1) || (stPt + endPt) == (sz-1)  || (stPt + midPt) == (sz-1) ){
+        if (stPt == (sz - 1) || (stPt + endPt) == (sz - 1) || (stPt + midPt) == (sz - 1))
+        {
             breakPt.push_back({stPt, 0});
             break;
         }
 
-        double num =   pow(((xM-xS)*(yE-yS)-(yM-yS)*(xE-xS)) , 2.0 );
-        double den =    sqrt(((xS-xE)*(xS-xE) +  (yS-yE)*(yS-yE)));
-        double dist = num/den;
+        double num = pow(((xM - xS) * (yE - yS) - (yM - yS) * (xE - xS)), 2.0);
+        double den = sqrt(((xS - xE) * (xS - xE) + (yS - yE) * (yS - yE)));
+        double dist = num / den;
 
-        if (abs(dist) < polygon_approx_coeff){
+        if (abs(dist) < polygon_approx_coeff)
+        {
             endPt = endPt + 1;
             midPt = midPt + 1;
         }
-        else{
+        else
+        {
 
             breakPt.push_back({stPt, stPt + endPt - 1});
             stPt = stPt + endPt - 1;
             endPt = 2;
             midPt = 1;
-        }       
+        }
     }
-    vector<Point>  contour_thickEdge;
+    vector<Point> contour_thickEdge;
 
-    for (int i = 0; i < breakPt.size(); i++ ){
-            int idx1 = breakPt[i][0];
-            int idx2 = breakPt[i][1];
-            auto i1x = contours_approx[idx][idx1].x;
-            auto i1y = contours_approx[idx][idx1].y;
-            contour_thickEdge.push_back(Point(i1x,i1y));
+    for (int i = 0; i < breakPt.size(); i++)
+    {
+        int idx1 = breakPt[i][0];
+        int idx2 = breakPt[i][1];
+        auto i1x = contours_approx[idx][idx1].x;
+        auto i1y = contours_approx[idx][idx1].y;
+        contour_thickEdge.push_back(Point(i1x, i1y));
     }
     int idx1 = breakPt[0][0];
     auto i1x = contours_approx[idx][idx1].x;
     auto i1y = contours_approx[idx][idx1].y;
-    contour_thickEdge.push_back(Point(i1x,i1y));
-    
+    contour_thickEdge.push_back(Point(i1x, i1y));
+
     contours_approx[idx].clear();
-    
-    for (int i = 0 ; i < contour_thickEdge.size(); i++){
-        contours_approx[idx].push_back(Point(contour_thickEdge[i].x,contour_thickEdge[i].y));
-  
-    } 
+
+    for (int i = 0; i < contour_thickEdge.size(); i++)
+    {
+        contours_approx[idx].push_back(Point(contour_thickEdge[i].x, contour_thickEdge[i].y));
+    }
 
     int siz = contours_approx[idx].size();
-
 }
 
 // references  https://docs.opencv.org/3.4/d3/db0/samples_2cpp_2pca_8cpp-example.html
 // https://docs.opencv.org/3.4/d1/dee/tutorial_introduction_to_pca.html
 
-static  Mat formatImagesForPCA(const vector<Mat> &data)
+static Mat formatImagesForPCA(const vector<Mat> &data)
 {
-    Mat dst(static_cast<int>(data.size()), data[0].rows*data[0].cols, CV_32F);
-    for(unsigned int i = 0; i < data.size(); i++)
+    Mat dst(static_cast<int>(data.size()), data[0].rows * data[0].cols, CV_32F);
+    for (unsigned int i = 0; i < data.size(); i++)
     {
-        Mat image_row = data[i].clone().reshape(1,1);
+        Mat image_row = data[i].clone().reshape(1, 1);
         Mat row_i = dst.row(i);
-        image_row.convertTo(row_i,CV_32F);
+        image_row.convertTo(row_i, CV_32F);
     }
     return dst;
 }
 
-static Mat toGrayscale(InputArray _src) {
+static Mat toGrayscale(InputArray _src)
+{
     Mat src = _src.getMat();
     // only allow one channel
-    if(src.channels() != 1) {
+    if (src.channels() != 1)
+    {
         CV_Error(Error::StsBadArg, "Only Matrices with one channel are supported");
     }
     // create and return normalized image
@@ -1523,7 +1696,7 @@ static Mat toGrayscale(InputArray _src) {
     return dst;
 }
 
-void  HyperFunctions::PCA_img(bool isImage1 = true)
+void HyperFunctions::PCA_img(bool isImage1 = true)
 {
 
     Mat data;
@@ -1537,35 +1710,33 @@ void  HyperFunctions::PCA_img(bool isImage1 = true)
     {
         data = formatImagesForPCA(mlt2);
         inputImage = mlt2;
-
     }
     int reduced_image_layers = 3;
 
-    PCA pca(data, cv::Mat(), PCA::DATA_AS_ROW, reduced_image_layers); 
+    PCA pca(data, cv::Mat(), PCA::DATA_AS_ROW, reduced_image_layers);
 
     Mat principal_components = pca.eigenvectors;
 
     vector<Mat> ReducedImage;
-    for (int i = 0; i < reduced_image_layers; i++) {
-        Mat layer = principal_components*data.t();
-        //Mat layer = principal_components.row(i)*data.t();
-        //layer = pca.backProject(layer);
-        //layer = layer.reshape(inputImage[0].channels(), inputImage[0].rows); // reshape from a row vector into image shape
+    for (int i = 0; i < reduced_image_layers; i++)
+    {
+        Mat layer = principal_components * data.t();
+        // Mat layer = principal_components.row(i)*data.t();
+        // layer = pca.backProject(layer);
+        // layer = layer.reshape(inputImage[0].channels(), inputImage[0].rows); // reshape from a row vector into image shape
         layer = toGrayscale(layer);
         ReducedImage.push_back(layer);
     }
 
-    //imshow("PCA Results", ReducedImage);
-    //imwritemulti(reduced_file_path,ReducedImage);
+    // imshow("PCA Results", ReducedImage);
+    // imwritemulti(reduced_file_path,ReducedImage);
 
-    
     // Demonstration of the effect of retainedVariance on the first image
-    Mat point = pca.project(data.row(0)); // project into the eigenspace, thus the image becomes a "point"
-    Mat reconstruction = pca.backProject(point); // re-create the image from the "point"
+    Mat point = pca.project(data.row(0));                                                  // project into the eigenspace, thus the image becomes a "point"
+    Mat reconstruction = pca.backProject(point);                                           // re-create the image from the "point"
     reconstruction = reconstruction.reshape(inputImage[0].channels(), inputImage[0].rows); // reshape from a row vector into image shape
-    reconstruction = toGrayscale(reconstruction); // re-scale for displaying purposes
-    pca_img=reconstruction;
-    //not writing multiple layers yet because some versions of opencv do not have the function
-    //imwritemulti(reduced_file_path,reconstruction);    
+    reconstruction = toGrayscale(reconstruction);                                          // re-scale for displaying purposes
+    pca_img = reconstruction;
+    // not writing multiple layers yet because some versions of opencv do not have the function
+    // imwritemulti(reduced_file_path,reconstruction);
 }
-
