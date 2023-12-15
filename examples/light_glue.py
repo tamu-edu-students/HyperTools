@@ -17,6 +17,7 @@ from multiprocessing import cpu_count, Process, Value, Array, Pool, TimeoutError
 import matplotlib
 matplotlib.use('TkAgg')
 import pandas as pd
+import cuvis
 
 def extract_rgb(cube, red_layer=78 , green_layer=40, blue_layer=25,  visualize=False):
 
@@ -139,10 +140,88 @@ def perform_pca(cube):
     # running into issues right now need to test on different platform 
     return 
 
+def load_hsi(file_name):
+    # load hyperspectral image
+    _, extension = os.path.splitext(file_name)
+    # print(extension)
     
+    if extension == '.tiff': 
+        #below is a way to load hyperspectral images that are tiff files
+        mylist = []
+        loaded,mylist = cv2.imreadmulti(mats = mylist, filename = file_name, flags = cv2.IMREAD_ANYCOLOR )
+        cube=np.array(mylist)
+        cube = cube[:, :, :]  
+    else :
+        print("Error: file type not supported")
+        return 
+    # print(cube.shape)
+    return cube 
+
+def   reprocessMeasurement(userSettingsDir,measurementLoc,darkLoc,whiteLoc,distanceLoc,factoryDir):    
+    
+    # print("loading user settings...")
+    settings = cuvis.General(userSettingsDir)
+    # settings.setLogLevel("info")
+
+    # print("loading measurement file...")
+    mesu = cuvis.Measurement(measurementLoc)
+
+    # print("loading dark...")
+    dark = cuvis.Measurement(darkLoc)
+    # print("loading white...")
+    white = cuvis.Measurement(whiteLoc)
+    # print("loading dark...")
+    distance = cuvis.Measurement(distanceLoc)
+
+    # print("Data 1 {} t={}ms mode={}".format(mesu.Name,mesu.IntegrationTime,mesu.ProcessingMode,))
+
+    # print("loading calibration and processing context (factory)...")
+    calibration = cuvis.Calibration(factoryDir)
+    processingContext = cuvis.ProcessingContext(calibration)
+
+    # print("set references...")
+    processingContext.set_reference(dark, cuvis.ReferenceType.Dark)
+    processingContext.set_reference(white, cuvis.ReferenceType.White)
+    processingContext.set_reference(distance, cuvis.ReferenceType.Distance)
+
+    modes = [
+             "Reflectance"
+             ]
+
+    # procArgs = cuvis.CubertProcessingArgs()
+    procArgs = cuvis.ProcessingArgs()
+    # saveArgs = cuvis.SaveArgs(allow_overwrite=True)
+
+    for mode in modes:
+
+        procArgs.ProcessingMode = mode
+        isCapable = processingContext.is_capable(mesu, procArgs)
+
+        if isCapable:
+            # print("processing to mode {}...".format(mode))
+            processingContext.set_processing_args(procArgs)
+            mesu = processingContext.apply(mesu)
+            mesu.set_name(mode)
+            # cube = mesu.Data.pop("cube", None)
+            cube = mesu.data.get("cube", None)
+            
+            if cube is None:
+                raise Exception("Cube not found")
+
+        else:
+            print("Cannot process to {} mode!".format(mode))
+            
+    #print("finished.")
+    cube_result = cube.array
+    cube_result = np.transpose(cube_result, (2, 0, 1))
+    # print(cube_result.shape)
+    return cube_result
+
 if __name__ == "__main__":    
     
-    # SuperPoint+LightGlue # not good for hyperspectral images not many matched points neither is sift or aliked
+    
+    #select which feature extractor and matcher to use
+    
     # extractor = SuperPoint(max_num_keypoints=2048).eval().cuda()  # load the extractor
     # matcher = LightGlue(features='superpoint').eval().cuda()  # load the matcher
     
@@ -152,41 +231,48 @@ if __name__ == "__main__":
     # extractor = ALIKED(max_num_keypoints=2048).eval().cuda()  # load the extractor
     # matcher = LightGlue(features='aliked').eval().cuda()  # load the matcher
 
-    # or DISK+LightGlue # getting decent results for hyperspectral images
     extractor = DISK(max_num_keypoints=2048).eval().cuda()  # load the extractor
     matcher = LightGlue(features='disk').eval().cuda()  # load the matcher
 
+    # example images to test
     # load each image as a torch.Tensor on GPU with shape (3,H,W), normalized in [0,1]
     # image0 = load_image('submodules/LightGlue/assets/sacre_coeur1.jpg').cuda()
     # image1 = load_image('submodules/LightGlue/assets/sacre_coeur2.jpg').cuda()
+    
     # image0 = load_image('images/pan1.tiff').cuda()
     # image1 = load_image('images/pan2.tiff').cuda()
 
 
-
-    #below is a way to load hyperspectral images that are tiff files
-    mylist = []
-    loaded,mylist = cv2.imreadmulti(mats = mylist, filename = "../HyperImages/img1.tiff", flags = cv2.IMREAD_ANYCOLOR )
-    cube1=np.array(mylist)
-    cube1 = cube1[:, :, :]  
-    # print(cube1.shape)
-
-    mylist = []
-    loaded,mylist = cv2.imreadmulti(mats = mylist, filename = "../HyperImages/img2.tiff", flags = cv2.IMREAD_ANYCOLOR )
-    cube2=np.array(mylist)
-    cube2 = cube2[:, :, :]  
-    # print(cube2.shape)
+    # load hyperspectral image 
+    # chan, x, y
+    cube1 = load_hsi("../HyperImages/img1.tiff")
+    # cube2 = load_hsi("../HyperImages/img2.tiff")
     
+    # cube1 = load_hsi('../HyperImages/cornfields/session_002/session_002_490.cu3')
+    
+    userSettingsDir = "settings/ultris20/" 
+    measurementLoc = "../HyperImages/cornfields/session_002/session_002_490.cu3"
+    darkLoc = "../HyperImages/cornfields/Calibration/dark__session_002_003_snapshot16423119279414228.cu3"
+    whiteLoc = "../HyperImages/cornfields/Calibration/white__session_002_752_snapshot16423136896447489.cu3"
+    distanceLoc = "../HyperImages/cornfields/Calibration/distanceCalib__session_000_790_snapshot16423004058237746.cu3"
+    factoryDir = "settings/ultris20/"  # init.daq file
+    
+    cube2 = reprocessMeasurement(userSettingsDir,measurementLoc,darkLoc,whiteLoc,distanceLoc,factoryDir)
+    
+    # sys.exit()
     #use below to set the both images to be the same
     # cube2 = cube1
 
+    
+    # select dimensionality reduction technique 
+    
     #single channel from hyperspectral image
     # image0 = extract_single_layer(cube1, 100)
     # image1 = extract_single_layer(cube2, 100)
 
     #rgb image from hyperspectral image
-    image0=extract_rgb(cube1)
-    image1=extract_rgb(cube2)
+    # image0=extract_rgb(cube1)
+    # image1=extract_rgb(cube2)
 
     # spectral similarity image from hyperspectral image
     # color_array, spectral_array= read_spec_json('json/spectral_database_U20.json')
@@ -194,8 +280,8 @@ if __name__ == "__main__":
     # image1 = perform_similarity(cube2, spectral_array,0)
 
     # sum of sprectum 
-    # image0= sum_of_spectrum(cube1)
-    # image1= sum_of_spectrum(cube2)
+    image0= sum_of_spectrum(cube1)
+    image1= sum_of_spectrum(cube2)
 
     # average of spectrum  
     # #visually similar to sum of spectrum after normalization
