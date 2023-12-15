@@ -34,7 +34,7 @@ int main (int argc, char *argv[])
     string gt_database="../json/lib_hsi.json";
 
     // used to find average spectrum for each semantic class, not needed if already processed
-    bool get_average_spectrum = false;
+    bool get_average_spectrum = true;
 
     // directory for results
     string results_dir = lib_hsi_dir + "results/";
@@ -200,6 +200,7 @@ int main (int argc, char *argv[])
         for (int i=0; i<gt_files.size(); i++)
         // for (int i=0; i<3; i++)
         {
+            // get pixel coordinates of each semantic class
             vector<vector<Point>> class_coordinates((int)(numClasses+1));
             gt_img = imread(gt_files[i], IMREAD_COLOR);
             
@@ -215,6 +216,7 @@ int main (int argc, char *argv[])
 
                     auto it = std::find(colorBGRVector.begin(), colorBGRVector.end(), temp_val);
 
+                    // if the pixel value is in colorBGRVector then add it to the right place in class coordinates
                     if (it != colorBGRVector.end()) {
                         // print the index of temp_val, temp_val, and the index of the colorBGRVector
                         // cout << "Class name: " << class_list[std::distance(colorBGRVector.begin(), it)] << ", Value of temp_val: " << temp_val << ", Index of colorBGRVector: " << std::distance(colorBGRVector.begin(), it) << endl;
@@ -235,6 +237,7 @@ int main (int argc, char *argv[])
             int mlt1_size = HyperFunctions1.mlt1.size();
             int avgSpectrums[class_coordinates_size][mlt1_size];
 
+            // initialize vector size
             vector<vector<int>> avgSpectrums_vector ((int)(class_coordinates_size));
             for  (int i=0; i<class_coordinates.size() ; i++)    // for each class
             {
@@ -268,6 +271,7 @@ int main (int argc, char *argv[])
 
                 for  (int j=0; j<HyperFunctions1.mlt1.size() ; j++)
                 {
+                    // in order to get average, need to divide by number of pixels in class
                     if (class_coordinates[i].size() > 0) {
                         avgSpectrums[i][j] /= class_coordinates[i].size();
                     }
@@ -276,6 +280,10 @@ int main (int argc, char *argv[])
                     avgSpectrums_vector[i][j]=avgSpectrums[i][j];
                 }
             }
+
+            // imshow("gt", imread(gt_files[i], IMREAD_COLOR));
+            // imshow("hyp", HyperFunctions1.mlt1[20]);
+            // waitKey();
 
             // double check the length is correct, should match the number of semantic classes
             // int al = sizeof(avgSpectrums)/sizeof(avgSpectrums[0]); //length calculation
@@ -383,8 +391,8 @@ int main (int argc, char *argv[])
 
         // algorithms are from 0-14
         // change below for full test
-        // for (int spec_sim_val=0; spec_sim_val<15; spec_sim_val++)
-        for (int spec_sim_val=0; spec_sim_val<2; spec_sim_val++)
+        for (int spec_sim_val=0; spec_sim_val<15; spec_sim_val++)
+        // for (int spec_sim_val=0; spec_sim_val<2; spec_sim_val++)
         {
             HyperFunctions1.spec_sim_alg = spec_sim_val;
 
@@ -542,19 +550,19 @@ int main (int argc, char *argv[])
         cout<< img_index << " result database was saved to json file: " << result_database_name << endl;
 
 
-        // below is to visualize the results
-        imshow("gt", imread(gt_files[img_index], IMREAD_COLOR));
-        HyperFunctions1.false_img_b = HyperFunctions1.mlt1.size()/3;
-        HyperFunctions1.false_img_g = HyperFunctions1.mlt1.size()*2/3;
-        HyperFunctions1.false_img_r = HyperFunctions1.mlt1.size()-1;
-        HyperFunctions1.GenerateFalseImg();
-        HyperFunctions1.DispFalseImage();
-        HyperFunctions1.DispClassifiedImage();
-        cv::waitKey();
+        // // below is to visualize the results
+        // imshow("gt", imread(gt_files[img_index], IMREAD_COLOR));
+        // HyperFunctions1.false_img_b = HyperFunctions1.mlt1.size()/3;
+        // HyperFunctions1.false_img_g = HyperFunctions1.mlt1.size()*2/3;
+        // HyperFunctions1.false_img_r = HyperFunctions1.mlt1.size()-1;
+        // HyperFunctions1.GenerateFalseImg();
+        // HyperFunctions1.DispFalseImage();
+        // HyperFunctions1.DispClassifiedImage();
+        // cv::waitKey();
 
 
 
-        return -2;
+        // return -2;
 
     } // end envi loop
 

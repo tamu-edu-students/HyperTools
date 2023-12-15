@@ -96,6 +96,9 @@ RUN echo 'export CUVIS_DATA="/opt/cuvis"' >> ~/.bashrc
 
 RUN python3.9 -m pip install matplotlib
 
+RUN apt-get update &&\
+    apt-get install -y libgdal-dev
+
 WORKDIR /home
 
 RUN cd /home &&\
