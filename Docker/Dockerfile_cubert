@@ -1,35 +1,4 @@
-FROM ubuntu:20.04
-
-ENV DEBIAN_FRONTEND noninteractive
-
-RUN apt-get update
-RUN apt-get upgrade -y
-
-RUN apt-get install cmake build-essential  g++ wget unzip libgtk2.0-dev pkg-config  libjsoncpp-dev libcanberra-gtk-module libgtk2.0-dev libgtk-3-dev libboost-all-dev glade  git -y 
-
-
-RUN mkdir -p opencv_build cd opencv_build && \
-    wget -O opencv.zip https://github.com/opencv/opencv/archive/4.2.0.zip && \
-    wget -O opencv_contrib.zip https://github.com/opencv/opencv_contrib/archive/4.2.0.zip && \
-    unzip opencv.zip &&\
-    rm opencv.zip && \
-    unzip opencv_contrib.zip &&\
-    rm opencv_contrib.zip && \
-    mkdir -p build && \ 
-    cd build 
-
-
-RUN cmake \
-    -DOPENCV_ENABLE_NONFREE:BOOL=ON  \
-    -DOPENCV_EXTRA_MODULES_PATH=../opencv_contrib-4.2.0/modules  ../opencv-4.2.0/     \
-    -D OPENCV_GENERATE_PKGCONFIG=ON 
-
-
-RUN make -j$(nproc) &&\
-    make install && \
-    ldconfig
- 
-RUN apt-get install  language-pack-en-base -y
+FROM hypertools_4_2:latest
 
 RUN apt remove --purge --auto-remove cmake -y && \
     apt update && \
@@ -45,7 +14,10 @@ RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/nul
     apt install cmake -y && \
     apt-get install build-essential -y 
 
-RUN git clone https://github.com/cubert-hyperspectral/cuvis.sdk.git && cd cuvis.sdk && git submodule update --init --recursive
+RUN cd / &&\
+    git clone https://github.com/cubert-hyperspectral/cuvis.sdk.git &&\
+    cd cuvis.sdk &&\
+    git submodule update --init --recursive
 
 RUN wget https://cloud.cubert-gmbh.de/index.php/s/m1WfR66TjcGl96z/download && \
     unzip download && \
@@ -54,23 +26,29 @@ RUN wget https://cloud.cubert-gmbh.de/index.php/s/m1WfR66TjcGl96z/download && \
 	apt install ./cuviscommon_3.2.1-1.deb -y && \
 	dpkg -i --force-overwrite ./libcuvis_3.2.1-1.deb
 
-RUN apt update
-RUN apt install software-properties-common
 RUN add-apt-repository ppa:deadsnakes/ppa
-RUN apt install python3.9 python3-pip python3-tk -y
-RUN pip install numpy && apt-get install doxygen graphviz swig python3.9-dev  -y
+
+RUN apt-get update
+
+RUN apt install -y \
+	software-properties-common \
+	python3.9 \
+	python3-pip \
+	doxygen \
+	graphviz \
+	swig \
+	python3.9-dev 
+	
+RUN pip install \
+	numpy 
+
 
 RUN apt update -y
+
 RUN apt upgrade -y
 
-# below is a temp fix until the cuvis.cpp repo is updated
-RUN cd /cuvis.sdk/ &&\
-    rm -r cuvis.cpp &&\
-    git clone https://github.com/antmedellin/cuvis.cpp.git &&\
-    cd cuvis.cpp &&\
-    git fetch && git checkout patch-1
-
-RUN cd /cuvis.sdk && git clone https://github.com/cubert-hyperspectral/cuvis.pyil.git &&\
+RUN cd /cuvis.sdk &&\
+	git clone https://github.com/cubert-hyperspectral/cuvis.pyil.git &&\
     cd cuvis.pyil &&\
     git submodule update --init --recursive &&\
     python3.9 -m pip install . &&\
@@ -88,13 +66,24 @@ RUN cd /cuvis.sdk/cuvis.python &&\
     git checkout main &&\
     python3.9 -m pip install  .
 
+# this is how to pip install for python3.9 instead of the standard python environment
+RUN python3.9 -m pip install matplotlib
 
+
+# below is a temp fix until the cuvis.cpp repo is updated
+RUN cd /cuvis.sdk/ &&\
+    rm -r cuvis.cpp &&\
+    git clone https://github.com/antmedellin/cuvis.cpp.git &&\
+    cd cuvis.cpp &&\
+    git fetch &&\
+    git checkout patch-1
+    
+    
 RUN echo 'alias python="/usr/bin/python3.9"' >> ~/.bashrc 
 RUN echo 'alias python3="/usr/bin/python3.9"' >> ~/.bashrc 
 RUN echo 'export CUVIS="/lib/cuvis"' >> ~/.bashrc 
 RUN echo 'export CUVIS_DATA="/opt/cuvis"' >> ~/.bashrc 
 
-RUN python3.9 -m pip install matplotlib
 
 WORKDIR /home
 
