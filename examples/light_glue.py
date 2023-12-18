@@ -250,18 +250,18 @@ if __name__ == "__main__":
     
     # cube1 = load_hsi('../HyperImages/cornfields/session_002/session_002_490.cu3')
     
-    userSettingsDir = "settings/ultris20/" 
-    measurementLoc = "../HyperImages/cornfields/session_002/session_002_490.cu3"
-    darkLoc = "../HyperImages/cornfields/Calibration/dark__session_002_003_snapshot16423119279414228.cu3"
-    whiteLoc = "../HyperImages/cornfields/Calibration/white__session_002_752_snapshot16423136896447489.cu3"
-    distanceLoc = "../HyperImages/cornfields/Calibration/distanceCalib__session_000_790_snapshot16423004058237746.cu3"
-    factoryDir = "settings/ultris20/"  # init.daq file
+    # userSettingsDir = "settings/ultris20/" 
+    # measurementLoc = "../HyperImages/cornfields/session_002/session_002_490.cu3"
+    # darkLoc = "../HyperImages/cornfields/Calibration/dark__session_002_003_snapshot16423119279414228.cu3"
+    # whiteLoc = "../HyperImages/cornfields/Calibration/white__session_002_752_snapshot16423136896447489.cu3"
+    # distanceLoc = "../HyperImages/cornfields/Calibration/distanceCalib__session_000_790_snapshot16423004058237746.cu3"
+    # factoryDir = "settings/ultris20/"  # init.daq file
     
-    cube2 = reprocessMeasurement(userSettingsDir,measurementLoc,darkLoc,whiteLoc,distanceLoc,factoryDir)
+    # cube2 = reprocessMeasurement(userSettingsDir,measurementLoc,darkLoc,whiteLoc,distanceLoc,factoryDir)
     
     # sys.exit()
     #use below to set the both images to be the same
-    # cube2 = cube1
+    cube2 = cube1
 
     
     # select dimensionality reduction technique 
