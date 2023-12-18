@@ -217,6 +217,49 @@ def   reprocessMeasurement(userSettingsDir,measurementLoc,darkLoc,whiteLoc,dista
     # print(cube_result.shape)
     return cube_result
 
+
+def   reprocessMeasurement_cu3s(userSettingsDir,measurementLoc,darkLoc,whiteLoc,distance,factoryDir):    
+    
+    settings = cuvis.General(userSettingsDir)
+    # settings.set_log_level("info")
+
+    sessionM = cuvis.SessionFile(measurementLoc)
+    mesu = sessionM[0]
+    assert mesu._handle
+    
+    sessionDk = cuvis.SessionFile(darkLoc)
+    dark = sessionDk[0]
+    assert dark._handle
+    
+    sessionWt = cuvis.SessionFile(whiteLoc)
+    white = sessionWt[0]
+    assert white._handle
+    
+    # sessionDc = cuvis.SessionFile(distanceLoc)
+    # distance = sessionDc[0]
+    # assert distance._handle
+    
+    processingContext = cuvis.ProcessingContext(sessionM)
+    
+    processingContext.calc_distance(distance)
+    processingContext.processing_mode = cuvis.ProcessingMode.Reflectance
+    
+    processingContext.set_reference(dark, cuvis.ReferenceType.Dark)
+    processingContext.set_reference(white, cuvis.ReferenceType.White)
+    
+    assert processingContext.is_capable(mesu,
+                                       processingContext.get_processing_args())
+    
+    processingContext.apply(mesu)
+    cube = mesu.data.get("cube", None)
+    
+    #print("finished.")
+    cube_result = cube.array
+    cube_result = np.transpose(cube_result, (2, 0, 1))
+    # print(cube_result.shape)
+    return cube_result
+
+
 if __name__ == "__main__":    
     
     
@@ -245,23 +288,31 @@ if __name__ == "__main__":
 
     # load hyperspectral image 
     # chan, x, y
-    cube1 = load_hsi("../HyperImages/img1.tiff")
+    # cube1 = load_hsi("../HyperImages/img1.tiff")
     # cube2 = load_hsi("../HyperImages/img2.tiff")
     
     # cube1 = load_hsi('../HyperImages/cornfields/session_002/session_002_490.cu3')
     
-    # userSettingsDir = "settings/ultris20/" 
-    # measurementLoc = "../HyperImages/cornfields/session_002/session_002_490.cu3"
-    # darkLoc = "../HyperImages/cornfields/Calibration/dark__session_002_003_snapshot16423119279414228.cu3"
-    # whiteLoc = "../HyperImages/cornfields/Calibration/white__session_002_752_snapshot16423136896447489.cu3"
+    userSettingsDir = "settings/ultris5/" 
+    measurementLoc = "../HyperImages/export/Test_001.cu3s"
+    darkLoc = "../HyperImages/Calib100/dark_001.cu3s"
+    whiteLoc = "../HyperImages/Calib100/white_001.cu3s"
     # distanceLoc = "../HyperImages/cornfields/Calibration/distanceCalib__session_000_790_snapshot16423004058237746.cu3"
-    # factoryDir = "settings/ultris20/"  # init.daq file
+    factoryDir = "settings/ultris5/"  # init.daq file
     
     # cube2 = reprocessMeasurement(userSettingsDir,measurementLoc,darkLoc,whiteLoc,distanceLoc,factoryDir)
+    distance = 2000 # dist in mm
+    
+    
+    cube1= reprocessMeasurement_cu3s(userSettingsDir,measurementLoc,darkLoc,whiteLoc,distance,factoryDir)
+
+    measurementLoc = "../HyperImages/export/Test_002.cu3s"
+
+    cube2= reprocessMeasurement_cu3s(userSettingsDir,measurementLoc,darkLoc,whiteLoc,distance,factoryDir)
     
     # sys.exit()
     #use below to set the both images to be the same
-    cube2 = cube1
+    # cube2 = cube1
 
     
     # select dimensionality reduction technique 
@@ -271,8 +322,8 @@ if __name__ == "__main__":
     # image1 = extract_single_layer(cube2, 100)
 
     #rgb image from hyperspectral image
-    # image0=extract_rgb(cube1)
-    # image1=extract_rgb(cube2)
+    image0=extract_rgb(cube1,40,20,2)
+    image1=extract_rgb(cube2,40,20,2)
 
     # spectral similarity image from hyperspectral image
     # color_array, spectral_array= read_spec_json('json/spectral_database_U20.json')
@@ -280,8 +331,8 @@ if __name__ == "__main__":
     # image1 = perform_similarity(cube2, spectral_array,0)
 
     # sum of sprectum 
-    image0= sum_of_spectrum(cube1)
-    image1= sum_of_spectrum(cube2)
+    # image0= sum_of_spectrum(cube1)
+    # image1= sum_of_spectrum(cube2)
 
     # average of spectrum  
     # #visually similar to sum of spectrum after normalization
@@ -361,7 +412,7 @@ if __name__ == "__main__":
     points0 = feats0['keypoints'][matches[..., 0]]  # coordinates in image #0, shape (K,2)
     points1 = feats1['keypoints'][matches[..., 1]]  # coordinates in image #1, shape (K,2)
 
-    plot_images([image0.cpu(), image1.cpu()])
+    plot_images([image0.cpu(), image1.cpu(), image0.cpu(), image1.cpu()])
     # plot_images([image0, image1])
     #plot_keypoints(points0, points1)
     plot_matches(points0[:, :], points1[:, :])
