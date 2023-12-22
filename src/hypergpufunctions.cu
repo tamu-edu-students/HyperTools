@@ -432,6 +432,9 @@ __device__ void child_SAM(float *out, int *img_array, int n, int num_layers, int
     for (int a=0; a<num_layers-1; a++) {
         sum3+=ref_spectrum[a] *ref_spectrum[a]; //sum of squared reference spectra values
     }
+
+    
+
     if (tid < n){
         int offset=tid*num_layers; //calculating which index in the image array the values for threadID pixel start at
         for (int a=0; a<num_layers-1; a++) //iterating through spectra layers for that pixel

@@ -6,6 +6,7 @@
 #include <jsoncpp/json/json.h>
 #include <jsoncpp/json/writer.h>
 #include <thread>
+
 using namespace std;
 using namespace cv;
 
@@ -24,6 +25,19 @@ void City_Block_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* ref
 static Mat toGrayscale(InputArray _src);
 static Mat formatImagesForPCA(const vector<Mat> &data);
 
+
+
+void similarity_img_Child(int id, int algorithmId, int columnIndex, vector<Mat>& hyperspectralImage, vector<double>* reference_spectrum_ptr, Mat* outputSimilarityImage);
+
+/* /// being updated with spectralsimalgorithms.h, include file is in hyperfunctions.cpp
+double CalculateSAM(const vector<double>& referenceSpectrum, const vector<double>& pixelSpectrum);
+double CalculateSID(const vector<double>& referenceSpectrum, const vector<double>& pixelSpectrum);
+double CalculateEuD(const vector<double>& referenceSpectrum, const vector<double>& pixelSpectrum);
+double CalculatedSID(const vector<double>& referenceSpectrum, const vector<double>& pixelSpectrum);
+double CalculatedCos(const vector<double>& referenceSpectrum, const vector<double>& pixelSpectrum);
+double CalculatedJM(const vector<double>& referenceSpectrum, const vector<double>& pixelSpectrum);
+double CalculateCityBlock(const vector<double>& referenceSpectrum, const vector<double>& pixelSpectrum);
+*/
 
 class HyperFunctions 
 {
@@ -44,12 +58,15 @@ public:
 	Mat tiled_img;
 	Mat pca_img;
 	Mat ga_img;
+	Mat integral_img;
+	Mat stitch_img;
 			
 	vector<string> class_list;
 	vector<Vec3b> color_combos;
 	vector<vector<Point>>contours_approx;
 	vector<KeyPoint> keypoints1, keypoints2;
 	vector< DMatch > matches;  
+	vector< Point2d> good_point1, good_point2;
 	vector<Vec3b> reference_colors;
 	vector<vector<int>> reference_spectrums;
 	
@@ -102,6 +119,7 @@ public:
 	void DifferenceOfImages();
 	void EdgeDetection();
 	void DimensionalityReduction();
+	void Stitching();
 	void FeatureExtraction();  
 	void FeatureTransformation(); 
 	void GenerateFalseImg();
@@ -133,7 +151,14 @@ public:
 
 	//Custom Feature Detector
 	void CreateCustomFeatureDetector(int hessVal, vector<KeyPoint> &keypoints, Mat feature_img);
+	void computeCustomDescriptor ( const cv::Mat& feature_img, std::vector<cv::KeyPoint> & keypoints,cv::Mat& descriptors);
 	void gaSpace(bool isImage1);
+	void ImgIntegration();
+
+	//Spatial-Spectral SIFT detector
+	void SSDetector(const cv::Mat &hyperspectralCube, std::vector<cv::KeyPoint> &keypoints);
+	void SSDescriptors(const std::vector<cv::KeyPoint> &keypoints1, const std::vector<cv::KeyPoint> &keypoints2, cv::Mat &descriptor1, cv::Mat &descriptor2, float M_max);
+	
 
 
 	//function about match-filtering

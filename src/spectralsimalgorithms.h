@@ -27,3 +27,9 @@ double calculateCB(const std::vector<double>& refSpectrum, const std::vector<dou
 
 //Chi-squared Algorithm
 double calculateCsq(const std::vector<double>& refSpectrum, const std::vector<double>& pixelSpectrum);
+
+//Hellinger Distance
+double calculateHDist(const std::vector<double>& refSpectrum, const std::vector<double>& pixelSpectrum);
+
+//Canberra Distance Algorithm
+double calculateCanb(const std::vector<double>& refSpectrum, const std::vector<double>& pixelSpectrum);

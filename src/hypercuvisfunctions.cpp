@@ -199,7 +199,11 @@ void HyperFunctionsCuvis::TakeImageHyper1(string file_name, const int exposure_m
     std::cout << "Camera is online" << std::endl;
     acq.set_operation_mode(cuvis::operation_mode_t::OperationMode_Software).get();
     acq.set_integration_time(exposure_ms).get();
-
+    
+    auto session = cuvis::SessionInfo();
+    session.name = file_name; // this is the name of the session and the base, the images will be named as base_001.cu3s
+    acq.set_session_info(session);
+  
     std::cout << "Start recording now" << std::endl;
     for (int k = 0; k < num_images; k++)
     {
@@ -210,6 +214,10 @@ void HyperFunctionsCuvis::TakeImageHyper1(string file_name, const int exposure_m
             mesu_res.second.has_value())
         {
         auto& mesu = mesu_res.second.value();
+
+        // sets single image name and saves as a .cu3
+        // mesu.set_name("Test");
+        // mesu.save(saveArgs);
 
         proc.apply(mesu);
         exporter.apply(mesu);

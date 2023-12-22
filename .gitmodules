@@ -1,0 +1,12 @@
+[submodule "submodules/LightGlue"]
+	path = submodules/LightGlue
+	url = https://github.com/cvg/LightGlue.git
+[submodule "submodules/segment-anything"]
+	path = submodules/segment-anything
+	url = https://github.com/facebookresearch/segment-anything.git
+[submodule "submodules/cuvis.sdk"]
+	path = submodules/cuvis.sdk
+	url = https://github.com/cubert-hyperspectral/cuvis.sdk.git
+[submodule "submodules/segment-anything-cpp-wrapper"]
+	path = submodules/segment-anything-cpp-wrapper
+	url = https://github.com/dinglufe/segment-anything-cpp-wrapper.git

@@ -1,0 +1,44 @@
+FROM hypertools_cubert_cuda:latest
+
+RUN apt-get update &&\
+    apt-get install -y python3-pip \
+    python3-tk \
+    pocl-opencl-icd
+
+RUN pip install \
+    pycocotools \
+    onnx \
+    onnxruntime \
+    tqdm \
+    pandas \
+    scikit-learn \
+    pyopencl \
+    scipy \
+    opencv-python \
+    numpy \
+    matplotlib \
+    torch \
+    torchvision \
+    kornia
+
+RUN python3.9 -m pip install \
+    pycocotools \
+    onnx \
+    onnxruntime \
+    tqdm \
+    pandas \
+    scikit-learn \
+    pyopencl \
+    scipy \
+    opencv-python \
+    numpy \
+    matplotlib \
+    torch \
+    torchvision \
+    kornia
+
+WORKDIR /home
+
+RUN cd /home &&\
+    bash
+
