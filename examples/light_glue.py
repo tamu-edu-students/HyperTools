@@ -299,11 +299,11 @@ if __name__ == "__main__":
     whiteLoc = "../HyperImages/Calib100/white_001.cu3s"
     # distanceLoc = "../HyperImages/cornfields/Calibration/distanceCalib__session_000_790_snapshot16423004058237746.cu3"
     factoryDir = "settings/ultris5/"  # init.daq file
-    
-    # cube2 = reprocessMeasurement(userSettingsDir,measurementLoc,darkLoc,whiteLoc,distanceLoc,factoryDir)
     distance = 2000 # dist in mm
     
-    
+    # used for cu3 files
+    # cube1 = reprocessMeasurement(userSettingsDir,measurementLoc,darkLoc,whiteLoc,distanceLoc,factoryDir)
+   
     cube1= reprocessMeasurement_cu3s(userSettingsDir,measurementLoc,darkLoc,whiteLoc,distance,factoryDir)
 
     measurementLoc = "../HyperImages/export/Test_002.cu3s"
@@ -322,6 +322,7 @@ if __name__ == "__main__":
     # image1 = extract_single_layer(cube2, 100)
 
     #rgb image from hyperspectral image
+    # make sure to pass the correct layer numbers for each channel
     image0=extract_rgb(cube1,40,20,2)
     image1=extract_rgb(cube2,40,20,2)
 
