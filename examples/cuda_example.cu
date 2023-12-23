@@ -23,25 +23,8 @@ int main (int argc, char *argv[]) {
     HyperFunctions1.allocate_memory();
     auto end = high_resolution_clock::now();
     cout << "Initialization Time taken : " << (float)duration_cast<milliseconds>(end-start).count() / (float)1000 << " " << "seconds"<<endl;
+       
     
-    /*
-    HyperFunctions1.spec_sim_alg=0;
-    HyperFunctions1.spec_sim_GPU();
-    // HyperFunctions1.DispSpecSim();
-    cv::waitKey();
-    
-    HyperFunctions1.spec_sim_alg=1;
-    HyperFunctions1.spec_sim_GPU();
-    // HyperFunctions1.DispSpecSim();
-    cv::waitKey();
-
-    HyperFunctions1.spec_sim_alg=2;    
-    HyperFunctions1.spec_sim_GPU();
-    // HyperFunctions1.DispSpecSim();
-    cv::waitKey();
-    */
-    
-    // SAM - Classification
     // slower the first time not sure why so running twice
     start = high_resolution_clock::now();
     HyperFunctions1.spec_sim_alg=0;
@@ -50,8 +33,8 @@ int main (int argc, char *argv[]) {
     end = high_resolution_clock::now();
     cout << "Proccess SAM Classification:" << endl;
     cout << "Time taken : " << (float)duration_cast<milliseconds>(end-start).count() / (float)1000 << " " << "seconds"<<endl;
-    // cv::waitKey();
-
+    
+    // SAM - Classification
     start = high_resolution_clock::now();
     HyperFunctions1.spec_sim_alg=0;
     HyperFunctions1.spec_sim_GPU();
@@ -59,7 +42,8 @@ int main (int argc, char *argv[]) {
     end = high_resolution_clock::now();
     cout << "Proccess SAM Classification:" << endl;
     cout << "Time taken : " << (float)duration_cast<milliseconds>(end-start).count() / (float)1000 << " " << "seconds"<<endl;
-    
+    cv::waitKey();
+
     // SCM - Classification
     start = high_resolution_clock::now();
     HyperFunctions1.spec_sim_alg=1;
@@ -68,7 +52,7 @@ int main (int argc, char *argv[]) {
     end = high_resolution_clock::now();
     cout << "Proccess SCM Classification:" << endl;
     cout << "Time taken : " << (float)duration_cast<milliseconds>(end-start).count() / (float)1000 << " " << "seconds"<<endl;
-    // cv::waitKey();
+    cv::waitKey();
     
     // SID - Classification
     start = high_resolution_clock::now();
@@ -78,61 +62,58 @@ int main (int argc, char *argv[]) {
     end = high_resolution_clock::now();
     cout << "Proccess SID Classification:" << endl;
     cout << "Time taken : " << (float)duration_cast<milliseconds>(end-start).count() / (float)1000 << " " << "seconds"<<endl;
-    // cv::waitKey();
+    cv::waitKey();
 
-    // COS - Classification
+    // Euclidean -  Classification
     start = high_resolution_clock::now();
     HyperFunctions1.spec_sim_alg=3;
     HyperFunctions1.spec_sim_GPU();
     HyperFunctions1.DispSpecSim();
     end = high_resolution_clock::now();
-    cout << "Proccess COS Classification:" << endl;
+    cout << "Proccess Euclidean Classification:" << endl;
     cout << "Time taken : " << (float)duration_cast<milliseconds>(end-start).count() / (float)1000 << " " << "seconds"<<endl;
-    // cv::waitKey();
-
-    // JM -  Classification
-    start = high_resolution_clock::now();
-    HyperFunctions1.spec_sim_alg=4;
-    HyperFunctions1.spec_sim_GPU();
-    HyperFunctions1.DispSpecSim();
-    end = high_resolution_clock::now();
-    cout << "Proccess JM Classification:" << endl;
-    cout << "Time taken : " << (float)duration_cast<milliseconds>(end-start).count() / (float)1000 << " " << "seconds"<<endl;
-    // cv::waitKey();
+    cv::waitKey();
     
-    // City Block -  Classification
+    // chi square - Classification
+    // 4
+
+
+    // COS - Classification
     start = high_resolution_clock::now();
     HyperFunctions1.spec_sim_alg=5;
     HyperFunctions1.spec_sim_GPU();
     HyperFunctions1.DispSpecSim();
     end = high_resolution_clock::now();
-    cout << "Proccess City Block Classification:" << endl;
+    cout << "Proccess COS Classification:" << endl;
     cout << "Time taken : " << (float)duration_cast<milliseconds>(end-start).count() / (float)1000 << " " << "seconds"<<endl;
-    // cv::waitKey();
+    cv::waitKey();
 
-    // Euclidean -  Classification
+    // City Block -  Classification
     start = high_resolution_clock::now();
     HyperFunctions1.spec_sim_alg=6;
     HyperFunctions1.spec_sim_GPU();
     HyperFunctions1.DispSpecSim();
     end = high_resolution_clock::now();
-    cout << "Proccess Euclidean Classification:" << endl;
+    cout << "Proccess City Block Classification:" << endl;
     cout << "Time taken : " << (float)duration_cast<milliseconds>(end-start).count() / (float)1000 << " " << "seconds"<<endl;
-    // cv::waitKey();
-
-    // SID-SAM -  Classification
+    cv::waitKey();
+    
+    // JM -  Classification
     start = high_resolution_clock::now();
     HyperFunctions1.spec_sim_alg=7;
     HyperFunctions1.spec_sim_GPU();
     HyperFunctions1.DispSpecSim();
     end = high_resolution_clock::now();
-    cout << "Proccess SID-SAM Classification:" << endl;
+    cout << "Proccess JM Classification:" << endl;
     cout << "Time taken : " << (float)duration_cast<milliseconds>(end-start).count() / (float)1000 << " " << "seconds"<<endl;
     cv::waitKey();
+    
+    // ns3
+    // 8
 
-   // JM-SAM -  Classification
+    // JM-SAM -  Classification
     start = high_resolution_clock::now();
-    HyperFunctions1.spec_sim_alg=8;
+    HyperFunctions1.spec_sim_alg=9;
     HyperFunctions1.spec_sim_GPU();
     HyperFunctions1.DispSpecSim();
     end = high_resolution_clock::now();
@@ -140,25 +121,42 @@ int main (int argc, char *argv[]) {
     cout << "Time taken : " << (float)duration_cast<milliseconds>(end-start).count() / (float)1000 << " " << "seconds"<<endl;
     cv::waitKey();
 
+
     // SCA -  Classification
     start = high_resolution_clock::now();
-    HyperFunctions1.spec_sim_alg=9;
+    HyperFunctions1.spec_sim_alg=10;
     HyperFunctions1.spec_sim_GPU();
     HyperFunctions1.DispSpecSim();
     end = high_resolution_clock::now();
     cout << "Proccess SCA Classification:" << endl;
     cout << "Time taken : " << (float)duration_cast<milliseconds>(end-start).count() / (float)1000 << " " << "seconds"<<endl;
     cv::waitKey();
+    
+    // SID-SAM -  Classification
+    start = high_resolution_clock::now();
+    HyperFunctions1.spec_sim_alg=11;
+    HyperFunctions1.spec_sim_GPU();
+    HyperFunctions1.DispSpecSim();
+    end = high_resolution_clock::now();
+    cout << "Proccess SID-SAM Classification:" << endl;
+    cout << "Time taken : " << (float)duration_cast<milliseconds>(end-start).count() / (float)1000 << " " << "seconds"<<endl;
+    cv::waitKey();
 
     // SID-SCA -  Classification
     start = high_resolution_clock::now();
-    HyperFunctions1.spec_sim_alg=10;
+    HyperFunctions1.spec_sim_alg=12;
     HyperFunctions1.spec_sim_GPU();
     HyperFunctions1.DispSpecSim();
     end = high_resolution_clock::now();
     cout << "Proccess SID-SCA Classification:" << endl;
     cout << "Time taken : " << (float)duration_cast<milliseconds>(end-start).count() / (float)1000 << " " << "seconds"<<endl;
     cv::waitKey();
+
+    // Hellinger - Classification
+    //13
+
+    // Canberra - Classification
+    //14
 
 
     HyperFunctions1.deallocate_memory();

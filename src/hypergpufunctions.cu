@@ -348,36 +348,38 @@ __global__ void parent_control(float *out, int *img_array, int n, int num_layers
         }
         break;
     case 3:
-        child_cos(out, img_array, n, num_layers, ref_spectrum);
         
+        child_EuD(out, img_array, n, num_layers, ref_spectrum);
         break;
     case 4:
-        child_JM(out, img_array, n, num_layers, ref_spectrum);
+        child_chisq(out, img_array, n, num_layers, ref_spectrum);
         if(tid < n){
             out[tid] = out[tid] * 255; 
         }
         break;
     case 5:
-        child_cityblock(out, img_array, n, num_layers, ref_spectrum);
+        child_cos(out, img_array, n, num_layers, ref_spectrum);
         break;
     case 6:
-        child_EuD(out, img_array, n, num_layers, ref_spectrum);
+        child_cityblock(out, img_array, n, num_layers, ref_spectrum);
         break;
     case 7:
-        // SID-SAM
-        if (tid < n){
-                
-            child_SID(out, img_array, n, num_layers, ref_spectrum);
-            float sid_result = out[tid];
-            
-
-            child_SAM(out, img_array, n, num_layers, ref_spectrum);
-            float sam_result = out[tid];
-            
-            out[tid] = 255 * (sid_result * tanf(sam_result));
+        child_JM(out, img_array, n, num_layers, ref_spectrum);
+        if(tid < n){
+            out[tid] = out[tid] * 255; 
         }
+       
         break;
     case 8:
+        //ns3
+        if(tid < n){
+           
+           out[tid] = 1;
+            // 6000* sqrt(pow(sqrt(1/reference_spectrum.size()) * calculateEUD(reference_spectrum, pixel_spectrum), 2)
+            //                           +pow(1-cos(calculateSAM(reference_spectrum, pixel_spectrum)), 2));
+        }
+        break;
+    case 9:
         //JM-SAM
         if(tid < n){
 
@@ -391,7 +393,7 @@ __global__ void parent_control(float *out, int *img_array, int n, int num_layers
             out[tid] = 255 * (jm_result * tanf(sam_result));
         }
         break;
-    case 9:
+    case 10:
         // SCA
         if(tid < n){
             child_SCM(out, img_array, n, num_layers, ref_spectrum);
@@ -401,7 +403,21 @@ __global__ void parent_control(float *out, int *img_array, int n, int num_layers
 
         }
         break;
-    case 10:
+    case 11:
+        // SID-SAM
+        if (tid < n){
+                
+            child_SID(out, img_array, n, num_layers, ref_spectrum);
+            float sid_result = out[tid];
+            
+
+            child_SAM(out, img_array, n, num_layers, ref_spectrum);
+            float sam_result = out[tid];
+            
+            out[tid] = 255 * (sid_result * tanf(sam_result));
+        }
+        break;
+    case 12:
         // SID-SCA
         if(tid < n){
             child_SCM(out, img_array, n, num_layers, ref_spectrum);
@@ -412,8 +428,20 @@ __global__ void parent_control(float *out, int *img_array, int n, int num_layers
 
             out[tid] = 255 * sid_result * tanf(( acos((scm_result+1)*0.5)));
         }
-        
         break;
+    case 13:
+        child_hellinger(out, img_array, n, num_layers, ref_spectrum);
+        if(tid < n){
+            out[tid] = out[tid] * 255; 
+        }
+        break;
+    case 14:
+        child_canberra(out, img_array, n, num_layers, ref_spectrum);
+        if(tid < n){
+            out[tid] = out[tid] * .8; 
+        }
+        break;
+   
 
     default:
         printf("It Broke !!\n");
@@ -655,6 +683,57 @@ __device__ void child_cityblock(float *out, int *img_array, int n, int num_layer
     }
 
 }
+
+/**
+ * Chi-squared Algorithm
+*/
+__device__ void child_chisq(float *out, int *img_array, int n, int num_layers, int* ref_spectrum){
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    float sum1=0;
+    
+    if (tid < n){
+      
+        
+        
+    }
+
+}
+
+
+
+/**
+ * hellinger
+*/
+__device__ void child_hellinger(float *out, int *img_array, int n, int num_layers, int* ref_spectrum){
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    float sum1=0;
+    
+    if (tid < n){
+      
+        
+        
+    }
+
+}
+
+/**
+ * canberra
+*/
+__device__ void child_canberra(float *out, int *img_array, int n, int num_layers, int* ref_spectrum){
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    float sum1=0;
+    
+    if (tid < n){
+      
+        
+        
+    }
+
+}
+
 
 void HyperFunctionsGPU::deallocate_memory() 
 {
