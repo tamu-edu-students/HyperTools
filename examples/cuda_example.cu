@@ -75,7 +75,16 @@ int main (int argc, char *argv[]) {
     cv::waitKey();
     
     // chi square - Classification
-    // 4
+  
+    start = high_resolution_clock::now();
+    HyperFunctions1.spec_sim_alg=4;
+    HyperFunctions1.spec_sim_GPU();
+    HyperFunctions1.DispSpecSim();
+    end = high_resolution_clock::now();
+    cout << "Proccess chi square Classification:" << endl;
+    cout << "Time taken : " << (float)duration_cast<milliseconds>(end-start).count() / (float)1000 << " " << "seconds"<<endl;
+    cv::waitKey();
+    
 
 
     // COS - Classification
@@ -109,7 +118,14 @@ int main (int argc, char *argv[]) {
     cv::waitKey();
     
     // ns3
-    // 8
+    start = high_resolution_clock::now();
+    HyperFunctions1.spec_sim_alg=8;
+    HyperFunctions1.spec_sim_GPU();
+    HyperFunctions1.DispSpecSim();
+    end = high_resolution_clock::now();
+    cout << "Proccess ns3 Classification:" << endl;
+    cout << "Time taken : " << (float)duration_cast<milliseconds>(end-start).count() / (float)1000 << " " << "seconds"<<endl;
+    cv::waitKey();
 
     // JM-SAM -  Classification
     start = high_resolution_clock::now();
@@ -153,10 +169,26 @@ int main (int argc, char *argv[]) {
     cv::waitKey();
 
     // Hellinger - Classification
-    //13
+  
+    start = high_resolution_clock::now();
+    HyperFunctions1.spec_sim_alg=13;
+    HyperFunctions1.spec_sim_GPU();
+    HyperFunctions1.DispSpecSim();
+    end = high_resolution_clock::now();
+    cout << "Proccess Hellinger Classification:" << endl;
+    cout << "Time taken : " << (float)duration_cast<milliseconds>(end-start).count() / (float)1000 << " " << "seconds"<<endl;
+    cv::waitKey();
 
     // Canberra - Classification
-    //14
+   
+    start = high_resolution_clock::now();
+    HyperFunctions1.spec_sim_alg=14;
+    HyperFunctions1.spec_sim_GPU();
+    HyperFunctions1.DispSpecSim();
+    end = high_resolution_clock::now();
+    cout << "Proccess Canberra Classification:" << endl;
+    cout << "Time taken : " << (float)duration_cast<milliseconds>(end-start).count() / (float)1000 << " " << "seconds"<<endl;
+    cv::waitKey();
 
 
     HyperFunctions1.deallocate_memory();

@@ -374,9 +374,16 @@ __global__ void parent_control(float *out, int *img_array, int n, int num_layers
         //ns3
         if(tid < n){
            
-           out[tid] = 1;
-            // 6000* sqrt(pow(sqrt(1/reference_spectrum.size()) * calculateEUD(reference_spectrum, pixel_spectrum), 2)
-            //                           +pow(1-cos(calculateSAM(reference_spectrum, pixel_spectrum)), 2));
+
+           child_EuD(out, img_array, n, num_layers, ref_spectrum);
+           float eud_result = out[tid];
+
+            child_SAM(out, img_array, n, num_layers, ref_spectrum);
+            float sam_result = out[tid];
+
+           out[tid] = 6000 * sqrt(pow(sqrtf(1/num_layers) * eud_result, 2)
+                                      +pow(1-cos(sam_result), 2));
+            
         }
         break;
     case 9:
@@ -690,12 +697,26 @@ __device__ void child_cityblock(float *out, int *img_array, int n, int num_layer
 __device__ void child_chisq(float *out, int *img_array, int n, int num_layers, int* ref_spectrum){
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
-    float sum1=0;
+    double referenceSpecSum = 0;
+    double pixelSpecSum = 0;
+    double sqrDist = 0;
+    double sum = 0;
+    double chiSq = 0;
     
     if (tid < n){
-      
+        int offset = tid * num_layers;
+        for (int a=0; a<num_layers-1; a++) {
+            referenceSpecSum += ref_spectrum[a];
+            pixelSpecSum += img_array[offset + a];
+        }
+
+        for (int a=0; a<num_layers-1; a++) {
+            sqrDist = pow((img_array[offset + a] - ref_spectrum[a]), 2);
+            sum = (img_array[offset + a] + ref_spectrum[a]);
+            chiSq += (sqrDist / sum);
+        }
         
-        
+        out[tid] = chiSq; 
     }
 
 }
@@ -708,12 +729,32 @@ __device__ void child_chisq(float *out, int *img_array, int n, int num_layers, i
 __device__ void child_hellinger(float *out, int *img_array, int n, int num_layers, int* ref_spectrum){
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
-    float sum1=0;
+    float sum1=0, sum2=0, sumAll=0;
+    double referenceSpecSum = 0;
+    double pixelSpecSum = 0;
     
     if (tid < n){
+        int offset = tid * num_layers;
+        for (int a=0; a<num_layers-1; a++) {
+            
+            if (ref_spectrum[a]<1){ref_spectrum[a]+=1;}
+            if (img_array[offset+a]<1){img_array[offset+a]+=1;}
+            
+            
+            referenceSpecSum += ref_spectrum[a];
+            pixelSpecSum += img_array[offset + a];
+        }
+        
+        for (int a=0; a<num_layers-1; a++) {
+            double refNew = ref_spectrum[a] / referenceSpecSum;
+            double pixNew = img_array[offset+a] / pixelSpecSum;
+            sum1 = sqrt(refNew); // √p_i
+            sum2 = sqrt(pixNew); // √q_i
+            sumAll += pow(sum1 - sum2, 2); // sum from i=1 to k (√p_i - √q_i)^2 
+        }
+       
       
-        
-        
+        out[tid] = (sqrt(sumAll))/1.414; //sqrt(2)=1.41421356237
     }
 
 }
@@ -727,7 +768,14 @@ __device__ void child_canberra(float *out, int *img_array, int n, int num_layers
     float sum1=0;
     
     if (tid < n){
-      
+       int offset = tid * num_layers;
+       for (int a=0; a<num_layers-1; a++) {
+            // sum1 += abs(img_array[offset + a] - ref_spectrum[a]);
+            sum1 += abs(img_array[offset + a] - ref_spectrum[a]) / (img_array[offset + a] + ref_spectrum[a]);
+
+
+        }
+        out[tid] = sum1;
         
         
     }

@@ -131,7 +131,7 @@ void HyperFunctions::CreateCustomFeatureDetector(int hessVal, vector<KeyPoint> &
 
 void HyperFunctions::SSDetector(const cv::Mat &hyperspectralCube, std::vector<cv::KeyPoint> &keypoints)
 {
-    const float M_max = 1.0;
+    // const float M_max = 1.0;
     // cv::Mat hyperspectralCube; // we need a hyperspectralcube data
 
     // final keypoints vector

@@ -190,7 +190,7 @@ double calculateCsq(const std::vector<double>& refSpectrum, const std::vector<do
 // Hellinger Distance
 double calculateHDist(std::vector<double>& refSpectrum, std::vector<double>& pixelSpectrum)
 {
-float sum1=0, sum2=0, sumAll=0;
+    float sum1=0, sum2=0, sumAll=0;
     double referenceSpecSum = 0;
     double pixelSpecSum = 0;
     for (int i=0; i<refSpectrum.size(); i++)
