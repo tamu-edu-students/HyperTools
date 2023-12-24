@@ -52,14 +52,6 @@ RUN apt-get install -y \
 RUN pip install \
     matplotlib 
 
-RUN apt-get install -y libgdal-dev
-
-RUN apt-get install pip -y
-
-RUN pip install matplotlib
-
-RUN apt-get install python3-tk -y
-
 WORKDIR /home
 
 RUN cd /home &&\

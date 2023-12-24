@@ -42,7 +42,6 @@ RUN apt install -y \
 RUN pip install \
 	numpy 
 
-
 RUN apt update -y
 
 RUN apt upgrade -y
@@ -69,7 +68,6 @@ RUN cd /cuvis.sdk/cuvis.python &&\
 # this is how to pip install for python3.9 instead of the standard python environment
 RUN python3.9 -m pip install matplotlib
 
-
 # below is a temp fix until the cuvis.cpp repo is updated
 RUN cd /cuvis.sdk/ &&\
     rm -r cuvis.cpp &&\
@@ -78,15 +76,10 @@ RUN cd /cuvis.sdk/ &&\
     git fetch &&\
     git checkout patch-1
     
-    
 RUN echo 'alias python="/usr/bin/python3.9"' >> ~/.bashrc 
 RUN echo 'alias python3="/usr/bin/python3.9"' >> ~/.bashrc 
 RUN echo 'export CUVIS="/lib/cuvis"' >> ~/.bashrc 
 RUN echo 'export CUVIS_DATA="/opt/cuvis"' >> ~/.bashrc 
-
-
-RUN apt-get update &&\
-    apt-get install -y libgdal-dev
 
 WORKDIR /home
 

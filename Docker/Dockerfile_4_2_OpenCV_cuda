@@ -53,8 +53,6 @@ RUN apt-get install -y \
 RUN pip install \
     matplotlib 
 
-RUN apt-get install -y libgdal-dev
-
 WORKDIR /home
 
 RUN cd /home &&\

@@ -7,8 +7,8 @@ matplotlib.use('TkAgg') # or any other backend that you prefer
 
 # Opening JSON file
 #assumes running from main hypertools 
-# f = open('json/spectral_database1.json')
-f = open('../HyperImages/LIB-HSI/LIB-HSI/validation/spectral_databases/2020-11-27_021.json')
+f = open('json/spectral_database1.json')
+# f = open('../HyperImages/LIB-HSI/LIB-HSI/validation/spectral_databases/2020-11-27_021.json')
 
 
 jsonAsDict = json.load(f)
