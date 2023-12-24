@@ -235,7 +235,7 @@ void HyperFunctions::CreateCustomFeatureDetector(int hessVal, vector<KeyPoint> &
 
 void HyperFunctions::SSDetector(const cv::Mat &hyperspectralCube, std::vector<cv::KeyPoint> &keypoints)
 {
-    const float M_max = 1.0;
+    // const float M_max = 1.0;
     // cv::Mat hyperspectralCube; // we need a hyperspectralcube data
 
     // final keypoints vector
@@ -1477,7 +1477,7 @@ void HyperFunctions::SemanticSegmenter()
     classified_img = temp_class_img;
 }
 
-void SpecSimilChild(int threadId, int algorithmId, int columnIndex, vector<Mat> *mlt, vector<int> *reference_spectrum_ptr, Mat *outputSimilarityImage)
+void SpecSimilChild(int threadId, int algorithmId, int columnIndex, vector<Mat> *mlt, vector<int> *reference_spectrum_ptr, Mat *outputSimilarityImage, double *max_sim_val, double *min_sim_val, bool tune_spec_sim)
 {
 
     vector<Mat> hyperspectralImage = *mlt; // dereferences
@@ -1486,95 +1486,142 @@ void SpecSimilChild(int threadId, int algorithmId, int columnIndex, vector<Mat> 
 
     // Normalizes the reference vector if that is necessary for the comparison algorithm
     // Some algorithms re-normalize anyway which is a source of future optimizations (get rid of redundant code)
-    if (algorithmId == 4 || algorithmId == 6 || algorithmId == 7)
-    {
-        double reference_spectrum_sum = 0;
-        for (int i = 0; i < reference_spectrum.size(); i++)
-        {
-            reference_spectrum_sum += reference_spectrum[i];
-        }
-        for (int i = 0; i < reference_spectrum.size(); i++)
-        {
-            reference_spectrum[i] /= reference_spectrum_sum;
-        }
-    }
+    // needs to be done in parent so not repeated
+    // if (algorithmId == 4 || algorithmId == 6 || algorithmId == 7)
+    // {
+    //     double reference_spectrum_sum = 0;
+    //     for (int i = 0; i < reference_spectrum.size(); i++)
+    //     {
+    //         reference_spectrum_sum += reference_spectrum[i];
+    //     }
+    //     for (int i = 0; i < reference_spectrum.size(); i++)
+    //     {
+    //         reference_spectrum[i] /= reference_spectrum_sum;
+    //     }
+    // }
 
     for (int rowIndex = 0; rowIndex < hyperspectralImage[1].rows; rowIndex++)
     {
         // Find the pixel spectrum
         vector<double> pixel_spectrum;
-        double pixel_spectrum_sum = 0;
+        // double pixel_spectrum_sum = 0;
 
         for (int layer = 0; layer < reference_spectrum.size(); layer++) // Assumes that pixel and reference spectra are the same size.
         {
             pixel_spectrum.push_back(hyperspectralImage[layer].at<uchar>(rowIndex, columnIndex));
-            pixel_spectrum_sum += hyperspectralImage[layer].at<uchar>(rowIndex, columnIndex);
+            // pixel_spectrum_sum += hyperspectralImage[layer].at<uchar>(rowIndex, columnIndex);
         }
 
-        // Normalizes the pixel vector if that is necessary for the comparison algorithm
-        if (algorithmId == 4 || algorithmId == 6 || algorithmId == 7)
-        {
-            for (int layer = 0; layer < reference_spectrum.size(); layer++)
-            {
-                pixel_spectrum[layer] /= pixel_spectrum_sum;
-            }
-        }
+        // // Normalizes the pixel vector if that is necessary for the comparison algorithm
+        // if (algorithmId == 4 || algorithmId == 6 || algorithmId == 7)
+        // {
+        //     for (int layer = 0; layer < reference_spectrum.size(); layer++)
+        //     {
+        //         pixel_spectrum[layer] /= pixel_spectrum_sum;
+        //     }
+        // }
 
         double similarityValue = 0;
-
+        double scaling_factor; 
         switch(algorithmId) { //Manipulation of similarity values not complete yet...
         // most of these having scaling parameters that need to be tuned to the environment and desired level of spectral discrimination
             case 0:
-                similarityValue = calculateSAM(reference_spectrum, pixel_spectrum) * 255;
+                similarityValue = calculateSAM(reference_spectrum, pixel_spectrum) * 81.169; //81.169=255/3.141; 
+                // 0-255 is range of values for 8 bit image for visualization, 0-pi is range of sam values
                 //Below is equivalent using the calculateCOS function
                 //similarityValue = acos(calculateCOS(reference_spectrum, pixel_spectrum)) / 3.141592 * 255;
                 break;
             case 1:
-                similarityValue = (1-calculateSCM(reference_spectrum, pixel_spectrum)) * 0.5 * 255;
+                similarityValue = (1-calculateSCM(reference_spectrum, pixel_spectrum)) * 127.5 ;// 127.5=0.5 * 255;
+                // range for scm is -1 to 1 (-1 is inverse similarity, 1 is similarity )
                 break;
             case 2:
-                similarityValue = calculateSID(reference_spectrum, pixel_spectrum) * 60;
+                scaling_factor = 100; // random scaling factor
+                similarityValue = calculateSID(reference_spectrum, pixel_spectrum) * scaling_factor; // random scaling factor
                 break;
             case 3:
                 //similarityValue = calculateEUD(reference_spectrum, pixel_spectrum) / (reference_spectrum.size() + 255) * 255;
-                similarityValue = calculateEUD(reference_spectrum, pixel_spectrum) / (reference_spectrum.size()) * 10;
+                scaling_factor = 0.10; // random scaling factor
+                similarityValue = calculateEUD(reference_spectrum, pixel_spectrum) * scaling_factor;
                 break;
             case 4:
-                similarityValue = calculateCsq(reference_spectrum, pixel_spectrum) * 255;
+                scaling_factor = 1; //.20;
+                // this is not really chi square but leads to decent results 
+                // it is similar to the canberra distance, but squares the numerator 
+                similarityValue = calculateCsq(reference_spectrum, pixel_spectrum) * scaling_factor;
                 break;
             case 5:
                 //calculateCOS gives high values for things that are similar, so this flips that relationship
-                similarityValue = (1-calculateCOS(reference_spectrum, pixel_spectrum)) * 255;
+                scaling_factor = 255;
+                similarityValue = (1-calculateCOS(reference_spectrum, pixel_spectrum)) * scaling_factor;
                 break;
             case 6:
                 //similarityValue = (calculateCB(reference_spectrum, pixel_spectrum) / (reference_spectrum.size() + 255)) * 255;
-                similarityValue = calculateCB(reference_spectrum, pixel_spectrum) / (reference_spectrum.size()) * 40000;
+                scaling_factor = 1.0 /(reference_spectrum.size())  ;
+                similarityValue = calculateCB(reference_spectrum, pixel_spectrum)   *  scaling_factor;
                 break;
             case 7:
-                similarityValue = calculateJM(reference_spectrum, pixel_spectrum) * 255;
+                scaling_factor = 127;
+                similarityValue = calculateJM(reference_spectrum, pixel_spectrum) * scaling_factor;
                 break;
             case 8: //Testing NS3
-                similarityValue = 6000* sqrt(pow(sqrt(1/reference_spectrum.size()) * calculateEUD(reference_spectrum, pixel_spectrum), 2)
-                                      +pow(1-cos(calculateSAM(reference_spectrum, pixel_spectrum)), 2));
+                scaling_factor = 800;
+                similarityValue = scaling_factor * 
+                    sqrt(
+                            pow(sqrt(1/reference_spectrum.size()) * calculateEUD(reference_spectrum, pixel_spectrum), 2)
+                            + pow(1-cos(calculateSAM(reference_spectrum, pixel_spectrum)), 2)
+                        );
                 break;
             case 9: //Testing JM-SAM
-                similarityValue = 255 * (calculateJM(reference_spectrum, pixel_spectrum) * tan(calculateSAM(reference_spectrum, pixel_spectrum)));
+                scaling_factor = 255;
+                similarityValue = scaling_factor * (calculateJM(reference_spectrum, pixel_spectrum) * tan(calculateSAM(reference_spectrum, pixel_spectrum)));
                 break;
             case 10: //SCA
-                similarityValue = 255 * ( (1/M_PI) * acos((calculateSCM(reference_spectrum, pixel_spectrum)+1)*0.5));
+                scaling_factor =  81.169;
+                similarityValue = scaling_factor  * acos((calculateSCM(reference_spectrum, pixel_spectrum)+1)/2);
                 break;
             case 11: //SID-SAM
-                similarityValue = 255 * calculateSID(reference_spectrum, pixel_spectrum) * tan(calculateSAM(reference_spectrum, pixel_spectrum));
+                // can have negative values, not sure of meaning
+                scaling_factor = 255;
+                similarityValue = scaling_factor * calculateSID(reference_spectrum, pixel_spectrum) * tan(calculateSAM(reference_spectrum, pixel_spectrum));
                 break;
             case 12: //SID-SCA
-                similarityValue = 255 * calculateSID(reference_spectrum, pixel_spectrum) * tan(( acos((calculateSCM(reference_spectrum, pixel_spectrum)+1)*0.5)));
+                scaling_factor = 255;
+                similarityValue = scaling_factor * calculateSID(reference_spectrum, pixel_spectrum) * tan( acos((calculateSCM(reference_spectrum, pixel_spectrum)+1)/2));
                 break;
             case 13: //Hellinger Distance
-                similarityValue = calculateHDist(reference_spectrum, pixel_spectrum) * 255;
+                scaling_factor = 255;
+                similarityValue = calculateHDist(reference_spectrum, pixel_spectrum) * scaling_factor;
                 break;
             case 14: //Canberra distance
-                similarityValue = .8 * calculateCanb(reference_spectrum, pixel_spectrum);
+                scaling_factor = 0.8;
+                similarityValue = scaling_factor * calculateCanb(reference_spectrum, pixel_spectrum);
                 break;
+        }
+
+
+        if (tune_spec_sim)
+        {
+           if (similarityValue > *max_sim_val)
+            {
+                *max_sim_val = similarityValue;
+            }
+            else if (similarityValue < *min_sim_val)
+            {
+                *min_sim_val = similarityValue;
+            }
+        }
+
+        // make sure in acceptable range
+        if (similarityValue > 255)
+        {
+            *max_sim_val = similarityValue;
+            similarityValue = 255;
+        }
+        else if (similarityValue < 0)
+        {
+            *min_sim_val = similarityValue;
+            similarityValue = 0;
         }
 
         outputSimilarityImage->at<uchar>(rowIndex, columnIndex) = similarityValue; 
@@ -1592,11 +1639,27 @@ void HyperFunctions::SpecSimilParent()
     spec_simil_img = temp_img;
 
     ctpl::thread_pool p(num_threads);
-
+    max_sim_val=0;
+	min_sim_val=255;
     for (int k = 0; k < mlt1[1].cols; k += 1)
     {
-        p.push(SpecSimilChild, spec_sim_alg, k, &mlt1, &reference_spectrums[ref_spec_index], &spec_simil_img);
+        p.push(SpecSimilChild, spec_sim_alg, k, &mlt1, &reference_spectrums[ref_spec_index], &spec_simil_img, &max_sim_val, &min_sim_val, tune_spec_sim);
     }
+
+    p.stop(true);
+
+    // okay to have above 255 in order to improve spec sim contrast
+
+    if (max_sim_val >255  || tune_spec_sim)
+    {
+        cout<<"alg: "<<spec_sim_alg<< " max sim val: "<<max_sim_val<<endl;
+       
+    }
+    if ( min_sim_val <0 || tune_spec_sim)
+    {
+         cout<<"alg: "<<spec_sim_alg<<" min sim val: "<<min_sim_val<<endl;
+    }
+
 }
 
 void HyperFunctions::thickEdgeContourApproximation(int idx)

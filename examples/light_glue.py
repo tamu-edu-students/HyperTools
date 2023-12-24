@@ -17,6 +17,7 @@ from multiprocessing import cpu_count, Process, Value, Array, Pool, TimeoutError
 import matplotlib
 matplotlib.use('TkAgg')
 import pandas as pd
+import cuvis
 
 def extract_rgb(cube, red_layer=78 , green_layer=40, blue_layer=25,  visualize=False):
 
@@ -139,10 +140,131 @@ def perform_pca(cube):
     # running into issues right now need to test on different platform 
     return 
 
+def load_hsi(file_name):
+    # load hyperspectral image
+    _, extension = os.path.splitext(file_name)
+    # print(extension)
     
+    if extension == '.tiff': 
+        #below is a way to load hyperspectral images that are tiff files
+        mylist = []
+        loaded,mylist = cv2.imreadmulti(mats = mylist, filename = file_name, flags = cv2.IMREAD_ANYCOLOR )
+        cube=np.array(mylist)
+        cube = cube[:, :, :]  
+    else :
+        print("Error: file type not supported")
+        return 
+    # print(cube.shape)
+    return cube 
+
+def   reprocessMeasurement(userSettingsDir,measurementLoc,darkLoc,whiteLoc,distanceLoc,factoryDir):    
+    
+    # print("loading user settings...")
+    settings = cuvis.General(userSettingsDir)
+    # settings.setLogLevel("info")
+
+    # print("loading measurement file...")
+    mesu = cuvis.Measurement(measurementLoc)
+
+    # print("loading dark...")
+    dark = cuvis.Measurement(darkLoc)
+    # print("loading white...")
+    white = cuvis.Measurement(whiteLoc)
+    # print("loading dark...")
+    distance = cuvis.Measurement(distanceLoc)
+
+    # print("Data 1 {} t={}ms mode={}".format(mesu.Name,mesu.IntegrationTime,mesu.ProcessingMode,))
+
+    # print("loading calibration and processing context (factory)...")
+    calibration = cuvis.Calibration(factoryDir)
+    processingContext = cuvis.ProcessingContext(calibration)
+
+    # print("set references...")
+    processingContext.set_reference(dark, cuvis.ReferenceType.Dark)
+    processingContext.set_reference(white, cuvis.ReferenceType.White)
+    processingContext.set_reference(distance, cuvis.ReferenceType.Distance)
+
+    modes = [
+             "Reflectance"
+             ]
+
+    # procArgs = cuvis.CubertProcessingArgs()
+    procArgs = cuvis.ProcessingArgs()
+    # saveArgs = cuvis.SaveArgs(allow_overwrite=True)
+
+    for mode in modes:
+
+        procArgs.ProcessingMode = mode
+        isCapable = processingContext.is_capable(mesu, procArgs)
+
+        if isCapable:
+            # print("processing to mode {}...".format(mode))
+            processingContext.set_processing_args(procArgs)
+            mesu = processingContext.apply(mesu)
+            mesu.set_name(mode)
+            # cube = mesu.Data.pop("cube", None)
+            cube = mesu.data.get("cube", None)
+            
+            if cube is None:
+                raise Exception("Cube not found")
+
+        else:
+            print("Cannot process to {} mode!".format(mode))
+            
+    #print("finished.")
+    cube_result = cube.array
+    cube_result = np.transpose(cube_result, (2, 0, 1))
+    # print(cube_result.shape)
+    return cube_result
+
+
+def   reprocessMeasurement_cu3s(userSettingsDir,measurementLoc,darkLoc,whiteLoc,distance,factoryDir):    
+    
+    settings = cuvis.General(userSettingsDir)
+    # settings.set_log_level("info")
+
+    sessionM = cuvis.SessionFile(measurementLoc)
+    mesu = sessionM[0]
+    assert mesu._handle
+    
+    sessionDk = cuvis.SessionFile(darkLoc)
+    dark = sessionDk[0]
+    assert dark._handle
+    
+    sessionWt = cuvis.SessionFile(whiteLoc)
+    white = sessionWt[0]
+    assert white._handle
+    
+    # sessionDc = cuvis.SessionFile(distanceLoc)
+    # distance = sessionDc[0]
+    # assert distance._handle
+    
+    processingContext = cuvis.ProcessingContext(sessionM)
+    
+    processingContext.calc_distance(distance)
+    processingContext.processing_mode = cuvis.ProcessingMode.Reflectance
+    
+    processingContext.set_reference(dark, cuvis.ReferenceType.Dark)
+    processingContext.set_reference(white, cuvis.ReferenceType.White)
+    
+    assert processingContext.is_capable(mesu,
+                                       processingContext.get_processing_args())
+    
+    processingContext.apply(mesu)
+    cube = mesu.data.get("cube", None)
+    
+    #print("finished.")
+    cube_result = cube.array
+    cube_result = np.transpose(cube_result, (2, 0, 1))
+    # print(cube_result.shape)
+    return cube_result
+
+
 if __name__ == "__main__":    
     
-    # SuperPoint+LightGlue # not good for hyperspectral images not many matched points neither is sift or aliked
+    
+    #select which feature extractor and matcher to use
+    
     # extractor = SuperPoint(max_num_keypoints=2048).eval().cuda()  # load the extractor
     # matcher = LightGlue(features='superpoint').eval().cuda()  # load the matcher
     
@@ -152,41 +274,57 @@ if __name__ == "__main__":
     # extractor = ALIKED(max_num_keypoints=2048).eval().cuda()  # load the extractor
     # matcher = LightGlue(features='aliked').eval().cuda()  # load the matcher
 
-    # or DISK+LightGlue # getting decent results for hyperspectral images
     extractor = DISK(max_num_keypoints=2048).eval().cuda()  # load the extractor
     matcher = LightGlue(features='disk').eval().cuda()  # load the matcher
 
+    # example images to test
     # load each image as a torch.Tensor on GPU with shape (3,H,W), normalized in [0,1]
     # image0 = load_image('submodules/LightGlue/assets/sacre_coeur1.jpg').cuda()
     # image1 = load_image('submodules/LightGlue/assets/sacre_coeur2.jpg').cuda()
+    
     # image0 = load_image('images/pan1.tiff').cuda()
     # image1 = load_image('images/pan2.tiff').cuda()
 
 
-
-    #below is a way to load hyperspectral images that are tiff files
-    mylist = []
-    loaded,mylist = cv2.imreadmulti(mats = mylist, filename = "../HyperImages/img1.tiff", flags = cv2.IMREAD_ANYCOLOR )
-    cube1=np.array(mylist)
-    cube1 = cube1[:, :, :]  
-    # print(cube1.shape)
-
-    mylist = []
-    loaded,mylist = cv2.imreadmulti(mats = mylist, filename = "../HyperImages/img2.tiff", flags = cv2.IMREAD_ANYCOLOR )
-    cube2=np.array(mylist)
-    cube2 = cube2[:, :, :]  
-    # print(cube2.shape)
+    # load hyperspectral image 
+    # chan, x, y
+    # cube1 = load_hsi("../HyperImages/img1.tiff")
+    # cube2 = load_hsi("../HyperImages/img2.tiff")
     
+    # cube1 = load_hsi('../HyperImages/cornfields/session_002/session_002_490.cu3')
+    
+    userSettingsDir = "settings/ultris5/" 
+    measurementLoc = "../HyperImages/export/Test_001.cu3s"
+    darkLoc = "../HyperImages/Calib100/dark_001.cu3s"
+    whiteLoc = "../HyperImages/Calib100/white_001.cu3s"
+    # distanceLoc = "../HyperImages/cornfields/Calibration/distanceCalib__session_000_790_snapshot16423004058237746.cu3"
+    factoryDir = "settings/ultris5/"  # init.daq file
+    distance = 2000 # dist in mm
+    
+    # used for cu3 files
+    # cube1 = reprocessMeasurement(userSettingsDir,measurementLoc,darkLoc,whiteLoc,distanceLoc,factoryDir)
+   
+    cube1= reprocessMeasurement_cu3s(userSettingsDir,measurementLoc,darkLoc,whiteLoc,distance,factoryDir)
+
+    measurementLoc = "../HyperImages/export/Test_002.cu3s"
+
+    cube2= reprocessMeasurement_cu3s(userSettingsDir,measurementLoc,darkLoc,whiteLoc,distance,factoryDir)
+    
+    # sys.exit()
     #use below to set the both images to be the same
     # cube2 = cube1
 
+    
+    # select dimensionality reduction technique 
+    
     #single channel from hyperspectral image
     # image0 = extract_single_layer(cube1, 100)
     # image1 = extract_single_layer(cube2, 100)
 
     #rgb image from hyperspectral image
-    image0=extract_rgb(cube1)
-    image1=extract_rgb(cube2)
+    # make sure to pass the correct layer numbers for each channel
+    image0=extract_rgb(cube1,40,20,2)
+    image1=extract_rgb(cube2,40,20,2)
 
     # spectral similarity image from hyperspectral image
     # color_array, spectral_array= read_spec_json('json/spectral_database_U20.json')
@@ -275,7 +413,7 @@ if __name__ == "__main__":
     points0 = feats0['keypoints'][matches[..., 0]]  # coordinates in image #0, shape (K,2)
     points1 = feats1['keypoints'][matches[..., 1]]  # coordinates in image #1, shape (K,2)
 
-    plot_images([image0.cpu(), image1.cpu()])
+    plot_images([image0.cpu(), image1.cpu(), image0.cpu(), image1.cpu()])
     # plot_images([image0, image1])
     #plot_keypoints(points0, points1)
     plot_matches(points0[:, :], points1[:, :])
