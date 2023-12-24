@@ -52,7 +52,7 @@ int main (int argc, char *argv[])
 
   #else
     HyperFunctions HyperFunctions1; 
-    string file_name2="../../HyperImages/img1.tiff";
+    string file_name2="../../HyperImages/LIB-HSI/LIB-HSI/validation/reflectance_cubes/2020-11-27_021.dat";//"../../HyperImages/img1.tiff";
     HyperFunctions1.LoadImageHyper(file_name2);
   #endif
 

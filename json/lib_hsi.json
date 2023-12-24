@@ -1,0 +1,224 @@
+{
+    "items": [
+        {
+            "name": "Whiteboard",
+            "color_hex_code": "#c7c5bd",
+            "class_group": 0
+        },
+        {
+            "name": "Chessboard",
+            "color_hex_code": "#f0d4ad",
+            "class_group": 0
+        },
+        {
+            "name": "Tripod",
+            "color_hex_code": "#02c391",
+            "class_group": 0
+        },
+        {
+            "name": "Vegetation Plant",
+            "color_hex_code": "#007a10",
+            "class_group": 1
+        },
+        {
+            "name": "Metal-Frame",
+            "color_hex_code": "#5054c3",
+            "class_group": 0
+        },
+        {
+            "name": "Glass Window",
+            "color_hex_code": "#45aeba",
+            "class_group": 2
+        },
+        {
+            "name": "Brick Wall",
+            "color_hex_code": "#d44e4e",
+            "class_group": 3
+        },
+        {
+            "name": "Miscellaneous",
+            "color_hex_code": "#b52ab5",
+            "class_group": 0
+        },
+        {
+            "name": "Concrete Ground",
+            "color_hex_code": "#8b96e4",
+            "class_group": 4
+        },
+        {
+            "name": "Metal-Vent",
+            "color_hex_code": "#b87528",
+            "class_group": 0
+        },
+        {
+            "name": "Metal Door Knob/Handle",
+            "color_hex_code": "#a7aeab",
+            "class_group": 0
+        },
+        {
+            "name": "Block Wall",
+            "color_hex_code": "#908e8e",
+            "class_group": 5
+        },
+        {
+            "name": "Concrete Wall",
+            "color_hex_code": "#dedede",
+            "class_group": 4
+        },
+        {
+            "name": "Concrete Footing",
+            "color_hex_code": "#fd958a",
+            "class_group": 4
+        },
+        {
+            "name": "Concrete Beam",
+            "color_hex_code": "#a0bbd5",
+            "class_group": 4
+        },
+        {
+            "name": "Brick Ground",
+            "color_hex_code": "#0ce544",
+            "class_group": 3
+        },
+        {
+            "name": "Glass door",
+            "color_hex_code": "#52b9cb",
+            "class_group": 2
+        },
+        {
+            "name": "Plastic Flyscreen",
+            "color_hex_code": "#6c9886",
+            "class_group": 0
+        },
+        {
+            "name": "Plastic Label",
+            "color_hex_code": "#bdc41a",
+            "class_group": 0
+        },
+        {
+            "name": "Vegetation Ground",
+            "color_hex_code": "#439103",
+            "class_group": 1
+        },
+        {
+            "name": "Soil",
+            "color_hex_code": "#e8b764",
+            "class_group": 1
+        },
+        {
+            "name": "Metal Label",
+            "color_hex_code": "#ff0080",
+            "class_group": 0
+        },
+        {
+            "name": "Metal Pipe",
+            "color_hex_code": "#2031e4",
+            "class_group": 0
+        },
+        {
+            "name": "Metal Sheet",
+            "color_hex_code": "#c37f73",
+            "class_group": 6
+        },
+        {
+            "name": "Metal Smooth Sheet",
+            "color_hex_code": "#ff8040",
+            "class_group": 0
+        },
+        {
+            "name": "Woodchip Ground",
+            "color_hex_code": "#046c10",
+            "class_group": 1
+        },
+        {
+            "name": "Wood/Timber Smooth Door",
+            "color_hex_code": "#0dbab4",
+            "class_group": 7
+        },
+        {
+            "name": "Tiles Ground",
+            "color_hex_code": "#ff80c0",
+            "class_group": 3
+        },
+        {
+            "name": "Pebble-Concrete Beam",
+            "color_hex_code": "#221f99",
+            "class_group": 4
+        },
+        {
+            "name": "Pebble-Concrete Ground",
+            "color_hex_code": "#d2b862",
+            "class_group": 4
+        },
+        {
+            "name": "Pebble-Concrete Wall",
+            "color_hex_code": "#254e20",
+            "class_group": 4
+        },
+        {
+            "name": "Plastic Pipe",
+            "color_hex_code": "#d4cce4",
+            "class_group": 0
+        },
+        {
+            "name": "Metal Profiled Sheet",
+            "color_hex_code": "#ace463",
+            "class_group": 6
+        },
+        {
+            "name": "Metal-Pole",
+            "color_hex_code": "#2162c2",
+            "class_group": 0
+        },
+        {
+            "name": "Door-plastic",
+            "color_hex_code": "#62fae3",
+            "class_group": 7
+        },
+        {
+            "name": "Wood/timber Vent",
+            "color_hex_code": "#ed8016",
+            "class_group": 0
+        },
+        {
+            "name": "Wood/timber Wall",
+            "color_hex_code": "#80a996",
+            "class_group": 8
+        },
+        {
+            "name": "Wood Frame",
+            "color_hex_code": "#d8b66f",
+            "class_group": 8
+        },
+        {
+            "name": "Metal Smooth Door",
+            "color_hex_code": "#bc72cb",
+            "class_group": 7
+        },
+        {
+            "name": "Plastic Vent",
+            "color_hex_code": "#ece97c",
+            "class_group": 0
+        },
+        {
+            "name": "Concrete Window Sill",
+            "color_hex_code": "#bb054a",
+            "class_group": 2
+        },
+        {
+            "name": "Wood Ground",
+            "color_hex_code": "#41aa60",
+            "class_group": 0
+        },
+        {
+            "name": "Metal Profiled Door",
+            "color_hex_code": "#71867c",
+            "class_group": 7
+        },
+        {
+            "name": "Wood/Timber Profiled Door",
+            "color_hex_code": "#c98d96",
+            "class_group": 7
+        }
+    ]
+}
