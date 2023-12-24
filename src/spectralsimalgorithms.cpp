@@ -21,13 +21,18 @@ double calculateSAM(const std::vector<double>& refSpectrum, const std::vector<do
     magnitude1 = std::sqrt(magnitude1);
     magnitude2 = std::sqrt(magnitude2);
 
-    // Calculate the spectral angle
-    double cosineSimilarity = dotProduct / (magnitude1 * magnitude2);
-    double angle = std::acos(cosineSimilarity) / 3.141592;  // Angle in radians
+    
+    double angle;
 
-    if (dotProduct<=0 || magnitude1<=0 || magnitude2<=0 ) //Investigate if we want this behavior
+    if ( magnitude1<=0 || magnitude2<=0 ) //this is to check if division by zero. This leads to error so set to white 
     {
-        angle=1; // set to white due to an error
+        angle=3.141; // set to white due to an error
+    }
+    else
+    {
+        // Calculate the spectral angle
+        double cosineSimilarity = dotProduct / (magnitude1 * magnitude2);
+         angle = std::acos(cosineSimilarity) ;  // range is 0-pi
     }
 
     return angle;
@@ -41,22 +46,39 @@ double calculateSID(std::vector<double>& refSpectrum, std::vector<double>& pixel
     double pixelSpecSum = 0;
     for (int i=0; i<refSpectrum.size(); i++)
     {
-        if (refSpectrum[i]<1)
-        {
-            refSpectrum[i]+=1;
-        }
-        if (pixelSpectrum[i]<1)
-        {
-            pixelSpectrum[i]+=1;
-        }              
+                  
         referenceSpecSum += refSpectrum[i];
         pixelSpecSum += pixelSpectrum[i];
     }
     
+    // avoid division by zero
+    if (referenceSpecSum<1)
+    {
+        referenceSpecSum=1;
+    }
+    if (pixelSpecSum<1)
+    {
+        pixelSpecSum=1;
+    }
+
     for (int i=0; i<refSpectrum.size(); i++)
     {
+        // avoid division by zero
+        if ( refSpectrum[i]<1)
+        {
+            refSpectrum[i]=1;
+        }
+        if ( pixelSpectrum[i]<1)
+        {
+            pixelSpectrum[i]=1;
+        }
+       
         double refNew = refSpectrum[i] / referenceSpecSum;
         double pixNew = pixelSpectrum[i] / pixelSpecSum;
+
+        
+        
+        
         sum1+= (refNew)*log(refNew/pixNew);   // q_i*log(q_i/p_i)
         sum2+= (pixNew)*log(pixNew/refNew);   // p_i*log(p_i/q_i)
     }   
@@ -85,9 +107,12 @@ double calculateSCM(const std::vector<double>& refSpectrum, const std::vector<do
     double num_layers = refSpectrum.size();
     for (int i=0; i<num_layers; i++)
     {
-        mean1 += ((double)1/(double)(num_layers-1)* (double)pixelSpectrum[i]);
-        mean2 += ((double)1/(double)(num_layers-1)* (double)refSpectrum[i]);
+        mean1 += ((double)pixelSpectrum[i]);
+        mean2 += ( (double)refSpectrum[i]);
     }
+    mean1 = mean1/num_layers;
+    mean2 = mean2/num_layers;
+
     for (int i=0; i<refSpectrum.size(); i++)
     {
         sum1+=(pixelSpectrum[i]-mean1)*(refSpectrum[i]-mean2) ;
@@ -96,13 +121,10 @@ double calculateSCM(const std::vector<double>& refSpectrum, const std::vector<do
     }
     if (sum2<=0 || sum3<=0 )
     {
-        return 1; // set to white due to an error
+        return -1; // set to white due to an error
     }
-    
-    float temp1= sum1/sqrt((sum2)*(sum3));
-    //double alpha_rad=acos(temp1);
-    //return (alpha_rad/3.14159);
-    return temp1;
+ 
+    return sum1/sqrt((sum2)*(sum3));
 }
 
 //cosine similar to SAM
@@ -117,8 +139,15 @@ double calculateCOS(const std::vector<double>& refSpectrum, const std::vector<do
         sumSquaresRef += refSpectrum[i] * refSpectrum[i];
         sumSquaresPixel += pixelSpectrum[i] * pixelSpectrum[i];
     }
-
-    double similarity = dotProduct / (sqrt(sumSquaresRef) * sqrt(sumSquaresPixel));
+    if (sumSquaresRef<1)
+    {
+        sumSquaresRef=1;
+    }
+    if (sumSquaresPixel<1)
+    {
+        sumSquaresPixel=1;
+    }
+    double similarity = dotProduct / (sqrt(sumSquaresRef* sumSquaresPixel));
     return similarity;
 }
 
@@ -133,7 +162,16 @@ double calculateJM(const std::vector<double>& refSpectrum, const std::vector<dou
         referenceSpecSum += refSpectrum[i];
         pixelSpecSum += pixelSpectrum[i];
     }
-
+    // avoid division by zero
+    if (referenceSpecSum<1)
+    {
+        referenceSpecSum=1;
+    }
+    if (pixelSpecSum<1)
+    {
+        pixelSpecSum=1;
+    }
+    
     double BC = 0;
     for (int i=0; i<refSpectrum.size(); i++)
     {
@@ -141,9 +179,13 @@ double calculateJM(const std::vector<double>& refSpectrum, const std::vector<dou
     }
 
     double Bhattacharrya = -log(BC); //Intermediate step in calculating JM_distance
-    double JM_distance = sqrt(2* (1 - pow(M_E, -Bhattacharrya))); //between 0 and sqrt2(2)
-    double JM_distance_scaled = JM_distance / sqrt(2);
-    return JM_distance_scaled; 
+    double JM_distance = sqrt(2* (1 - exp( -Bhattacharrya))); //between 0 and 2
+    
+    return JM_distance; 
+
+   
+
+
 }
 
 
@@ -162,49 +204,77 @@ double calculateCB(const std::vector<double>& refSpectrum, const std::vector<dou
 //Chi-squared Algorithm
 double calculateCsq(const std::vector<double>& refSpectrum, const std::vector<double>& pixelSpectrum)   
 {   
-    double referenceSpecSum = 0;
-    double pixelSpecSum = 0;
+    // double referenceSpecSum = 0;
+    // double pixelSpecSum = 0;
 
-    for (int i=0; i<refSpectrum.size(); i++)
-    {
-        referenceSpecSum += refSpectrum[i];
-        pixelSpecSum += pixelSpectrum[i];
-    }
+    // for (int i=0; i<refSpectrum.size(); i++)
+    // {
+    //     referenceSpecSum += refSpectrum[i];
+    //     pixelSpecSum += pixelSpectrum[i];
+    // }
 
-    double sqrDist = 0;
-    double sum = 0;
-    double chiSq = 0;
+    // // avoid division by zero
+    // if (referenceSpecSum<1)
+    // {
+    //     referenceSpecSum+=1;
+    // }
+    // if (pixelSpecSum<1)
+    // {
+    //     pixelSpecSum+=1;
+    // }
 
-    for (int i=0; i<refSpectrum.size(); i++)
-    {
-        sqrDist = pow((refSpectrum[i]/referenceSpecSum) - (pixelSpectrum[i] / pixelSpecSum), 2);
-        sum = (refSpectrum[i]/referenceSpecSum) + (pixelSpectrum[i] / pixelSpecSum);
-        chiSq += (sqrDist / sum);   
-    }
+    // double sqrDist = 0;
+    // double sum = 0;
+    // double chiSq = 0;
+
+    // for (int i=0; i<refSpectrum.size(); i++)
+    // {
+    //     sqrDist = pow((refSpectrum[i]/referenceSpecSum) - (pixelSpectrum[i] / pixelSpecSum), 2);
+    //     sum = (refSpectrum[i]/referenceSpecSum) + (pixelSpectrum[i] / pixelSpecSum);
+    //     chiSq += (sqrDist / sum);   
+    // }
         
 
-    chiSq = sqrt(sqrt(0.5 * (sqrDist / sum))); // sqrt for data manipulation and made spectral similarity image better
-    return chiSq;
+    // chiSq = sqrt(sqrt(0.5 * (sqrDist / sum))); // sqrt for data manipulation and made spectral similarity image better
+    // return chiSq;
+
+    // not sure why below formula does not work as expected
+    double sum1 = 0.0;
+    double sum2 = 0.0;
+    double sum3 = 0.0;
+    for (int i = 0; i < refSpectrum.size(); i++) {
+        
+        sum1 += pow((refSpectrum[i]) - (pixelSpectrum[i] ), 2);
+        sum2 += (refSpectrum[i]) + (pixelSpectrum[i]);
+        
+    }
+    sum3 = sum1/sum2;
+    double chisq = sum3 ;
+    
+    
+    return chisq;
 }
 
 // Hellinger Distance
 double calculateHDist(std::vector<double>& refSpectrum, std::vector<double>& pixelSpectrum)
 {
-float sum1=0, sum2=0, sumAll=0;
+    float sum1=0, sum2=0, sumAll=0;
     double referenceSpecSum = 0;
     double pixelSpecSum = 0;
     for (int i=0; i<refSpectrum.size(); i++)
     {
-        if (refSpectrum[i]<1)
-        {
-            refSpectrum[i]+=1;
-        }
-        if (pixelSpectrum[i]<1)
-        {
-            pixelSpectrum[i]+=1;
-        }              
+                
         referenceSpecSum += refSpectrum[i];
         pixelSpecSum += pixelSpectrum[i];
+    }
+    // avoid division by zero
+    if (referenceSpecSum<1)
+    {
+        referenceSpecSum+=1;
+    }
+    if (pixelSpecSum<1)
+    {
+        pixelSpecSum+=1;
     }
     
     for (int i=0; i<refSpectrum.size(); i++)
@@ -218,15 +288,20 @@ float sum1=0, sum2=0, sumAll=0;
         sumAll += pow(sum1 - sum2, 2); // sum from i=1 to k (√p_i - √q_i)^2    
     }   
     
-    return (1/sqrt(2))*(sqrt(sumAll));
+    return (sqrt(sumAll))/sqrt(2);
 
 }
 
 double calculateCanb(const std::vector<double>& refSpectrum, const std::vector<double>& pixelSpectrum){
     double sum = 0.0;
-
+    double denom;
     for (size_t i = 0; i < refSpectrum.size(); ++i) {
-        sum += std::abs((refSpectrum[i]+1) - (pixelSpectrum[i]+1)) / (std::abs((refSpectrum[i]+1)) + std::abs((pixelSpectrum[i]+1)));
+        
+        denom = (refSpectrum[i]) + (pixelSpectrum[i]);
+        // avoid division by zero
+        if (denom == 0){denom = 1;}
+            
+        sum += std::abs((refSpectrum[i]) - (pixelSpectrum[i])) / denom;
     }
 
     return sum;
