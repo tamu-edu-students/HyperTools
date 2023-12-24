@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 project(user_interface_project C CXX)
 
 #change below to true to use GPU or false to not use GPU
-set(use_CUDA true) 
+set(use_CUDA false) 
 #change below to true to use cuvis.sdk
 set (use_cuvis false)
 
