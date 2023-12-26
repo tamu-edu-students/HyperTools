@@ -10,3 +10,6 @@
 [submodule "submodules/segment-anything-cpp-wrapper"]
 	path = submodules/segment-anything-cpp-wrapper
 	url = https://github.com/dinglufe/segment-anything-cpp-wrapper.git
+[submodule "submodules/HyperspectralDatasets"]
+	path = submodules/HyperspectralDatasets
+	url = https://github.com/antmedellin/HyperspectralDatasets.git
