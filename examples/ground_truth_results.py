@@ -11,7 +11,7 @@ if __name__ == "__main__":
     results_dir = '../HyperImages/LIB-HSI/LIB-HSI/validation/results/'   
     
     # number of spectral similarity algorithms
-    num_algorithms = 15 # includes zero,  15 for hypertools 
+    num_algorithms = 14 # includes zero,  14 for hypertools 
     
     # to do incorporate time / number of classes? 
     
@@ -102,14 +102,23 @@ if __name__ == "__main__":
     # print ('Algorithm, Class Name, Correct, Incorrect, Total')
     for item in results_dict_alg:
         # print (item) # alg number
-        pass
+        # pass
+        alg_correct = 0
+        alg_incorrect = 0
+        alg_total = 0
         for name in results_dict_alg[item]['algorithm_results']:
             # print (name) # class name
             # print (results_dict_alg[item]['algorithm_results'][name]['correct_classification'])
             # print (results_dict_alg[item]['algorithm_results'][name]['incorrect_classification'])
             # print (results_dict_alg[item]['algorithm_results'][name]['total_classification'])
-            print ('Algorithm: ',item, ',', name, ', Correct: ', results_dict_alg[item]['algorithm_results'][name]['correct_classification'], ', Incorrect:', results_dict_alg[item]['algorithm_results'][name]['incorrect_classification'], ', Total:', results_dict_alg[item]['algorithm_results'][name]['total_classification'])
-            pass
+            
+            # prints results by algorithm, class name, correct, incorrect, total
+            # print ('Algorithm: ',item, ',', name, ', Correct: ', results_dict_alg[item]['algorithm_results'][name]['correct_classification'], ', Incorrect:', results_dict_alg[item]['algorithm_results'][name]['incorrect_classification'], ', Total:', results_dict_alg[item]['algorithm_results'][name]['total_classification'])
+            # pass
+            alg_correct += results_dict_alg[item]['algorithm_results'][name]['correct_classification']
+            alg_incorrect += results_dict_alg[item]['algorithm_results'][name]['incorrect_classification']
+            alg_total += results_dict_alg[item]['algorithm_results'][name]['total_classification']
+        print('Algorithm: ',item, ', Correct: ', alg_correct,' ',  alg_correct/alg_total*100,'% , Incorrect:', alg_incorrect, ' ', alg_incorrect/alg_total*100,'% , Total:', alg_total)
     
     
     
@@ -127,5 +136,13 @@ if __name__ == "__main__":
     
     
     
+    # TP = true positive 
+    # FP = false positive 
+    # FN = false negative
+    # TN = true negative
+    
+    # precision = TP / (TP + FP)
+    # recall = TP / (TP + FN) 
+    # f1 = 2 * (precision * recall) / (precision + recall)
     
     
