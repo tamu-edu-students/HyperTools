@@ -12,7 +12,8 @@
 #include "spectralsimalgorithms.cpp"
 #include "gdal/gdal.h"
 #include "gdal/gdal_priv.h"
-#include "gdal/cpl_conv.h"  
+#include "gdal/cpl_conv.h"
+#include <matio.h>  
 
 using namespace cv;
 using namespace std;
@@ -127,6 +128,81 @@ void HyperFunctions::LoadImageHyper(string file_name, bool isImage1 = true)
         }
 
 
+    }
+    else if (file_ext=="mat")
+    {
+        // Open the MATLAB file
+        mat_t *matfp = Mat_Open(file_name.c_str(), MAT_ACC_RDONLY);
+        if (matfp == NULL) {
+            std::cerr << "Error opening MATLAB file " << file_name << std::endl;
+            return ;
+        }
+
+        // Read each variable in the file
+        matvar_t *matvar = NULL;
+        while ((matvar = Mat_VarReadNext(matfp)) != NULL) {
+
+
+            // cout << "Variable type: ";
+            // switch (matvar->class_type) {
+            //     case MAT_C_DOUBLE: cout << "double"; break;
+            //     case MAT_C_SINGLE: cout << "single"; break;
+            //     case MAT_C_INT32: cout << "int32"; break;
+            //     case MAT_C_UINT8: cout << "uint8"; break;
+            //     // Add more cases as needed...
+            //     default: cout << "unknown";
+            // }
+            // cout << endl;
+
+            // hyperspectral image is of type double
+            
+            // cout << "Variable dimensions: ";
+            // for (int i = 0; i < matvar->rank; i++) {
+            //     cout << matvar->dims[i];
+            //     if (i < matvar->rank - 1) {
+            //         cout << " x ";
+            //     }
+            // }
+            // cout << endl;
+
+            // Assuming matvar is your 3D array variable
+            // x,y,chanel
+            if (matvar->rank == 3) {
+                size_t rows = matvar->dims[0];
+                size_t cols = matvar->dims[1];
+                size_t slices = matvar->dims[2];
+
+                double* data = static_cast<double*>(matvar->data);
+
+                // Find global minimum and maximum
+                double global_min = *std::min_element(data, data + rows * cols * slices);
+                double global_max = *std::max_element(data, data + rows * cols * slices);
+
+
+                for (size_t i = 0; i < slices; i++) {
+                    cv::Mat mat(rows, cols, CV_64F, data + i * rows * cols);
+                    // normalize the data
+                    mat = (mat - global_min) * 255 / (global_max - global_min);
+                    // convert to 8 bit
+                    mat.convertTo(mat, CV_8U);
+                    // cv::imshow("mat", mat);
+                    // cv::waitKey(100);
+                    // cout<<i<<endl;
+                    if (isImage1) {
+                        mlt1.push_back(mat);
+                    }
+                    else {
+                        mlt2.push_back(mat);
+                    }
+                }
+            }
+
+            // Free the current MATLAB variable
+            Mat_VarFree(matvar);
+        }
+
+        // Close the MATLAB file
+        Mat_Close(matfp);
     }
     else
     {
