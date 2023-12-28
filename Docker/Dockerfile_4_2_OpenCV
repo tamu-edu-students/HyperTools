@@ -47,10 +47,23 @@ RUN apt-get install -y \
     language-pack-en-base \
     libgdal-dev \
     pip \
-    python3-tk 
+    python3-tk \
+    libhdf5-dev \
+    libtool \
+    m4 \
+    automake
 
 RUN pip install \
     matplotlib 
+
+RUN cd / &&\
+    git clone git://git.code.sf.net/p/matio/matio &&\
+    cd matio &&\
+    mkdir build &&\
+    cd build &&\
+    cmake .. &&\
+    cmake --build . &&\
+    cmake --install .
 
 WORKDIR /home
 

@@ -2,7 +2,7 @@
 #include "opencv2/opencv.hpp"
 #include <cmath>
 #include "../src/hyperfunctions.cpp"
-
+#include <matio.h>
 
 using namespace cv;
 using namespace std;
@@ -12,7 +12,7 @@ std::vector<cv::Mat> loadMatlabFile(const std::string& filename)
     std::vector<cv::Mat> mats;
 
     // Open the MATLAB file
-    mat_t *matfp = Mat_Open(filename.c_str(), MAT_ACC_RDONLY);
+    mat_t *matfp = Mat_Open(file_name.c_str(), MAT_ACC_RDONLY);
     if (matfp == NULL) {
         std::cerr << "Error opening MATLAB file " << filename << std::endl;
         return mats;
@@ -21,11 +21,55 @@ std::vector<cv::Mat> loadMatlabFile(const std::string& filename)
     // Read each variable in the file
     matvar_t *matvar = NULL;
     while ((matvar = Mat_VarReadNext(matfp)) != NULL) {
-        // Convert the variable to a cv::Mat and add it to the vector
-        // This assumes that the variable is a 2D double matrix
-        if (matvar->rank == 2 && matvar->data_type == MAT_T_DOUBLE) {
-            cv::Mat mat(matvar->dims[0], matvar->dims[1], CV_64F, matvar->data);
-            mats.push_back(mat.clone());  // clone the mat because matvar->data will be freed
+        
+        // cout<< "here"<<endl;
+       
+        // int major, minor, release;
+        // Mat_GetLibraryVersion(&major, &minor, &release);
+        // cout << "MATIO version: " << major<<' '<<minor<<' '<<release << endl;
+
+        // cout << "Variable type: ";
+        // switch (matvar->class_type) {
+        //     case MAT_C_DOUBLE: cout << "double"; break;
+        //     case MAT_C_SINGLE: cout << "single"; break;
+        //     case MAT_C_INT32: cout << "int32"; break;
+        //     case MAT_C_UINT8: cout << "uint8"; break;
+        //     // Add more cases as needed...
+        //     default: cout << "unknown";
+        // }
+        // cout << endl;
+
+        // hyperspectral image is of type double
+
+        // cout << "Variable dimensions: ";
+        // for (int i = 0; i < matvar->rank; i++) {
+        //     cout << matvar->dims[i];
+        //     if (i < matvar->rank - 1) {
+        //         cout << " x ";
+        //     }
+        // }
+        // cout << endl;
+
+        // Assuming matvar is your 3D array variable
+        // x,y,chanel
+        if (matvar->rank == 3) {
+            size_t rows = matvar->dims[0];
+            size_t cols = matvar->dims[1];
+            size_t slices = matvar->dims[2];
+
+            double* data = static_cast<double*>(matvar->data);
+
+            for (size_t i = 0; i < slices; i++) {
+                cv::Mat mat(rows, cols, CV_64F, data + i * rows * cols);
+                // normalize the data
+                cv::normalize(mat, mat, 0, 255, cv::NORM_MINMAX);
+                // convert to 8 bit
+                mat.convertTo(mat, CV_8U);
+                mats.push_back(mat);
+                // cv::imshow("mat", mat);
+                // cv::waitKey(100);
+                // cout<<i<<endl;
+            }
         }
 
         // Free the current MATLAB variable
@@ -45,35 +89,21 @@ int main (int argc, char *argv[])
   
 
   // load hyperspectral image that is a matlab file 
-  string file_name1="../../HyperImages/Indian_pines.mat";
+  string file_name3="../../HyperImages/Indian_pines.mat";
 
-  vector<Mat> mats = loadMatlabFile(file_name1);
+  vector<Mat> mats = loadMatlabFile(file_name3);
 
-//   sudo apt install libhdf5-dev libtool m4 automake
-// # Clone the matio repository
-// git clone git://git.code.sf.net/p/matio/matio
+  // cout<<"mats size: "<<mats.size()<<endl;
 
-// # Navigate into the cloned directory
-// cd matio
+  HyperFunctions1.mlt1=mats;
+  HyperFunctions1.false_img_b = HyperFunctions1.mlt1.size()/3;
+  HyperFunctions1.false_img_g = HyperFunctions1.mlt1.size()*2/3;
+  HyperFunctions1.false_img_r = HyperFunctions1.mlt1.size()-1;
+  HyperFunctions1.GenerateFalseImg();
+  imshow("false img", HyperFunctions1.false_img);
+  waitKey();
 
-// # Update submodules (for datasets used in unit tests)
-// git submodule update --init
-
-// # Generate the configure script
-// ./autogen.sh
-
-// # Configure the build
-// ./configure
-
-// # Build the library
-// make
-
-// # Run tests (optional)
-// make check
-
-// # Install the library
-// sudo make install
-
+cout<<"done"<<endl;
   return -1;
 
   // load hyperspectral image

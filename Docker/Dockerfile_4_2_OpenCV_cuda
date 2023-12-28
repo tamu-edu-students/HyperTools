@@ -53,6 +53,15 @@ RUN apt-get install -y \
 RUN pip install \
     matplotlib 
 
+RUN cd / &&\
+    git clone git://git.code.sf.net/p/matio/matio &&\
+    cd matio &&\
+    mkdir build &&\
+    cd build &&\
+    cmake .. &&\
+    cmake --build . &&\
+    cmake --install .
+    
 WORKDIR /home
 
 RUN cd /home &&\
