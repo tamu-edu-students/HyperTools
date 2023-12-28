@@ -24,6 +24,7 @@ if (use_CUDA)
     # below may or may not be needed to fix a warning
     # cmake_policy(SET CMP0146 OLD) 
     # find_package(CUDA)
+    add_definitions(-Duse_cuda)
     enable_language(CUDA)
         # if(CUDA_FOUND)
             enable_language(CUDA)
@@ -37,6 +38,9 @@ if (use_CUDA)
 
             add_executable(cuda_example examples/cuda_example.cu)
             set_target_properties(cuda_example PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+
+            add_executable(gt_stats_cuda examples/ground_truth_example_envi.cpp)
+            set_target_properties(gt_stats_cuda PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
             # add_executable(gtk_cuda_example examples/gtk_cuda_example.cu)
             # set_target_properties(gtk_cuda_example PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
@@ -54,7 +58,7 @@ else(use_CUDA)
     add_executable(feature_testing examples/feature_testing.cpp)
 
     add_executable(ground_truth_example_envi examples/ground_truth_example_envi.cpp)
-    target_link_libraries(ground_truth_example_envi PRIVATE )
+    
 
     # add_executable(ground_truth_example examples/ground_truth_example.cpp)
 

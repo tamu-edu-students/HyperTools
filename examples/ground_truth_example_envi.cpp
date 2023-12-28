@@ -11,6 +11,12 @@
 #include "../src/hyperfunctions.cpp"
 #include <filesystem>
 
+#if use_cuda 
+#include "../src/hypergpufunctions.cu"
+
+#endif
+
+
 using namespace cv;
 using namespace std;
 using namespace std::chrono;
@@ -22,7 +28,7 @@ int main (int argc, char *argv[])
 
 
     // parent folder to analyze
-    string lib_hsi_dir = "../../HyperImages/LIB-HSI/LIB-HSI/full/";
+    string lib_hsi_dir = "../../HyperImages/LIB-HSI/LIB-HSI/validation/";
 
     // extensions to search for hyperspectral image
     string envi_ext = ".dat";
