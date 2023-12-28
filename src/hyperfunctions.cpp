@@ -185,12 +185,11 @@ void HyperFunctions::LoadImageHyper(string file_name, bool isImage1 = true)
                     mat = (mat - global_min) * 255 / (global_max - global_min);
                     // convert to 8 bit
                     mat.convertTo(mat, CV_8U);
-                    // mats.push_back(mat);
                     // cv::imshow("mat", mat);
                     // cv::waitKey(100);
                     // cout<<i<<endl;
                     if (isImage1) {
-                    mlt1.push_back(mat);
+                        mlt1.push_back(mat);
                     }
                     else {
                         mlt2.push_back(mat);

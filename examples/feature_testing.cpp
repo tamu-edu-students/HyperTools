@@ -2,7 +2,6 @@
 #include "opencv2/opencv.hpp"
 #include <cmath>
 #include "../src/hyperfunctions.cpp"
-#include <matio.h>
 
 using namespace cv;
 using namespace std;
