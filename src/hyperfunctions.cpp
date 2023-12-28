@@ -134,8 +134,8 @@ void HyperFunctions::LoadImageHyper(string file_name, bool isImage1 = true)
         // Open the MATLAB file
         mat_t *matfp = Mat_Open(file_name.c_str(), MAT_ACC_RDONLY);
         if (matfp == NULL) {
-            std::cerr << "Error opening MATLAB file " << filename << std::endl;
-            return mats;
+            std::cerr << "Error opening MATLAB file " << file_name << std::endl;
+            return ;
         }
 
         // Read each variable in the file
@@ -174,13 +174,18 @@ void HyperFunctions::LoadImageHyper(string file_name, bool isImage1 = true)
 
                 double* data = static_cast<double*>(matvar->data);
 
+                // Find global minimum and maximum
+                double global_min = *std::min_element(data, data + rows * cols * slices);
+                double global_max = *std::max_element(data, data + rows * cols * slices);
+
+
                 for (size_t i = 0; i < slices; i++) {
                     cv::Mat mat(rows, cols, CV_64F, data + i * rows * cols);
                     // normalize the data
-                    cv::normalize(mat, mat, 0, 255, cv::NORM_MINMAX);
+                    mat = (mat - global_min) * 255 / (global_max - global_min);
                     // convert to 8 bit
                     mat.convertTo(mat, CV_8U);
-                    mats.push_back(mat);
+                    // mats.push_back(mat);
                     // cv::imshow("mat", mat);
                     // cv::waitKey(100);
                     // cout<<i<<endl;
