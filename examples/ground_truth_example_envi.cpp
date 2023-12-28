@@ -22,7 +22,7 @@ int main (int argc, char *argv[])
 
 
     // parent folder to analyze
-    string lib_hsi_dir = "../../HyperImages/LIB-HSI/LIB-HSI/validation/";
+    string lib_hsi_dir = "../../HyperImages/LIB-HSI/LIB-HSI/full/";
 
     // extensions to search for hyperspectral image
     string envi_ext = ".dat";
@@ -365,8 +365,8 @@ int main (int argc, char *argv[])
 
         // algorithms are from 0-14
         // change below for full test
-        // for (int spec_sim_val=0; spec_sim_val<15; spec_sim_val++)
-        for (int spec_sim_val=0; spec_sim_val<2; spec_sim_val++)
+        for (int spec_sim_val=0; spec_sim_val<15; spec_sim_val++)
+        // for (int spec_sim_val=0; spec_sim_val<2; spec_sim_val++)
         {
             HyperFunctions1.spec_sim_alg = spec_sim_val;
 
@@ -407,106 +407,44 @@ int main (int argc, char *argv[])
             }
 
 
+            // compare classified image to ground truth image 
+            // find true positives, false positives, false negatives, true negatives
+
+            int true_positives = 0, false_positives = 0, false_negatives = 0, true_negatives = 0;
+            for (int i=0; i<HyperFunctions1.classified_img.rows; i++)
+            {
+                for (int j=0; j<HyperFunctions1.classified_img.cols; j++)
+                {
+                    // cout<<HyperFunctions1.classified_img.at<Vec3b>(i,j)<<endl;
+                    // cout<<gt_img2.at<Vec3b>(i,j)<<endl;
+                    if (HyperFunctions1.classified_img.at<Vec3b>(i,j) == gt_img2.at<Vec3b>(i,j))
+                    {
+                        true_positives++;
+                    }
+                    else
+                    {
+                        // is this right?
+                        false_positives++;
+                    }
+                }
+            }
+
 
             value_obj2["Spectral Similarity Algorithm"][to_string(HyperFunctions1.spec_sim_alg)]["Time"] = (float)duration_cast<milliseconds>(end-start).count() / (float)1000;
             // value_obj2["Spectral Similarity Algorithm"][HyperFunctions1.spec_sim_alg]["Number of Classes"] = HyperFunctions1.reference_colors.size();
-            value_obj2["Spectral Similarity Algorithm"][to_string(HyperFunctions1.spec_sim_alg)]["Number of Classes"] = static_cast<unsigned int>(HyperFunctions1.reference_colors.size());
+            value_obj2["Spectral Similarity Algorithm"][to_string(HyperFunctions1.spec_sim_alg)]["Number of Classes"] = static_cast<unsigned int>(HyperFunctions1.color_combos.size());
 
-            total_sum_pixels =0;
+            value_obj2["Spectral Similarity Algorithm"][to_string(HyperFunctions1.spec_sim_alg)]["True Positive"] = true_positives;
 
-            for (int i=0; i< HyperFunctions1.class_list.size(); i++)
-            {
-                value_obj2["Image_info"][HyperFunctions1.class_list[i]]["red_value"]=HyperFunctions1.color_combos[i][2];
-                value_obj2["Image_info"][HyperFunctions1.class_list[i]]["green_value"]=HyperFunctions1.color_combos[i][1];
-                value_obj2["Image_info"][HyperFunctions1.class_list[i]]["blue_value"]=HyperFunctions1.color_combos[i][0];
-
-                int num_pixels_in_class = 0;
-                
-                // cout<<"given "<<HyperFunctions1.color_combos[i]<<endl;
-                for (int j=0; j<gt_img2.rows ; j++)
-                // for (int j=0; j<1 ; j++)
-                {
-                    for (int k=0; k<gt_img2.cols ; k++)
-                    // for (int k=0; k<1 ; k++)
-                    {
-                        temp_val=gt_img2.at<Vec3b>(j,k);
-                        Vec3b temp_val2;
-                        temp_val2[0] = temp_val[1];
-                        temp_val2[1] = temp_val[2];
-                        temp_val2[2] = temp_val[0];
-
-                        // cout<<"ref "<<temp_val2<<endl;
-                        if (temp_val2 == HyperFunctions1.color_combos[i])
-                        {
-                            num_pixels_in_class++;
-                            // cout<<"true"<<endl;
-                        }
-                        // else {
-                        //     auto itr = find(HyperFunctions1.color_combos.begin(), HyperFunctions1.color_combos.end(), temp_val2);
-                        //     if (itr != HyperFunctions1.color_combos.end())
-                        //     {
-                        //         // temp_val2 is in color_combos
-                        //     }
-                        //     else
-                        //     {
-                        //         cout<<"error: pixel value not in color_combos "<< temp_val2<<endl;
-                        //         return -1;
-                        //     }
-
-                        // }
-                    }
-                }
-                value_obj2["Image_info"][HyperFunctions1.class_list[i]]["num_pixels"] = num_pixels_in_class;
-                total_sum_pixels += num_pixels_in_class;
-
-                // get accuracy of class
-
-            
-
-                int num_correct_pixels_in_class = 0;
-                int num_incorrect_pixels_in_class = 0;
-
-
-                // below for loop is a work in progress
-                for (int j=0; j<HyperFunctions1.classified_img.rows ; j++)
-                {
-                    for (int k=0; k<HyperFunctions1.classified_img.cols ; k++)
-                    {
-                        // temp_val=gt_img2.at<Vec3b>(j,k);
-                        
-                        temp_val = HyperFunctions1.classified_img.at<Vec3b>(j,k);
-                        Vec3b temp_val2;
-                        temp_val2[0] = temp_val[1];
-                        temp_val2[1] = temp_val[2];
-                        temp_val2[2] = temp_val[0];
-
-                        // only check pixels if it is in the class
-                        if (HyperFunctions1.color_combos[i] == temp_val2)
-                        {
-                            if (gt_img2.at<Vec3b>(j,k) == HyperFunctions1.classified_img.at<Vec3b>(j,k))
-                            {
-
-                                num_correct_pixels_in_class++;
-                                
-                            }
-                            else
-                            {
-                                num_incorrect_pixels_in_class++;
-
-                            }
-                        }
-                    }
-                }
-
-                
-                value_obj2["Spectral Similarity Algorithm"][to_string(HyperFunctions1.spec_sim_alg)][HyperFunctions1.class_list[i]]["correct"] = num_correct_pixels_in_class;
-                value_obj2["Spectral Similarity Algorithm"][to_string(HyperFunctions1.spec_sim_alg)][HyperFunctions1.class_list[i]]["incorrect"] = num_incorrect_pixels_in_class;
-                // cout<<HyperFunctions1.class_list[i]<<endl;
-
+            value_obj2["Spectral Similarity Algorithm"][to_string(HyperFunctions1.spec_sim_alg)]["False Positive"] = false_positives;
+            value_obj2["Spectral Similarity Algorithm"][to_string(HyperFunctions1.spec_sim_alg)]["Number of Pixels"] = true_positives + false_positives ;
                 
 
-            }
 
+            // display gt and classified image
+            // imshow("gt", gt_img2);
+            // imshow("classified", HyperFunctions1.classified_img);
+            // cv::waitKey();
         
         } // end spec sim loop
 
@@ -525,14 +463,14 @@ int main (int argc, char *argv[])
 
 
         // below is to visualize the results
-        imshow("gt", imread(gt_files[img_index], IMREAD_COLOR));
-        HyperFunctions1.false_img_b = HyperFunctions1.mlt1.size()/3;
-        HyperFunctions1.false_img_g = HyperFunctions1.mlt1.size()*2/3;
-        HyperFunctions1.false_img_r = HyperFunctions1.mlt1.size()-1;
-        HyperFunctions1.GenerateFalseImg();
-        HyperFunctions1.DispFalseImage();
-        HyperFunctions1.DispClassifiedImage();
-        cv::waitKey();
+        // imshow("gt", imread(gt_files[img_index], IMREAD_COLOR));
+        // HyperFunctions1.false_img_b = HyperFunctions1.mlt1.size()/3;
+        // HyperFunctions1.false_img_g = HyperFunctions1.mlt1.size()*2/3;
+        // HyperFunctions1.false_img_r = HyperFunctions1.mlt1.size()-1;
+        // HyperFunctions1.GenerateFalseImg();
+        // HyperFunctions1.DispFalseImage();
+        // HyperFunctions1.DispClassifiedImage();
+        // cv::waitKey();
 
 
 
