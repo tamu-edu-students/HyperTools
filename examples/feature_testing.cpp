@@ -3,17 +3,14 @@
 #include <cmath>
 #include "../src/hyperfunctions.cpp"
 
-
 using namespace cv;
 using namespace std;
-
 
 int main (int argc, char *argv[])
 {
 
   HyperFunctions HyperFunctions1; 
-  
-  
+
   // load hyperspectral image
   string file_name1="../../HyperImages/img1.tiff";
   HyperFunctions1.LoadImageHyper(file_name1);

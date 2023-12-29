@@ -50,7 +50,12 @@ int main (int argc, char *argv[])
 
 
 
-    HyperFunctions HyperFunctions1;
+    
+    #if use_cuda 
+        HyperFunctionsGPU HyperFunctions1;
+    #else
+        HyperFunctions HyperFunctions1;
+    #endif
     vector<string> envi_files;
     vector<string> gt_files;
     vector<string> spectral_database_files;
@@ -377,7 +382,18 @@ int main (int argc, char *argv[])
             HyperFunctions1.spec_sim_alg = spec_sim_val;
 
             auto start = high_resolution_clock::now();
+
+            #if use_cuda 
+            HyperFunctions1.mat_to_oneD_array_parallel_parent();
+            HyperFunctions1.allocate_memory();
+            HyperFunctions1.spec_sim_GPU();
+            HyperFunctions1.deallocate_memory();
+            #else
             HyperFunctions1.SemanticSegmenter();
+            #endif
+
+
+            
             auto end = high_resolution_clock::now();
             // cout << "Time taken : " << (float)duration_cast<milliseconds>(end-start).count() / (float)1000 << " " << "seconds"<<endl;
             

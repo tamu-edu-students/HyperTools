@@ -17,14 +17,36 @@ int main (int argc, char *argv[]) {
     HyperFunctions1.LoadImageHyper(file_name2);
     
     auto start = high_resolution_clock::now();
-    
     HyperFunctions1.read_ref_spec_json(HyperFunctions1.spectral_database);
     HyperFunctions1.mat_to_oneD_array_parallel_parent();
     HyperFunctions1.allocate_memory();
     auto end = high_resolution_clock::now();
     cout << "Initialization Time taken : " << (float)duration_cast<milliseconds>(end-start).count() / (float)1000 << " " << "seconds"<<endl;
        
-    
+    start = high_resolution_clock::now();
+    HyperFunctions1.spec_sim_alg=0;
+    HyperFunctions1.semantic_segmentation();
+    HyperFunctions1.DispClassifiedImage();
+    end = high_resolution_clock::now();
+    cout << "Proccess SAM Classification:" << endl;
+    cout << "Time taken : " << (float)duration_cast<milliseconds>(end-start).count() / (float)1000 << " " << "seconds"<<endl;
+    cv::waitKey();
+
+    HyperFunctions1.deallocate_memory();
+
+    return -1;
+
+    HyperFunctions1.LoadImageHyper(file_name2);
+
+    start = high_resolution_clock::now();
+    HyperFunctions1.read_ref_spec_json(HyperFunctions1.spectral_database);
+    HyperFunctions1.mat_to_oneD_array_parallel_parent();
+    HyperFunctions1.allocate_memory();
+    end = high_resolution_clock::now();
+    cout << "Initialization Time taken : " << (float)duration_cast<milliseconds>(end-start).count() / (float)1000 << " " << "seconds"<<endl;
+
+
+
     // slower the first time not sure why so running twice
     start = high_resolution_clock::now();
     HyperFunctions1.spec_sim_alg=0;
