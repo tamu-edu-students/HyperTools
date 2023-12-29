@@ -40,7 +40,7 @@ int main (int argc, char *argv[])
     string gt_database="../json/lib_hsi.json";
 
     // used to find average spectrum for each semantic class, not needed if already processed
-    bool get_average_spectrum = true;
+    bool get_average_spectrum = false;
 
     // directory for results with statistics 
     string results_dir = lib_hsi_dir + "results/";
@@ -357,6 +357,7 @@ int main (int argc, char *argv[])
     for (int img_index = 0; img_index < envi_files.size(); img_index++)
     {
         HyperFunctions1.LoadImageHyper(envi_files[img_index]);
+        
         string spec_data_name = spec_database_dir + std::filesystem::path(envi_files[img_index]).stem().string() + ".json";
         HyperFunctions1.read_ref_spec_json(spec_data_name);
         // HyperFunctions1.read_spectral_json(spec_data_name);
@@ -374,6 +375,11 @@ int main (int argc, char *argv[])
         int total_sum_pixels=0;
         vector<Vec3b> found_colors;
 
+        #if use_cuda 
+            HyperFunctions1.mat_to_oneD_array_parallel_parent();
+            HyperFunctions1.allocate_memory();
+        #endif
+
         // algorithms are from 0-14
         // change below for full test
         for (int spec_sim_val=0; spec_sim_val<15; spec_sim_val++)
@@ -384,10 +390,7 @@ int main (int argc, char *argv[])
             auto start = high_resolution_clock::now();
 
             #if use_cuda 
-            HyperFunctions1.mat_to_oneD_array_parallel_parent();
-            HyperFunctions1.allocate_memory();
-            HyperFunctions1.spec_sim_GPU();
-            HyperFunctions1.deallocate_memory();
+            HyperFunctions1.semantic_segmentation();
             #else
             HyperFunctions1.SemanticSegmenter();
             #endif
@@ -469,7 +472,10 @@ int main (int argc, char *argv[])
             // cv::waitKey();
         
         } // end spec sim loop
-
+        
+        #if use_cuda 
+            HyperFunctions1.deallocate_memory();
+        #endif
         // cout<<"total sum pixels: "<<total_sum_pixels<<endl;
         
        

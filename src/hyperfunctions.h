@@ -67,7 +67,7 @@ public:
 	vector<KeyPoint> keypoints1, keypoints2;
 	vector< DMatch > matches;  
 	vector< Point2d> good_point1, good_point2;
-	vector<Vec3b> reference_colors;
+	// vector<Vec3b> reference_colors; replaced with color_combos
 	vector<vector<int>> reference_spectrums;
 	
 	Point cur_loc=Point(0, 0);

@@ -848,7 +848,7 @@ __device__ void child_canberra(float *out, int *img_array, int n, int num_layers
 
 void HyperFunctionsGPU::deallocate_memory() 
 {
-    cudaFree(d_ref_spectrum); cudaFree(d_out); cudaFreeHost(out);
+    cudaFree(d_ref_spectrum); cudaFree(d_out);  cudaFree(d_img_array); cudaFreeHost(out);
 }
 
 /* allocating CUDA memory. 
@@ -948,7 +948,7 @@ void HyperFunctionsGPU::mat_to_oneD_array_parallel_parent(vector<Mat>* matvector
     int grid_size1 = (sz + block_size) / block_size;
     for (int i = 0; i < matvector.size(); i++) {
         uchar* mat_array = (uchar*)matvector[i].data;
-        cudaMemcpy(d_mat_array, mat_array, sizeof(uchar) * sz, cudaMemcpyHostToDevice);
+        cudaMemcpyAsync(d_mat_array, mat_array, sizeof(uchar) * sz, cudaMemcpyHostToDevice);
         mat_to_oneD_array_child<<<grid_size1, block_size>>>(d_mat_array, d_classified_img_array, sz, i, matvector.size());
     }
     cudaFreeHost(d_mat_array);  
@@ -1033,6 +1033,16 @@ void HyperFunctionsGPU::semantic_segmentation() {
         similarity_images.push_back(spec_simil_img);
     }
 
+
+    // for (int i=0; i<similarity_images.size(); i++) {
+    //     // imshow("similarity image", similarity_images[i]);
+    //     // waitKey(0);
+    //     cout<< "mat type "<< similarity_images[i].type()<<endl;
+    // }
+
+    // cout<<similarity_images[1].rows<<" "<<similarity_images[1].cols<< " "<<similarity_images.size()<<endl;
+
+
     int array_size2=similarity_images[1].rows*similarity_images[1].cols*similarity_images.size();  
     //converting the vector of matrices that store the similarity values for each reference spectrum into a 1-D array
 
@@ -1054,16 +1064,16 @@ void HyperFunctionsGPU::semantic_segmentation() {
    
     cudaHostAlloc ((void**)&out2, sizeof(int) *N_size_sim, cudaHostAllocDefault); 
     cudaMalloc((void**)&d_out2, sizeof(int) * N_size_sim);
-    int temp_val=reference_colors.size() * 3;
+    int temp_val=color_combos.size() * 3;
     cudaMalloc((void**)&d_color_info, sizeof(int) * temp_val);
 
-    int* reference_colors_c = new int[reference_colors.size() * 3];
+    int* reference_colors_c = new int[color_combos.size() * 3];
 
     //converting reference_colors into a 1-d array
-    for (int i = 0; i < reference_colors.size(); i++) {
-        reference_colors_c[i*3] = reference_colors[i][0];
-        reference_colors_c[i*3+1] = reference_colors[i][1];
-        reference_colors_c[i*3+2] = reference_colors[i][2];
+    for (int i = 0; i < color_combos.size(); i++) {
+        reference_colors_c[i*3] = color_combos[i][0];
+        reference_colors_c[i*3+1] = color_combos[i][1];
+        reference_colors_c[i*3+2] = color_combos[i][2];
     }
 
     cudaMemcpy(d_color_info, reference_colors_c, sizeof(int) * temp_val, cudaMemcpyHostToDevice);
