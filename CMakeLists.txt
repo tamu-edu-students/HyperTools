@@ -1,9 +1,9 @@
 # cmake needs this line
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.20)
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 set(CMAKE_CXX_STANDARD 17)
 # Define project name
-project(user_interface_project C CXX)
+project(user_interface_project C CXX CUDA)
 
 #change below to true to use GPU or false to not use GPU
 set(use_CUDA true) 
@@ -30,16 +30,24 @@ if (use_CUDA)
     enable_language(CUDA)
         # if(CUDA_FOUND)
             enable_language(CUDA)
-            #set(CMAKE_CUDA_STANDARD 17)
+            set (CMAKE_CUDA_STANDARD 17)
+            set (CMAKE_CUDA_COMPILER /usr/local/cuda-12.2/bin/nvcc) 
 
             if(NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
-                set(CMAKE_CUDA_ARCHITECTURES 75)
+                set(CMAKE_CUDA_ARCHITECTURES 86) # should be modified to match gpu architecture, 86 is for RTX 30xx series
             endif()
+            set(CMAKE_CUDA_STANDARD 17)
+            set(CMAKE_CUDA_STANDARD_REQUIRED ON)
             
             add_definitions(${GTK_CFLAGS_OTHER}) 
 
             add_executable(cuda_example examples/cuda_example.cu)
             set_target_properties(cuda_example PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+
+            set_source_files_properties(examples/ground_truth_example_envi.cpp PROPERTIES LANGUAGE CUDA)
+            add_executable(gt_stats_cuda examples/ground_truth_example_envi.cpp)
+            set_target_properties(gt_stats_cuda PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+            target_link_libraries(gt_stats_cuda stdc++fs)
 
             # add_executable(gtk_cuda_example examples/gtk_cuda_example.cu)
             # set_target_properties(gtk_cuda_example PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
@@ -57,7 +65,7 @@ else(use_CUDA)
     add_executable(feature_testing examples/feature_testing.cpp)
 
     add_executable(ground_truth_example_envi examples/ground_truth_example_envi.cpp)
-    target_link_libraries(ground_truth_example_envi PRIVATE )
+    
 
     # add_executable(ground_truth_example examples/ground_truth_example.cpp)
 

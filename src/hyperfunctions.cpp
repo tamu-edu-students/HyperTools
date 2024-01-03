@@ -1455,6 +1455,7 @@ void HyperFunctions::read_ref_spec_json(string file_name)
     Json::Reader reader2;
     Json::Value completeJsonData2;
     reader2.parse(ifs2, completeJsonData2);
+    vector<string> class_list2;
 
     // initialize variables
     int layer_values;
@@ -1463,9 +1464,9 @@ void HyperFunctions::read_ref_spec_json(string file_name)
     {
         reference_spectrums.clear();
     }
-    if (reference_colors.size() > 0)
+    if (color_combos.size() > 0)
     {
-        reference_colors.clear();
+        color_combos.clear();
     }
 
     // gets spectrum of items in spectral database
@@ -1486,8 +1487,11 @@ void HyperFunctions::read_ref_spec_json(string file_name)
         color[0] = completeJsonData2["Color_Information"][id3]["red_value"].asInt();
         color[1] = completeJsonData2["Color_Information"][id3]["blue_value"].asInt();
         color[2] = completeJsonData2["Color_Information"][id3]["green_value"].asInt();
-        reference_colors.push_back(color);
+        color_combos.push_back(color);
+        class_list2.push_back(id3);
     }
+    
+    class_list = class_list2;
 }
 
 // creates a blank spectral database to fill in
@@ -1535,7 +1539,7 @@ void HyperFunctions::SemanticSegmenter()
                     low_val = temp_results[i].at<uchar>(j, k);
                     if (low_val <= classification_threshold)
                     {
-                        temp_class_img.at<Vec3b>(Point(k, j)) = reference_colors[i];
+                        temp_class_img.at<Vec3b>(Point(k, j)) = color_combos[i];
                     }
                 }
                 else
@@ -1543,7 +1547,7 @@ void HyperFunctions::SemanticSegmenter()
                     if (temp_results[i].at<uchar>(j, k) < low_val && temp_results[i].at<uchar>(j, k) <= classification_threshold)
                     {
                         low_val = temp_results[i].at<uchar>(j, k);
-                        temp_class_img.at<Vec3b>(Point(k, j)) = reference_colors[i];
+                        temp_class_img.at<Vec3b>(Point(k, j)) = color_combos[i];
                     }
                 }
             }
@@ -1726,12 +1730,12 @@ void HyperFunctions::SpecSimilParent()
 
     // okay to have above 255 in order to improve spec sim contrast
 
-    if (max_sim_val >255  || tune_spec_sim)
+    if (max_sim_val >255  && tune_spec_sim)
     {
         cout<<"alg: "<<spec_sim_alg<< " max sim val: "<<max_sim_val<<endl;
        
     }
-    if ( min_sim_val <0 || tune_spec_sim)
+    if ( min_sim_val <0 && tune_spec_sim)
     {
          cout<<"alg: "<<spec_sim_alg<<" min sim val: "<<min_sim_val<<endl;
     }

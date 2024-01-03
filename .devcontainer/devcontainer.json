@@ -12,7 +12,7 @@
 	// make sure to uncomment the image that is desired for development
 	// "image": "hypertools_4_2:latest" ,
 	//  "image": "hypertools_cubert:latest" ,
-	// "image": "hypertools_4_2_cuda:latest" ,
+	"image": "hypertools_4_2_cuda:latest" ,
 	// "image": "hypertools_current_opencv:latest" ,
 	"image": "hypertools_cubert_cuda:latest" ,
 	// "image": "hypertools_cuda_ml:latest" ,
