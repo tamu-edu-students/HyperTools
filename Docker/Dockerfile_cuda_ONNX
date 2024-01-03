@@ -1,4 +1,4 @@
-FROM hypertools_cuda_ML:latest
+FROM hypertools_cuda_ml:latest
 
 RUN git clone --recursive https://github.com/microsoft/onnxruntime 
 

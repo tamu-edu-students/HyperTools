@@ -22,58 +22,6 @@ include_directories(${MATIO_INCLUDE_DIRS})
 link_directories(${GTK3_LIBRARY_DIRS} )
 link_libraries(jsoncpp ${GTK3_LIBRARIES} ${OpenCV_LIBS} ${GDAL_LIBRARY} ${MATIO_LIBRARIES})
 
-if (use_CUDA)
-    # below may or may not be needed to fix a warning
-    # cmake_policy(SET CMP0146 OLD) 
-    # find_package(CUDA)
-    add_definitions(-Duse_cuda)
-    enable_language(CUDA)
-        # if(CUDA_FOUND)
-            enable_language(CUDA)
-            set (CMAKE_CUDA_STANDARD 17)
-            set (CMAKE_CUDA_COMPILER /usr/local/cuda-12.2/bin/nvcc) 
-
-            if(NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
-                set(CMAKE_CUDA_ARCHITECTURES 86) # should be modified to match gpu architecture, 86 is for RTX 30xx series
-            endif()
-            set(CMAKE_CUDA_STANDARD 17)
-            set(CMAKE_CUDA_STANDARD_REQUIRED ON)
-            
-            add_definitions(${GTK_CFLAGS_OTHER}) 
-
-            add_executable(cuda_example examples/cuda_example.cu)
-            set_target_properties(cuda_example PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
-
-            set_source_files_properties(examples/ground_truth_example_envi.cpp PROPERTIES LANGUAGE CUDA)
-            add_executable(gt_stats_cuda examples/ground_truth_example_envi.cpp)
-            set_target_properties(gt_stats_cuda PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
-            target_link_libraries(gt_stats_cuda stdc++fs)
-
-            # add_executable(gtk_cuda_example examples/gtk_cuda_example.cu)
-            # set_target_properties(gtk_cuda_example PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
-
-        # else(CUDA_FOUND)
-        #     message("Required CUDA Packages not found")
-
-        # endif(CUDA_FOUND)  
-
-else(use_CUDA)
-
-    # Declare the executable target built from your sources
-    # add_executable(semantic_interface examples/semantic_segmentation.cpp)
-    add_executable(feature_tool examples/feature_tool.cpp)
-    add_executable(feature_testing examples/feature_testing.cpp)
-
-    add_executable(ground_truth_example_envi examples/ground_truth_example_envi.cpp)
-    
-
-    # add_executable(ground_truth_example examples/ground_truth_example.cpp)
-
-    add_definitions(${GTK3_CFLAGS} ${GTK3_CFLAGS_OTHER})
-
-endif(use_CUDA)
-
-
 if (use_cuvis)
 
     list(APPEND CMAKE_MODULE_PATH "/cuvis.sdk/cuvis.cpp/")
@@ -82,31 +30,66 @@ if (use_cuvis)
 
     add_definitions(-Duse_cuvis)
     find_package(Cuvis REQUIRED 3.2.0)
-    find_package(CuvisCpp REQUIRED)    
+    find_package(CuvisCpp REQUIRED)   
+    else (use_cuvis)
     
+endif()
 
-    add_executable(cubert_example examples/cubert_example.cpp)
-    target_link_libraries(cubert_example PRIVATE cuvis::cpp)
+if (use_CUDA)
+    add_definitions(-Duse_cuda)
+    enable_language(CUDA)
+    set (CMAKE_CUDA_STANDARD 17)
+    set (CMAKE_CUDA_COMPILER /usr/local/cuda-12.2/bin/nvcc) 
 
-    # # add_executable(deeplab_example examples/deeplab_example.cpp)
-    # # target_link_libraries(deeplab_example PRIVATE cuvis::cpp)
+    if(NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
+        set(CMAKE_CUDA_ARCHITECTURES 86) # should be modified to match gpu architecture, 86 is for RTX 30xx series
+    endif()
+    set(CMAKE_CUDA_STANDARD 17)
+    set(CMAKE_CUDA_STANDARD_REQUIRED ON)
+            
+    add_definitions(${GTK_CFLAGS_OTHER}) 
 
-    add_executable(image_tool_cuvis examples/image_tool.cpp)
-    target_link_libraries(image_tool_cuvis PRIVATE cuvis::cpp)
+    add_executable(cuda_example examples/cuda_example.cu)
+    set_target_properties(cuda_example PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
+    set_source_files_properties(examples/ground_truth_example_envi.cpp PROPERTIES LANGUAGE CUDA)
+    add_executable(gt_stats_cuda examples/ground_truth_example_envi.cpp)
+    set_target_properties(gt_stats_cuda PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+    target_link_libraries(gt_stats_cuda stdc++fs)
 
-    if (use_CUDA)
+    # add_executable(gtk_cuda_example examples/gtk_cuda_example.cu)
+    # set_target_properties(gtk_cuda_example PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
+    if (use_cuvis)
         set_source_files_properties(examples/cuda_cubert_example.c PROPERTIES LANGUAGE CUDA)
         add_executable(cuda_cubert_example examples/cuda_cubert_example.cu)
         set_target_properties(cuda_cubert_example PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
         target_link_libraries(cuda_cubert_example PRIVATE cuvis::cpp)
 
-    endif(use_CUDA)
-else (use_cuvis)
-    if (NOT use_CUDA)
-        add_executable(image_tool examples/image_tool.cpp)
-    endif(NOT use_CUDA)
-endif()
+    endif()
 
+else(use_CUDA)
 
+    # Declare the executable target built from your sources
+
+    # add_executable(semantic_interface examples/semantic_segmentation.cpp)
+    add_executable(feature_tool examples/feature_tool.cpp)
+    add_executable(feature_testing examples/feature_testing.cpp)
+    add_executable(ground_truth_example_envi examples/ground_truth_example_envi.cpp)
+    # add_executable(ground_truth_example examples/ground_truth_example.cpp)
+    add_executable(image_tool examples/image_tool.cpp)
+
+    add_definitions(${GTK3_CFLAGS} ${GTK3_CFLAGS_OTHER})
+
+    if (use_cuvis)
+        add_executable(image_tool_cuvis examples/image_tool.cpp)
+        target_link_libraries(image_tool_cuvis PRIVATE cuvis::cpp)
+
+        add_executable(cubert_example examples/cubert_example.cpp)
+        target_link_libraries(cubert_example PRIVATE cuvis::cpp)
+
+        # # add_executable(deeplab_example examples/deeplab_example.cpp)
+        # # target_link_libraries(deeplab_example PRIVATE cuvis::cpp)
+    endif()
+
+endif(use_CUDA)
