@@ -6,9 +6,9 @@ set(CMAKE_CXX_STANDARD 17)
 project(user_interface_project C CXX)
 
 #change below to true to use GPU or false to not use GPU
-set(use_CUDA false) 
+set(use_CUDA true) 
 #change below to true to use cuvis.sdk
-set (use_cuvis false)
+set (use_cuvis true)
 
 
 find_package(OpenCV  REQUIRED)
@@ -26,6 +26,7 @@ if (use_CUDA)
     # below may or may not be needed to fix a warning
     # cmake_policy(SET CMP0146 OLD) 
     # find_package(CUDA)
+    add_definitions(-Duse_cuda)
     enable_language(CUDA)
         # if(CUDA_FOUND)
             enable_language(CUDA)
@@ -86,12 +87,14 @@ if (use_cuvis)
     target_link_libraries(image_tool_cuvis PRIVATE cuvis::cpp)
 
 
-    # if (use_CUDA)
+    if (use_CUDA)
 
-    #     add_executable(cuda_cubert_example examples/cuda_cubert_example.cu)
-    #     target_link_libraries(cuda_cubert_example PRIVATE cuvis::cpp)
+        set_source_files_properties(examples/cuda_cubert_example.c PROPERTIES LANGUAGE CUDA)
+        add_executable(cuda_cubert_example examples/cuda_cubert_example.cu)
+        set_target_properties(cuda_cubert_example PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+        target_link_libraries(cuda_cubert_example PRIVATE cuvis::cpp)
 
-    # endif(use_CUDA)
+    endif(use_CUDA)
 else (use_cuvis)
     if (NOT use_CUDA)
         add_executable(image_tool examples/image_tool.cpp)
