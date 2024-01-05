@@ -2,13 +2,20 @@
 cmake_minimum_required(VERSION 3.20)
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 set(CMAKE_CXX_STANDARD 17)
-# Define project name
-project(user_interface_project C CXX CUDA)
+
 
 #change below to true to use GPU or false to not use GPU
-set(use_CUDA true) 
+set(use_CUDA false) 
 #change below to true to use cuvis.sdk
-set (use_cuvis true)
+set (use_cuvis false)
+
+if (use_CUDA)
+# Define project name
+project(user_interface_project C CXX CUDA)
+else(use_CUDA)
+project(user_interface_project C CXX )
+endif(use_CUDA)
+
 
 
 find_package(OpenCV  REQUIRED)
@@ -40,12 +47,11 @@ if (use_CUDA)
     enable_language(CUDA)
     set (CMAKE_CUDA_STANDARD 17)
     set (CMAKE_CUDA_COMPILER /usr/local/cuda-12.2/bin/nvcc) 
+    set(CMAKE_CUDA_STANDARD_REQUIRED ON)
 
     if(NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
         set(CMAKE_CUDA_ARCHITECTURES 86) # should be modified to match gpu architecture, 86 is for RTX 30xx series
     endif()
-    set(CMAKE_CUDA_STANDARD 17)
-    set(CMAKE_CUDA_STANDARD_REQUIRED ON)
             
     add_definitions(${GTK_CFLAGS_OTHER}) 
 

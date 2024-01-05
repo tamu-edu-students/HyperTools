@@ -1730,12 +1730,12 @@ void HyperFunctions::SpecSimilParent()
 
     // okay to have above 255 in order to improve spec sim contrast
 
-    if (max_sim_val >255  && tune_spec_sim)
+    if (/*max_sim_val >255  &&*/ tune_spec_sim)
     {
         cout<<"alg: "<<spec_sim_alg<< " max sim val: "<<max_sim_val<<endl;
        
     }
-    if ( min_sim_val <0 && tune_spec_sim)
+    if ( /*min_sim_val <0 &&*/ tune_spec_sim)
     {
          cout<<"alg: "<<spec_sim_alg<<" min sim val: "<<min_sim_val<<endl;
     }
