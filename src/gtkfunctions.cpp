@@ -7,6 +7,10 @@
 #include <string>
 #include <opencv2/plot.hpp>
 
+#if use_cuvis
+#include "hypercuvisfunctions.cpp"
+#endif
+
 using namespace std;
 using namespace cv;
 
@@ -41,8 +45,24 @@ static void choose_image_file(GtkFileChooser *widget,  gpointer data) {
     file_chosen = gtk_file_chooser_get_filename(widget);
 
     void * data_new=data;
-    HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
-    HyperFunctions1->LoadImageHyper(file_chosen);
+    
+    
+
+    #if use_cuvis
+        HyperFunctionsCuvis *HyperFunctions1=static_cast<HyperFunctionsCuvis*>(data_new);
+        try
+        {
+            HyperFunctions1->LoadImageHyper(file_chosen);
+        }
+        catch(const std::exception& e)
+        {
+            HyperFunctions1->ReprocessImage( file_chosen);  
+        }
+        
+    #else
+        HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new);
+        HyperFunctions1->LoadImageHyper(file_chosen);
+    #endif
     
 }
 
@@ -375,7 +395,7 @@ static void adjust_spin_ranges(GtkWidget *widget,  gpointer data) {
     void * data_new2=spin_struct1->HyperFunctions1;
     HyperFunctions *HyperFunctions1=static_cast<HyperFunctions*>(data_new2);
 
-    std::cout << HyperFunctions1->mlt1.size()-1 << std::endl;
+    // std::cout << HyperFunctions1->mlt1.size()-1 << std::endl;
     gtk_spin_button_set_range((*spin_struct1).button1, 0, HyperFunctions1->mlt1.size());
     gtk_spin_button_set_range((*spin_struct1).button2, 0, HyperFunctions1->mlt1.size());
     gtk_spin_button_set_range((*spin_struct1).button3, 0, HyperFunctions1->mlt1.size());

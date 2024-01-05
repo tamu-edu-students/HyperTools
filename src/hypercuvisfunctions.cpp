@@ -38,7 +38,7 @@ void HyperFunctionsCuvis::LoadImageHyper(string file_name, bool isImage1 = true)
         char* const measurementLoc =  const_cast<char*>( file_name.c_str());
 
         cuvis::General::init(userSettingsDir);
-        cuvis::General::set_log_level(loglevel_info);
+        // cuvis::General::set_log_level(loglevel_info);
 
         std::cout << "loading measurement file..." << std::endl;
         cuvis::Measurement mesu(measurementLoc);
@@ -53,10 +53,12 @@ void HyperFunctionsCuvis::LoadImageHyper(string file_name, bool isImage1 = true)
         }
 
 
-        assert(
-            mesu.get_meta()->processing_mode == Cube_Raw &&
-            "This example requires raw mode");
-
+        // assert(
+        //     mesu.get_meta()->processing_mode == Cube_Raw &&
+        //     "This example requires raw mode");
+        if (!(mesu.get_meta()->processing_mode == Cube_Raw)) {
+            throw std::runtime_error("This example requires raw mode");
+        }
 
         auto const& cube_it = mesu.get_imdata()->find(CUVIS_MESU_CUBE_KEY);
         assert(
@@ -97,7 +99,7 @@ void HyperFunctionsCuvis::LoadImageHyper(string file_name, bool isImage1 = true)
 
         // std::cout << "loading user settings..." << std::endl;
         cuvis::General::init(userSettingsDir);
-        cuvis::General::set_log_level(loglevel_info);
+        // cuvis::General::set_log_level(loglevel_info);
 
         // std::cout << "loading session... " << std::endl;
         cuvis::SessionFile sess(measurementLoc);
@@ -120,9 +122,13 @@ void HyperFunctionsCuvis::LoadImageHyper(string file_name, bool isImage1 = true)
         }
         }
 
-        assert(
-            mesu.get_meta()->processing_mode == Cube_Raw &&
-            "This example requires raw mode");
+        // assert(
+        //     mesu.get_meta()->processing_mode == Cube_Raw &&
+        //     "This example requires raw mode");
+
+        if (!(mesu.get_meta()->processing_mode == Cube_Raw)) {
+            throw std::runtime_error("This example requires raw mode");
+        }
 
         auto const& cube_it = mesu.get_imdata()->find(CUVIS_MESU_CUBE_KEY);
         assert(cube_it != mesu.get_imdata()->end() && "Cube not found");
@@ -176,9 +182,9 @@ void HyperFunctionsCuvis::TakeImageHyper1(string file_name, const int exposure_m
 
     // Loading user settings
     cuvis::General::init(userSettingsDir);
-    cuvis::General::set_log_level(loglevel_info);
+    // cuvis::General::set_log_level(loglevel_info);
 
-    std::cout << "Loading Calibration and processing context..." << std::endl;
+    // std::cout << "Loading Calibration and processing context..." << std::endl;
     // Loading calibration and processing context
     cuvis::Calibration calib(factoryDir);
     cuvis::ProcessingContext proc(calib);
@@ -265,7 +271,7 @@ void HyperFunctionsCuvis::ExportTiff()
     char* const exportDir =  const_cast<char*>(output_dir.c_str());
 
     cuvis::General::init(userSettingsDir);
-    cuvis::General::set_log_level(loglevel_info);
+    // cuvis::General::set_log_level(loglevel_info);
     cuvis::SessionFile sess(sessionLoc);
 
     std::cout << "loading measurement... " << std::endl;
@@ -412,7 +418,7 @@ void HyperFunctionsCuvis::ReprocessImage(string file_name, bool isImage1 = true 
 
         std::cout << "loading settings... " << std::endl;
         cuvis::General::init(userSettingsDir);
-        cuvis::General::set_log_level(loglevel_info);
+        // cuvis::General::set_log_level(loglevel_info);
 
 
         std::cout << "loading measurement... " << std::endl;

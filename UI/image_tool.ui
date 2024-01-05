@@ -37,6 +37,9 @@
   <object class="GtkFileFilter" id="tiff_filter">
     <patterns>
       <pattern>*.tiff</pattern>
+      <pattern>*.cu3</pattern>
+      <pattern>*.cu3s</pattern>
+      <pattern>*.dat</pattern>
     </patterns>
   </object>
   <object class="GtkWindow" id="window">

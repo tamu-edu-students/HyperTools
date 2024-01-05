@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 3.20)
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 set(CMAKE_CXX_STANDARD 17)
 
-
 #change below to true to use GPU or false to not use GPU
 set(use_CUDA false) 
 #change below to true to use cuvis.sdk
@@ -11,12 +10,10 @@ set (use_cuvis false)
 
 if (use_CUDA)
 # Define project name
-project(user_interface_project C CXX CUDA)
+project(hypertools_project C CXX CUDA)
 else(use_CUDA)
-project(user_interface_project C CXX )
+project(hypertools_project C CXX )
 endif(use_CUDA)
-
-
 
 find_package(OpenCV  REQUIRED)
 find_package(PkgConfig REQUIRED)
@@ -77,14 +74,6 @@ if (use_CUDA)
 else(use_CUDA)
 
     # Declare the executable target built from your sources
-
-    # add_executable(semantic_interface examples/semantic_segmentation.cpp)
-    add_executable(feature_tool examples/feature_tool.cpp)
-    add_executable(feature_testing examples/feature_testing.cpp)
-    add_executable(ground_truth_example_envi examples/ground_truth_example_envi.cpp)
-    # add_executable(ground_truth_example examples/ground_truth_example.cpp)
-    add_executable(image_tool examples/image_tool.cpp)
-
     add_definitions(${GTK3_CFLAGS} ${GTK3_CFLAGS_OTHER})
 
     if (use_cuvis)
@@ -96,6 +85,15 @@ else(use_CUDA)
 
         # # add_executable(deeplab_example examples/deeplab_example.cpp)
         # # target_link_libraries(deeplab_example PRIVATE cuvis::cpp)
+
+    else (use_cuvis)
+        # add_executable(semantic_interface examples/semantic_segmentation.cpp)
+        # add_executable(feature_tool examples/feature_tool.cpp)
+        # add_executable(feature_testing examples/feature_testing.cpp)
+        add_executable(ground_truth_example_envi examples/ground_truth_example_envi.cpp)
+        # add_executable(ground_truth_example examples/ground_truth_example.cpp)
+        add_executable(image_tool examples/image_tool.cpp)
+
     endif()
 
 endif(use_CUDA)
