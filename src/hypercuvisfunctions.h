@@ -8,15 +8,30 @@
 #include "cuvis.hpp"
 #include <cassert>
 #include <cmath>
-
+#if use_cuda
+#include "../src/hypergpufunctions.cu"
+#endif
 
 using namespace std;
 using namespace cv;
 
-class HyperFunctionsCuvis : public HyperFunctions {
+#if use_cuda
+class HyperFunctionsCuvis : public HyperFunctionsGPU 
+#else
+class HyperFunctionsCuvis : public HyperFunctions 
+#endif
+{
+
+
+
 public:
+
+    
+
+    cuvis::ProcessingArgs procArgs;   
+
     string cubert_settings="../settings/ultris20";  //camera settings file 
-    string factor_dir="../settings/ultris20"; // requires init.daq file
+    string factory_dir="../settings/ultris20"; // requires init.daq file
     string output_dir="../../HyperImages/export/";
     string cubert_img;
     string dark_img;

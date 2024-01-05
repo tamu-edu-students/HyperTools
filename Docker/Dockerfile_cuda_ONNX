@@ -1,0 +1,16 @@
+FROM hypertools_cuda_ml:latest
+
+RUN git clone --recursive https://github.com/microsoft/onnxruntime 
+
+RUN cd onnxruntime &&\
+    ./build.sh --allow_running_as_root --skip_submodule_sync --config Release  --update --build_shared_lib --build  --cmake_extra_defines ONNXRUNTIME_VERSION=$(cat ./VERSION_NUMBER)
+
+RUN apt-get update &&\
+    apt-get install -y \
+    libgflags-dev
+
+WORKDIR /home
+
+RUN cd /home &&\
+    bash
+

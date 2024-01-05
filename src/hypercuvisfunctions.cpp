@@ -171,7 +171,7 @@ void HyperFunctionsCuvis::TakeImageHyper1(string file_name, const int exposure_m
     // Take image using cuvis and put it in the export directory
 
     char* const userSettingsDir = const_cast<char*>(cubert_settings.c_str());
-    char* const factoryDir = const_cast<char*>(factor_dir.c_str());
+    char* const factoryDir = const_cast<char*>(factory_dir.c_str());
     char* const recDir = const_cast<char*>(output_dir.c_str());
 
     // Loading user settings
@@ -276,7 +276,7 @@ void HyperFunctionsCuvis::ExportTiff()
     cuvis::ProcessingArgs procArgs;   
     procArgs.processing_mode = cuvis::processing_mode_t::Cube_Reflectance;
 
-    char* const factoryDir =  const_cast<char*>(factor_dir.c_str());
+    char* const factoryDir =  const_cast<char*>(factory_dir.c_str());
     cuvis::Calibration calib(factoryDir);
     cuvis::ProcessingContext proc(calib);
     proc.set_processingArgs(procArgs);
@@ -335,11 +335,13 @@ void HyperFunctionsCuvis::ReprocessImage(string file_name, bool isImage1 = true 
         char* const darkLoc =  const_cast<char*>(dark_img.c_str());
         char* const whiteLoc =  const_cast<char*>(white_img.c_str());
         char* const distanceLoc =  const_cast<char*>(dist_img.c_str());
-        char* const factoryDir =  const_cast<char*>(factor_dir.c_str());
+        char* const factoryDir =  const_cast<char*>(factory_dir.c_str());
         char* const outDir =  const_cast<char*>(output_dir.c_str());
 
         cuvis::General::init(userSettingsDir);
-        cuvis::General::set_log_level(loglevel_info);
+        // uncomment below for verbose output from cuvis processing pipeline
+        // cuvis::General::set_log_level(loglevel_info);
+
         cuvis::Measurement mesu(measurementLoc);
         cuvis::Measurement dark(darkLoc);
         cuvis::Measurement white(whiteLoc);
@@ -349,21 +351,16 @@ void HyperFunctionsCuvis::ReprocessImage(string file_name, bool isImage1 = true 
         proc.set_reference(dark, cuvis::reference_type_t::Reference_Dark);
         proc.set_reference(white, cuvis::reference_type_t::Reference_White);
         proc.set_reference(distance, cuvis::reference_type_t::Reference_Distance);
-        cuvis::ProcessingArgs procArgs;
-        cuvis::SaveArgs saveArgs;
-        saveArgs.allow_overwrite = true;
-        std::map<std::string, cuvis::processing_mode_t> target_modes = {{"Ref", cuvis::processing_mode_t::Cube_Reflectance}};
-        for (auto const& mode : target_modes)
+        
+
+        procArgs.processing_mode = cuvis::processing_mode_t::Cube_Reflectance;
+        proc.set_processingArgs(procArgs);
+                
+        if (proc.is_capable(mesu, procArgs))
         {
-            procArgs.processing_mode = mode.second;
-            if (proc.is_capable(mesu, procArgs))
-            {
-            proc.set_processingArgs(procArgs);
             proc.apply(mesu);
-            saveArgs.export_dir = std::filesystem::path(outDir) / mode.first;
-            // mesu.save(saveArgs);
-            }
         }
+        
 
         auto const& cube_it = mesu.get_imdata()->find(CUVIS_MESU_CUBE_KEY);
         assert(

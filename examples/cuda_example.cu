@@ -16,15 +16,28 @@ int main (int argc, char *argv[]) {
     HyperFunctionsGPU HyperFunctions1;
     HyperFunctions1.LoadImageHyper(file_name2);
     
+    // initialize time, spectral database, and allocate memory on host and device
     auto start = high_resolution_clock::now();
-    
     HyperFunctions1.read_ref_spec_json(HyperFunctions1.spectral_database);
     HyperFunctions1.mat_to_oneD_array_parallel_parent();
     HyperFunctions1.allocate_memory();
     auto end = high_resolution_clock::now();
     cout << "Initialization Time taken : " << (float)duration_cast<milliseconds>(end-start).count() / (float)1000 << " " << "seconds"<<endl;
        
-    
+    // perform semantic segmentation
+    for (int spec_sim_val=0; spec_sim_val<15; spec_sim_val++)
+    {
+        HyperFunctions1.spec_sim_alg=spec_sim_val;
+        start = high_resolution_clock::now();
+        HyperFunctions1.semantic_segmentation(); 
+        HyperFunctions1.DispClassifiedImage();
+        end = high_resolution_clock::now();
+        cout << spec_sim_val<< " Proccess Classification:" << endl;
+        cout << "Time taken : " << (float)duration_cast<milliseconds>(end-start).count() / (float)1000 << " " << "seconds"<<endl;
+        cv::waitKey();
+    }
+
+    // SAM - Classification
     // slower the first time not sure why so running twice
     start = high_resolution_clock::now();
     HyperFunctions1.spec_sim_alg=0;
