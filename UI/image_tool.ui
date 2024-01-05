@@ -40,6 +40,7 @@
       <pattern>*.cu3</pattern>
       <pattern>*.cu3s</pattern>
       <pattern>*.dat</pattern>
+      <pattern>*.mat</pattern>
     </patterns>
   </object>
   <object class="GtkWindow" id="window">
