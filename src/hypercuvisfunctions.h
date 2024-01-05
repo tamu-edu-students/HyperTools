@@ -21,9 +21,17 @@ class HyperFunctionsCuvis : public HyperFunctionsGPU
 class HyperFunctionsCuvis : public HyperFunctions 
 #endif
 {
+
+
+
 public:
+
+    
+
+    cuvis::ProcessingArgs procArgs;   
+
     string cubert_settings="../settings/ultris20";  //camera settings file 
-    string factor_dir="../settings/ultris20"; // requires init.daq file
+    string factory_dir="../settings/ultris20"; // requires init.daq file
     string output_dir="../../HyperImages/export/";
     string cubert_img;
     string dark_img;
