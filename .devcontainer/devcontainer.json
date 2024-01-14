@@ -11,10 +11,10 @@
 
 	// make sure to uncomment the image that is desired for development
 	// "image": "hypertools_4_2:latest" ,
-	 "image": "hypertools_cubert:latest" ,
+	//  "image": "hypertools_cubert:latest" ,
 	// "image": "hypertools_4_2_cuda:latest" ,
 	// "image": "hypertools_current_opencv:latest" ,
-	// "image": "hypertools_cubert_cuda:latest" ,
+	"image": "hypertools_cubert_cuda:latest" ,
 	// "image": "hypertools_cuda_ml:latest" ,
 	// "image": "hypertools_onnx:latest" ,
 
@@ -26,18 +26,20 @@
 		// "source=/run/desktop/mnt/host/wslg,target=/mnt/wslg,type=bind,consistency=cached",
 
 		// below is used for visualization on ubuntu machine if there are issues with visualization
-		// "source=/tmp/.X11-unix,target=/tmp/.X11-unix,type=bind,consistency=cached",
+		"source=/tmp/.X11-unix,target=/tmp/.X11-unix,type=bind,consistency=cached",
 		
 		// below mounts hyperimages in container
 		"source=${localWorkspaceFolder}/../HyperImages,target=/workspaces/HyperImages,type=bind,consistency=cached"
 	  ],
 
 
-	// "remoteEnv": {"DISPLAY":":0"},
-	// "remoteEnv": {
-	// 	"GDK_SYNCHRONIZE": "1"
-	// },
-	 //below is used when cuda image is being used
+	"remoteEnv": {
+	// 	"DISPLAY":":1",
+		"GDK_SYNCHRONIZE": "1"
+	},
+	
+
+	 //below is used when cuda image is being used or connecting to camera
 	 
 	 "runArgs": [
 	 	"--gpus=all", // used for cuda images

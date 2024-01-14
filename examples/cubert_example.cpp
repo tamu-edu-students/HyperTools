@@ -36,8 +36,9 @@ int main (int argc, char *argv[])
     // below is for taking an image
     // string file_name_base, const int exposure_ms, const int num_image
     // for some reason cannot take image and reprocess image in the same run
-    // HyperFunctions1.TakeImageHyper1("test",100, 1);
-
+    cout<<"Taking image"<<endl;
+    HyperFunctions1.TakeImageHyper1("Test",100, 1);
+    cout<<"Finished taking image"<<endl;
 
 
     // below is for reprocessing the image in the case when raw mode is required
