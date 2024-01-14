@@ -38,6 +38,8 @@ public:
     string white_img;
     string dist_img;
 
+    float dist_val_mm = 1000; // distance to target in mm
+
     void LoadImageHyper(string file_name, bool isImage1 );
     void TakeImageHyper1(string file_name, const int exposure_ms, const int num_images);
     void ExportTiff();

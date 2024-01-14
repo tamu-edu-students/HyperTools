@@ -446,11 +446,16 @@ void HyperFunctionsCuvis::ReprocessImage(string file_name, bool isImage1 = true 
         auto optWhite = sessWhite.get_mesu(0);
         assert(optWhite.has_value());
         cuvis::Measurement white = optWhite.value();
-        std::cout << "loading distance... " << std::endl;
-        cuvis::SessionFile sessDistance(distanceLoc);
-        auto optDistance = sessDistance.get_mesu(0);
-        assert(optDistance.has_value());
-        cuvis::Measurement distance = optDistance.value();
+        
+        
+        // used when measurement image instead of value 
+        // std::cout << "loading distance... " << std::endl;
+        // cuvis::SessionFile sessDistance(distanceLoc);
+        // auto optDistance = sessDistance.get_mesu(0);
+        // assert(optDistance.has_value());
+        // cuvis::Measurement distance = optDistance.value();
+        
+        
         std::cout << "Data 1" << mesu.get_meta()->name << " "
                     << "t=" << mesu.get_meta()->integration_time << " ms "
                     << "mode=" << mesu.get_meta()->processing_mode << " " << std::endl;
@@ -465,7 +470,11 @@ void HyperFunctionsCuvis::ReprocessImage(string file_name, bool isImage1 = true 
 
         proc.set_reference(dark, cuvis::reference_type_t::Reference_Dark);
         proc.set_reference(white, cuvis::reference_type_t::Reference_White);
-        proc.set_reference(distance, cuvis::reference_type_t::Reference_Distance);
+        // used when measurement image instead of value 
+        // proc.set_reference(distance, cuvis::reference_type_t::Reference_Distance);
+        
+        // use below if you know distance (doesn't matter if larger than 6 meters) distance is in mm
+        proc.calc_distance(dist_val_mm);
 
 
         cuvis::ProcessingArgs procArgs;
