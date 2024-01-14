@@ -54,55 +54,123 @@ def loadMeasurement(userSettingsDir, measurementLoc, visualize=False):
 
 def   reprocessMeasurement(userSettingsDir,measurementLoc,darkLoc,whiteLoc,distanceLoc,factoryDir,outDir, visualize=False):    
     
+    # print("loading user settings...")
+    # settings = cuvis.General(userSettingsDir)
+    # # settings.setLogLevel("info")
+
+    # print("loading measurement file...")
+    # mesu = cuvis.Measurement(measurementLoc)
+
+    # print("loading dark...")
+    # dark = cuvis.Measurement(darkLoc)
+    # print("loading white...")
+    # white = cuvis.Measurement(whiteLoc)
+    # print("loading dark...")
+    # distance = cuvis.Measurement(distanceLoc)
+
+    # # print("Data 1 {} t={}ms mode={}".format(mesu.Name,mesu.IntegrationTime,mesu.ProcessingMode,))
+
+    # print("loading calibration and processing context (factory)...")
+    # calibration = cuvis.Calibration(factoryDir)
+    # processingContext = cuvis.ProcessingContext(calibration)
+
+    # print("set references...")
+    # processingContext.setReference(dark, "Dark")
+    # processingContext.setReference(white, "White")
+    # processingContext.setReference(distance, "Distance")
+
+    # modes = [
+    #          "Reflectance"
+    #          ]
+
+    # procArgs = cuvis.CubertProcessingArgs()
+    # saveArgs = cuvis.CubertSaveArgs(AllowOverwrite=True)
+
+    # for mode in modes:
+
+    #     procArgs.ProcessingMode = mode
+    #     isCapable = processingContext.isCapable(mesu, procArgs)
+
+    #     if isCapable:
+    #         print("processing to mode {}...".format(mode))
+    #         processingContext.setProcessingArgs(procArgs)
+    #         mesu = processingContext.apply(mesu)
+    #         cube = mesu.Data.pop("cube", None)
+            
+    #         if cube is None:
+    #             raise Exception("Cube not found")
+
+    #     else:
+    #         print("Cannot process to {} mode!".format(mode))
+    
     print("loading user settings...")
     settings = cuvis.General(userSettingsDir)
-    # settings.setLogLevel("info")
+    settings.set_log_level("info")
 
     print("loading measurement file...")
-    mesu = cuvis.Measurement(measurementLoc)
+    sessionM = cuvis.SessionFile(measurementLoc)
+    mesu = sessionM[0]
+    assert mesu._handle
 
     print("loading dark...")
-    dark = cuvis.Measurement(darkLoc)
+    sessionDk = cuvis.SessionFile(darkLoc)
+    dark = sessionDk[0]
+    assert dark._handle
+
     print("loading white...")
-    white = cuvis.Measurement(whiteLoc)
-    print("loading dark...")
-    distance = cuvis.Measurement(distanceLoc)
+    sessionWt = cuvis.SessionFile(whiteLoc)
+    white = sessionWt[0]
+    assert white._handle
 
-    # print("Data 1 {} t={}ms mode={}".format(mesu.Name,mesu.IntegrationTime,mesu.ProcessingMode,))
+    print("loading distance...")
+    # sessionDc = cuvis.SessionFile(distanceLoc)
+    # distance = sessionDc[0]
+    # assert distance._handle
+    
 
-    print("loading calibration and processing context (factory)...")
-    calibration = cuvis.Calibration(factoryDir)
-    processingContext = cuvis.ProcessingContext(calibration)
+    print("Data 1 {} t={}ms mode={}".format(mesu.name,
+                                            mesu.integration_time,
+                                            mesu.processing_mode.name,
+                                            ))
+
+    print("loading processing context...")
+    processingContext = cuvis.ProcessingContext(sessionM)
 
     print("set references...")
-    processingContext.setReference(dark, "Dark")
-    processingContext.setReference(white, "White")
-    processingContext.setReference(distance, "Distance")
+    processingContext.set_reference(dark, cuvis.ReferenceType.Dark)
+    processingContext.set_reference(white, cuvis.ReferenceType.White)
+    # processingContext.set_reference(distance, cuvis.ReferenceType.Distance)
+    processingContext.calc_distance(1000)
 
-    modes = [
-             "Reflectance"
+    procArgs = cuvis.ProcessingArgs()
+    saveArgs = cuvis.SaveArgs(allow_overwrite=True,
+                                    allow_session_file=True,
+                                    allow_info_file=False)
+
+    modes = [ #cuvis.ProcessingMode.Raw,
+            #  cuvis.ProcessingMode.DarkSubtract,
+             cuvis.ProcessingMode.Reflectance
+            #  cuvis.ProcessingMode.SpectralRadiance
              ]
-
-    procArgs = cuvis.CubertProcessingArgs()
-    saveArgs = cuvis.CubertSaveArgs(AllowOverwrite=True)
 
     for mode in modes:
 
-        procArgs.ProcessingMode = mode
-        isCapable = processingContext.isCapable(mesu, procArgs)
+        procArgs.processing_mode = mode
 
-        if isCapable:
+        if processingContext.is_capable(mesu, procArgs):
             print("processing to mode {}...".format(mode))
-            processingContext.setProcessingArgs(procArgs)
+            processingContext.set_processing_args(procArgs)
             mesu = processingContext.apply(mesu)
-            cube = mesu.Data.pop("cube", None)
-            
-            if cube is None:
-                raise Exception("Cube not found")
+            # mesu.set_name(mode)
+            # saveArgs.export_dir = os.path.join(outDir, mode)
+            # exporter = cuvis.Export.CubeExporter(saveArgs)
+            # exporter.apply(mesu)
 
         else:
             print("Cannot process to {} mode!".format(mode))
-            
+
+    print("finished.")
+    cube = mesu.data.get("cube", None)
             
     if visualize==True:
         # below is to visualize the image
@@ -157,13 +225,21 @@ if __name__ == "__main__":
    # I was running from the examples directory of hypertools
    # this file needs to be updated to work with new version of cuvis
     
-    userSettingsDir = "../settings/" 
-    measurementLoc = "../../HyperImages/cornfields/session_002/session_002_490.cu3"
-    darkLoc = "../../HyperImages/cornfields/Calibration/dark__session_002_003_snapshot16423119279414228.cu3"
-    whiteLoc = "../../HyperImages/cornfields/Calibration/white__session_002_752_snapshot16423136896447489.cu3"
+    # userSettingsDir = "../settings/" 
+    # measurementLoc = "../../HyperImages/cornfields/session_002/session_002_490.cu3"
+    # darkLoc = "../../HyperImages/cornfields/Calibration/dark__session_002_003_snapshot16423119279414228.cu3"
+    # whiteLoc = "../../HyperImages/cornfields/Calibration/white__session_002_752_snapshot16423136896447489.cu3"
+    # distanceLoc = "../../HyperImages/cornfields/Calibration/distanceCalib__session_000_790_snapshot16423004058237746.cu3"
+    # factoryDir = "../settings/" # init.daq file
+    # outDir ="../../HyperImages/export/"
+    
+    userSettingsDir = "settings/ultris5" 
+    measurementLoc = "../HyperImages/export/Test_001.cu3s"
+    darkLoc = "../HyperImages/Calib100/dark_001.cu3s"
+    whiteLoc = "../HyperImages/Calib100/white_001.cu3s"
     distanceLoc = "../../HyperImages/cornfields/Calibration/distanceCalib__session_000_790_snapshot16423004058237746.cu3"
-    factoryDir = "../settings/" # init.daq file
-    outDir ="../../HyperImages/export/"
+    factoryDir = "settings/ultris5" # init.daq file
+    outDir ="../HyperImages/export/"
     
     # use below if image is already processed
     # cube= loadMeasurement(userSettingsDir, measurementLoc, False)
@@ -171,4 +247,4 @@ if __name__ == "__main__":
     cube = reprocessMeasurement(userSettingsDir,measurementLoc,darkLoc,whiteLoc,distanceLoc,factoryDir,outDir, False)
     data = cube.array[:,:, :] # x,y,chan
     # print(data.shape)
-    rgb_img= extract_rgb(cube,visualize=True)
+    rgb_img= extract_rgb(cube,31,13,2,visualize=True)
