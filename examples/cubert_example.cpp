@@ -15,7 +15,7 @@ int main (int argc, char *argv[])
     HyperFunctionsCuvis HyperFunctions1;
 
     // below is for ultris 5 example
-    HyperFunctions1.cubert_img = "../../HyperImages/export/Test_001.cu3s";
+    HyperFunctions1.cubert_img = "../../HyperImages/export/White_001.cu3s";
     HyperFunctions1.dark_img = "../../HyperImages/Calib100/dark.cu3s";
     HyperFunctions1.white_img = "../../HyperImages/Calib100/white.cu3s";
     // HyperFunctions1.dist_img = "../../HyperImages/Calib100/distance.cu3s";
@@ -37,7 +37,7 @@ int main (int argc, char *argv[])
     // string file_name_base, const int exposure_ms, const int num_image
     // for some reason cannot take image and reprocess image in the same run
     cout<<"Taking image"<<endl;
-    HyperFunctions1.TakeImageHyper1("Test",100, 1);
+    HyperFunctions1.TakeImageHyper1("White",100, 1);
     cout<<"Finished taking image"<<endl;
 
 

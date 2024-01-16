@@ -234,6 +234,8 @@ void HyperFunctionsCuvis::TakeImageHyper1(string file_name, const int exposure_m
         {
         std::cout << "failed" << std::endl;
         }
+        cout<<"Press enter to continue"<<endl;
+        cin.ignore();
     }
 
     //uncomment for recording in queue mode
