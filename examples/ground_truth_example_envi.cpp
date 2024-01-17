@@ -382,8 +382,8 @@ int main (int argc, char *argv[])
 
         // algorithms are from 0-14
         // change below for full test
-        for (int spec_sim_val=0; spec_sim_val<15; spec_sim_val++)
-        // for (int spec_sim_val=0; spec_sim_val<2; spec_sim_val++)
+        // for (int spec_sim_val=0; spec_sim_val<15; spec_sim_val++)
+        for (int spec_sim_val=0; spec_sim_val<2; spec_sim_val++)
         {
             HyperFunctions1.spec_sim_alg = spec_sim_val;
 
@@ -436,6 +436,8 @@ int main (int argc, char *argv[])
             // find true positives, false positives, false negatives, true negatives
 
             int true_positives = 0, false_positives = 0, false_negatives = 0, true_negatives = 0;
+            vector<int> true_positives_vec (numClasses, 0), false_positives_vec (numClasses, 0), false_negatives_vec (numClasses, 0), true_negatives_vec (numClasses, 0);
+
             for (int i=0; i<HyperFunctions1.classified_img.rows; i++)
             {
                 for (int j=0; j<HyperFunctions1.classified_img.cols; j++)
@@ -445,6 +447,7 @@ int main (int argc, char *argv[])
                     if (HyperFunctions1.classified_img.at<Vec3b>(i,j) == gt_img2.at<Vec3b>(i,j))
                     {
                         true_positives++;
+                        true_positives_vec[std::distance(colorBGRVector.begin(), std::find(colorBGRVector.begin(), colorBGRVector.end(), HyperFunctions1.classified_img.at<Vec3b>(i,j)))]++;
                     }
                     else
                     {
@@ -455,6 +458,16 @@ int main (int argc, char *argv[])
             }
 
 
+            // cout<<"true positives: "<<true_positives<<endl;
+            // // compare to sum of true_positives_vec
+            // int temp_val = 0;
+            // for (int i=0; i<true_positives_vec.size(); i++)
+            // {
+            //     temp_val += true_positives_vec[i];
+            // }
+            // cout<<"sum of true positives vec: "<<temp_val<<endl;
+
+
             value_obj2["Spectral Similarity Algorithm"][to_string(HyperFunctions1.spec_sim_alg)]["Time"] = (float)duration_cast<milliseconds>(end-start).count() / (float)1000;
             // value_obj2["Spectral Similarity Algorithm"][HyperFunctions1.spec_sim_alg]["Number of Classes"] = HyperFunctions1.reference_colors.size();
             value_obj2["Spectral Similarity Algorithm"][to_string(HyperFunctions1.spec_sim_alg)]["Number of Classes"] = static_cast<unsigned int>(HyperFunctions1.color_combos.size());
@@ -463,6 +476,22 @@ int main (int argc, char *argv[])
 
             value_obj2["Spectral Similarity Algorithm"][to_string(HyperFunctions1.spec_sim_alg)]["False Positive"] = false_positives;
             value_obj2["Spectral Similarity Algorithm"][to_string(HyperFunctions1.spec_sim_alg)]["Number of Pixels"] = true_positives + false_positives ;
+            
+            // write true poisitves and false positives for each class
+            for (int i=0; i<true_positives_vec.size(); i++)
+            {
+                if (true_positives_vec[i] + false_positives_vec[i] + true_negatives_vec[i] + false_negatives_vec[i] != 0)
+                {
+                    value_obj2["Spectral Similarity Algorithm"][to_string(HyperFunctions1.spec_sim_alg)]["True Positive Class"][class_list[i]] = true_positives_vec[i];
+                    value_obj2["Spectral Similarity Algorithm"][to_string(HyperFunctions1.spec_sim_alg)]["False Positive Class"][class_list[i]] = false_positives_vec[i];
+
+                    value_obj2["Spectral Similarity Algorithm"][to_string(HyperFunctions1.spec_sim_alg)]["True Negative Class"][class_list[i]] = true_negatives_vec[i];
+                    value_obj2["Spectral Similarity Algorithm"][to_string(HyperFunctions1.spec_sim_alg)]["False Negative Class"][class_list[i]] = false_negatives_vec[i];
+
+                }
+             
+            }
+       
                 
 
 
