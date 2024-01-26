@@ -29,7 +29,9 @@ RUN cmake \
 RUN make -j$(nproc) &&\
     make install && \
     ldconfig
- 
+
+
+
 
 WORKDIR /home
 
