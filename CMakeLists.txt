@@ -7,6 +7,8 @@ set(use_CUDA false)
 # Change below to true to use cuvis.sdk
 set(use_cuvis false)
 
+set(use_onnx true)
+
 if (use_CUDA)
     # Define project name
     project(hypertools_project C CXX CUDA)
@@ -25,8 +27,7 @@ include_directories(${MATIO_INCLUDE_DIRS})
 link_directories(${GTK3_LIBRARY_DIRS})
 link_libraries(jsoncpp ${GTK3_LIBRARIES} ${OpenCV_LIBS} ${GDAL_LIBRARY} ${MATIO_LIBRARIES})
 
-# Include ONNX
-find_package(ONNX REQUIRED)
+
 include_directories(${ONNX_INCLUDE_DIRS})
 link_libraries(${ONNX_LIBRARIES})
 
@@ -91,10 +92,26 @@ else(use_CUDA)
         # add_executable(semantic_interface examples/semantic_segmentation.cpp)
         # add_executable(feature_tool examples/feature_tool.cpp)
         # add_executable(feature_testing examples/feature_testing.cpp)
-        add_executable(test_onnx examples/test_onnx.cpp)
         add_executable(ground_truth_example_envi examples/ground_truth_example_envi.cpp)
         # add_executable(ground_truth_example examples/ground_truth_example.cpp)
         add_executable(image_tool examples/image_tool.cpp)
     endif()
 
 endif(use_CUDA)
+
+
+if (use_onnx)
+# Include ONNX
+set(onnxruntime_INCLUDE_DIRS ${onnxruntime_INSTALL_PREFIX}/include)
+find_library(ONNXRUNTIME_LIBRARY NAMES onnxruntime PATHS /home/onnxruntime/build/Linux/Release NO_DEFAULT_PATH)
+
+# Add the path to the cpu_provider_factory.h file to the include directories
+include_directories(${onnxruntime_INCLUDE_DIRS})
+include_directories(/home/onnxruntime/onnxruntime/core/providers/cpu)
+
+set(onnxruntime_INCLUDE_DIRS ${onnxruntime_INSTALL_PREFIX}/include)
+include_directories(/home/onnxruntime/include)
+add_executable(test_onnx examples/test_onnx.cpp)
+target_link_libraries(test_onnx PRIVATE ${ONNXRUNTIME_LIBRARY})
+
+endif(use_onnx)
