@@ -16,14 +16,14 @@ int main (int argc, char *argv[])
 
     // below is for ultris 5 example
     HyperFunctions1.cubert_img = "../../HyperImages/export/White_001.cu3s";
-    HyperFunctions1.dark_img = "../../HyperImages/Calib100/dark.cu3s";
-    HyperFunctions1.white_img = "../../HyperImages/Calib100/white.cu3s";
+    HyperFunctions1.dark_img = "../../HyperImages/calib_intr/Dark_001.cu3s";
+    HyperFunctions1.white_img = "../../HyperImages/calib_intr/White_001.cu3s";
     // HyperFunctions1.dist_img = "../../HyperImages/Calib100/distance.cu3s";
     
     // // below are needed if the ultris5 is used instead of the ultris 20
     HyperFunctions1.cubert_settings="../settings/ultris5";  //camera settings file 
     HyperFunctions1.factory_dir="../settings/ultris5"; // requires init.daq file
-
+    HyperFunctions1.dist_val_mm = 500; // distance to target in mm, does not matter too much after 6m
 
     // ultris 20 example
     // HyperFunctions1.cubert_img = "../../HyperImages/cornfields/session_002/session_002_490.cu3";
