@@ -25,8 +25,6 @@ using namespace Json;
 int main (int argc, char *argv[])
 {
 
-
-
     // parent folder to analyze
     string lib_hsi_dir = "../../HyperImages/LIB-HSI/LIB-HSI/validation/";
 
@@ -40,7 +38,7 @@ int main (int argc, char *argv[])
     string gt_database="../json/lib_hsi.json";
 
     // used to find average spectrum for each semantic class, not needed if already processed
-    bool get_average_spectrum = false;
+    bool get_average_spectrum = true;
 
     // directory for results with statistics 
     string results_dir = lib_hsi_dir + "results/";
@@ -435,27 +433,61 @@ int main (int argc, char *argv[])
             // compare classified image to ground truth image 
             // find true positives, false positives, false negatives, true negatives
 
-            int true_positives = 0, false_positives = 0, false_negatives = 0, true_negatives = 0;
-            vector<int> true_positives_vec (numClasses, 0), false_positives_vec (numClasses, 0), false_negatives_vec (numClasses, 0), true_negatives_vec (numClasses, 0);
+                   int true_positives = 0, false_positives = 0, false_negatives = 0, true_negatives = 0;
+           vector<int> true_positives_vec(numClasses, 0), false_positives_vec(numClasses, 0), false_negatives_vec(numClasses, 0), true_negatives_vec(numClasses, 0);
 
-            for (int i=0; i<HyperFunctions1.classified_img.rows; i++)
-            {
-                for (int j=0; j<HyperFunctions1.classified_img.cols; j++)
-                {
-                    // cout<<HyperFunctions1.classified_img.at<Vec3b>(i,j)<<endl;
-                    // cout<<gt_img2.at<Vec3b>(i,j)<<endl;
-                    if (HyperFunctions1.classified_img.at<Vec3b>(i,j) == gt_img2.at<Vec3b>(i,j))
-                    {
-                        true_positives++;
-                        true_positives_vec[std::distance(colorBGRVector.begin(), std::find(colorBGRVector.begin(), colorBGRVector.end(), HyperFunctions1.classified_img.at<Vec3b>(i,j)))]++;
-                    }
-                    else
-                    {
-                        // is this right?
-                        false_positives++;
-                    }
-                }
-            }
+
+           for (int i = 0; i < HyperFunctions1.classified_img.rows; i++)
+           {
+               for (int j = 0; j < HyperFunctions1.classified_img.cols; j++)
+               {
+                   Vec3b classified_pixel = HyperFunctions1.classified_img.at<Vec3b>(i, j);
+                   Vec3b gt_pixel = gt_img2.at<Vec3b>(i, j);
+
+
+                   auto findClassIndex = [&](const Vec3b& pixel) -> int {
+                       auto it = std::find(colorBGRVector.begin(), colorBGRVector.end(), pixel);
+                       if (it != colorBGRVector.end()) {
+                           return std::distance(colorBGRVector.begin(), it);
+                       }
+                       return -1; // Indicates not found / not a class pixel
+                   };
+
+
+                   int classifiedIndex = findClassIndex(classified_pixel);
+                   int gtIndex = findClassIndex(gt_pixel);
+
+
+                   if (classifiedIndex == gtIndex && classifiedIndex != -1) {
+                       // True Positive for a specific class
+                       true_positives++;
+                       true_positives_vec[classifiedIndex]++;
+                   }
+                   else {
+                       // True Negative for all other classes
+                       int class_index = std::distance(colorBGRVector.begin(), std::find(colorBGRVector.begin(), colorBGRVector.end(), classified_pixel));
+                       true_negatives++;
+                       true_negatives_vec[class_index]++;
+                   }
+                   if (classifiedIndex != -1 && gtIndex != -1) {
+                       // False Positive for classified class and False Negative for ground truth class
+                       false_positives++;
+                       false_negatives++;
+                       false_positives_vec[classifiedIndex]++;
+                       false_negatives_vec[gtIndex]++;
+                   } else if (classifiedIndex != -1) {
+                       // False Positive (classified as a class, but GT is not a class)
+                       false_positives++;
+                       false_positives_vec[classifiedIndex]++;
+                   } else if (gtIndex != -1) {
+                       // False Negative (GT is a class, but classified as not a class)
+                       false_negatives++;
+                       false_negatives_vec[gtIndex]++;
+                   }
+               }
+           }
+        
+
 
 
             // cout<<"true positives: "<<true_positives<<endl;

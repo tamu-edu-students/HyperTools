@@ -1,0 +1,4 @@
+/workspaces/HyperTools/examples/CMakeFiles/ground_truth_example_envi.dir
+/workspaces/HyperTools/examples/CMakeFiles/image_tool.dir
+/workspaces/HyperTools/examples/CMakeFiles/edit_cache.dir
+/workspaces/HyperTools/examples/CMakeFiles/rebuild_cache.dir
