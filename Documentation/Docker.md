@@ -16,7 +16,7 @@ https://docs.docker.com/engine/reference/commandline/build/
 `docker build -t hypercode_base -f Dockerfile . ` 
 
 ## Visualization with Docker
-Different operating systems have different methods for allowing the user interfaces in the example files to be visualized. Below are some helpful tips in order to allow a user to visualize the examples within a Docker Container.
+Different operating systems have different methods for allowing the user interfaces in the example files to be visualized. Below are some helpful tips in order to allow a user to visualize the examples within a Docker Container. The repo was integrated with VS Code for development. For Windows, I recommend using WSL2 with Ubuntu. If you are using Ubuntu, I recommend to install just Docker Engine instead of Docker Desktop. The networking is easier to manage with Docker Engine for communication with the camera. 
 
 ### Ubuntu 
 1. Make sure X11 is installed
@@ -50,27 +50,13 @@ https://dev.to/darksmile92/run-gui-app-in-linux-docker-container-on-windows-host
 
 
 ### Mac 
+Make sure that your VS Code is up to date and has correct permissions. Also, some of the docker images may not work with Mac, due to the lack of CUDA support and different chip architecture.
 
 1. Install XQuartz: https://www.xquartz.org/
 2. Launch XQuartz. Under the XQuartz menu, select Preferences
 3. Go to the security tab and ensure "Allow connections from network clients" is checked.
-4. Run xhost + ${hostname} to allow connections to the macOS host 
-5. Setup a HOSTNAME env var export HOSTNAME=`hostname`
-Add the following to your docker-compose.
-In the terminal:
+4. Run `xhost + ${hostname}` to allow connections to the macOS host 
 
-    `% IP=$(/usr/sbin/ipconfig getifaddr en0)`
-
-    `echo $IP`
-
-    `% /opt/X11/bin/xhost + "$IP"`
-
-*cd to the Hypertools folder in the terminal and then run*
-
-`pwd`
-
-
-*the location of the folder can be traced with the following input into the terminal to replace into the next line of code accordingly*
 
 ## Running HyperTools with Docker 
 
