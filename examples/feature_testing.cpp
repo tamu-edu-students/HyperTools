@@ -16,6 +16,7 @@ int main (int argc, char *argv[])
   HyperFunctions1.LoadImageHyper(file_name1);
 
   HyperFunctions1.PCA_img();
+  resize(HyperFunctions1.pca_img, HyperFunctions1.pca_img, Size(500,500),INTER_LINEAR);
   imshow("PCA Image",HyperFunctions1.pca_img);
 
 
