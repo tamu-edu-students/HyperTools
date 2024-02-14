@@ -72,9 +72,9 @@ def save_hsi(file_name, hsi_array):
 
 
 #------------Main------------
-    
-image_name = input("Enter the file name: ")
-image_path = f"../../HyperImages/{image_name}"
+# run from parent directory of hypertools for correct paths    
+image_name = "img1.tiff"
+image_path = f"../HyperImages/{image_name}"
 
 imgArray = load_hsi(image_path)
 
@@ -94,5 +94,5 @@ elif(layers < 64):
 print("Resized array shape: \n", resizedArray.shape)
 
 image_name = image_name[:-5] + f"_{layers}_to_64.tiff"
-save_hsi(f"../../HyperImages/{image_name}", resizedArray)
+save_hsi(f"../HyperImages/{image_name}", resizedArray)
 print("Saved as:", image_name)

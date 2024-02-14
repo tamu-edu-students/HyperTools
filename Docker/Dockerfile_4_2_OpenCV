@@ -77,5 +77,11 @@ RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/nul
     cmake \
     build-essential 
 
+RUN python3.9 -m pip install  \
+    opencv-python \
+    pandas \
+    tifffile \
+    pyarrow
+
 WORKDIR /home
 
