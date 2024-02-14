@@ -13,3 +13,6 @@
 [submodule "submodules/HyperspectralDatasets"]
 	path = submodules/HyperspectralDatasets
 	url = https://github.com/antmedellin/HyperspectralDatasets.git
+[submodule "submodules/mono-vo"]
+	path = submodules/mono-vo
+	url = https://github.com/tamu-edu-students/mono-vo.git
