@@ -65,6 +65,10 @@ RUN cd /cuvis.sdk/ &&\
     git fetch &&\
     git checkout patch-1
     
+RUN python3.9 -m pip install \
+    opencv-python \
+    
+
 RUN echo 'alias python="/usr/bin/python3.9"' >> ~/.bashrc 
 RUN echo 'alias python3="/usr/bin/python3.9"' >> ~/.bashrc 
 RUN echo 'export CUVIS="/lib/cuvis"' >> ~/.bashrc 
