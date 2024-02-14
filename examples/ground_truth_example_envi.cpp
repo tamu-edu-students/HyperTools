@@ -476,7 +476,7 @@ int main (int argc, char *argv[])
                        false_positives_vec[classifiedIndex]++;
                        false_negatives_vec[gtIndex]++;
                    } else if (classifiedIndex != -1) {
-                       // False Positive (classified as a class, but GT is not a class)
+                       // False Positive (classified is a class, but GT is not a class)
                        false_positives++;
                        false_positives_vec[classifiedIndex]++;
                    } else if (gtIndex != -1) {

@@ -8,7 +8,7 @@ if __name__ == "__main__":
     f = open('json/lib_hsi.json')
     
     # location of results json files
-    results_dir = '../HyperImages/LIB-HSI/LIB-HSI/full/results/'   
+    results_dir = '../HyperImages/LIB-HSI/LIB-HSI/validation/results/'   
     
     # number of spectral similarity algorithms
     num_algorithms = 14 # includes zero,  14 for hypertools 
@@ -42,25 +42,53 @@ if __name__ == "__main__":
         except:
             pass
     
-    # print(results_dict_alg)
+    #print(results_dict_alg)
     
     
     # print the results
     # print ('Algorithm, Class Name, Correct, Incorrect, Total')
+    
     for item in results_dict_alg:
-        
-        
+
         FP = results_dict_alg[item]['False Positive']
         TP = results_dict_alg[item]['True Positive']
+        TN = results_dict_alg[item]['True Negative']
+        FN = results_dict_alg[item]['False Negative']
         NumClasses = results_dict_alg[item]['Number of Classes']
         NumPixels = results_dict_alg[item]['Number of Pixels']
         Time = results_dict_alg[item]['Time']
-        
+
+        #tp/numpixels weighted avg for total num that are correct
+        #avg accuracy for one with TN and one without 
+   
         # print ('Algorithm Number: ', item   ,  results_dict_alg[item]) # alg number
         # print ('Algorithm Number:', item   ,  ' Total Accuracy:', TP/NumPixels*100,'% ', 'Total Inaccuracy:', FP/NumPixels*100,'% ', 'Classification Time per Class (s):', NumClasses/Time ) # alg number
-        print ('Algorithm Number:', item, ' Total Accuracy: {:.3f}%'.format(TP/NumPixels*100), 'Total Inaccuracy: {:.3f}%'.format(FP/NumPixels*100), 'Classification Time per Class (s): {:.3f}'.format(NumClasses/Time), 'Number of Images:', len(files_list)) # alg number
+        print ('\nAlgorithm Number:', item, ' Total Accuracy: {:.3f}%'.format(TP/NumPixels*100), 'Total Inaccuracy: {:.3f}%'.format(FP/NumPixels*100), 'Classification Time per Class (s): {:.3f}'.format(NumClasses/Time), 'Number of Images:', len(files_list)) # alg number
         # print('Algorithm: ',item, ', Correct: ', alg_correct,' ',  alg_correct/alg_total*100,'% , Incorrect:', alg_incorrect, ' ', alg_incorrect/alg_total*100,'% , Total:', alg_total)
-    
+
+        #calculating miou for each class
+        sum_class_iou = 0.0
+        for i in range(NumClasses):
+     
+            iou = TP / (TP+ FP + FN)
+            sum_class_iou += iou
+
+        mean_iou = sum_class_iou / NumClasses
+
+        print("Metrics")
+        # recall calculation
+        recall = TP / (TP + FN) 
+        # precision calculation
+        precision = TP / (TP + FP)
+        # f1 calculation
+        f1 = 2 * (precision * recall) / (precision + recall)
+        
+        print('Recall: ', recall)
+        print('Precision: ', precision)
+        print('F1 Score: ', f1)
+        print("Mean Intersection over Union (mIoU): {:.4f}".format(mean_iou), "\n")
+
+
     # -----------------------------------------------
     # # get list of class names
     # jsonAsDict = json.load(f)
@@ -190,5 +218,3 @@ if __name__ == "__main__":
     # precision = TP / (TP + FP)
     # recall = TP / (TP + FN) 
     # f1 = 2 * (precision * recall) / (precision + recall)
-    
-    
