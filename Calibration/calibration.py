@@ -79,8 +79,8 @@ distance = 500 # dist in mm      # this was a guess
 cube1= reprocessMeasurement_cu3s(userSettingsDir,measurementLoc,darkLoc,whiteLoc,distance,factoryDir)
 
 # changing values changes the extracted layers
-# image0=extract_rgb(cube1,40,20,2)
-image0=extract_rgb(cube1, 50, 30, 10)
+image0=extract_rgb(cube1,40,20,2)
+# image0=extract_rgb(cube1, 50, 30, 10)
 
 # termination criteria
 criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 30, 0.001)
