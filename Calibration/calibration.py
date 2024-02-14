@@ -73,13 +73,12 @@ measurementLoc = "../HyperImages/Checkerboard_001.cu3s"
 darkLoc = "../HyperImages/Dark_001.cu3s"
 whiteLoc = "../HyperImages/White_001.cu3s"
 factoryDir = "settings/ultris5/"  # init.daq file
-distance = 500 # dist in mm
+distance = 500 # dist in mm      # this was a guess
 
 
 cube1= reprocessMeasurement_cu3s(userSettingsDir,measurementLoc,darkLoc,whiteLoc,distance,factoryDir)
 
-measurementLoc = "../HyperImages/export/Checkerboard_001.cu3s"
-
+# changing values changes the extracted layers
 # image0=extract_rgb(cube1,40,20,2)
 image0=extract_rgb(cube1, 50, 30, 10)
 
@@ -94,7 +93,6 @@ imgpoints = [] # 2d points in image plane.
 # images = glob.glob('Checkerboard_001.cu3s')
 images = image0
 for fname in images:
-    # img = cv.imread(fname)
     img = image0
     gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
     # Find the chess board corners
