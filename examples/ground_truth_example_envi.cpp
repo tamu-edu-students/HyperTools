@@ -38,7 +38,7 @@ int main (int argc, char *argv[])
     string gt_database="../json/lib_hsi.json";
 
     // used to find average spectrum for each semantic class, not needed if already processed
-    bool get_average_spectrum = true;
+    bool get_average_spectrum = false;
 
     // directory for results with statistics 
     string results_dir = lib_hsi_dir + "results/";
@@ -459,37 +459,46 @@ int main (int argc, char *argv[])
 
 
                    if (classifiedIndex == gtIndex && classifiedIndex != -1) {
-                       // True Positive for a specific class
+                       // True Positive for a specific class if accurately classified and true negative for all other classes
+                       
                        true_positives++;
-                       true_positives_vec[classifiedIndex]++;
+                       for (int i=0; i<colorBGRVector.size(); i++)
+                       {
+                           
+                           if (i!=classifiedIndex)
+                           {
+                               true_negatives_vec[i]++;
+                           }
+                           else{
+                                true_positives_vec[i]++;
+                           }
+                       }                  
                    }
                    else {
-                       // True Negative for all other classes
-                       int class_index = std::distance(colorBGRVector.begin(), std::find(colorBGRVector.begin(), colorBGRVector.end(), classified_pixel));
-                       true_negatives++;
-                       true_negatives_vec[class_index]++;
-                   }
-                   if (classifiedIndex != -1 && gtIndex != -1) {
-                       // False Positive for classified class and False Negative for ground truth class
-                       false_positives++;
-                       false_negatives++;
-                       false_positives_vec[classifiedIndex]++;
-                       false_negatives_vec[gtIndex]++;
-                   } else if (classifiedIndex != -1) {
-                       // False Positive (classified is a class, but GT is not a class)
-                       false_positives++;
-                       false_positives_vec[classifiedIndex]++;
-                   } else if (gtIndex != -1) {
-                       // False Negative (GT is a class, but classified as not a class)
-                       false_negatives++;
-                       false_negatives_vec[gtIndex]++;
+                       // false positive and false negative for wrong class
+                       // true positive for other classes
+                        false_positives++;
+                        
+                        for (int i=0; i<colorBGRVector.size(); i++)
+                        {
+                            
+                            if (i!=classifiedIndex && i!=gtIndex)
+                            {
+                                true_negatives_vec[i]++;
+                            }
+                            else if (i==classifiedIndex && i!=gtIndex)
+                            {
+                                false_positives_vec[i]++;
+                            }
+                            else if (i!=classifiedIndex && i==gtIndex)
+                            {
+                                false_negatives_vec[i]++;
+                            }    
+                       }
                    }
                }
            }
         
-
-
-
             // cout<<"true positives: "<<true_positives<<endl;
             // // compare to sum of true_positives_vec
             // int temp_val = 0;
