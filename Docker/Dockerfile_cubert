@@ -1,4 +1,7 @@
 FROM hypertools_4_2:latest
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 1A127079A92F09ED
+
+RUN apt-get update &&  apt install unzip
 
 RUN cd / &&\
     git clone https://github.com/cubert-hyperspectral/cuvis.sdk.git &&\
@@ -9,8 +12,8 @@ RUN wget https://cloud.cubert-gmbh.de/index.php/s/m1WfR66TjcGl96z/download && \
     unzip download && \
 	cd latest_release && \
     cd Ubuntu\ 20.04/  && \
-	apt install ./cuviscommon_3.2.1-1.deb -y && \
-	dpkg -i --force-overwrite ./libcuvis_3.2.1-1.deb
+	apt install ./cuviscommon_3.2.3-1.deb -y && \
+	dpkg -i --force-overwrite ./libcuvis_3.2.3-1.deb
 
 RUN add-apt-repository ppa:deadsnakes/ppa
 
@@ -54,7 +57,7 @@ RUN cd /cuvis.sdk/ &&\
     cd cuvis.cpp &&\
     git fetch &&\
     git checkout patch-1
-    
+      
 RUN echo 'alias python="/usr/bin/python3.9"' >> ~/.bashrc 
 RUN echo 'alias python3="/usr/bin/python3.9"' >> ~/.bashrc 
 RUN echo 'export CUVIS="/lib/cuvis"' >> ~/.bashrc 

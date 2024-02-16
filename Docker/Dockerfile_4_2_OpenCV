@@ -20,7 +20,6 @@ RUN apt-get install -y \
     glade  \
     git  
 
-
 RUN mkdir -p opencv_build &&\
     cd opencv_build && \
     wget -O opencv.zip https://github.com/opencv/opencv/archive/4.2.0.zip && \
@@ -90,7 +89,6 @@ RUN python3.9 -m pip install  \
     tifffile \
     pyarrow \
     numpy 
-
 
 WORKDIR /home
 
