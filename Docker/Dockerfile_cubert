@@ -17,17 +17,10 @@ RUN add-apt-repository ppa:deadsnakes/ppa
 RUN apt-get update
 
 RUN apt install -y \
-	software-properties-common \
-	python3.9 \
-	python3-pip \
 	doxygen \
 	graphviz \
-	swig \
-	python3.9-dev 
+	swig 
 	
-RUN pip install \
-	numpy 
-
 RUN apt update -y
 
 RUN apt upgrade -y
