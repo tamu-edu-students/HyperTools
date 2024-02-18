@@ -11,7 +11,7 @@ if __name__ == "__main__":
     results_dir = '../HyperImages/LIB-HSI/LIB-HSI/validation/results/'   
     
     # number of spectral similarity algorithms
-    num_algorithms = 14 # includes zero,  14 for hypertools 
+    # num_algorithms = 14 # includes zero,  14 for hypertools 
     
     # to do incorporate time / number of classes? 
     
@@ -20,30 +20,62 @@ if __name__ == "__main__":
     
     files_list = os.listdir(results_dir)
     results_dict_alg = {}
+    temp_counter=0
     for file in files_list:
         # print (file)
         f = open(results_dir + file)
         try: 
+            
             jsonAsDict = json.load(f)
             ss_results = jsonAsDict['Spectral Similarity Algorithm']
-            
+            temp_counter+=1
+            # print(ss_results)
             for alg_num in ss_results:
                 # create dictionary for each algorithm, if it does not exist
+                # print(alg_num)
                 if alg_num not in results_dict_alg:
                     results_dict_alg[alg_num]={}
-                
-                    # print(alg_num)
-                    for alg_results in ss_results[alg_num]:
-                        # print(alg_results)
-                        results_dict_alg[alg_num][alg_results] = ss_results[alg_num][alg_results]
-                else:
-                    for alg_results in ss_results[alg_num]:
-                        results_dict_alg[alg_num][alg_results] += ss_results[alg_num][alg_results]
+                    for key in ss_results[alg_num]:
+                        # print(key)
+                        last_five_chars = key[-5:]
+                        # print(last_five_chars)
+                        if last_five_chars != 'Class':
+                            results_dict_alg[alg_num][key] = ss_results[alg_num][key]
+                else :
+                    for key in ss_results[alg_num]:
+                        last_five_chars = key[-5:]
+                        if last_five_chars != 'Class':
+                            results_dict_alg[alg_num][key] += ss_results[alg_num][key]
+                    
+                # for alg_results in ss_results[alg_num]:
+                #     try:
+                #         results_dict_alg[alg_num][alg_results] += ss_results[alg_num][alg_results]
+                #     except:
+                #         print('Error: ', file)
+                #         results_dict_alg[alg_num][alg_results] = ss_results[alg_num][alg_results]
+                        
+                    # for alg_results in ss_results[alg_num]:
+                    # # print(alg_results)
+                    # results_dict_alg[alg_num][alg_results] = ss_results[alg_num][alg_results]
+            
+                    
+                #     # print(alg_num)
+                #     for alg_results in ss_results[alg_num]:
+                #         # print(alg_results)
+                #         results_dict_alg[alg_num][alg_results] = ss_results[alg_num][alg_results]
+                # else:
+                #     for alg_results in ss_results[alg_num]:
+                #         results_dict_alg[alg_num][alg_results] += ss_results[alg_num][alg_results]
+            # print('Attempting: ', file)
         except:
+            print('Error: ', file)
             pass
-    
-    #print(results_dict_alg)
-    
+        
+        
+    # print(temp_counter)
+    # print(results_dict_alg)
+    # import sys
+    # sys.exit()
     
     # print the results
     # print ('Algorithm, Class Name, Correct, Incorrect, Total')
