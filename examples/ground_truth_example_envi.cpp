@@ -38,7 +38,7 @@ int main (int argc, char *argv[])
     string gt_database="../json/lib_hsi.json";
 
     // used to find average spectrum for each semantic class, not needed if already processed
-    bool get_average_spectrum = false;
+    bool get_average_spectrum = true;
 
     // directory for results with statistics 
     string results_dir = lib_hsi_dir + "results/";

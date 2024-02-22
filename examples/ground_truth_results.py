@@ -5,10 +5,10 @@ import os
 if __name__ == "__main__":
 
     # load lib hsi json file that has the class names
-    f = open('json/lib_hsi.json')
+    f = open('../json/lib_hsi.json')
     
     # location of results json files
-    results_dir = '../HyperImages/LIB-HSI/LIB-HSI/validation/results/'   
+    results_dir = '../../HyperImages/LIB-HSI/LIB-HSI/validation/results/'   
     
     # number of spectral similarity algorithms
     # num_algorithms = 14 # includes zero,  14 for hypertools 
@@ -20,6 +20,7 @@ if __name__ == "__main__":
     
     files_list = os.listdir(results_dir)
     results_dict_alg = {}
+    results_dict_class = {}
     temp_counter=0
     for file in files_list:
         # print (file)
@@ -41,11 +42,42 @@ if __name__ == "__main__":
                         # print(last_five_chars)
                         if last_five_chars != 'Class':
                             results_dict_alg[alg_num][key] = ss_results[alg_num][key]
+                        else:
+                            for class_name in ss_results[alg_num][key]:
+
+                                if alg_num not in results_dict_class:
+                                    results_dict_class[alg_num] = {}
+
+                                if class_name not in results_dict_class[alg_num]:
+                                    results_dict_class[alg_num][class_name] = {}
+
+                                classification_key = key[:-6]
+                                if classification_key not in results_dict_class[alg_num][class_name]:
+
+                                    results_dict_class[alg_num][class_name][classification_key] = ss_results[alg_num][key][class_name]
+                                else:
+                                    results_dict_class[alg_num][class_name][classification_key] += ss_results[alg_num][key][class_name]
+
                 else :
                     for key in ss_results[alg_num]:
                         last_five_chars = key[-5:]
                         if last_five_chars != 'Class':
                             results_dict_alg[alg_num][key] += ss_results[alg_num][key]
+                        else:
+                            for class_name in ss_results[alg_num][key]:
+
+                                if alg_num not in results_dict_class:
+                                    results_dict_class[alg_num] = {}
+
+                                if class_name not in results_dict_class[alg_num]:
+                                    results_dict_class[alg_num][class_name] = {}
+
+                                classification_key = key[:-6]
+                                if classification_key not in results_dict_class[alg_num][class_name]:
+
+                                    results_dict_class[alg_num][class_name][classification_key] = ss_results[alg_num][key][class_name]
+                                else:
+                                    results_dict_class[alg_num][class_name][classification_key] += ss_results[alg_num][key][class_name]
                     
                 # for alg_results in ss_results[alg_num]:
                 #     try:
@@ -71,7 +103,7 @@ if __name__ == "__main__":
             print('Error: ', file)
             pass
         
-        
+    print(results_dict_alg)     
     # print(temp_counter)
     # print(results_dict_alg)
     # import sys
@@ -119,6 +151,24 @@ if __name__ == "__main__":
         print('Precision: ', precision)
         print('F1 Score: ', f1)
         print("Mean Intersection over Union (mIoU): {:.4f}".format(mean_iou), "\n")
+
+        print("Class Metrics")
+
+        for class_name in results_dict_class[item]:
+            class_results = results_dict_class[item][class_name]
+            TP = class_results['True Positive']
+            FP = class_results['False Positive']
+            FN = class_results['False Negative']
+            TN = class_results['True Negative']
+            precision = TP / (TP + FP)
+            recall = TP / (TP + FN)
+            f1 = 2 * (precision * recall) / (precision + recall)
+            print('Class:', class_name)
+            print(TP, FP, FN, TN)
+            print('Recall:', recall)
+            print('Precision:', precision)
+            print('F1 Score:', f1)
+            print()
 
 
     # -----------------------------------------------
