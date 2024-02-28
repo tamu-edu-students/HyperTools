@@ -4,7 +4,7 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 set(CMAKE_CXX_STANDARD 17)
 
 #change below to true to use GPU or false to not use GPU
-set(use_CUDA false) 
+set(use_CUDA true) 
 #change below to true to use cuvis.sdk
 set (use_cuvis true)
 
@@ -61,10 +61,18 @@ if (use_CUDA)
     # set_target_properties(gtk_cuda_example PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
     if (use_cuvis)
-        set_source_files_properties(examples/cuda_cubert_example.c PROPERTIES LANGUAGE CUDA)
+        set_source_files_properties(examples/cuda_cubert_example.cu PROPERTIES LANGUAGE CUDA)
         add_executable(cuda_cubert_example examples/cuda_cubert_example.cu)
         set_target_properties(cuda_cubert_example PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
         target_link_libraries(cuda_cubert_example PRIVATE cuvis::cpp)
+
+
+        set_source_files_properties(examples/real_time_class.cu PROPERTIES LANGUAGE CUDA)
+        add_executable(cuda_real_time_class examples/real_time_class.cu)
+        set_target_properties(cuda_real_time_class PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+        target_link_libraries(cuda_real_time_class PRIVATE cuvis::cpp)
+
+
     else (use_cuvis)
         set_source_files_properties(examples/ground_truth_example_envi.cpp PROPERTIES LANGUAGE CUDA)
         add_executable(gt_stats_cuda examples/ground_truth_example_envi.cpp)

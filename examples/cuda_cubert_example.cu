@@ -187,6 +187,7 @@ int main (int argc, char *argv[])
         char* const distanceLoc =  const_cast<char*>(HyperFunctions1.dist_img.c_str());
         char* const factoryDir =  const_cast<char*>(HyperFunctions1.factory_dir.c_str());
         char* const outDir =  const_cast<char*>(HyperFunctions1.output_dir.c_str());
+        HyperFunctions1.read_ref_spec_json(HyperFunctions1.spectral_database);
 
         cuvis::General::init(userSettingsDir);
         // uncomment below for verbose output from cuvis processing pipeline
@@ -273,6 +274,15 @@ int main (int argc, char *argv[])
                     HyperFunctions1.false_img_r=31;
                     HyperFunctions1.GenerateFalseImg();
                     HyperFunctions1.DispFalseImage();
+                    
+                    
+                    HyperFunctions1.mat_to_oneD_array_parallel_parent();                    
+                    HyperFunctions1.allocate_memory();
+                    // perform classification
+                    HyperFunctions1.spec_sim_alg=2;
+                    HyperFunctions1.semantic_segmentation(); 
+                    HyperFunctions1.DispClassifiedImage();
+                    HyperFunctions1.deallocate_memory();
                     cv::waitKey(0);
             }
 
