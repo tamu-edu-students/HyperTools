@@ -115,7 +115,7 @@ if __name__ == "__main__":
     recallDictAlg = {}
     precisionDictAlg = {}
     f1DictAlg = {}
-
+    miouDictAlg = {}
     for item in results_dict_alg:
 
         FP = results_dict_alg[item]['False Positive']
@@ -135,13 +135,7 @@ if __name__ == "__main__":
         # print('Algorithm: ',item, ', Correct: ', alg_correct,' ',  alg_correct/alg_total*100,'% , Incorrect:', alg_incorrect, ' ', alg_incorrect/alg_total*100,'% , Total:', alg_total)
 
         #calculating miou for each class
-        sum_class_iou = 0.0
-        for i in range(NumClasses):
-     
-            iou = TP / (TP+ FP + FN)
-            sum_class_iou += iou
 
-        mean_iou = sum_class_iou / NumClasses
 
         print("Metrics")
         # recall calculation
@@ -156,6 +150,8 @@ if __name__ == "__main__":
         precisionSum = []
         recallSum = []
         f1Sum = []
+        mIoUSum = []       
+
         for class_name in results_dict_class[item]:
             class_results = results_dict_class[item][class_name]
             TP = class_results['True Positive']
@@ -165,6 +161,7 @@ if __name__ == "__main__":
             precision = TP / (TP + FP)
             recall = TP / (TP + FN)
             f1 = 2 * (precision * recall) / (precision + recall)
+            # -- These Print statements are for each class per algorithm --
             #print('Class:', class_name)
             #print(TP, FP, FN, TN)
             #print('Recall:', recall)
@@ -174,28 +171,38 @@ if __name__ == "__main__":
             #print('F1 Score:', f1)
             f1Sum.append(f1)
             #print()
+
+    
+            mIoUSum.append(TP / (TP+ FP + FN))
+
         
-        print("Average Recall Metrics for Algorithm",item," ", sum(recallSum) / len(recallSum))
         recallDictAlg[item] = sum(recallSum) / len(recallSum)
-        print("Average Precision Metrics for Algorithm", item," ",sum(precisionSum) / len(precisionSum))
         precisionDictAlg[item] = sum(precisionSum) / len(precisionSum)
-        print("Average F1 Metrics for Algorithm",item," ", sum(f1Sum) / len(f1Sum))
         f1DictAlg[item] = sum(f1Sum) / len(f1Sum)
+        miouDictAlg[item] = sum(mIoUSum) / len(mIoUSum)
+
+        print("Average Recall Metrics for Algorithm",item," ", sum(recallSum) / len(recallSum))
+        print("Average Precision Metrics for Algorithm", item," ",sum(precisionSum) / len(precisionSum))
+        print("Average F1 Metrics for Algorithm",item," ", sum(f1Sum) / len(f1Sum))
+        print("mIoU:", sum(mIoUSum) / len(mIoUSum))
         print()
 
     keys = f1DictAlg.keys()
     f1_values = f1DictAlg.values()
     recall_values = recallDictAlg.values()
     precision_values = precisionDictAlg.values()
+    mIou_values = miouDictAlg.values()
 
     barWidth = 0.25
     r1 = np.arange(len(f1_values))
     r2 = [x + barWidth for x in r1]
     r3 = [x + barWidth for x in r2]
+    r4 = [x + barWidth for x in r3]
 
     plt.bar(r1, f1_values, color='b', width=barWidth, edgecolor='grey', label='F1 Score')
     plt.bar(r2, recall_values, color='g', width=barWidth, edgecolor='grey', label='Recall')
     plt.bar(r3, precision_values, color='r', width=barWidth, edgecolor='grey', label='Precision')
+    plt.bar(r4, mIou_values, color='y', width=barWidth, edgecolor='grey', label='mIoU')
 
     plt.title('Metrics by Algorithm')
     plt.xlabel('Algorithm Number')
