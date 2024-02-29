@@ -160,7 +160,6 @@ int main (int argc, char *argv[])
             }
         }
     }
-    // cout<<"total number of pixels: "<<total_num_pixels<<endl;
 
     // stop if there are invalid pixels
     if (!all_pixel_values_valid)
@@ -350,12 +349,10 @@ int main (int argc, char *argv[])
 
 
 
-
     // go through hyperspectral images and perform semantic segmentation for each algorithm
     for (int img_index = 0; img_index < envi_files.size(); img_index++)
     {
         HyperFunctions1.LoadImageHyper(envi_files[img_index]);
-        
         string spec_data_name = spec_database_dir + std::filesystem::path(envi_files[img_index]).stem().string() + ".json";
         HyperFunctions1.read_ref_spec_json(spec_data_name);
         // HyperFunctions1.read_spectral_json(spec_data_name);
@@ -379,15 +376,15 @@ int main (int argc, char *argv[])
 
         // algorithms are from 0-14
         // change below for full test
-        // for (int spec_sim_val=0; spec_sim_val<15; spec_sim_val++)
-        for (int spec_sim_val=0; spec_sim_val<2; spec_sim_val++)
+        for (int spec_sim_val=0; spec_sim_val<15; spec_sim_val++)
+        // for (int spec_sim_val=0; spec_sim_val<2; spec_sim_val++)
         {
             HyperFunctions1.spec_sim_alg = spec_sim_val;
 
             auto start = high_resolution_clock::now();
 
             #if use_cuda 
-            HyperFunctions1.semantic_segmentation();
+            HyperFunctions1.semantic_segmentation(); // error right now with this line causing a seg fault 
             #else
             HyperFunctions1.SemanticSegmenter();
             #endif
