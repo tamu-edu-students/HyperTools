@@ -1,6 +1,5 @@
 FROM nvidia/cuda:12.2.0-devel-ubuntu20.04
 
-
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update
@@ -20,7 +19,6 @@ RUN apt-get install -y \
     libboost-all-dev \
     glade  \
     git  
-
 
 RUN mkdir -p opencv_build &&\
     cd opencv_build && \
@@ -51,7 +49,8 @@ RUN apt-get install -y \
     automake
 
 RUN pip3 install \
-    matplotlib 
+    matplotlib \
+    numpy 
 
 RUN cd / &&\
     git clone git://git.code.sf.net/p/matio/matio &&\
@@ -77,6 +76,19 @@ RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/nul
     apt-get install -y \
     cmake \
     build-essential 
+
+RUN apt install -y \
+	software-properties-common \
+	python3.9 \
+	python3-pip \
+    python3.9-dev 
+
+RUN python3.9 -m pip install  \
+    opencv-python \
+    pandas \
+    tifffile \
+    pyarrow \
+    numpy 
 
 WORKDIR /home
 
