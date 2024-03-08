@@ -41,3 +41,4 @@
 *.DS_Store
 *.log
 *.pyc
+*.pth
