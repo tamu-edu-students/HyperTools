@@ -1,5 +1,7 @@
 FROM hypertools_4_2_cuda:latest
 
+RUN apt-get update &&  apt install unzip
+
 RUN cd / &&\
     git clone https://github.com/cubert-hyperspectral/cuvis.sdk.git &&\
     cd cuvis.sdk &&\
@@ -9,8 +11,8 @@ RUN wget https://cloud.cubert-gmbh.de/index.php/s/m1WfR66TjcGl96z/download && \
     unzip download && \
 	cd latest_release && \
     cd Ubuntu\ 20.04/  && \
-	apt install ./cuviscommon_3.2.1-1.deb -y && \
-	dpkg -i --force-overwrite ./libcuvis_3.2.1-1.deb
+	apt install ./cuviscommon_3.2.3-1.deb -y && \
+	dpkg -i --force-overwrite ./libcuvis_3.2.3-1.deb
 
 RUN add-apt-repository ppa:deadsnakes/ppa
 
