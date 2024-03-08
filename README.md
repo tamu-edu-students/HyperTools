@@ -16,7 +16,7 @@ The Dockerfiles can be built with the following command (Note: They only need to
 
 `docker build -t <image_name> -f <Dockerfile_name> .`
 
-The recommended image_names file name paris are as follows to be replaced in the above command: 
+The recommended image_names file name pairs are as follows to be replaced in the above command: 
 - hypertools_4_2, Dockerfile_4_2_OpenCV
 - hypertools_4_2_cuda, Dockerfile_4_2_OpenCV_cuda
 - hypertools_cubert, Dockerfile_cubert
