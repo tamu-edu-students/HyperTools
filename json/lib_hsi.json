@@ -219,6 +219,11 @@
             "name": "Wood/Timber Profiled Door",
             "color_hex_code": "#c98d96",
             "class_group": 7
+        },
+        {
+            "name": "Unknown",
+            "color_hex_code": "#000000",
+            "class_group": 99
         }
     ]
 }
