@@ -1,5 +1,7 @@
 FROM hypertools_4_2_cuda:latest
 
+RUN apt-get update &&  apt install unzip
+
 RUN cd / &&\
     git clone https://github.com/cubert-hyperspectral/cuvis.sdk.git &&\
     cd cuvis.sdk &&\

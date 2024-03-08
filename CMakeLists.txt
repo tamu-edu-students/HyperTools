@@ -43,7 +43,7 @@ if (use_CUDA)
     add_definitions(-Duse_cuda)
     enable_language(CUDA)
     set (CMAKE_CUDA_STANDARD 17)
-    set (CMAKE_CUDA_COMPILER /usr/local/cuda-12.2/bin/nvcc) 
+    set (CMAKE_CUDA_COMPILER /usr/local/cuda-12.3/bin/nvcc) 
     set(CMAKE_CUDA_STANDARD_REQUIRED ON)
 
     if(NOT DEFINED CMAKE_CUDA_ARCHITECTURES)

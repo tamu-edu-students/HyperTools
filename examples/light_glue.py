@@ -288,8 +288,8 @@ if __name__ == "__main__":
 
     # load hyperspectral image 
     # chan, x, y
-    # cube1 = load_hsi("../HyperImages/img1.tiff")
-    # cube2 = load_hsi("../HyperImages/img2.tiff")
+    cube1 = load_hsi("../HyperImages/img1.tiff")
+    cube2 = load_hsi("../HyperImages/img2.tiff")
     
     # cube1 = load_hsi('../HyperImages/cornfields/session_002/session_002_490.cu3')
     
@@ -304,11 +304,11 @@ if __name__ == "__main__":
     # used for cu3 files
     # cube1 = reprocessMeasurement(userSettingsDir,measurementLoc,darkLoc,whiteLoc,distanceLoc,factoryDir)
    
-    cube1= reprocessMeasurement_cu3s(userSettingsDir,measurementLoc,darkLoc,whiteLoc,distance,factoryDir)
+    # cube1= reprocessMeasurement_cu3s(userSettingsDir,measurementLoc,darkLoc,whiteLoc,distance,factoryDir)
 
-    measurementLoc = "../HyperImages/export/Test_002.cu3s"
+    # measurementLoc = "../HyperImages/export/Test_002.cu3s"
 
-    cube2= reprocessMeasurement_cu3s(userSettingsDir,measurementLoc,darkLoc,whiteLoc,distance,factoryDir)
+    # cube2= reprocessMeasurement_cu3s(userSettingsDir,measurementLoc,darkLoc,whiteLoc,distance,factoryDir)
     
     # sys.exit()
     #use below to set the both images to be the same
