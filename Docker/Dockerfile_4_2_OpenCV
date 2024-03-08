@@ -20,8 +20,8 @@ RUN apt-get install -y \
     glade  \
     git  
 
-
-RUN mkdir -p opencv_build cd opencv_build && \
+RUN mkdir -p opencv_build &&\
+    cd opencv_build && \
     wget -O opencv.zip https://github.com/opencv/opencv/archive/4.2.0.zip && \
     wget -O opencv_contrib.zip https://github.com/opencv/opencv_contrib/archive/4.2.0.zip && \
     unzip opencv.zip &&\
@@ -29,32 +29,28 @@ RUN mkdir -p opencv_build cd opencv_build && \
     unzip opencv_contrib.zip &&\
     rm opencv_contrib.zip && \
     mkdir -p build && \ 
-    cd build 
-
-
-RUN cmake \
+    cd build &&\
+    cmake \
     -DOPENCV_ENABLE_NONFREE:BOOL=ON  \
     -DOPENCV_EXTRA_MODULES_PATH=../opencv_contrib-4.2.0/modules  ../opencv-4.2.0/     \
-    -D OPENCV_GENERATE_PKGCONFIG=ON 
-
-
-
-RUN make -j$(nproc) &&\
+    -D OPENCV_GENERATE_PKGCONFIG=ON &&\
+    make -j$(nproc) &&\
     make install && \
     ldconfig
  
 RUN apt-get install -y \
     language-pack-en-base \
     libgdal-dev \
-    pip \
+    python3-pip \
     python3-tk \
     libhdf5-dev \
     libtool \
     m4 \
     automake
 
-RUN pip install \
-    matplotlib 
+RUN pip3 install \
+    matplotlib \
+    numpy 
 
 RUN cd / &&\
     git clone git://git.code.sf.net/p/matio/matio &&\
@@ -76,12 +72,23 @@ RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/nul
     apt update && \
     apt install kitware-archive-keyring -y && \
     rm /etc/apt/trusted.gpg.d/kitware.gpg && \
-    apt update && \
-    apt install cmake -y && \
-    apt-get install build-essential -y 
+    apt-get update && \
+    apt-get install -y \
+    cmake \
+    build-essential 
+
+RUN apt install -y \
+	software-properties-common \
+	python3.9 \
+	python3-pip \
+    python3.9-dev 
+
+RUN python3.9 -m pip install  \
+    opencv-python \
+    pandas \
+    tifffile \
+    pyarrow \
+    numpy 
 
 WORKDIR /home
-
-RUN cd /home &&\
-    bash
 
