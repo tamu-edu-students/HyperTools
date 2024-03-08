@@ -28,8 +28,7 @@ link_directories(${GTK3_LIBRARY_DIRS})
 link_libraries(jsoncpp ${GTK3_LIBRARIES} ${OpenCV_LIBS} ${GDAL_LIBRARY} ${MATIO_LIBRARIES})
 
 
-include_directories(${ONNX_INCLUDE_DIRS})
-link_libraries(${ONNX_LIBRARIES})
+
 
 if (use_cuvis)
     list(APPEND CMAKE_MODULE_PATH "/cuvis.sdk/cuvis.cpp/")
@@ -102,6 +101,8 @@ endif(use_CUDA)
 
 if (use_onnx)
 # Include ONNX
+include_directories(${ONNX_INCLUDE_DIRS})
+link_libraries(${ONNX_LIBRARIES})
 set(onnxruntime_INCLUDE_DIRS ${onnxruntime_INSTALL_PREFIX}/include)
 find_library(ONNXRUNTIME_LIBRARY NAMES onnxruntime PATHS /home/onnxruntime/build/Linux/Release NO_DEFAULT_PATH)
 

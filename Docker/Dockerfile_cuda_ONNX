@@ -1,4 +1,4 @@
-FROM hypertools_onnx:latest
+FROM hypertools_cuda_ml:latest
 
 
 # build order 

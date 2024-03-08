@@ -13,6 +13,9 @@
 [submodule "submodules/HyperspectralDatasets"]
 	path = submodules/HyperspectralDatasets
 	url = https://github.com/antmedellin/HyperspectralDatasets.git
+[submodule "submodules/SfM_pipeline"]
+	path = submodules/SfM_pipeline
+	url = https://github.com/tamu-edu-students/SfM_pipeline.git
 [submodule "submodules/mono-vo"]
 	path = submodules/mono-vo
 	url = https://github.com/tamu-edu-students/mono-vo.git
