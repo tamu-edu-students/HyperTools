@@ -57,7 +57,8 @@
 			"ms-azuretools.vscode-docker",
 			"streetsidesoftware.code-spell-checker",
 			"ms-vscode.cpptools",
-			"ms-vscode.cpptools-extension-pack"
+			"ms-vscode.cpptools-extension-pack",
+			"ms-toolsai.jupyter"
 
 			]
 		}

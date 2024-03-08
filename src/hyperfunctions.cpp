@@ -1860,26 +1860,71 @@ void HyperFunctions::PCA_img(bool isImage1 = true)
 
     Mat principal_components = pca.eigenvectors;
 
+
+    // below is for rgb image 
     vector<Mat> ReducedImage;
     for (int i = 0; i < reduced_image_layers; i++)
     {
-        Mat layer = principal_components * data.t();
+        
+        Mat point = pca.project(data.row(i));
+        Mat reconstruction = pca.backProject(point);
+       
+        // cv::Size s = reconstruction.size();
+        // int rows = s.height;
+        // int cols = s.width;
+
+        // std::cout << "Number of rows : " << rows << std::endl;
+        // std::cout << "Number of cols : " << cols << std::endl;
+
+
         // Mat layer = principal_components.row(i)*data.t();
         // layer = pca.backProject(layer);
-        // layer = layer.reshape(inputImage[0].channels(), inputImage[0].rows); // reshape from a row vector into image shape
+        Mat layer = reconstruction.reshape(inputImage[0].channels(), inputImage[0].rows);  // reshape from a row vector into image shape
+        // Mat layer = principal_components * data.t();
         layer = toGrayscale(layer);
         ReducedImage.push_back(layer);
+        // cout<<"layer size: "<<layer.size()<<endl;
+        // cout<<"layer rows: "<<layer.rows<<endl;
+        // cout<<"layer cols: "<<layer.cols<<endl;
+        // cout<<"layer type: "<<layer.type()<<endl;
     }
+
 
     // imshow("PCA Results", ReducedImage);
     // imwritemulti(reduced_file_path,ReducedImage);
 
-    // Demonstration of the effect of retainedVariance on the first image
-    Mat point = pca.project(data.row(0));                                                  // project into the eigenspace, thus the image becomes a "point"
-    Mat reconstruction = pca.backProject(point);                                           // re-create the image from the "point"
-    reconstruction = reconstruction.reshape(inputImage[0].channels(), inputImage[0].rows); // reshape from a row vector into image shape
-    reconstruction = toGrayscale(reconstruction);                                          // re-scale for displaying purposes
-    pca_img = reconstruction;
-    // not writing multiple layers yet because some versions of opencv do not have the function
-    // imwritemulti(reduced_file_path,reconstruction);
+    vector<Mat> channels(3);
+    Mat temp_false_img;
+    channels[0] = ReducedImage[0]; // b
+    // cout<<"0 size: "<<ReducedImage[0].size()<<endl;
+    // cout<<"0 type: "<<ReducedImage[0].type()<<endl;
+    // cout<<"0 channels: "<<ReducedImage[0].channels()<<endl;
+    channels[1] = ReducedImage[1]; // g
+    // cout<<"1 size: "<<ReducedImage[1].size()<<endl;
+    // cout<<"1 type: "<<ReducedImage[1].type()<<endl;
+    // cout<<"1 channels: "<<ReducedImage[1].channels()<<endl;
+    channels[2] = ReducedImage[2]; // r
+    // cout<<"2 size: "<<ReducedImage[2].size()<<endl;
+    // cout<<"2 type: "<<ReducedImage[2].type()<<endl;
+    // cout<<"2 channels: "<<ReducedImage[2].channels()<<endl;
+    merge(channels, temp_false_img);      // create new single channel image
+    // imshow("PCA Results RGB0", ReducedImage[0]);
+    // imshow("PCA Results RGB1", ReducedImage[1]);
+    // imshow("PCA Results RGB2", ReducedImage[2]);
+    // cv::waitKey(0);
+    pca_img = temp_false_img;
+    // cout<<"pca_img size: "<<pca_img.size()<<endl;
+    // cout<<"pca_img type: "<<pca_img.type()<<endl;
+    // cout<<"pca_img channels: "<<pca_img.channels()<<endl;
+    imwrite("../images/pca_result.png", pca_img);
+
+    // // below is for grey scale image
+    // // Demonstration of the effect of retainedVariance on the first image
+    // Mat point = pca.project(data.row(0));                                                  // project into the eigenspace, thus the image becomes a "point"
+    // Mat reconstruction = pca.backProject(point);                                           // re-create the image from the "point"
+    // reconstruction = reconstruction.reshape(inputImage[0].channels(), inputImage[0].rows); // reshape from a row vector into image shape
+    // reconstruction = toGrayscale(reconstruction);                                          // re-scale for displaying purposes
+    // pca_img = reconstruction;
+    // // not writing multiple layers yet because some versions of opencv do not have the function
+    // // imwritemulti(reduced_file_path,reconstruction);
 }
