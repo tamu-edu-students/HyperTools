@@ -19,3 +19,9 @@
 [submodule "submodules/mono-vo"]
 	path = submodules/mono-vo
 	url = https://github.com/tamu-edu-students/mono-vo.git
+[submodule "submodules/dinov2"]
+	path = submodules/dinov2
+	url = https://github.com/sefaburakokcu/dinov2.git
+[submodule "submodules/dinov2_onnx"]
+	path = submodules/dinov2_onnx
+	url = https://github.com/sefaburakokcu/dinov2_onnx.git
