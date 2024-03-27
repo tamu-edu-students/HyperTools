@@ -91,10 +91,10 @@ else(use_CUDA)
     else (use_cuvis)
         # add_executable(semantic_interface examples/semantic_segmentation.cpp)
         # add_executable(feature_tool examples/feature_tool.cpp)
-        add_executable(feature_testing examples/feature_testing.cpp)
-        add_executable(ground_truth_example_envi examples/ground_truth_example_envi.cpp)
+        #add_executable(feature_testing examples/feature_testing.cpp)
+        #add_executable(ground_truth_example_envi examples/ground_truth_example_envi.cpp)
         # add_executable(ground_truth_example examples/ground_truth_example.cpp)
-        add_executable(image_tool examples/image_tool.cpp)
+        #add_executable(image_tool examples/image_tool.cpp)
 
     endif()
 
@@ -104,7 +104,7 @@ if(use_torch)
     
     # list(CMAKE_MODULE_PATH "/torch/libtorch/share/cmake/Torch/")
     set(Torch_DIR "/torch/libtorch/share/cmake/Torch/")
-
+    
     # list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/libtorch/share/cmake/Torch/")
 
     find_package(Torch REQUIRED)
