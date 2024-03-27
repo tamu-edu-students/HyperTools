@@ -8,6 +8,8 @@ set(use_CUDA false)
 #change below to true to use cuvis.sdk
 set (use_cuvis false)
 
+set(use_torch true)
+
 if (use_CUDA)
 # Define project name
 project(hypertools_project C CXX CUDA)
@@ -97,3 +99,19 @@ else(use_CUDA)
     endif()
 
 endif(use_CUDA)
+
+if(use_torch)
+    
+    # list(CMAKE_MODULE_PATH "/torch/libtorch/share/cmake/Torch/")
+    set(Torch_DIR "/torch/libtorch/share/cmake/Torch/")
+
+    # list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/libtorch/share/cmake/Torch/")
+
+    find_package(Torch REQUIRED)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
+    add_executable(torch_example examples/torch_example.cpp)
+    target_link_libraries(torch_example ${TORCH_LIBRARIES})
+    set_property(TARGET torch_example PROPERTY CXX_STANDARD 17)
+
+
+endif(use_torch)

@@ -1,0 +1,16 @@
+FROM hypertools_cuda_ml:latest
+
+RUN cd / &&\
+    mkdir torch &&\
+    cd torch/ &&\ 
+    wget https://download.pytorch.org/libtorch/cu121/libtorch-shared-with-deps-2.2.1%2Bcu121.zip &&\
+    wget https://download.pytorch.org/libtorch/cu121/libtorch-cxx11-abi-shared-with-deps-2.2.1%2Bcu121.zip &&\
+    unzip libtorch-shared-with-deps-2.2.1+cu121.zip 
+
+
+
+WORKDIR /home
+
+RUN cd /home &&\
+    bash
+
