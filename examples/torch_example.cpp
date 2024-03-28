@@ -1,8 +1,15 @@
+
+
+#include <iostream>
+#include "opencv2/opencv.hpp"
+#include <cmath>
+#include "../src/hyperfunctions.cpp"
+
 #include <torch/torch.h>
 #include <torch/script.h> 
 #include <iostream>
 #include <memory>
-#include <opencv2/opencv.hpp>
+// #include <opencv2/opencv.hpp>
 
 
 using namespace std;
@@ -65,7 +72,7 @@ int main() {
   torch::jit::script::Module module;
   
     try {
-        module = torch::jit::load("/workspaces/HyperTools/dino_vitb16_model.pt");
+        module = torch::jit::load("/workspaces/HyperTools/dino_vitb16_model_test.pt");
     }
     catch (const c10::Error& e) {
         std::cerr << "Error loading the model\n";
@@ -73,36 +80,77 @@ int main() {
     }
 
 
-   Mat test_img =  imread("../images/lena3.png");
+   cv::Mat test_img =  cv::imread("../images/lena3.png");
    // resize to 224, 224
     cv::resize(test_img,test_img,Size(224,224),INTER_LINEAR); 
 
 
-  //  imshow("test", test_img);
+   imshow("test", test_img);
 
-  //  waitKey();
+   waitKey();
 
 
-    // // Create a vector of inputs.
-    // std::vector<torch::jit::IValue> inputs;
-    // inputs.push_back(torch::ones({1, 3, 224, 224}));
+// // Convert the image to float and normalize to [0, 1]
+// test_img.convertTo(test_img, CV_32F, 1.0 / 255);
+
+// // Create a tensor from the image
+// auto test_tensor = torch::from_blob(test_img.data, {1, test_img.rows, test_img.cols, 3});
+
+// // Change the dimensions from BxHxWxC to BxCxHxW
+// test_tensor = test_tensor.permute({0, 3, 1, 2});
+
+// // Create a vector of inputs
+// std::vector<torch::jit::IValue> inputs;
+// inputs.push_back(test_tensor);
+
+
+
+    // Create a vector of inputs.
+    std::vector<torch::jit::IValue> inputs;
+    inputs.push_back(torch::ones({1, 3, 224, 224}));
 
     // // Execute the model and turn its output into a tensor.
     // at::Tensor output = module.forward(inputs).toTensor();
-    // std::cout << "here " <<output.slice(/*dim=*/1, /*start=*/0, /*end=*/5) << '\n';
+    // // std::cout << "here " <<output.slice(/*dim=*/1, /*start=*/0, /*end=*/5) << '\n';
 
     // cout<<"test "<<endl;
     // cout<<output<<endl;
 
-    cv::Mat image = test_img;
-    float smaller_edge_size = 224.0; // Replace with the actual size
-    int patch_size = 16; // Replace with the actual patch size
-    auto [image_tensor, grid_size] = prepare_image(image, smaller_edge_size, patch_size);
 
-    // Extract features from the image
-    torch::Device device(torch::kCPU); // Use torch::kCUDA if you have a GPU
-    bool half_precision = false; // Set to true if you want to use half precision
-    std::vector<float> features = extract_features(image_tensor, module, device, half_precision);
+// Execute the model and get the output.
+auto output = module.forward(inputs);
+
+// Check if the output is a tuple
+if (output.isTuple()) {
+    auto output_tuple = output.toTuple();
+
+    // Print the size of the tuple
+    std::cout << "Tuple size: " << output_tuple->elements().size() << std::endl;
+
+    // Access the elements of the tuple
+    for (size_t i = 0; i < output_tuple->elements().size(); ++i) {
+        auto element = output_tuple->elements()[i];
+
+        // Check if the element is a tensor and print it
+        if (element.isTensor()) {
+            std::cout << "Element " << i << ": " << element.toTensor() << std::endl;
+        }
+    }
+} else {
+    std::cerr << "Output is not a tuple\n";
+}
+
+
+
+    // cv::Mat image = test_img;
+    // float smaller_edge_size = 224.0; // Replace with the actual size
+    // int patch_size = 16; // Replace with the actual patch size
+    // auto [image_tensor, grid_size] = prepare_image(image, smaller_edge_size, patch_size);
+
+    // // Extract features from the image
+    // torch::Device device(torch::kCPU); // Use torch::kCUDA if you have a GPU
+    // bool half_precision = false; // Set to true if you want to use half precision
+    // std::vector<float> features = extract_features(image_tensor, module, device, half_precision);
 
     // // Print the features
     // for (float feature : features) {

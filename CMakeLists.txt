@@ -17,6 +17,7 @@ else(use_CUDA)
 project(hypertools_project C CXX )
 endif(use_CUDA)
 
+
 find_package(OpenCV  REQUIRED)
 find_package(PkgConfig REQUIRED)
 find_package(GDAL REQUIRED)
@@ -91,10 +92,10 @@ else(use_CUDA)
     else (use_cuvis)
         # add_executable(semantic_interface examples/semantic_segmentation.cpp)
         # add_executable(feature_tool examples/feature_tool.cpp)
-        #add_executable(feature_testing examples/feature_testing.cpp)
-        #add_executable(ground_truth_example_envi examples/ground_truth_example_envi.cpp)
+        # add_executable(feature_testing examples/feature_testing.cpp)
+        # add_executable(ground_truth_example_envi examples/ground_truth_example_envi.cpp)
         # add_executable(ground_truth_example examples/ground_truth_example.cpp)
-        #add_executable(image_tool examples/image_tool.cpp)
+        add_executable(image_tool examples/image_tool.cpp)
 
     endif()
 
@@ -110,7 +111,7 @@ if(use_torch)
     find_package(Torch REQUIRED)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
     add_executable(torch_example examples/torch_example.cpp)
-    target_link_libraries(torch_example ${TORCH_LIBRARIES})
+    target_link_libraries(torch_example ${TORCH_LIBRARIES} ${OpenCV_LIBS})
     set_property(TARGET torch_example PROPERTY CXX_STANDARD 17)
 
 
