@@ -3,7 +3,7 @@
 #include <iostream>
 #include "opencv2/opencv.hpp"
 #include <cmath>
-#include "../src/hyperfunctions.cpp"
+// #include "../src/hyperfunctions.cpp"
 
 #include <torch/torch.h>
 #include <torch/script.h> 
@@ -15,7 +15,7 @@
 using namespace std;
 using namespace cv;
 
-
+/*
 std::vector<float> extract_features(torch::Tensor image_tensor, torch::jit::script::Module& model, torch::Device device, bool half_precision) {
     // Add a new dimension at the beginning of the tensor and set the tensor to the device
     if (half_precision) {
@@ -59,7 +59,7 @@ std::pair<torch::Tensor, std::pair<int, int>> prepare_image(cv::Mat& image, floa
     int grid_width = cropped_width / patch_size;
 
     return {image_tensor.clone(), {grid_height, grid_width}};
-}
+}*/
 
 int main() {
   // torch::Tensor tensor = torch::rand({2, 3});
@@ -85,29 +85,29 @@ int main() {
     cv::resize(test_img,test_img,Size(224,224),INTER_LINEAR); 
 
 
-   imshow("test", test_img);
+//    cv::imshow("test", test_img);
 
-   waitKey();
+//    cv::waitKey();
 
 
 // // Convert the image to float and normalize to [0, 1]
-// test_img.convertTo(test_img, CV_32F, 1.0 / 255);
+test_img.convertTo(test_img, CV_32F, 1.0 / 255);
 
 // // Create a tensor from the image
-// auto test_tensor = torch::from_blob(test_img.data, {1, test_img.rows, test_img.cols, 3});
+auto test_tensor = torch::from_blob(test_img.data, {1, test_img.rows, test_img.cols, 3});
 
 // // Change the dimensions from BxHxWxC to BxCxHxW
-// test_tensor = test_tensor.permute({0, 3, 1, 2});
+test_tensor = test_tensor.permute({0, 3, 1, 2});
 
 // // Create a vector of inputs
-// std::vector<torch::jit::IValue> inputs;
-// inputs.push_back(test_tensor);
+std::vector<torch::jit::IValue> inputs;
+inputs.push_back(test_tensor);
 
 
 
     // Create a vector of inputs.
-    std::vector<torch::jit::IValue> inputs;
-    inputs.push_back(torch::ones({1, 3, 224, 224}));
+    // std::vector<torch::jit::IValue> inputs;
+    // inputs.push_back(torch::ones({1, 3, 224, 224}));
 
     // // Execute the model and turn its output into a tensor.
     // at::Tensor output = module.forward(inputs).toTensor();
