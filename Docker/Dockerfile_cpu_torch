@@ -1,4 +1,4 @@
-FROM hypertools_onnx:latest
+FROM hypertools_4_2:latest
 
 RUN cd / &&\
     mkdir torch &&\
@@ -12,3 +12,6 @@ WORKDIR /home
 
 RUN cd /home &&\
     bash
+
+
+
