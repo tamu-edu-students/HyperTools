@@ -12,3 +12,6 @@ WORKDIR /home
 
 RUN cd /home &&\
     bash
+
+
+
