@@ -3,7 +3,9 @@
 #include <iostream>
 #include "opencv2/opencv.hpp"
 #include <cmath>
-// #include "../src/hyperfunctions.cpp"
+#include "../src/hyperfunctions.cpp"
+#include "opencv2/features2d.hpp"
+#include "opencv2/xfeatures2d.hpp"
 
 #include <torch/torch.h>
 #include <torch/script.h> 
@@ -14,51 +16,6 @@
 
 using namespace std;
 
-/*
-std::vector<float> extract_features(torch::Tensor image_tensor, torch::jit::script::Module& model, torch::Device device, bool half_precision) {
-    // Add a new dimension at the beginning of the tensor and set the tensor to the device
-    if (half_precision) {
-        image_tensor = image_tensor.unsqueeze(0).to(torch::kHalf).to(device);
-    } else {
-        image_tensor = image_tensor.unsqueeze(0).to(device);
-    }
-
-    // Pass the tensor through the model
-    std::vector<torch::jit::IValue> inputs;
-    inputs.push_back(image_tensor);
-    torch::Tensor output = model.forward(inputs).toTensor();
-
-    // Convert the output to a CPU tensor and then to a standard array
-    output = output.squeeze().to(torch::kCPU);
-    cout<<"output size "<<output.sizes()<<endl;
-
-    std::vector<float> output_array(output.data_ptr<float>(), output.data_ptr<float>() + output.numel());
-
-    return output_array;
-}
-
-std::pair<torch::Tensor, std::pair<int, int>> prepare_image(cv::Mat& image, float smaller_edge_size, int patch_size) {
-    // Apply the transformation to the image
-    // This is a placeholder. You'll need to replace this with the actual transformation.
-    cv::resize(image, image, cv::Size(), smaller_edge_size / image.cols, smaller_edge_size / image.rows);
-
-    // Convert the OpenCV image to a Torch tensor
-    torch::Tensor image_tensor = torch::from_blob(image.data, {image.rows, image.cols, image.channels()}, torch::kByte);
-    image_tensor = image_tensor.permute({2, 0, 1}); // C x H x W
-
-    // Crop the image to dimensions that are a multiple of the patch size
-    int height = image_tensor.size(1);
-    int width = image_tensor.size(2);
-    int cropped_height = height - height % patch_size;
-    int cropped_width = width - width % patch_size;
-    image_tensor = image_tensor.slice(1, 0, cropped_height).slice(2, 0, cropped_width);
-
-    // Calculate the grid size
-    int grid_height = cropped_height / patch_size;
-    int grid_width = cropped_width / patch_size;
-
-    return {image_tensor.clone(), {grid_height, grid_width}};
-}*/
 
 c10::intrusive_ptr<torch::ivalue::Tuple> run_model_on_image(const cv::Mat& input_img, torch::jit::script::Module& module) {
     cv::Mat img;
@@ -86,14 +43,16 @@ c10::intrusive_ptr<torch::ivalue::Tuple> run_model_on_image(const cv::Mat& input
     }
 
     auto output_tuple = output.toTuple();
-    std::cout << "Tuple size: " << output_tuple->elements().size() << std::endl;
+    // std::cout << "Tuple size: " << output_tuple->elements().size() << std::endl;
 
-    for (size_t i = 0; i < output_tuple->elements().size(); ++i) {
-        auto element = output_tuple->elements()[i];
-        if (element.isTensor()) {
-            // std::cout << "Element " << i << ": " << element.toTensor() << std::endl;
-        }
-    }
+    // for (size_t i = 0; i < output_tuple->elements().size(); ++i) {
+    //     auto element = output_tuple->elements()[i];
+    //     if (element.isTensor()) {
+    //         // std::cout << "Element " << i << ": " << element.toTensor() << std::endl;
+    //        torch::ScalarType dtype = element.toTensor().scalar_type();
+    //         std::cout << "Element " << i << " data type: " << dtype << std::endl;
+    //     }
+    // }
 
     // Return the entire output tuple
     return output_tuple;
@@ -109,10 +68,10 @@ cv::Mat tensorToMat(torch::Tensor tensor, bool is_gray=false) {
         std::cerr << "Tensor does not have 2 or 3 dimensions\n";
         return cv::Mat();
     }
-    tensor = tensor.mul(255).clamp(0, 255).to(torch::kU8);
-    tensor = tensor.to(torch::kCPU);
-    cv::Mat mat(cv::Size{tensor.size(1), tensor.size(0)}, is_gray ? CV_8UC1 : CV_8UC3);
-    std::memcpy((void*)mat.data, tensor.data_ptr(), sizeof(torch::kU8)*tensor.numel());
+    tensor = tensor.to(torch::kF32);
+    // cv::Mat mat(cv::Size{tensor.size(1), tensor.size(0)}, CV_32FC1);
+    cv::Mat mat(cv::Size{static_cast<int>(tensor.size(1)), static_cast<int>(tensor.size(0))}, CV_32F);
+    std::memcpy((void*)mat.data, tensor.data_ptr(), sizeof(float)*tensor.numel());
     return mat.clone();
 }
 
@@ -134,23 +93,48 @@ int main() {
         return -1;
     }
 
-   cv::Mat test_img =  cv::imread("../images/lena3.png");
 
 
-    c10::intrusive_ptr<torch::ivalue::Tuple> output1 = run_model_on_image(test_img, module);
+    // cv::Mat img1 = cv::imread("../images/lena3.png");
+    // cv::Mat img2 = cv::imread("../images/pca_result.png");
+    HyperFunctions HyperFunctions1; 
+    string file_name1="../../HyperImages/img1.tiff";
+    HyperFunctions1.LoadImageHyper(file_name1);
+    HyperFunctions1.false_img_b=2;
+    HyperFunctions1.false_img_g=13;
+    HyperFunctions1.false_img_r=31;
+    HyperFunctions1.GenerateFalseImg();
+
+    cv::Mat img1 = HyperFunctions1.false_img.clone();
+
+    HyperFunctions1.false_img_b=78;
+    HyperFunctions1.false_img_g=45;
+    HyperFunctions1.false_img_r=20;
+    HyperFunctions1.GenerateFalseImg();
+
+    cv::Mat img2 = HyperFunctions1.false_img.clone();
 
 
-    c10::intrusive_ptr<torch::ivalue::Tuple> output2 = run_model_on_image(test_img, module);
+cv::resize(img1, img1, cv::Size(224, 224), cv::INTER_LINEAR);
+cv::resize(img2, img2, cv::Size(224, 224), cv::INTER_LINEAR);
 
 
+    c10::intrusive_ptr<torch::ivalue::Tuple> output1 = run_model_on_image(img1, module);
+
+    c10::intrusive_ptr<torch::ivalue::Tuple> output2 = run_model_on_image(img2, module);
 
     // Convert the output tensors to cv::Mat
     cv::Mat features1 = tensorToMat(output1->elements()[0].toTensor());
     cv::Mat features2 = tensorToMat(output2->elements()[0].toTensor());
 
-    // Convert the cv::Mat objects to CV_32F
-    features1.convertTo(features1, CV_32F);
-    features2.convertTo(features2, CV_32F);
+
+    // // Convert the cv::Mat objects to grayscale
+    // cv::cvtColor(features1, features1, cv::COLOR_BGR2GRAY);
+    // cv::cvtColor(features2, features2, cv::COLOR_BGR2GRAY);
+
+    // // Convert the cv::Mat objects to CV_32F
+    // features1.convertTo(features1, CV_32F);
+    // features2.convertTo(features2, CV_32F);
 
 
 
@@ -158,7 +142,84 @@ int main() {
     std::cout << "features1 shape: " << features1.rows << " x " << features1.cols << std::endl;
     std::cout << "features2 shape: " << features2.rows << " x " << features2.cols << std::endl;
 
+    std::vector<cv::KeyPoint> keypoints1, keypoints2;
 
+
+
+    // Assuming grid_size and resize_scale are defined
+    int grid_size = 14;
+
+    int resize_scale = 224;
+
+    // Convert features to keypoints
+    for (int i = 0; i < (resize_scale/14); i++) {
+        for(int j = 0; j < (resize_scale/14); j++) {
+            int row, col;
+
+            row = i * grid_size + grid_size / 2;
+            col = j * grid_size + grid_size / 2;
+            
+            keypoints1.push_back(cv::KeyPoint(cv::Point2f(col, row), 1));
+        }
+    }
+
+    keypoints2 = keypoints1;
+
+/*
+   // print features size and type
+    cout<<"features1 size and type "<<features1.size()<<" "<<features1.type()<<endl;
+    cout<<"features2 size and type "<<features2.size()<<" "<<features2.type()<<endl;
+
+
+    cv::Mat img1 = cv::imread("../images/lena3.png");
+    cv::Mat img2 = cv::imread("../images/lena3.png");
+
+    cv::resize(img1, img1, cv::Size(224, 224), cv::INTER_LINEAR);
+    cv::resize(img2, img2, cv::Size(224, 224), cv::INTER_LINEAR);
+
+
+ //-- Step 1: Detect the keypoints using SURF Detector, compute the descriptors
+ int minHessian = 400;
+ cv::Ptr<cv::xfeatures2d::SURF> detector = cv::xfeatures2d::SURF::create( minHessian );
+ std::vector<cv::KeyPoint> keypoints1, keypoints2;
+ cv::Mat descriptors1, descriptors2;
+ detector->detectAndCompute( img1, cv::noArray(), keypoints1, descriptors1 );
+ detector->detectAndCompute( img2, cv::noArray(), keypoints2, descriptors2 );
+
+ */
+ //-- Step 2: Matching descriptor vectors with a FLANN based matcher
+ // Since SURF is a floating-point descriptor NORM_L2 is used
+ cv::Ptr<cv::DescriptorMatcher> matcher = cv::DescriptorMatcher::create(cv::DescriptorMatcher::FLANNBASED);
+ std::vector< std::vector<cv::DMatch> > knn_matches;
+//  matcher->knnMatch( descriptors1, descriptors2, knn_matches, 2 );
+ matcher->knnMatch( features1, features2, knn_matches, 2 );
+
+ //-- Filter matches using the Lowe's ratio test
+
+//  cout<<"descriptor size and type "<<descriptors1.size()<<" "<<descriptors1.type()<<endl;
+// cout<<"descriptor size and type "<<descriptors2.size()<<" "<<descriptors2.type()<<endl;
+ const float ratio_thresh = 0.9f;
+ std::vector<cv::DMatch> good_matches;
+ for (size_t i = 0; i < knn_matches.size(); i++)
+ {
+ if (knn_matches[i][0].distance < ratio_thresh * knn_matches[i][1].distance)
+ {
+ good_matches.push_back(knn_matches[i][0]);
+ }
+ }
+
+cout<<"good matches size "<<good_matches.size()<<endl;
+ 
+ //-- Draw matches
+ cv::Mat img_matches;
+ // get keypoints from grid
+ cv::drawMatches( img1, keypoints1, img2, keypoints2, good_matches, img_matches, cv::Scalar::all(-1),
+ cv::Scalar::all(-1), std::vector<char>(), cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS );
+//  -- Show detected matches
+ cv::imshow("Good Matches", img_matches );
+ cv::waitKey();
+
+ 
 /*
 // Ensure that features1 and features2 have the same number of rows
 if (features1.rows < features2.rows) {

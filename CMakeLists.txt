@@ -95,7 +95,7 @@ else(use_CUDA)
         # add_executable(feature_testing examples/feature_testing.cpp)
         # add_executable(ground_truth_example_envi examples/ground_truth_example_envi.cpp)
         # add_executable(ground_truth_example examples/ground_truth_example.cpp)
-        # add_executable(image_tool examples/image_tool.cpp)
+        add_executable(image_tool examples/image_tool.cpp)
 
     endif()
 
