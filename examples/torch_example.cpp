@@ -13,7 +13,6 @@
 
 
 using namespace std;
-using namespace cv;
 
 /*
 std::vector<float> extract_features(torch::Tensor image_tensor, torch::jit::script::Module& model, torch::Device device, bool half_precision) {
@@ -80,9 +79,13 @@ int main() {
     }
 
 
+// cv::Mat test_img1 =  cv::imread("../images/lena3.png");
+   // resize to 224, 224
+    // cv::resize(test_img1,test_img1,cv::Size(224,224),cv::INTER_LINEAR);
+
    cv::Mat test_img =  cv::imread("../images/lena3.png");
    // resize to 224, 224
-    cv::resize(test_img,test_img,Size(224,224),INTER_LINEAR); 
+    cv::resize(test_img,test_img,cv::Size(224,224),cv::INTER_LINEAR); 
 
 
 //    cv::imshow("test", test_img);

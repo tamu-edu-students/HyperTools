@@ -1,10 +1,10 @@
-FROM hypertools_onnx:latest
+FROM hypertools_4_2:latest
 
 RUN cd / &&\
     mkdir torch &&\
     cd torch/ &&\ 
-    wget https://download.pytorch.org/libtorch/nightly/cpu/libtorch-shared-with-deps-latest.zip &&\
-    unzip libtorch-shared-with-deps-2.2.1+cu121.zip 
+    wget https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-2.2.2%2Bcpu.zip&&\
+    unzip libtorch-cxx11-abi-shared-with-deps-2.2.2+cpu.zip
 
 
 

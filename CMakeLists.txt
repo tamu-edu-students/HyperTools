@@ -95,7 +95,7 @@ else(use_CUDA)
         # add_executable(feature_testing examples/feature_testing.cpp)
         # add_executable(ground_truth_example_envi examples/ground_truth_example_envi.cpp)
         # add_executable(ground_truth_example examples/ground_truth_example.cpp)
-        add_executable(image_tool examples/image_tool.cpp)
+        # add_executable(image_tool examples/image_tool.cpp)
 
     endif()
 
@@ -103,13 +103,14 @@ endif(use_CUDA)
 
 if(use_torch)
     
-    # list(CMAKE_MODULE_PATH "/torch/libtorch/share/cmake/Torch/")
+    list(APPEND CMAKE_MODULE_PATH "/torch/libtorch/share/cmake")
     set(Torch_DIR "/torch/libtorch/share/cmake/Torch/")
     
     # list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/libtorch/share/cmake/Torch/")
 
     find_package(Torch REQUIRED)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -lm -ldl")
     add_executable(torch_example examples/torch_example.cpp)
     target_link_libraries(torch_example ${TORCH_LIBRARIES} ${OpenCV_LIBS})
     set_property(TARGET torch_example PROPERTY CXX_STANDARD 17)
