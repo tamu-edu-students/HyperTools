@@ -1,4 +1,4 @@
-FROM hypertools_4_2:latest
+FROM hypertools_cubert:latest
 
 RUN cd / &&\
     mkdir torch &&\
