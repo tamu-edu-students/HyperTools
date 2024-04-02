@@ -58,8 +58,8 @@ int main (int argc, char *argv[])
     // only care about max value
     double minVal; 
     double maxVal; 
-    Point minLoc; 
-    Point maxLoc;
+    cv::Point minLoc; 
+    cv::Point maxLoc;
     minMaxLoc( gt_img, &minVal, &maxVal, &minLoc, &maxLoc );
     cout<<"Number of semantic classes: "<<maxVal<<endl;
     
@@ -80,7 +80,7 @@ int main (int argc, char *argv[])
         for (int j=0; j<gt_img.cols ; j++)
         {
             temp_val=gt_img.at<uchar>(i,j);
-            Point temp_point=Point(i,j);
+            cv::Point temp_point=cv::Point(i,j);
             if (temp_val>0 && temp_val<=maxVal)
             {
             	class_coordinates[temp_val].push_back(temp_point);  
@@ -124,7 +124,7 @@ int main (int argc, char *argv[])
     {
         // for each pixel in class
         for (int k = 0; k < class_coordinates[i].size(); k++){
-            Point tempPt = class_coordinates[i][k];
+            cv::Point tempPt = class_coordinates[i][k];
             // for spectrum of each pixel
             for  (int j=0; j<HyperFunctions1.mlt1.size() ; j++)
             {
@@ -228,7 +228,7 @@ int main (int argc, char *argv[])
     for  (int i=1; i<class_coordinates.size() ; i++)    // for each class
     {
         for (int k = 0; k < class_coordinates[i].size(); k++){
-            Point tempPt = class_coordinates[i][k];
+            cv::Point tempPt = class_coordinates[i][k];
             int gtClass = i;    // assuming also comparing unknowns(0)
             Vec3b hyperfuncClass = HyperFunctions1.classified_img.at<Vec3b>(tempPt.x,tempPt.y);
             //cout<<hyperfuncClass<<endl;
