@@ -10,7 +10,7 @@
 #include <cassert>
 #include <iostream>
 
-using namespace cv;
+// using namespace cv;
 using namespace std;
 using namespace std::chrono;
 
