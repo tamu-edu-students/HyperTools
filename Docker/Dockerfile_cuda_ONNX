@@ -1,5 +1,14 @@
 FROM hypertools_cuda_ml:latest
 
+
+# build order 
+# 1. Docker/Dockerfile_4_2_OpenCV_cuda
+# 2. Docker/Dockerfile_cubert_cuda
+# 3. Docker/Dockerfile_cuda_ML
+# 4. Docker/Dockerfile_cuda_ONNX
+
+ENV DEBIAN_FRONTEND noninteractive
+
 RUN git clone --recursive https://github.com/microsoft/onnxruntime 
 
 RUN cd onnxruntime &&\
