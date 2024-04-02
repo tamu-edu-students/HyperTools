@@ -10,7 +10,7 @@
 #include <cassert>
 #include <iostream>
 
-using namespace cv;
+// using namespace cv;
 using namespace std;
 using namespace std::chrono;
 
@@ -358,13 +358,13 @@ void HyperFunctionsCuvis::ReprocessImage(string file_name, bool isImage1 = true 
         proc.set_reference(white, cuvis::reference_type_t::Reference_White);
         proc.set_reference(distance, cuvis::reference_type_t::Reference_Distance);
         
-          // Get the GPS data
-         const cuvis::Measurement::gps_data_t* gps_data = mesu.get_gps();
+        //   // Get the GPS data
+        //  const cuvis::Measurement::gps_data_t* gps_data = mesu.get_gps();
 
-         // Iterate over the GPS data and print the coordinates
-         for (const auto& pair : *gps_data) {
-             std::cout << "Key: " << pair.first << ", Latitude: " << pair.second.latitude << ", Longitude: " << pair.second.longitude << std::endl;
-         }
+        //  // Iterate over the GPS data and print the coordinates
+        //  for (const auto& pair : *gps_data) {
+        //      std::cout << "Key: " << pair.first << ", Latitude: " << pair.second.latitude << ", Longitude: " << pair.second.longitude << std::endl;
+        //  }
 
 
     

@@ -8,26 +8,26 @@
 #include <thread>
 
 using namespace std;
-using namespace cv;
+// using namespace cv;
 
 // functions that are used with the thread pool
-void Classification_Child(int id, int i, Mat* classified_img, Mat* edge_image, vector<vector<Point>>* contours_approx, vector<Vec4i>* hierarchy, vector <Vec3b>* contour_class);
-void EdgeDetection_Child(int id, int i, Mat* output_image, Mat* classified_img);
+void Classification_Child(int id, int i, cv::Mat* classified_img, cv::Mat* edge_image, vector<vector<cv::Point>>* contours_approx, vector<cv::Vec4i>* hierarchy, vector <cv::Vec3b>* contour_class);
+void EdgeDetection_Child(int id, int i, cv::Mat* output_image, cv::Mat* classified_img);
 //EuD stands for euclidean distance. ED was not used because of possible confusiong with edge detection
-void EuD_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index);
-void SAM_img_Child(int id, int k, vector<Mat>* mlt1, vector<vector<int>>* reference_spectrums,Mat* spec_simil_img,int* ref_spec_index);   
-void SCM_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index);
-void SID_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index);
-void cSq_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index);
-void Cos_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index);
-void JM_img_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index);
-void City_Block_Child(int id, int k, vector<Mat>* mlt2, vector<vector<int>>* reference_spectrums2,Mat* spec_simil_img,int* ref_spec_index);
-static Mat toGrayscale(InputArray _src);
-static Mat formatImagesForPCA(const vector<Mat> &data);
+void EuD_img_Child(int id, int k, vector<cv::Mat>* mlt2, vector<vector<int>>* reference_spectrums2,cv::Mat* spec_simil_img,int* ref_spec_index);
+void SAM_img_Child(int id, int k, vector<cv::Mat>* mlt1, vector<vector<int>>* reference_spectrums,cv::Mat* spec_simil_img,int* ref_spec_index);   
+void SCM_img_Child(int id, int k, vector<cv::Mat>* mlt2, vector<vector<int>>* reference_spectrums2,cv::Mat* spec_simil_img,int* ref_spec_index);
+void SID_img_Child(int id, int k, vector<cv::Mat>* mlt2, vector<vector<int>>* reference_spectrums2,cv::Mat* spec_simil_img,int* ref_spec_index);
+void cSq_img_Child(int id, int k, vector<cv::Mat>* mlt2, vector<vector<int>>* reference_spectrums2,cv::Mat* spec_simil_img,int* ref_spec_index);
+void Cos_img_Child(int id, int k, vector<cv::Mat>* mlt2, vector<vector<int>>* reference_spectrums2,cv::Mat* spec_simil_img,int* ref_spec_index);
+void JM_img_Child(int id, int k, vector<cv::Mat>* mlt2, vector<vector<int>>* reference_spectrums2,cv::Mat* spec_simil_img,int* ref_spec_index);
+void City_Block_Child(int id, int k, vector<cv::Mat>* mlt2, vector<vector<int>>* reference_spectrums2,cv::Mat* spec_simil_img,int* ref_spec_index);
+static cv::Mat toGrayscale(cv::InputArray _src);
+static cv::Mat formatImagesForPCA(const vector<cv::Mat> &data);
 
 
 
-void similarity_img_Child(int id, int algorithmId, int columnIndex, vector<Mat>& hyperspectralImage, vector<double>* reference_spectrum_ptr, Mat* outputSimilarityImage);
+void similarity_img_Child(int id, int algorithmId, int columnIndex, vector<cv::Mat>& hyperspectralImage, vector<double>* reference_spectrum_ptr, cv::Mat* outputSimilarityImage);
 
 /* /// being updated with spectralsimalgorithms.h, include file is in hyperfunctions.cpp
 double CalculateSAM(const vector<double>& referenceSpectrum, const vector<double>& pixelSpectrum);
@@ -43,34 +43,34 @@ class HyperFunctions
 {
 
 public:
-	vector<Mat> mlt1;  //hyperspectral image
-	vector<Mat> mlt2;  //hyperspectral image
+	vector<cv::Mat> mlt1;  //hyperspectral image
+	vector<cv::Mat> mlt2;  //hyperspectral image
 	
-	Mat classified_img;
-	Mat contour_img;
-	Mat difference_img;
-	Mat edge_image;
-	Mat false_img;
-	Mat feature_img1;
-	Mat feature_img2;
-	Mat feature_img_combined; 
-	Mat spec_simil_img;
-	Mat tiled_img;
-	Mat pca_img;
-	Mat ga_img;
-	Mat integral_img;
-	Mat stitch_img;
+	cv::Mat classified_img;
+	cv::Mat contour_img;
+	cv::Mat difference_img;
+	cv::Mat edge_image;
+	cv::Mat false_img;
+	cv::Mat feature_img1;
+	cv::Mat feature_img2;
+	cv::Mat feature_img_combined; 
+	cv::Mat spec_simil_img;
+	cv::Mat tiled_img;
+	cv::Mat pca_img;
+	cv::Mat ga_img;
+	cv::Mat integral_img;
+	cv::Mat stitch_img;
 			
 	vector<string> class_list;
-	vector<Vec3b> color_combos;
-	vector<vector<Point>>contours_approx;
-	vector<KeyPoint> keypoints1, keypoints2;
-	vector< DMatch > matches;  
-	vector< Point2d> good_point1, good_point2;
+	vector<cv::Vec3b> color_combos;
+	vector<vector<cv::Point>>contours_approx;
+	vector<cv::KeyPoint> keypoints1, keypoints2;
+	vector< cv::DMatch > matches;  
+	vector< cv::Point2d> good_point1, good_point2;
 	// vector<Vec3b> reference_colors; replaced with color_combos
 	vector<vector<int>> reference_spectrums;
 	
-	Point cur_loc=Point(0, 0);
+	cv::Point cur_loc=cv::Point(0, 0);
 	
 	double avgDist=35;
 	double fov=35;
@@ -149,12 +149,12 @@ public:
 	void read_spectral_json(string file_name);
 	void save_new_spec_database_json();
 	void save_ref_spec_json(string item_name); 
-	void writeJSON(Json::Value &event, vector<vector<Point> > &contours, int idx, string classification, int count);
-	void writeJSON_full(vector<vector<Point> > contours, vector <Vec3b> contour_class,vector<Vec4i> hierarchy);
+	void writeJSON(Json::Value &event, vector<vector<cv::Point> > &contours, int idx, string classification, int count);
+	void writeJSON_full(vector<vector<cv::Point> > contours, vector <cv::Vec3b> contour_class,vector<cv::Vec4i> hierarchy);
 
 
 	//Custom Feature Detector
-	void CreateCustomFeatureDetector(int hessVal, vector<KeyPoint> &keypoints, Mat feature_img);
+	void CreateCustomFeatureDetector(int hessVal, vector<cv::KeyPoint> &keypoints, cv::Mat feature_img);
 	void computeCustomDescriptor ( const cv::Mat& feature_img, std::vector<cv::KeyPoint> & keypoints,cv::Mat& descriptors);
 	void gaSpace(bool isImage1);
 	void ImgIntegration();
@@ -166,7 +166,7 @@ public:
 
 
 	//function about match-filtering
-	void filter_matches(vector<DMatch> &matches);
+	void filter_matches(vector<cv::DMatch> &matches);
 
 };
 
