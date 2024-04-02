@@ -8,7 +8,7 @@ set(use_CUDA false)
 #change below to true to use cuvis.sdk
 set (use_cuvis false)
 
-set(use_torch true)
+set(use_torch false)
 
 if (use_CUDA)
 # Define project name
