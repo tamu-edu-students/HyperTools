@@ -13,7 +13,7 @@
 #endif
 
 using namespace std;
-using namespace cv;
+// using namespace cv;
 
 #if use_cuda
 class HyperFunctionsCuvis : public HyperFunctionsGPU 
