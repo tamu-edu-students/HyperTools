@@ -9,7 +9,7 @@ set(use_cuvis false)
 
 set(use_torch false)
 
-set(use_onnx true)
+set(use_onnx false)
 
 if (use_CUDA)
     # Define project name
