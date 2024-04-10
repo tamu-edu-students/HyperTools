@@ -1,0 +1,49 @@
+{
+   "Processing_Properties": {
+      "parameters" : {
+         "ATLAS_version" : "2.0.4",
+         "img_extension" : ".png",
+         "min_polygon_size" : 100
+      }
+
+   },
+    "Color_Information" : {
+      "unknown_class": {
+         "red_value": 255,
+         "green_value": 0,
+         "blue_value": 0,
+         "class_value": "0"
+     },
+      "grass" : {
+         "blue_value" : 0,
+         "green_value" : 255,
+         "red_value" : 0,
+         "class_value": "1"
+      },
+      "vegetation" : {
+         "blue_value" : 51,
+         "green_value" : 102,
+         "red_value" : 102,
+         "class_value": "2"
+      },
+      "trail" : {
+         "blue_value" : 170,
+         "green_value" : 170,
+         "red_value" : 170,
+         "class_value": "3"
+      },
+      "sky" : {
+         "blue_value" : 255,
+         "green_value" : 120,
+         "red_value" : 0,
+         "class_value": "4"
+      },
+      "object" : {
+         "blue_value" : 0,
+         "green_value" : 0,
+         "red_value" : 0,
+         "class_value": "5"
+      }
+   }
+       
+}
