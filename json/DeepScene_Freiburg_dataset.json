@@ -14,6 +14,12 @@
          "blue_value": 0,
          "class_value": "0"
      },
+     "unknown_class2": {
+      "red_value": 255,
+      "green_value": 0,
+      "blue_value": 0,
+      "class_value": "6"
+  },
       "grass" : {
          "blue_value" : 0,
          "green_value" : 255,
