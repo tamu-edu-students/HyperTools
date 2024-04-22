@@ -1,0 +1,319 @@
+{
+    "items": [
+        {
+            "name": "Whiteboard",
+            "class_group": 0,
+            "red_value": 199,
+            "green_value": 197,
+            "blue_value": 189
+        },
+        {
+            "name": "Chessboard",
+            "class_group": 0,
+            "red_value": 240,
+            "green_value": 212,
+            "blue_value": 173
+        },
+        {
+            "name": "Tripod",
+            "class_group": 0,
+            "red_value": 2,
+            "green_value": 195,
+            "blue_value": 145
+        },
+        {
+            "name": "Vegetation Plant",
+            "class_group": 1,
+            "red_value": 0,
+            "green_value": 122,
+            "blue_value": 16
+        },
+        {
+            "name": "Metal-Frame",
+            "class_group": 0,
+            "red_value": 80,
+            "green_value": 84,
+            "blue_value": 195
+        },
+        {
+            "name": "Glass Window",
+            "class_group": 2,
+            "red_value": 69,
+            "green_value": 174,
+            "blue_value": 186
+        },
+        {
+            "name": "Brick Wall",
+            "class_group": 3,
+            "red_value": 212,
+            "green_value": 78,
+            "blue_value": 78
+        },
+        {
+            "name": "Miscellaneous",
+            "class_group": 0,
+            "red_value": 181,
+            "green_value": 42,
+            "blue_value": 181
+        },
+        {
+            "name": "Concrete Ground",
+            "class_group": 4,
+            "red_value": 139,
+            "green_value": 150,
+            "blue_value": 228
+        },
+        {
+            "name": "Metal-Vent",
+            "class_group": 0,
+            "red_value": 184,
+            "green_value": 117,
+            "blue_value": 40
+        },
+        {
+            "name": "Metal Door Knob/Handle",
+            "class_group": 0,
+            "red_value": 167,
+            "green_value": 174,
+            "blue_value": 171
+        },
+        {
+            "name": "Block Wall",
+            "class_group": 5,
+            "red_value": 144,
+            "green_value": 142,
+            "blue_value": 142
+        },
+        {
+            "name": "Concrete Wall",
+            "class_group": 4,
+            "red_value": 222,
+            "green_value": 222,
+            "blue_value": 222
+        },
+        {
+            "name": "Concrete Footing",
+            "class_group": 4,
+            "red_value": 253,
+            "green_value": 149,
+            "blue_value": 138
+        },
+        {
+            "name": "Concrete Beam",
+            "class_group": 4,
+            "red_value": 160,
+            "green_value": 187,
+            "blue_value": 213
+        },
+        {
+            "name": "Brick Ground",
+            "class_group": 3,
+            "red_value": 12,
+            "green_value": 229,
+            "blue_value": 68
+        },
+        {
+            "name": "Glass door",
+            "class_group": 2,
+            "red_value": 82,
+            "green_value": 185,
+            "blue_value": 203
+        },
+        {
+            "name": "Plastic Flyscreen",
+            "class_group": 0,
+            "red_value": 108,
+            "green_value": 152,
+            "blue_value": 134
+        },
+        {
+            "name": "Plastic Label",
+            "class_group": 0,
+            "red_value": 189,
+            "green_value": 196,
+            "blue_value": 26
+        },
+        {
+            "name": "Vegetation Ground",
+            "class_group": 1,
+            "red_value": 67,
+            "green_value": 145,
+            "blue_value": 3
+        },
+        {
+            "name": "Soil",
+            "class_group": 1,
+            "red_value": 232,
+            "green_value": 183,
+            "blue_value": 100
+        },
+        {
+            "name": "Metal Label",
+            "class_group": 0,
+            "red_value": 255,
+            "green_value": 0,
+            "blue_value": 128
+        },
+        {
+            "name": "Metal Pipe",
+            "class_group": 0,
+            "red_value": 32,
+            "green_value": 49,
+            "blue_value": 228
+        },
+        {
+            "name": "Metal Sheet",
+            "class_group": 6,
+            "red_value": 195,
+            "green_value": 127,
+            "blue_value": 115
+        },
+        {
+            "name": "Metal Smooth Sheet",
+            "class_group": 0,
+            "red_value": 255,
+            "green_value": 128,
+            "blue_value": 64
+        },
+        {
+            "name": "Woodchip Ground",
+            "class_group": 1,
+            "red_value": 4,
+            "green_value": 108,
+            "blue_value": 16
+        },
+        {
+            "name": "Wood/Timber Smooth Door",
+            "class_group": 7,
+            "red_value": 13,
+            "green_value": 186,
+            "blue_value": 180
+        },
+        {
+            "name": "Tiles Ground",
+            "class_group": 3,
+            "red_value": 255,
+            "green_value": 128,
+            "blue_value": 192
+        },
+        {
+            "name": "Pebble-Concrete Beam",
+            "class_group": 4,
+            "red_value": 34,
+            "green_value": 31,
+            "blue_value": 153
+        },
+        {
+            "name": "Pebble-Concrete Ground",
+            "class_group": 4,
+            "red_value": 210,
+            "green_value": 184,
+            "blue_value": 98
+        },
+        {
+            "name": "Pebble-Concrete Wall",
+            "class_group": 4,
+            "red_value": 37,
+            "green_value": 78,
+            "blue_value": 32
+        },
+        {
+            "name": "Plastic Pipe",
+            "class_group": 0,
+            "red_value": 212,
+            "green_value": 204,
+            "blue_value": 228
+        },
+        {
+            "name": "Metal Profiled Sheet",
+            "class_group": 6,
+            "red_value": 172,
+            "green_value": 228,
+            "blue_value": 99
+        },
+        {
+            "name": "Metal-Pole",
+            "class_group": 0,
+            "red_value": 33,
+            "green_value": 98,
+            "blue_value": 194
+        },
+        {
+            "name": "Door-plastic",
+            "class_group": 7,
+            "red_value": 98,
+            "green_value": 250,
+            "blue_value": 227
+        },
+        {
+            "name": "Wood/timber Vent",
+            "class_group": 0,
+            "red_value": 237,
+            "green_value": 128,
+            "blue_value": 22
+        },
+        {
+            "name": "Wood/timber Wall",
+            "class_group": 8,
+            "red_value": 128,
+            "green_value": 169,
+            "blue_value": 150
+        },
+        {
+            "name": "Wood Frame",
+            "class_group": 8,
+            "red_value": 216,
+            "green_value": 182,
+            "blue_value": 111
+        },
+        {
+            "name": "Metal Smooth Door",
+            "class_group": 7,
+            "red_value": 188,
+            "green_value": 114,
+            "blue_value": 203
+        },
+        {
+            "name": "Plastic Vent",
+            "class_group": 0,
+            "red_value": 236,
+            "green_value": 233,
+            "blue_value": 124
+        },
+        {
+            "name": "Concrete Window Sill",
+            "class_group": 2,
+            "red_value": 187,
+            "green_value": 5,
+            "blue_value": 74
+        },
+        {
+            "name": "Wood Ground",
+            "class_group": 0,
+            "red_value": 65,
+            "green_value": 170,
+            "blue_value": 96
+        },
+        {
+            "name": "Metal Profiled Door",
+            "class_group": 7,
+            "red_value": 113,
+            "green_value": 134,
+            "blue_value": 124
+        },
+        {
+            "name": "Wood/Timber Profiled Door",
+            "class_group": 7,
+            "red_value": 201,
+            "green_value": 141,
+            "blue_value": 150
+        },
+        {
+            "name": "Unknown",
+            "class_group": 99,
+            "red_value": 0,
+            "green_value": 0,
+            "blue_value": 0
+        }
+    ]
+}
