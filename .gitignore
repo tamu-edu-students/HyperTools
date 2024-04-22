@@ -44,3 +44,5 @@
 *.pth
 *.onnx
 *.pt
+
+**/runs/*

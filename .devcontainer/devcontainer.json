@@ -41,7 +41,8 @@
 	 
 	 
 	 "runArgs": [
-	 	"--gpus=all" // used for cuda images
+	 	"--gpus=all", // used for cuda images
+		 "--shm-size=8g",
 	//  "--network=host", //used to connect to camera on ubunutu, assumes host has ethernet interface ip of 192.168.20.x, subnet of 255.255.255.0
 	       //testing below for getting camera working with docker in wsl	
 	//	 "-p", "9392:9392", "--network=my_custom_network", "ip=192.168.200.20"
