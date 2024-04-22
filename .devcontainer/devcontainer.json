@@ -15,8 +15,8 @@
 	// "image": "hypertools_4_2_cuda:latest" ,
 	// "image": "hypertools_current_opencv:latest" ,
 	// "image": "hypertools_cubert_cuda:latest" ,
-	 "image": "hypertools_cuda_ml:latest" ,
-	// "image": "hypertools_onnx:latest" ,
+	// "image": "hypertools_cuda_ml:latest" ,
+	//  "image": "hypertools_onnx:latest" ,
 	// "image": "hypertools_cuda_torch:latest" ,
 	// "image": "hypertools_cpu_torch:latest" ,
 
@@ -39,15 +39,15 @@
 	
 	 //below is used when cuda image is being used
 	 
-	 
+	 /*
 	 "runArgs": [
 	 	"--gpus=all", // used for cuda images
-		 "--shm-size=8g",
+		 "--shm-size=8g" // Increase shared memory size to 2gb
 	//  "--network=host", //used to connect to camera on ubunutu, assumes host has ethernet interface ip of 192.168.20.x, subnet of 255.255.255.0
 	       //testing below for getting camera working with docker in wsl	
 	//	 "-p", "9392:9392", "--network=my_custom_network", "ip=192.168.200.20"
 	       //note: subnet needs to be 255.255.255.0, camera ip is 127.0.0.1	
-	 ],
+	 ],*/
 
 	 "customizations": {
 		// Configure properties specific to VS Code.
