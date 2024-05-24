@@ -441,26 +441,28 @@ void HyperFunctionsCuvis::ReprocessImage(string file_name, bool isImage1 = true 
 
 
 
-        std::cout << "loading dark... " << std::endl;
-        cuvis::SessionFile sessDark(darkLoc);
-        auto optDark = sessDark.get_mesu(0);
-        assert(optDark.has_value());
-        cuvis::Measurement dark = optDark.value();
+        // std::cout << "loading dark... " << std::endl;
+        // cuvis::SessionFile sessDark(darkLoc);
+        // auto optDark = sessDark.get_mesu(0);
+        // assert(optDark.has_value());
+        // cuvis::Measurement dark = optDark.value();
 
 
 
 
-        std::cout << "loading white... " << std::endl;
-        cuvis::SessionFile sessWhite(whiteLoc);
-        auto optWhite = sessWhite.get_mesu(0);
-        assert(optWhite.has_value());
-        cuvis::Measurement white = optWhite.value();
+        // std::cout << "loading white... " << std::endl;
+        // cuvis::SessionFile sessWhite(whiteLoc);
+        // auto optWhite = sessWhite.get_mesu(0);
+        // assert(optWhite.has_value());
+        // cuvis::Measurement white = optWhite.value();
         
         
         // used when measurement image instead of value 
         // std::cout << "loading distance... " << std::endl;
         // cuvis::SessionFile sessDistance(distanceLoc);
         // auto optDistance = sessDistance.get_mesu(0);
+        // cuvis::Measurement optDistance = cuvis::Measurement(distanceLoc);
+
         // assert(optDistance.has_value());
         // cuvis::Measurement distance = optDistance.value();
         
@@ -475,15 +477,26 @@ void HyperFunctionsCuvis::ReprocessImage(string file_name, bool isImage1 = true 
 
 
         std::cout << "Set references" << std::endl;
+        cuvis::Measurement distance(distanceLoc);
+        proc.set_reference(distance, cuvis::reference_type_t::Reference_Distance);
 
+        // cuvis::Measurement dark(darkLoc);
+        // cout<<"dark loaded"<<endl;
+        // cuvis::Measurement white(whiteLoc);
+        // cout<<"white loaded"<<endl;
+        // proc.set_reference(dark, cuvis::reference_type_t::Reference_Dark);
+        // cout<<"dark set"<<endl;
+        // proc.set_reference(white, cuvis::reference_type_t::Reference_White);
+        // cout<<"white set"<<endl;
 
-        proc.set_reference(dark, cuvis::reference_type_t::Reference_Dark);
-        proc.set_reference(white, cuvis::reference_type_t::Reference_White);
+        // proc.set_reference(dark, cuvis::reference_type_t::Reference_Dark);
+        // proc.set_reference(white, cuvis::reference_type_t::Reference_White);
         // used when measurement image instead of value 
+        // cuvis::Measurement distance(distanceLoc);
         // proc.set_reference(distance, cuvis::reference_type_t::Reference_Distance);
         
         // use below if you know distance (doesn't matter if larger than 6 meters) distance is in mm
-        proc.calc_distance(dist_val_mm);
+        // proc.calc_distance(dist_val_mm);
 
 
         cuvis::ProcessingArgs procArgs;
@@ -543,8 +556,8 @@ void HyperFunctionsCuvis::ReprocessImage(string file_name, bool isImage1 = true 
                 img, singleChannel, i); 
                 singleChannel.convertTo(singleChannel, CV_8U, 1 / 16.0);
                 mlt1.push_back(singleChannel);
-                // cv::imshow(" Individual channel ", singleChannel);
-                // cv::waitKey(50);
+                cv::imshow(" Individual channel ", singleChannel);
+                cv::waitKey(50);
             } 
     }
 
